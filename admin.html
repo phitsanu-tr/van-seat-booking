@@ -300,9 +300,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   function drawCard() {
     // layout tokens (card units): spacing 8/16/32, type 18/14/12/10/8, all even
-    var S = 2, W = 390, CW = 358, CX = 16, CY = 16, P = 16, M = 24, ROW = 32, QR = 144, SEC = QR + P * 2, FOOT = 32, WARN = 16;
+    var S = 2, W = 390, CW = 358, CX = 16, CY = 16, P = 16, M = 24, INFO_CELL = 30, INFO = P * 3 + INFO_CELL * 2, QR = 144, SEC = QR + P * 2, FOOT = 32, WARN = 16;
     var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
-    var HDR = org ? 96 : 78, TOP = HDR + 4 + ROW * 4 + 8;
+    var HDR = org ? 96 : 78, TOP = HDR + 4 + INFO;
     var H = CY + TOP + SEC * 2 + P + WARN + P + FOOT + CY;
     var c = document.createElement("canvas"); c.width = W * S; c.height = H * S;
     var g = c.getContext("2d");
@@ -348,12 +348,16 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       ["pin", "จุดนัดพบ", mp || "ยังไม่ระบุ"],
       ["van", "รถตู้", nv + " คัน · รวม " + nv * 10 + " ที่นั่ง"]
     ];
-    info.forEach(function (r, i) {
-      var y = HDR + 4 + i * ROW, cy = y + ROW / 2;
-      icon(ICON[r[0]], M, cy - 8, "#b86e00", 16);
-      txt(r[1], M + 28, cy, "400 10px " + body, "#5f6b73", "left");
-      txt(r[2], M + 88, cy, "600 12px " + body, "#1b1f22", "left", CW - M * 2 - 88);
-      if (i < 3) { g.fillStyle = "#eceff1"; g.fillRect(M, y + ROW - 1, CW - M * 2, 1); }
+    // 2x2 grid: icon + small label over value; column 2 is sized to its widest value
+    g.font = "600 12px " + body;
+    var c2w = Math.ceil(Math.max(g.measureText(info[1][2]).width, g.measureText(info[3][2]).width)) + 24;
+    var c2x = CW - M - c2w, c1w = c2x - M - 8;
+    var gy = HDR + 4 + P;
+    [[0, 0, M, c1w], [1, 0, c2x, c2w], [2, 1, M, c1w], [3, 1, c2x, c2w]].forEach(function (cl) {
+      var r = info[cl[0]], x = cl[2], y = gy + cl[1] * (INFO_CELL + P);
+      icon(ICON[r[0]], x, y + INFO_CELL / 2 - 8, "#b86e00", 16);
+      txt(r[1], x + 24, y + 7, "400 10px " + body, "#5f6b73", "left");
+      txt(r[2], x + 24, y + 22, "600 12px " + body, "#1b1f22", "left", cl[3] - 24);
     });
     function perf(y) {
       g.fillStyle = "#dfe5e9"; g.beginPath(); g.arc(0, y, 12, 0, 7); g.fill(); g.beginPath(); g.arc(CW, y, 12, 0, 7); g.fill();
