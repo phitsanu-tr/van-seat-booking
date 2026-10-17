@@ -8,6 +8,28 @@ const L = require("./_lib");
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
 const MAX_VANS = 12;
+const TRIPS_PER_MONTH = 5;      // per creator (browser/device id)
+const TRIPS_PER_MONTH_IP = 15;  // backstop per network, so clearing browser data is not a free reset
+
+// Counts a creation against this month's quota. Returns null when allowed, else an error code.
+// Month boundary follows Thai time (UTC+7). Counters expire on their own.
+async function takeQuota(req, deviceId) {
+  const month = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 7);
+  const fwd = String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim() || "unknown";
+  const keys = [];
+  if (/^[A-Za-z0-9-]{8,64}$/.test(deviceId || "")) keys.push(["quota:" + month + ":d:" + deviceId, TRIPS_PER_MONTH, "quota_device"]);
+  keys.push(["quota:" + month + ":ip:" + fwd.slice(0, 64), TRIPS_PER_MONTH_IP, "quota_ip"]);
+  const cmds = [];
+  keys.forEach((k) => { cmds.push(["INCR", k[0]]); cmds.push(["EXPIRE", k[0], String(40 * 86400)]); });
+  const res = await L.pipeline(cmds);
+  let over = null;
+  keys.forEach((k, i) => { if (!over && Number(res[i * 2]) > k[1]) over = k[2]; });
+  if (over) await refundQuota(keys);
+  return { over, keys };
+}
+async function refundQuota(keys) {
+  try { await L.pipeline(keys.map((k) => ["DECR", k[0]])); } catch (e) { /* best effort */ }
+}
 
 function clean(body) {
   const s = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
@@ -59,11 +81,13 @@ module.exports = async function handler(req, res) {
     if (req.method === "POST") {
       const c = clean(L.readBody(req));
       if (c.error) return L.json(res, 400, { error: c.error });
+      const q = await takeQuota(req, L.readBody(req).d);
+      if (q.over) return L.json(res, 429, { error: q.over, limit: TRIPS_PER_MONTH });
       const id = L.newId(6);
       const trip = Object.assign({ id, createdAt: Date.now(), adminToken: L.newId(20) }, c.value);
       trip.vans = assignVanIds(trip.vans, []);
       const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
-      if (ok !== "OK") return L.json(res, 502, { error: "storage_error" });
+      if (ok !== "OK") { await refundQuota(q.keys); return L.json(res, 502, { error: "storage_error" }); }
       return L.json(res, 200, { id, token: trip.adminToken, trip: L.publicTrip(trip) });
     }
 

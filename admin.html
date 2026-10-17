@@ -525,9 +525,22 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   var ERR = {
     bad_name: "ใส่ชื่อทริปก่อน", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง",
     bad_vans: "ใส่ชื่อรถให้ครบทุกคัน และชื่อต้องไม่ซ้ำกัน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
-    not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล"
+    not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
+    quota_device: "เดือนนี้สร้างทริปครบ 5 ทริปแล้ว ลองใหม่เดือนหน้านะ",
+    quota_ip: "เครือข่ายนี้สร้างทริปเยอะเกินกำหนดของเดือนนี้ ลองใหม่เดือนหน้านะ"
   };
 
+  // anonymous per-browser id, used only to count how many trips this browser created this month
+  function deviceId() {
+    try {
+      var d = localStorage.getItem("vsb_device");
+      if (!d || !/^[A-Za-z0-9-]{8,64}$/.test(d)) {
+        d = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 12));
+        localStorage.setItem("vsb_device", d);
+      }
+      return d;
+    } catch (e) { return ""; }
+  }
   $("form").addEventListener("submit", async function (e) {
     e.preventDefault();
     if (busy) return;
@@ -541,7 +554,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       vans: rows.map(function (r) { return { id: r.id, label: r.label.trim() }; })
     };
     if (body.startDate && body.endDate && body.endDate < body.startDate) { msgEl.textContent = "วันกลับต้องไม่ก่อนวันไป"; return; }
-    if (editing) { body.t = T; body.k = K; }
+    if (editing) { body.t = T; body.k = K; } else { body.d = deviceId(); }
     busy = true; $("submit").disabled = true; $("submit").textContent = "กำลังบันทึก...";
     try {
       var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
