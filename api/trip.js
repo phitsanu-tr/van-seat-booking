@@ -1,0 +1,102 @@
+// Vercel serverless function: /api/trip
+//   POST            create a trip                 -> { id, token }
+//   GET  ?t=&k=     read a trip for editing (needs the admin token k)
+//   PUT             update a trip (body has t, k)
+// No accounts: whoever holds the secret admin link (t + k) manages the trip.
+const L = require("./_lib");
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^\d{2}:\d{2}$/;
+const MAX_VANS = 12;
+
+function clean(body) {
+  const s = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
+  const name = s(body.name, 80);
+  if (!name) return { error: "bad_name" };
+  const startDate = s(body.startDate, 10), endDate = s(body.endDate, 10), departTime = s(body.departTime, 5);
+  if (startDate && !DATE_RE.test(startDate)) return { error: "bad_date" };
+  if (endDate && !DATE_RE.test(endDate)) return { error: "bad_date" };
+  if (departTime && !TIME_RE.test(departTime)) return { error: "bad_time" };
+  const vans = Array.isArray(body.vans) ? body.vans : [];
+  if (vans.length < 1 || vans.length > MAX_VANS) return { error: "bad_vans" };
+  const seen = new Set();
+  const outVans = [];
+  for (const v of vans) {
+    const label = s(v && v.label, 12);
+    if (!label) return { error: "bad_vans" };
+    const id = s(v && v.id, 12);
+    if (id && (seen.has(id) || !/^[A-Za-z0-9]+$/.test(id))) return { error: "bad_vans" };
+    if (id) seen.add(id);
+    outVans.push({ id, label });
+  }
+  return {
+    value: { name, organizer: s(body.organizer, 80), startDate, endDate, departTime, meetPoint: s(body.meetPoint, 120), vans: outVans },
+  };
+}
+
+// Gives each new van an id that is unused so far (v1, v2, ...).
+function assignVanIds(vans, taken) {
+  const used = new Set(taken);
+  vans.forEach((v) => { if (v.id) used.add(v.id); });
+  let i = 1;
+  vans.forEach((v) => {
+    if (v.id) return;
+    while (used.has("v" + i)) i++;
+    v.id = "v" + i; used.add(v.id);
+  });
+  return vans;
+}
+
+function tokenOk(trip, k) {
+  if (!trip || !trip.adminToken || typeof k !== "string") return false;
+  const a = Buffer.from(trip.adminToken), b = Buffer.from(k);
+  return a.length === b.length && L.crypto.timingSafeEqual(a, b);
+}
+
+module.exports = async function handler(req, res) {
+  if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
+  try {
+    if (req.method === "POST") {
+      const c = clean(L.readBody(req));
+      if (c.error) return L.json(res, 400, { error: c.error });
+      const id = L.newId(6);
+      const trip = Object.assign({ id, createdAt: Date.now(), adminToken: L.newId(20) }, c.value);
+      trip.vans = assignVanIds(trip.vans, []);
+      const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
+      if (ok !== "OK") return L.json(res, 502, { error: "storage_error" });
+      return L.json(res, 200, { id, token: trip.adminToken, trip: L.publicTrip(trip) });
+    }
+
+    if (req.method === "GET") {
+      const t = L.tripId(req.query && req.query.t);
+      const trip = t && t !== L.DEFAULT_ID ? await L.loadTrip(t) : null;
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      if (!tokenOk(trip, req.query.k)) return L.json(res, 403, { error: "bad_token" });
+      return L.json(res, 200, { trip: L.publicTrip(trip) });
+    }
+
+    if (req.method === "PUT") {
+      const body = L.readBody(req);
+      const t = L.tripId(body.t);
+      const trip = t && t !== L.DEFAULT_ID ? await L.loadTrip(t) : null;
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      if (!tokenOk(trip, body.k)) return L.json(res, 403, { error: "bad_token" });
+      const c = clean(body);
+      if (c.error) return L.json(res, 400, { error: c.error });
+      const oldIds = trip.vans.map((v) => v.id);
+      const next = assignVanIds(c.value.vans.map((v) => ({ id: oldIds.includes(v.id) ? v.id : "", label: v.label })), oldIds);
+      const kept = new Set(next.map((v) => v.id));
+      const removed = oldIds.filter((id) => !kept.has(id));
+      const updated = Object.assign({}, trip, c.value, { vans: next });
+      const cmds = [["SET", L.tripKey(t), JSON.stringify(updated)]];
+      removed.forEach((id) => cmds.push(["DEL", L.seatsKey(t, id)]));
+      await L.pipeline(cmds);
+      return L.json(res, 200, { ok: true, trip: L.publicTrip(updated) });
+    }
+
+    res.setHeader("Allow", "GET, POST, PUT");
+    return L.json(res, 405, { error: "method_not_allowed" });
+  } catch (e) {
+    return L.json(res, 502, { error: "storage_error" });
+  }
+};

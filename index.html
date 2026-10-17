@@ -51,6 +51,21 @@ body {
 main { max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
 header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
 h1 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 1.2; margin: 0; text-wrap: balance; }
+header.trip { display: block; }
+.org { font-size: 13px; color: var(--mine); font-weight: 600; margin-bottom: 2px; }
+.facts { margin: 10px 0 0; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; display: grid; gap: 6px; font-size: 14px; }
+.facts div { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 8px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
+.vanbar { display: flex; flex-direction: column; gap: 8px; }
+.vanbar .count { align-self: flex-end; }
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.tabs .tab { flex: none; }
+.tab { font: inherit; font-weight: 600; font-family: var(--font-display); font-size: 15px; min-height: 40px; padding: 0 14px; border-radius: 999px; cursor: pointer; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); }
+.tab[aria-selected="true"] { background: var(--mine); border-color: var(--mine); color: var(--mine-ink); }
+.tab small { font-weight: 500; opacity: .75; margin-left: 4px; font-size: 12px; }
+.pagefoot { text-align: center; font-size: 13px; color: var(--muted); }
+.pagefoot a { color: var(--muted); }
 .count { font-family: var(--font-display); font-size: 14px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .count b { color: var(--ink); font-size: 22px; font-weight: 600; }
 
@@ -149,10 +164,16 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 </head>
 <body>
 <main>
-  <header>
-    <h1>จองที่นั่งรถตู้</h1>
-    <div class="count" id="count">จองแล้ว <b>0</b> / 10</div>
+  <header class="trip">
+    <div class="org" id="tripOrg" hidden></div>
+    <h1 id="tripName">จองที่นั่งรถตู้</h1>
+    <dl class="facts" id="tripFacts" hidden></dl>
   </header>
+
+  <div class="vanbar">
+    <div class="tabs" id="tabs" role="tablist" aria-label="เลือกคันรถ" hidden></div>
+    <div class="count" id="count">จองแล้ว <b>0</b> / 10</div>
+  </div>
 
   <section class="sheet" aria-label="ผังที่นั่งรถตู้">
     <div class="plan">
@@ -229,6 +250,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     <h2>รายชื่อผู้จอง</h2>
     <ul id="list"></ul>
   </section>
+  <div class="pagefoot"><a href="/admin.html">สร้างทริปของคุณเอง</a></div>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
@@ -246,11 +268,17 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   };
   var W = 820, H = 1450;
 
-  var seats = {};            // n -> {name, at}
-  var mineMap = readMine();  // n -> {at}: seats booked from this device (only used to tint them)
+  var params = new URLSearchParams(location.search);
+  var TRIP = (params.get("t") || "default").toLowerCase();
+  var trip = null;           // trip details from the server
+  var curVan = params.get("v") || "";
+  var vanCache = {};         // van id -> last seats seen
+  var counts = {};
+  var seats = {};            // n -> {name, at} for the van on screen
+  var mineMap = {};          // n -> {at}: seats booked from this device (only used to tint them)
   var loaded = false, loadError = "";
   var selected = null, message = "", shown = false, confirming = false, lastSnapshot = "";
-  var pending = 0, toastTimer = null;
+  var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "";
 
   var overlayEl = document.getElementById("overlay");
   var panelEl = document.getElementById("panel");
@@ -274,12 +302,16 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   }
   function savedName() { try { return localStorage.getItem("van-name") || ""; } catch (e) { return ""; } }
   function saveName(v) { try { localStorage.setItem("van-name", v); } catch (e) {} }
-  function readMine() { try { return JSON.parse(localStorage.getItem("van-mine") || "{}") || {}; } catch (e) { return {}; } }
-  function saveMine() { try { localStorage.setItem("van-mine", JSON.stringify(mineMap)); } catch (e) {} }
+  // Seats booked from this device are remembered per trip and van (old single-van data lives under "van-mine").
+  function mineKey() { return TRIP === "default" && curVan === "A" ? "van-mine" : "van-mine:" + TRIP + ":" + curVan; }
+  function readMine() { try { return JSON.parse(localStorage.getItem(mineKey()) || "{}") || {}; } catch (e) { return {}; } }
+  function saveMine() { try { localStorage.setItem(mineKey(), JSON.stringify(mineMap)); } catch (e) {} }
   function mine(n) { var s = seats[n], m = mineMap[n]; return !!(s && m && m.at === s.at); }
 
   async function api(method, body) {
-    var res = await fetch(API, {
+    var url = API + "?t=" + encodeURIComponent(TRIP) + (curVan ? "&v=" + encodeURIComponent(curVan) : "");
+    if (body) body = Object.assign({ t: TRIP, v: curVan }, body);
+    var res = await fetch(url, {
       method: method,
       headers: { "Content-Type": "application/json" },
       body: body ? JSON.stringify(body) : undefined,
@@ -294,6 +326,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var code = r && r.data && r.data.error;
     if (code === "taken") return "ที่นั่งนี้ถูกจองไปแล้ว เลือกที่นั่งอื่น";
     if (code === "bad_name") return "ใส่ชื่อก่อนจอง";
+    if (code === "no_trip") return "ไม่พบทริปนี้ ตรวจสอบลิงก์อีกครั้ง";
+    if (code === "no_van") return "ไม่พบรถคันนี้ รีเฟรชหน้าแล้วลองใหม่";
     if (code === "not_configured") return "ยังไม่ได้เชื่อมต่อฐานข้อมูล ติดต่อเจ้าของหน้า";
     return fallback;
   }
@@ -334,6 +368,12 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 
   function closeModal() { selected = null; message = ""; confirming = false; renderAll(); }
 
+  function vanLabelNow() {
+    if (!trip || trip.vans.length < 2) return "";
+    var v = trip.vans.filter(function (x) { return x.id === curVan; })[0];
+    return v ? "คัน " + v.label : "";
+  }
+
   function miniSvg(sel, isTaken) {
     var out = '<svg viewBox="40 20 740 1440" aria-hidden="true"><path d="M75 1385 V160 Q75 62 205 46 Q410 22 615 46 Q745 62 745 160 V1385 Q745 1430 700 1430 H120 Q75 1430 75 1385 Z" fill="none" stroke="currentColor" stroke-width="22" stroke-linejoin="round" style="color:var(--ink)"/>';
     out += '<rect x="514" y="185" width="202" height="182" fill="var(--taken)" stroke="var(--line)" stroke-width="12"/>';
@@ -363,7 +403,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     mini.innerHTML = miniSvg(n, !!s);
     head.appendChild(mini);
     var txt = el("div", "mtxt");
-    txt.appendChild(el("small", null, s ? "ที่นั่งนี้" : "คุณกำลังจอง"));
+    txt.appendChild(el("small", null, (vanLabelNow() ? vanLabelNow() + " · " : "") + (s ? "ที่นั่งนี้" : "คุณกำลังจอง")));
     var title = el("h2", null, "ที่นั่ง " + n);
     title.id = "mTitle";
     txt.appendChild(title);
@@ -436,18 +476,76 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     countEl.appendChild(document.createTextNode(" / " + TOTAL));
   }
 
-  function renderAll() { renderGrid(); renderPanel(); renderList(); }
+  function fmtDate(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
+    if (!m) return "";
+    var months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+    return Number(m[3]) + " " + months[Number(m[2]) - 1] + " " + (Number(m[1]) + 543);
+  }
+  function dateRange(a, b) {
+    if (a && b && a !== b) return fmtDate(a) + " – " + fmtDate(b);
+    return fmtDate(a || b);
+  }
+  function renderTrip() {
+    var orgEl = document.getElementById("tripOrg"), nameEl = document.getElementById("tripName");
+    var factsEl = document.getElementById("tripFacts"), tabsEl = document.getElementById("tabs");
+    if (!trip) return;
+    nameEl.textContent = trip.name;
+    document.title = trip.name;
+    orgEl.hidden = !trip.organizer; orgEl.textContent = trip.organizer || "";
+    var rows = [];
+    var dr = dateRange(trip.startDate, trip.endDate);
+    if (dr) rows.push(["วันที่", dr]);
+    if (trip.departTime) rows.push(["รถออก", trip.departTime.replace(":", ".") + " น."]);
+    if (trip.meetPoint) rows.push(["จุดนัดพบ", trip.meetPoint]);
+    factsEl.textContent = "";
+    rows.forEach(function (r) {
+      var d = el("div"); d.appendChild(el("dt", null, r[0])); d.appendChild(el("dd", null, r[1])); factsEl.appendChild(d);
+    });
+    factsEl.hidden = rows.length === 0;
+    tabsEl.textContent = "";
+    tabsEl.hidden = trip.vans.length < 2;
+    trip.vans.forEach(function (v) {
+      var b = el("button", "tab");
+      b.type = "button"; b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", String(v.id === curVan));
+      b.appendChild(document.createTextNode("คัน " + v.label));
+      var c = counts[v.id];
+      if (c != null) b.appendChild(el("small", null, c + "/" + TOTAL));
+      b.addEventListener("click", function () { switchVan(v.id); });
+      tabsEl.appendChild(b);
+    });
+  }
+  function switchVan(id) {
+    if (id === curVan || pending > 0) return;
+    vanCache[curVan] = seats;
+    curVan = id; selected = null; confirming = false; message = "";
+    seats = vanCache[id] || {}; loaded = !!vanCache[id]; lastSnapshot = JSON.stringify(seats);
+    mineMap = readMine();
+    try { history.replaceState(null, "", location.pathname + "?" + new URLSearchParams(Object.assign({}, Object.fromEntries(params), { v: id })).toString()); } catch (e) {}
+    renderAll(); refresh(true);
+  }
+
+  function renderAll() { renderTrip(); renderGrid(); renderPanel(); renderList(); }
 
   async function refresh(force) {
     if (pending > 0) return;
     try {
+      var asked = curVan;
       var r = await api("GET");
-      if (pending > 0) return;
+      if (pending > 0 || asked !== curVan) return;
       if (!r.ok) {
         loadError = errorText(r, "โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า");
         if (!loaded) renderAll();
         return;
       }
+      if (r.data && r.data.trip) {
+        var firstLoad = !trip;
+        trip = r.data.trip;
+        if (!curVan || !trip.vans.some(function (v) { return v.id === curVan; })) curVan = r.data.van || trip.vans[0].id;
+        if (firstLoad) mineMap = readMine();
+      }
+      counts = (r.data && r.data.counts) || counts;
       var next = {};
       var src = (r.data && r.data.seats) || {};
       Object.keys(src).forEach(function (k) {
@@ -455,7 +553,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         if (n >= 1 && n <= TOTAL && src[k] && src[k].name) next[n] = { name: String(src[k].name), at: src[k].at };
       });
       var snap = JSON.stringify(next);
-      var changed = snap !== lastSnapshot || !loaded;
+      var changed = snap !== lastSnapshot || !loaded || JSON.stringify(counts) !== lastCounts || JSON.stringify(trip) !== lastTrip;
+      lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip);
       seats = next; lastSnapshot = snap; loaded = true; loadError = "";
       if (changed || force) renderAll();
     } catch (e) {

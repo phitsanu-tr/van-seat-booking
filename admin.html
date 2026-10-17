@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>สร้างทริป · จองที่นั่งรถตู้</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
+<style>
+[hidden] { display: none !important; }
+:root {
+  --bg: #eef1f3; --surface: #ffffff; --ink: #1b1f22; --muted: #5f6b73; --line: #c9d2d8; --mine: #0e7c86; --mine-ink: #fff; --danger: #b3261e;
+  --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif; --font-body: "Noto Sans Thai", system-ui, sans-serif; color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0d151a; --surface: #17252e; --ink: #e6ecef; --muted: #93a6b0; --line: #2d4350; --mine: #3cc0cc; --mine-ink: #07262a; --danger: #ff8a80; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; padding: 20px max(16px, env(safe-area-inset-left)) 48px; }
+main { max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+h1 { font-family: var(--font-display); font-size: 24px; font-weight: 600; margin: 0; line-height: 1.2; }
+p { margin: 0; color: var(--muted); }
+form, .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px; }
+label small { font-weight: 400; color: var(--muted); }
+input[type=text], input[type=date], input[type=time] { width: 100%; height: 48px; font: inherit; font-size: 16px; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; padding: 0 12px; }
+input:focus { outline: none; border-color: var(--mine); box-shadow: 0 0 0 3px color-mix(in srgb, var(--mine) 20%, transparent); }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.row > * { min-width: 0; }
+input[type=date], input[type=time] { min-width: 0; -webkit-appearance: none; appearance: none; text-align: left; }
+.vans { display: flex; flex-direction: column; gap: 8px; }
+.van { display: flex; gap: 8px; align-items: center; }
+.van span { flex: none; width: 54px; color: var(--muted); font-size: 14px; }
+button { font: inherit; cursor: pointer; }
+.btn { height: 50px; border-radius: 12px; font-weight: 600; font-size: 16px; border: 1.5px solid transparent; padding: 0 16px; }
+.btn.primary { background: var(--mine); color: var(--mine-ink); }
+.btn.plain { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.small { height: 44px; font-size: 14px; }
+.x { flex: none; width: 44px; height: 44px; border-radius: 12px; background: transparent; border: 1.5px solid var(--line); color: var(--danger); font-size: 20px; line-height: 1; }
+.msg { color: var(--danger); font-size: 14px; }
+.msg:empty { display: none; }
+.link { display: flex; flex-direction: column; gap: 6px; }
+.link b { font-size: 14px; }
+.link .url { word-break: break-all; font-size: 13px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+.warn { font-size: 13px; color: var(--muted); }
+.mine-list a { color: var(--mine); }
+.mine-list li { margin: 4px 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">สร้างทริป</h1>
+  <p id="lead">กรอกรายละเอียดทริปและจำนวนรถ แล้วส่งลิงก์ให้คนในกลุ่มจองที่นั่งได้เลย ไม่ต้องสมัครสมาชิก</p>
+
+  <form id="form" novalidate>
+    <label>ชื่อทริป / ทัวร์
+      <input type="text" id="name" maxlength="80" placeholder="เช่น ทริปเชียงดาว 2 วัน 1 คืน" required>
+    </label>
+    <label>เพจ / ผู้จัด <small>ไม่บังคับ</small>
+      <input type="text" id="organizer" maxlength="80" placeholder="เช่น เดินป่าด้วยกัน">
+    </label>
+    <div class="row">
+      <label>วันไป <input type="date" id="startDate"></label>
+      <label>วันกลับ <input type="date" id="endDate"></label>
+    </div>
+    <div class="row">
+      <label>รถออกเวลา <input type="time" id="departTime"></label>
+      <span></span>
+    </div>
+    <label>จุดนัดพบ <small>ไม่บังคับ</small>
+      <input type="text" id="meetPoint" maxlength="120" placeholder="เช่น หน้าห้างเซ็นทรัล ลาดพร้าว">
+    </label>
+    <div>
+      <div style="font-weight:600;font-size:14px;margin-bottom:6px">รถตู้ <span style="font-weight:400;color:var(--muted)">(คันละ 10 ที่นั่ง)</span></div>
+      <div class="vans" id="vans"></div>
+      <button type="button" class="btn plain small" id="addVan" style="margin-top:8px">+ เพิ่มรถอีกคัน</button>
+    </div>
+    <div class="msg" id="msg" role="alert"></div>
+    <button type="submit" class="btn primary" id="submit">สร้างทริป</button>
+  </form>
+
+  <section class="card" id="result" hidden>
+    <h2 style="margin:0;font-family:var(--font-display);font-size:18px" id="resultTitle">สร้างทริปแล้ว</h2>
+    <div class="link"><b>ลิงก์สำหรับผู้จอง (ส่งเข้ากลุ่ม)</b><div class="url" id="shareUrl"></div><button class="btn plain small" id="copyShare" type="button">คัดลอกลิงก์</button></div>
+    <div class="link"><b>ลิงก์สำหรับแก้ไขทริป (เก็บไว้คนเดียว)</b><div class="url" id="adminUrl"></div><button class="btn plain small" id="copyAdmin" type="button">คัดลอกลิงก์</button></div>
+    <p class="warn">ใครมีลิงก์แก้ไขจะแก้ทริปได้ อย่าส่งลิงก์นี้เข้ากลุ่ม ลิงก์ไว้ในเครื่องนี้ให้ด้วยแล้ว</p>
+    <a class="btn primary" id="openShare" style="display:flex;align-items:center;justify-content:center;text-decoration:none">เปิดหน้าจอง</a>
+  </section>
+
+  <section class="card mine-list" id="mine" hidden>
+    <h2 style="margin:0;font-family:var(--font-display);font-size:16px">ทริปที่สร้างจากเครื่องนี้</h2>
+    <ul style="margin:0;padding-left:18px" id="mineList"></ul>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var q = new URLSearchParams(location.search);
+  var T = q.get("t") || "", K = q.get("k") || "";
+  var editing = !!(T && K);
+  var vansEl = document.getElementById("vans"), msgEl = document.getElementById("msg");
+  var rows = []; // [{id, label}]
+  var busy = false;
+
+  function $(id) { return document.getElementById(id); }
+  function letter(i) { return String.fromCharCode(65 + (i % 26)); }
+  function loadMine() { try { return JSON.parse(localStorage.getItem("van-admin-trips") || "[]") || []; } catch (e) { return []; } }
+  function saveMine(list) { try { localStorage.setItem("van-admin-trips", JSON.stringify(list.slice(0, 30))); } catch (e) {} }
+  function remember(id, token, name) {
+    var list = loadMine().filter(function (x) { return x.id !== id; });
+    list.unshift({ id: id, token: token, name: name });
+    saveMine(list);
+  }
+
+  function renderVans() {
+    vansEl.textContent = "";
+    rows.forEach(function (r, i) {
+      var d = document.createElement("div"); d.className = "van";
+      var sp = document.createElement("span"); sp.textContent = "คันที่ " + (i + 1); d.appendChild(sp);
+      var inp = document.createElement("input"); inp.type = "text"; inp.maxLength = 12; inp.value = r.label;
+      inp.placeholder = "ชื่อคัน เช่น A"; inp.setAttribute("aria-label", "ชื่อรถคันที่ " + (i + 1));
+      inp.addEventListener("input", function () { r.label = inp.value; });
+      d.appendChild(inp);
+      if (rows.length > 1) {
+        var x = document.createElement("button"); x.type = "button"; x.className = "x"; x.textContent = "×"; x.setAttribute("aria-label", "ลบรถคันนี้");
+        x.addEventListener("click", function () {
+          if (r.id && !confirm("ลบรถ \"" + (r.label || "") + "\" ? รายชื่อผู้จองในคันนี้จะหายไปด้วย")) return;
+          rows.splice(i, 1); renderVans();
+        });
+        d.appendChild(x);
+      }
+      vansEl.appendChild(d);
+    });
+  }
+  $("addVan").addEventListener("click", function () {
+    if (rows.length >= 12) return;
+    rows.push({ id: "", label: letter(rows.length) }); renderVans();
+  });
+
+  function link(path) { return location.origin + path; }
+  function showResult(id, token, created) {
+    var share = link("/?t=" + id), admin = link("/admin.html?t=" + id + "&k=" + token);
+    $("shareUrl").textContent = share; $("adminUrl").textContent = admin;
+    $("openShare").href = "/?t=" + id;
+    $("resultTitle").textContent = created ? "สร้างทริปแล้ว" : "บันทึกแล้ว";
+    $("result").hidden = false;
+    $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function copy(text, btn) {
+    function done() { var o = btn.textContent; btn.textContent = "คัดลอกแล้ว"; setTimeout(function () { btn.textContent = o; }, 1600); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+    function fallback() {
+      var ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); done(); } catch (e) { btn.textContent = "กดค้างที่ลิงก์เพื่อคัดลอก"; }
+      document.body.removeChild(ta);
+    }
+  }
+  $("copyShare").addEventListener("click", function () { copy($("shareUrl").textContent, this); });
+  $("copyAdmin").addEventListener("click", function () { copy($("adminUrl").textContent, this); });
+
+  var ERR = {
+    bad_name: "ใส่ชื่อทริปก่อน", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง",
+    bad_vans: "ใส่ชื่อรถให้ครบทุกคัน และชื่อต้องไม่ซ้ำกัน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
+    not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล"
+  };
+
+  $("form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    if (busy) return;
+    msgEl.textContent = "";
+    var labels = rows.map(function (r) { return r.label.trim(); });
+    if (!$("name").value.trim()) { msgEl.textContent = ERR.bad_name; $("name").focus(); return; }
+    if (labels.some(function (l) { return !l; }) || new Set(labels).size !== labels.length) { msgEl.textContent = ERR.bad_vans; return; }
+    var body = {
+      name: $("name").value, organizer: $("organizer").value, startDate: $("startDate").value, endDate: $("endDate").value,
+      departTime: $("departTime").value, meetPoint: $("meetPoint").value,
+      vans: rows.map(function (r) { return { id: r.id, label: r.label.trim() }; })
+    };
+    if (body.startDate && body.endDate && body.endDate < body.startDate) { msgEl.textContent = "วันกลับต้องไม่ก่อนวันไป"; return; }
+    if (editing) { body.t = T; body.k = K; }
+    busy = true; $("submit").disabled = true; $("submit").textContent = "กำลังบันทึก...";
+    try {
+      var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      var data = {}; try { data = await res.json(); } catch (x) {}
+      if (!res.ok) { msgEl.textContent = ERR[data.error] || "บันทึกไม่สำเร็จ ลองอีกครั้ง"; return; }
+      if (editing) {
+        rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label }; }); renderVans();
+        remember(T, K, data.trip.name);
+        showResult(T, K, false);
+      } else {
+        remember(data.id, data.token, data.trip.name);
+        T = data.id; K = data.token; editing = true;
+        history.replaceState(null, "", "/admin.html?t=" + T + "&k=" + K);
+        rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label }; }); renderVans();
+        $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "บันทึก";
+        showResult(T, K, true);
+      }
+    } catch (x) {
+      msgEl.textContent = "เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง";
+    } finally {
+      busy = false; $("submit").disabled = false; $("submit").textContent = editing ? "บันทึก" : "สร้างทริป";
+    }
+  });
+
+  function renderMine() {
+    var list = loadMine();
+    $("mine").hidden = list.length === 0;
+    var ul = $("mineList"); ul.textContent = "";
+    list.forEach(function (x) {
+      var li = document.createElement("li");
+      var a = document.createElement("a"); a.href = "/admin.html?t=" + x.id + "&k=" + x.token; a.textContent = x.name || x.id;
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+  }
+
+  async function init() {
+    if (editing) {
+      $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "แก้รายละเอียดทริปหรือเพิ่มลดจำนวนรถ ผู้จองจะเห็นข้อมูลใหม่ทันที";
+      $("submit").textContent = "บันทึก";
+      try {
+        var res = await fetch("/api/trip?t=" + encodeURIComponent(T) + "&k=" + encodeURIComponent(K), { cache: "no-store" });
+        var data = await res.json();
+        if (!res.ok) { msgEl.textContent = ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ"; $("submit").disabled = true; return; }
+        var t = data.trip;
+        $("name").value = t.name; $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || "";
+        $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
+        rows = t.vans.map(function (v) { return { id: v.id, label: v.label }; });
+        remember(T, K, t.name);
+        showResult(T, K, false); $("resultTitle").textContent = "ลิงก์ของทริปนี้"; $("result").scrollIntoView({ block: "nearest" });
+        window.scrollTo(0, 0);
+      } catch (x) { msgEl.textContent = "เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า"; }
+    } else {
+      rows = [{ id: "", label: "A" }];
+    }
+    renderVans(); renderMine();
+  }
+  init();
+})();
+</script>
+</body>
+</html>
