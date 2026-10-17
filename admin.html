@@ -346,7 +346,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       ["cal", "วันที่", dateRange($("startDate").value, $("endDate").value)],
       ["clock", "รถออก", dep ? dep.replace(":", ".") + " น." : "ยังไม่ระบุ"],
       ["pin", "นัดพบ", mp || "ยังไม่ระบุ"],
-      ["van", "รถตู้", nv + " คัน · รวม " + nv * 10 + " ที่นั่ง"]
+      ["van", "รถตู้", nv + " คัน (" + nv * 10 + " ที่นั่ง)"]
     ];
     info.forEach(function (r, i) {
       var y = HDR + 4 + i * ROW, cy = y + ROW / 2;
