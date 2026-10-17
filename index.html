@@ -1,7 +1,15 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>จองที่นั่งรถตู้</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
 <style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
 /* Layout: one centered column. A line-drawn van floor plan (SVG, same proportions as the plan drawing) with HTML seat buttons laid over each seat box; booking bar sticks to the bottom; name list last. */
 :root {
   --bg: #eef1f3;
@@ -111,8 +119,10 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .list li .w { overflow-wrap: anywhere; }
 .list li.empty .w { color: var(--muted); }
 @media (prefers-reduced-motion: no-preference) { .seat { transition: background .15s; } }
+.modal p.hint { font-size: 12px; margin: -6px 0 0; }
 </style>
-
+</head>
+<body>
 <main>
   <header>
     <h1>จองที่นั่งรถตู้</h1>
@@ -199,6 +209,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 <script>
 (function () {
   var TOTAL = 10;
+  var API = "/api/seats";
   // Seat boxes in the plan's own coordinate space (x, y, w, h in a 820 x 1450 drawing).
   var RECT = {
     1: [110, 185, 202, 182],
@@ -208,12 +219,14 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   };
   var W = 820, H = 1450;
 
-  var db = null, user = null, myId = null, isAdmin = false, canWrite = true, ready = false;
-  var seats = {};          // n -> {name, by}
-  var selected = null, busy = false, message = "";
+  var seats = {};            // n -> {name, at}
+  var mineMap = readMine();  // n -> {pin, at}: seats booked from this device
+  var loaded = false, loadError = "";
+  var selected = null, busy = false, message = "", shown = false, lastSnapshot = "";
 
   var overlayEl = document.getElementById("overlay");
   var panelEl = document.getElementById("panel");
+  var backdropEl = document.getElementById("backdrop");
   var listEl = document.getElementById("list");
   var countEl = document.getElementById("count");
 
@@ -232,7 +245,32 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   }
   function savedName() { try { return localStorage.getItem("van-name") || ""; } catch (e) { return ""; } }
   function saveName(v) { try { localStorage.setItem("van-name", v); } catch (e) {} }
-  function mine(n) { var s = seats[n]; return !!(s && myId && s.by === myId); }
+  function readMine() { try { return JSON.parse(localStorage.getItem("van-mine") || "{}") || {}; } catch (e) { return {}; } }
+  function saveMine() { try { localStorage.setItem("van-mine", JSON.stringify(mineMap)); } catch (e) {} }
+  function mine(n) { var s = seats[n], m = mineMap[n]; return !!(s && m && m.at === s.at); }
+
+  async function api(method, body) {
+    var res = await fetch(API, {
+      method: method,
+      headers: { "Content-Type": "application/json" },
+      body: body ? JSON.stringify(body) : undefined,
+      cache: "no-store"
+    });
+    var data = {};
+    try { data = await res.json(); } catch (e) {}
+    return { ok: res.ok, status: res.status, data: data };
+  }
+
+  function errorText(r, fallback) {
+    var code = r && r.data && r.data.error;
+    if (code === "taken") return "ที่นั่งนี้ถูกจองไปแล้ว เลือกที่นั่งอื่น";
+    if (code === "wrong_code") return "PIN ไม่ถูกต้อง";
+    if (code === "too_many_tries") return "ใส่ผิดหลายครั้งแล้ว รอสักครู่แล้วลองใหม่";
+    if (code === "bad_pin") return "PIN ต้องเป็นตัวเลข 4 หลัก";
+    if (code === "bad_name") return "ใส่ชื่อก่อนจอง";
+    if (code === "not_configured") return "ยังไม่ได้เชื่อมต่อฐานข้อมูล ติดต่อเจ้าของหน้า";
+    return fallback;
+  }
 
   function renderGrid() {
     overlayEl.textContent = "";
@@ -259,15 +297,24 @@ button:disabled { opacity: .5; cursor: not-allowed; }
     }
   }
 
-  var backdropEl = document.getElementById("backdrop");
-  var shown = false;
-
   function closeModal() { selected = null; message = ""; renderAll(); }
 
+  function textInput(id, placeholder, value, label, numeric) {
+    var i = el("input");
+    i.type = "text"; i.id = id; i.placeholder = placeholder; i.value = value || "";
+    i.setAttribute("aria-label", label);
+    i.autocomplete = "off";
+    if (numeric) { i.inputMode = "numeric"; i.maxLength = 4; i.pattern = "[0-9]*"; } else { i.maxLength = 30; }
+    return i;
+  }
+
   function renderPanel() {
-    var keep = document.getElementById("nameInput");
-    var typed = keep ? keep.value : savedName();
-    var hadFocus = !!keep && document.activeElement === keep;
+    var ae = document.activeElement;
+    var focusId = ae && (ae.id === "nameInput" || ae.id === "pinInput") ? ae.id : null;
+    var nameKeep = document.getElementById("nameInput");
+    var pinKeep = document.getElementById("pinInput");
+    var typedName = nameKeep ? nameKeep.value : savedName();
+    var typedPin = pinKeep ? pinKeep.value : "";
     var opening = selected != null && !shown;
     shown = selected != null;
     backdropEl.hidden = selected == null;
@@ -279,7 +326,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
     title.id = "mTitle";
     panelEl.appendChild(title);
     var actions = el("div", "actions");
-    var input = null;
+    var firstInput = null;
 
     function closeBtn(label) {
       var c = el("button", "plain", label);
@@ -288,46 +335,50 @@ button:disabled { opacity: .5; cursor: not-allowed; }
       return c;
     }
 
-    if (!ready) {
-      panelEl.appendChild(el("p", null, "กำลังโหลดข้อมูลการจอง..."));
-      actions.appendChild(closeBtn("ปิด"));
-    } else if (!db) {
-      panelEl.appendChild(el("p", null, "ต้องเข้าสู่ระบบ claude.ai ก่อนจึงจะจองได้ ตอนนี้ดูผังได้อย่างเดียว"));
+    if (!loaded) {
+      panelEl.appendChild(el("p", null, loadError || "กำลังโหลดข้อมูลการจอง..."));
       actions.appendChild(closeBtn("ปิด"));
     } else if (s) {
       var info = el("p", null, "จองโดย ");
       info.appendChild(el("b", null, s.name));
       panelEl.appendChild(info);
-      if (mine(n) || isAdmin) {
-        var cancel = el("button", "ghost", "ยกเลิกการจอง");
-        cancel.type = "button"; cancel.disabled = busy;
-        cancel.addEventListener("click", function () { release(n); });
-        actions.appendChild(cancel);
+      var cancel = el("button", "ghost", "ยกเลิกการจอง");
+      cancel.type = "button"; cancel.disabled = busy;
+      if (mine(n)) {
+        cancel.addEventListener("click", function () { cancelSeat(n, mineMap[n].pin); });
+      } else {
+        panelEl.appendChild(el("p", "hint", "ถ้าเป็นที่นั่งของคุณ ใส่ PIN ที่ตั้งตอนจองเพื่อยกเลิก"));
+        var pin = textInput("pinInput", "PIN 4 หลัก", typedPin, "PIN ของผู้จอง", true);
+        pin.addEventListener("keydown", function (e) { if (e.key === "Enter") cancelSeat(n, pin.value); });
+        panelEl.appendChild(pin);
+        firstInput = pin;
+        cancel.addEventListener("click", function () { cancelSeat(n, pin.value); });
       }
-      actions.appendChild(closeBtn("ปิด"));
-    } else if (!canWrite) {
-      panelEl.appendChild(el("p", null, "บัญชีนี้ดูผังได้อย่างเดียว ให้เจ้าของลิงก์ตั้งสิทธิ์เป็นผู้ร่วมแก้ไข (Contributor) จึงจะจองได้"));
+      actions.appendChild(cancel);
       actions.appendChild(closeBtn("ปิด"));
     } else {
-      input = el("input");
-      input.type = "text"; input.id = "nameInput"; input.maxLength = 30;
-      input.placeholder = "ชื่อหรือชื่อเล่น"; input.value = typed;
-      input.setAttribute("aria-label", "ชื่อผู้จอง");
-      input.addEventListener("keydown", function (e) { if (e.key === "Enter") book(n, input.value); });
-      panelEl.appendChild(input);
+      var nameIn = textInput("nameInput", "ชื่อหรือชื่อเล่น", typedName, "ชื่อผู้จอง", false);
+      var pinIn = textInput("pinInput", "PIN 4 หลัก", typedPin, "PIN สำหรับยกเลิกการจอง", true);
+      function submit() { book(n, nameIn.value, pinIn.value); }
+      nameIn.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+      pinIn.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+      panelEl.appendChild(nameIn);
+      panelEl.appendChild(pinIn);
+      panelEl.appendChild(el("p", "hint", "ตั้ง PIN ตัวเลข 4 หลักไว้ ใช้ตอนต้องการยกเลิกการจอง"));
+      firstInput = nameIn;
       var ok = el("button", "primary", "OK");
       ok.type = "button"; ok.disabled = busy;
-      ok.addEventListener("click", function () { book(n, input.value); });
+      ok.addEventListener("click", submit);
       actions.appendChild(closeBtn("ยกเลิก"));
       actions.appendChild(ok);
     }
     if (message) panelEl.appendChild(el("div", "msg", message));
     panelEl.appendChild(actions);
-    if (input && (opening || hadFocus)) input.focus();
-  }
 
-  backdropEl.addEventListener("click", function (e) { if (e.target === backdropEl) closeModal(); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && selected != null) closeModal(); });
+    var target = focusId && document.getElementById(focusId);
+    if (target) target.focus();
+    else if (opening && firstInput) firstInput.focus();
+  }
 
   function renderList() {
     listEl.textContent = "";
@@ -338,74 +389,91 @@ button:disabled { opacity: .5; cursor: not-allowed; }
       li.appendChild(el("span", "w", s ? s.name : "ว่าง"));
       listEl.appendChild(li);
     }
-    var taken = Object.keys(seats).length;
     countEl.textContent = "";
     countEl.appendChild(document.createTextNode("จองแล้ว "));
-    countEl.appendChild(el("b", null, String(taken)));
+    countEl.appendChild(el("b", null, loaded ? String(Object.keys(seats).length) : "-"));
     countEl.appendChild(document.createTextNode(" / " + TOTAL));
   }
 
   function renderAll() { renderGrid(); renderPanel(); renderList(); }
 
-  async function book(n, raw) {
-    var name = (raw || "").trim().slice(0, 30);
+  async function refresh(force) {
+    try {
+      var r = await api("GET");
+      if (!r.ok) {
+        loadError = errorText(r, "โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า");
+        if (!loaded) renderAll();
+        return;
+      }
+      var next = {};
+      var src = (r.data && r.data.seats) || {};
+      Object.keys(src).forEach(function (k) {
+        var n = Number(k);
+        if (n >= 1 && n <= TOTAL && src[k] && src[k].name) next[n] = { name: String(src[k].name), at: src[k].at };
+      });
+      var snap = JSON.stringify(next);
+      var changed = snap !== lastSnapshot || !loaded;
+      seats = next; lastSnapshot = snap; loaded = true; loadError = "";
+      if (changed || force) renderAll();
+    } catch (e) {
+      loadError = "เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่";
+      if (!loaded) renderAll();
+    }
+  }
+
+  async function book(n, rawName, rawPin) {
+    var name = (rawName || "").trim().slice(0, 30);
+    var pin = (rawPin || "").trim();
     if (!name) { message = "ใส่ชื่อก่อนจอง"; renderPanel(); return; }
+    if (!/^\d{4}$/.test(pin)) { message = "PIN ต้องเป็นตัวเลข 4 หลัก"; renderPanel(); return; }
     saveName(name);
     busy = true; message = ""; renderPanel();
     try {
-      var ref = db.doc("seats/s" + n);
-      var lease = await ref.acquire({ holder: myId || "guest", ttlMs: 5000 });
-      if (!lease.acquired) {
-        message = "มีคนกำลังจองที่นั่งนี้อยู่ ลองอีกครั้งใน 5 วินาที";
+      var r = await api("POST", { seat: n, name: name, pin: pin });
+      if (r.ok) {
+        mineMap[n] = { pin: pin, at: r.data.at };
+        saveMine();
+        selected = null;
       } else {
-        var snap = await ref.get();
-        var d = snap.exists ? snap.data() : null;
-        if (d && d.name) {
-          message = "ที่นั่ง " + n + " ถูกจองไปแล้ว เลือกที่นั่งอื่น";
-        } else {
-          await ref.set({ n: n, name: name, by: myId, at: Date.now() });
-          selected = null;
-        }
+        message = errorText(r, "จองไม่สำเร็จ ลองอีกครั้ง");
       }
     } catch (e) {
-      message = e && e.code === "invalid_argument" ? "บัญชีนี้จองไม่ได้ ขอสิทธิ์ผู้ร่วมแก้ไขจากเจ้าของลิงก์" : "จองไม่สำเร็จ ลองอีกครั้ง";
+      message = "จองไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง";
     }
-    busy = false; renderAll();
+    busy = false;
+    await refresh(true);
+    renderAll();
   }
 
-  async function release(n) {
+  async function cancelSeat(n, code) {
+    code = (code || "").trim();
+    if (!code) { message = "ใส่ PIN เพื่อยกเลิก"; renderPanel(); return; }
     busy = true; message = ""; renderPanel();
-    try { await db.doc("seats/s" + n).delete(); selected = null; }
-    catch (e) { message = "ยกเลิกไม่สำเร็จ ลองอีกครั้ง"; }
-    busy = false; renderAll();
-  }
-
-  function onSnap(snap) {
-    var next = {};
-    snap.docs.forEach(function (d) {
-      if (!d.exists) return;
-      var v = d.data();
-      var n = v && Number(v.n || String(d.id).replace(/^s/, ""));
-      if (v && v.name && n >= 1 && n <= TOTAL) next[n] = { name: String(v.name), by: v.by };
-    });
-    seats = next; renderAll();
-  }
-
-  async function init() {
-    renderAll();
-    try { user = await claude.use("user"); } catch (e) { user = null; }
-    try { db = await claude.use("db"); } catch (e) { db = null; }
-    if (user) {
-      try { myId = await user.id(); } catch (e) {}
-      try { isAdmin = !!(await user.canEdit()); } catch (e) {}
-      try { var w = await user.can("data.write"); canWrite = w !== false; } catch (e) {}
+    try {
+      var r = await api("DELETE", { seat: n, code: code });
+      if (r.ok) {
+        delete mineMap[n];
+        saveMine();
+        selected = null;
+      } else {
+        message = errorText(r, "ยกเลิกไม่สำเร็จ ลองอีกครั้ง");
+      }
+    } catch (e) {
+      message = "ยกเลิกไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง";
     }
-    ready = true;
-    if (db) {
-      db.collection("seats").onSnapshot(onSnap, function () { message = "เชื่อมต่อข้อมูลไม่ได้ ลองโหลดหน้าใหม่"; renderAll(); });
-    }
+    busy = false;
+    await refresh(true);
     renderAll();
   }
-  init();
+
+  backdropEl.addEventListener("click", function (e) { if (e.target === backdropEl) closeModal(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && selected != null) closeModal(); });
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") refresh(false); });
+  setInterval(function () { if (document.visibilityState === "visible" && !busy) refresh(false); }, 8000);
+
+  renderAll();
+  refresh(false);
 })();
 </script>
+</body>
+</html>
