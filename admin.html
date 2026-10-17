@@ -299,8 +299,11 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     return Promise.race([all, new Promise(function (r) { setTimeout(r, 2500); })]).catch(function () {});
   }
   function drawCard() {
-    var S = 2, W = 390, CW = 358, CX = 16, CY = 16, FOOT = 33;
-    var SEC = 204, TOP = 262, H = CY + TOP + SEC * 2 + 14 + 56 + 14 + FOOT + CY;
+    // layout tokens (card units): spacing 8/16/32, type 18/14/12/10/8, all even
+    var S = 2, W = 390, CW = 358, CX = 16, CY = 16, P = 16, ROW = 32, QR = 144, SEC = QR + P * 2, FOOT = 32, WARN = 48;
+    var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
+    var HDR = org ? 96 : 78, TOP = HDR + 4 + ROW * 4 + 8;
+    var H = CY + TOP + SEC * 2 + P + WARN + P + FOOT + CY;
     var c = document.createElement("canvas"); c.width = W * S; c.height = H * S;
     var g = c.getContext("2d");
     var disp = '"Prompt","Noto Sans Thai",system-ui,sans-serif', body = '"Noto Sans Thai",system-ui,sans-serif';
@@ -312,7 +315,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       if (maxW) { var s0 = t; while (g.measureText(s0).width > maxW && s0.length > 3) s0 = s0.slice(0, -1); if (s0 !== t) t = s0.replace(/\s+$/, "") + "…"; }
       g.fillText(t, x, y);
     }
-    function icon(p, x, y, col, size, extra) {
+    function icon(p, x, y, col, size) {
       g.save(); g.translate(x, y); g.scale(size / 24, size / 24);
       g.strokeStyle = col; g.lineWidth = 1.9; g.lineCap = "round"; g.lineJoin = "round";
       g.stroke(new Path2D(p)); g.restore();
@@ -328,16 +331,15 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     g.save(); rr(CX, CY, CW, H - CY * 2, 24); g.fillStyle = "#fff"; g.fill(); g.clip();
     g.translate(CX, CY);
     // header
-    g.fillStyle = "#1b1f22"; g.fillRect(0, 0, CW, 105);
-    icon(ICON.lock, 18, 16, "#f2c879", 16);
-    if ("letterSpacing" in g) g.letterSpacing = "1.5px";
-    txt("ADMIN PASS", 40, 24, "500 10px " + body, "#f2c879", "left");
-    txt("#" + String(shown ? shown.id : "").toUpperCase(), CW - 18, 24, "500 10px " + body, "#f2c879", "right");
+    g.fillStyle = "#1b1f22"; g.fillRect(0, 0, CW, HDR);
+    icon(ICON.lock, P, 15, "#f2c879", 16);
+    if ("letterSpacing" in g) g.letterSpacing = "1px";
+    txt("ADMIN PASS", P + 22, 23, "500 8px " + body, "#f2c879", "left");
+    txt("#" + String(shown ? shown.id : "").toUpperCase(), CW - P, 23, "500 8px " + body, "#f2c879", "right");
     if ("letterSpacing" in g) g.letterSpacing = "0px";
-    var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
-    txt(nm, 18, org ? 56 : 66, "600 20px " + disp, "#fff", "left", CW - 36);
-    if (org) txt(org, 18, 82, "400 12px " + body, "rgba(255,255,255,.75)", "left", CW - 36);
-    g.fillStyle = "#b86e00"; g.fillRect(0, 105, CW, 4);
+    txt(nm, P, 50, "600 18px " + disp, "#fff", "left", CW - P * 2);
+    if (org) txt(org, P, 73, "400 10px " + body, "rgba(255,255,255,.75)", "left", CW - P * 2);
+    g.fillStyle = "#b86e00"; g.fillRect(0, HDR, CW, 4);
     // info rows
     var nv = rows.length, dep = $("departTime").value, mp = $("meetPoint").value.trim();
     var info = [
@@ -347,56 +349,68 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       ["van", "รถตู้", nv + " คัน · รวม " + nv * 10 + " ที่นั่ง"]
     ];
     info.forEach(function (r, i) {
-      var y = 113 + i * 36, cy = y + 18;
-      icon(ICON[r[0]], 18, cy - 8, "#b86e00", 16);
-      txt(r[1], 44, cy, "400 12px " + body, "#5f6b73", "left");
-      txt(r[2], 116, cy, "600 14px " + body, "#1b1f22", "left", CW - 116 - 18);
-      if (i < 3) { g.fillStyle = "#eceff1"; g.fillRect(18, y + 36 - 1, CW - 36, 1); }
+      var y = HDR + 4 + i * ROW, cy = y + ROW / 2;
+      icon(ICON[r[0]], P, cy - 8, "#b86e00", 16);
+      txt(r[1], P + 28, cy, "400 10px " + body, "#5f6b73", "left");
+      txt(r[2], P + 104, cy, "600 12px " + body, "#1b1f22", "left", CW - P * 2 - 104);
+      if (i < 3) { g.fillStyle = "#eceff1"; g.fillRect(P, y + ROW - 1, CW - P * 2, 1); }
     });
     function perf(y) {
       g.fillStyle = "#dfe5e9"; g.beginPath(); g.arc(0, y, 12, 0, 7); g.fill(); g.beginPath(); g.arc(CW, y, 12, 0, 7); g.fill();
-      g.strokeStyle = "#c9d2d8"; g.lineWidth = 2; g.setLineDash([5, 4]); g.beginPath(); g.moveTo(18, y); g.lineTo(CW - 18, y); g.stroke(); g.setLineDash([]);
+      g.strokeStyle = "#c9d2d8"; g.lineWidth = 2; g.setLineDash([5, 4]); g.beginPath(); g.moveTo(P, y); g.lineTo(CW - P, y); g.stroke(); g.setLineDash([]);
     }
-    function qrAt(text, col, bx, by) { // frame 150x150 at (bx,by) in card units, QR drawn on whole device pixels
-      g.strokeStyle = col; g.lineWidth = 3; rr(bx + 1.5, by + 1.5, 147, 147, 12.5); g.stroke();
+    function qrAt(text, col, bx, by) { // frame QR x QR at (bx,by) in card units, QR drawn on whole device pixels
+      g.strokeStyle = col; g.lineWidth = 3; rr(bx + 1.5, by + 1.5, QR - 3, QR - 3, 12.5); g.stroke();
       var q = qrcode(0, "M"); q.addData(text); q.make();
-      var n = q.getModuleCount(), px = 132 * S, cell = Math.floor(px / n), size = cell * n;
+      var n = q.getModuleCount(), px = (QR - 18) * S, cell = Math.floor(px / n), size = cell * n;
       var ox = Math.round((CX + bx + 9) * S + (px - size) / 2), oy = Math.round((CY + by + 9) * S + (px - size) / 2);
       g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = col;
       for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (q.isDark(j, i)) g.fillRect(ox + i * cell, oy + j * cell, cell, cell);
       g.restore();
     }
-    function section(sy, tx, col, eyebrow, head, steps) { // tx = left edge of the text column (160 wide)
-      var T = sy + 18;
-      txt(eyebrow, tx, T + 9, "600 12px " + body, "#8a8f94", "left");
-      txt(head, tx, T + 31, "600 15px " + disp, col, "left", 160);
+    // one half of the content width (163 wide); text block is centred in its half, QR centred in the other
+    var HALF = (CW - P * 2) / 2;
+    var F = { eye: "600 10px " + body, head: "600 14px " + disp, st: "600 12px " + body, sub: "400 10px " + body, num: "600 8px " + body };
+    function blockW(eyebrow, head, steps) {
+      var w = 0;
+      function m(t, f) { g.font = f; w = Math.max(w, g.measureText(t).width); }
+      m(eyebrow, F.eye); m(head, F.head);
+      steps.forEach(function (st) { m(st[0], F.st); m(st[1], F.sub); });
+      return w;
+    }
+    function section(sy, qrLeft, col, qrCol, qrText, eyebrow, head, steps) {
+      var tw = Math.ceil(blockW(eyebrow, head, steps)) , bw = Math.min(HALF, Math.max(tw + 28, 28));
+      var textX = qrLeft ? P + HALF + Math.round((HALF - bw) / 2) : P + Math.round((HALF - bw) / 2);
+      var qrX = qrLeft ? P + Math.round((HALF - QR) / 2) : P + HALF + Math.round((HALF - QR) / 2);
+      qrAt(qrText, qrCol, qrX, sy + P);
+      var T = sy + P, gap = (QR - 128) / 3;
+      txt(eyebrow, textX, T + 7, F.eye, "#6b747b", "left");
+      txt(head, textX, T + 28, F.head, col, "left", bw);
       steps.forEach(function (st, i) {
-        var top = T + 47 + i * 42.5;
-        g.fillStyle = col; g.beginPath(); g.arc(tx + 10, top + 11, 10, 0, 7); g.fill();
-        txt(String(i + 1), tx + 10, top + 11.5, "600 10px " + body, "#fff", "center");
-        txt(st[0], tx + 29, top + 10, "600 14px " + body, "#1b1f22", "left", 131);
-        txt(st[1], tx + 29, top + 27.5, "400 12px " + body, "#5f6b73", "left", 131);
+        var top = T + 38 + gap + i * (30 + gap);
+        g.fillStyle = col; g.beginPath(); g.arc(textX + 10, top + 10, 10, 0, 7); g.fill();
+        txt(String(i + 1), textX + 10, top + 10.5, F.num, "#fff", "center");
+        txt(st[0], textX + 28, top + 8, F.st, "#1b1f22", "left", bw - 28);
+        txt(st[1], textX + 28, top + 23, F.sub, "#5f6b73", "left", bw - 28);
       });
     }
     perf(TOP);
-    qrAt(adminUrl, "#1b1f22", 18, TOP + 27);
-    section(TOP, 180, "#1b1f22", "สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา จุดนัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]);
+    section(TOP, true, "#1b1f22", "#1b1f22", adminUrl, "สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา จุดนัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]);
     perf(TOP + SEC);
-    qrAt(link("/?t=" + (shown ? shown.id : "")), "#0b5f67", 190, TOP + SEC + 27);
-    section(TOP + SEC, 18, "#0e7c86", "สำหรับผู้จองทริป", "สแกนเพื่อจองที่นั่ง", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["เลือกคันและที่นั่ง", "แตะที่นั่งว่างบนผัง"], ["กรอกชื่อและยืนยัน", "ชื่อแสดงบนผังทันที"]]);
+    section(TOP + SEC, false, "#0e7c86", "#0b5f67", link("/?t=" + (shown ? shown.id : "")), "สำหรับผู้จองทริป", "สแกนเพื่อจองที่นั่ง", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["เลือกคันและที่นั่ง", "แตะที่นั่งว่างบนผัง"], ["กรอกชื่อและยืนยัน", "ชื่อแสดงบนผังทันที"]]);
     perf(TOP + SEC * 2);
     // warning
-    var wy = TOP + SEC * 2 + 14;
-    g.fillStyle = "#fdeded"; rr(18, wy, CW - 36, 56, 12); g.fill();
-    g.fillStyle = "#c62828"; g.save(); rr(18, wy, CW - 36, 56, 12); g.clip(); g.fillRect(18, wy, 4, 56); g.restore();
-    txt("คำเตือน สำหรับผู้ดูแลทริป", 34, wy + 20, "600 12px " + body, "#b3261e", "left");
-    txt("โปรดเก็บ Admin Pass ไว้ อย่าส่งต่อ QR Code สีดำ", 34, wy + 39, "400 12px " + body, "#7a1f1a", "left", CW - 66);
+    var wy = TOP + SEC * 2 + P;
+    g.fillStyle = "#fdeded"; rr(P, wy, CW - P * 2, WARN, 12); g.fill();
+    g.fillStyle = "#c62828"; g.save(); rr(P, wy, CW - P * 2, WARN, 12); g.clip(); g.fillRect(P, wy, 4, WARN); g.restore();
+    txt("คำเตือน สำหรับผู้ดูแลทริป", P + 16, wy + 16, "600 10px " + body, "#b3261e", "left");
+    txt("โปรดเก็บ Admin Pass ไว้ อย่าส่งต่อ QR Code สีดำ", P + 16, wy + 32, "400 10px " + body, "#7a1f1a", "left", CW - P * 2 - 28);
     // footer
-    var fy = wy + 56 + 14;
+    var fy = wy + WARN + P;
     g.fillStyle = "#f4f6f7"; g.fillRect(0, fy, CW, FOOT + 40);
     var now = new Date(), hh = ("0" + now.getHours()).slice(-2), mm = ("0" + now.getMinutes()).slice(-2);
-    txt("สร้างเมื่อ " + now.getDate() + " " + MON[now.getMonth()] + " " + (now.getFullYear() + 543) + " · " + hh + "." + mm + " น.", 18, fy + FOOT / 2, "400 10px " + body, "#5f6b73", "left");
-    txt("van-seat-booking", CW - 18, fy + FOOT / 2, "400 10px " + body, "#5f6b73", "right");
+    txt("สร้างเมื่อ " + now.getDate() + " " + MON[now.getMonth()] + " " + (now.getFullYear() + 543) + " · " + hh + "." + mm + " น.", P, fy + FOOT / 2, "400 8px " + body, "#5f6b73", "left");
+    txt("van-seat-booking", CW - P, fy + FOOT / 2, "400 8px " + body, "#5f6b73", "right");
     g.restore();
     return c;
   }
