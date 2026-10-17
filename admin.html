@@ -419,7 +419,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var qrX = qrLeft ? PX + PI : CW - PX - PI - QR;
       // both blocks share one width and sit centred in the space between the QR and the panel edge
       var px0 = qrLeft ? qrX + QR + 8 : PX + PI, px1 = qrLeft ? CW - PX - PI : qrX - 8;
-      var textX = Math.round(px0 + (px1 - px0 - bw) / 2);
+      var textX = qrLeft ? px1 - bw : px0; // flush to the outer padding, same as the QR
       qrAt(qrText, qrCol, qrX, sy + 24);
       var T = sy + 24, pad = (QR - 130) / 2, gap = 2;
       var yE = T + pad + 5, yH = yE + 21;
