@@ -43,8 +43,9 @@ button { font: inherit; cursor: pointer; }
 .link b { font-size: 14px; }
 .link .chip { display: flex; align-items: center; gap: 4px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 6px 4px 6px 12px; }
 .link .url { flex: 1; min-width: 0; font-size: 13px; line-height: 1.4; }
-.url .host { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.url .path { display: block; color: var(--muted); word-break: break-all; }
+.url .code { display: block; font: 700 22px/1.2 var(--font-display); letter-spacing: 2.5px; color: var(--mine); }
+#adminUrl .code { color: var(--ink); }
+.url .sub { display: block; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cpbtn { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border: 0; background: transparent; color: var(--muted); border-radius: 9px; cursor: pointer; }
 .cpbtn svg { width: 18px; height: 18px; }
 .cpbtn.ok { color: var(--mine); }
@@ -256,7 +257,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     shown = { id: id, token: token };
     tripName = name || "";
     var share = shareLink = link("/?t=" + id); adminUrl = link("/admin.html?t=" + id + "&k=" + token);
-    urlBox($("shareUrl"), share);
+    urlBox($("shareUrl"), id, share.replace(/^https?:\/\//, "").split("/")[0]);
     $("openShare").href = "/?t=" + id;
     $("resultTitle").textContent = created ? "สร้างทริปแล้ว" : "ลิงก์ของทริปนี้";
     $("resultSub").textContent = (name || "") + (vanCount ? " · " + vanCount + " คัน" : "");
@@ -266,7 +267,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     $("qr").innerHTML = qrSvg(share);
     $("qr2").innerHTML = qrSvg(adminUrl);
     // the secret is shown masked on screen; copy / save use the full link
-    urlBox($("adminUrl"), link("/admin.html?t=" + id + "&k=") + "••••••••");
+    urlBox($("adminUrl"), id, "รหัสลับ ••••••••");
     $("saveMsg").textContent = ""; $("seatMsg").textContent = "";
     $("backdrop").hidden = false;
     setStep(1);
@@ -281,11 +282,11 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   $("shareBtn").addEventListener("click", function () {
     if (shown) showResult(shown.id, shown.token, false, $("name").value.trim(), rows.length);
   });
-  function urlBox(el, u) {
-    var m = u.match(/^(https?:\/\/[^\/]+)(.*)$/); el.textContent = "";
-    var h = document.createElement("span"); h.className = "host"; h.textContent = m ? m[1].replace(/^https?:\/\//, "") : u;
-    var p = document.createElement("span"); p.className = "path"; p.textContent = m ? m[2] || "/" : "";
-    el.appendChild(h); el.appendChild(p);
+  function urlBox(el, code, sub) {
+    el.textContent = "";
+    var c = document.createElement("span"); c.className = "code"; c.textContent = String(code).toUpperCase();
+    var p = document.createElement("span"); p.className = "sub"; p.textContent = sub;
+    el.appendChild(c); el.appendChild(p);
   }
   function copy(text, btn) {
     var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
