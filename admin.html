@@ -346,6 +346,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       clock: "M12 3.5a8.5 8.5 0 100 17 8.5 8.5 0 000-17zM12 7.5V12l3 2",
       pin: "M12 21s6.5-5.6 6.5-11a6.5 6.5 0 10-13 0c0 5.4 6.5 11 6.5 11zM12 7.7a2.3 2.3 0 100 4.6 2.3 2.3 0 000-4.6z",
       van: "M3 16.5V8.5a2 2 0 012-2h9l5 4.5v5.5H3zM9.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0zM18.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0z",
+      shield: "M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4",
       lock: "M7 10.5h10a2 2 0 012 2V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-5.5a2 2 0 012-2zM8.5 10.5V8a3.5 3.5 0 017 0v2.5"
     };
     // card
@@ -354,7 +355,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     // header
     g.fillStyle = "#1b1f22"; g.fillRect(0, 0, CW, HDR);
     // label row: quiet amber label + trip id, hairline, then the trip title
-    icon(ICON.lock, M - 1, 17, "#f2c879", 10);
+    icon(ICON.shield, M - 2, 17, "#f2c879", 10);
     if ("letterSpacing" in g) g.letterSpacing = "1px";
     capTxt("ADMIN PASS", M + 11, 22, "500 8px " + body, "#f2c879", "left");
     capTxt("#" + String(shown ? shown.id : "").toUpperCase(), CW - M, 22, "500 8px " + body, "#f2c879", "right");
