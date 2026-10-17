@@ -299,8 +299,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     return Promise.race([all, new Promise(function (r) { setTimeout(r, 2500); })]).catch(function () {});
   }
   function drawCard() {
-    var S = 2, W = 390, CW = 358, CX = 16, CY = 16, FOOT = 34;
-    var SEC = 197, TOP = 260, H = CY + TOP + SEC * 2 + 14 + 56 + 14 + FOOT + 16;
+    var S = 2, W = 390, CW = 358, CX = 16, CY = 16, FOOT = 33;
+    var SEC = 218, TOP = 262, H = CY + TOP + SEC * 2 + 14 + 56 + 14 + FOOT + CY;
     var c = document.createElement("canvas"); c.width = W * S; c.height = H * S;
     var g = c.getContext("2d");
     var disp = '"Prompt","Noto Sans Thai",system-ui,sans-serif', body = '"Noto Sans Thai",system-ui,sans-serif';
@@ -328,7 +328,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     g.save(); rr(CX, CY, CW, H - CY * 2, 24); g.fillStyle = "#fff"; g.fill(); g.clip();
     g.translate(CX, CY);
     // header
-    g.fillStyle = "#1b1f22"; g.fillRect(0, 0, CW, 103);
+    g.fillStyle = "#1b1f22"; g.fillRect(0, 0, CW, 105);
     icon(ICON.lock, 18, 16, "#f2c879", 16);
     if ("letterSpacing" in g) g.letterSpacing = "1.5px";
     txt("ADMIN PASS", 40, 24, "500 10px " + body, "#f2c879", "left");
@@ -337,7 +337,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
     txt(nm, 18, org ? 56 : 66, "600 20px " + disp, "#fff", "left", CW - 36);
     if (org) txt(org, 18, 82, "400 12px " + body, "rgba(255,255,255,.75)", "left", CW - 36);
-    g.fillStyle = "#b86e00"; g.fillRect(0, 103, CW, 4);
+    g.fillStyle = "#b86e00"; g.fillRect(0, 105, CW, 4);
     // info rows
     var nv = rows.length, dep = $("departTime").value, mp = $("meetPoint").value.trim();
     var info = [
@@ -347,7 +347,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       ["van", "รถตู้", nv + " คัน · รวม " + nv * 10 + " ที่นั่ง"]
     ];
     info.forEach(function (r, i) {
-      var y = 111 + i * 36, cy = y + 18;
+      var y = 113 + i * 36, cy = y + 18;
       icon(ICON[r[0]], 18, cy - 8, "#b86e00", 16);
       txt(r[1], 44, cy, "400 12px " + body, "#5f6b73", "left");
       txt(r[2], 116, cy, "600 14px " + body, "#1b1f22", "left", CW - 116 - 18);
@@ -357,32 +357,33 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       g.fillStyle = "#dfe5e9"; g.beginPath(); g.arc(0, y, 12, 0, 7); g.fill(); g.beginPath(); g.arc(CW, y, 12, 0, 7); g.fill();
       g.strokeStyle = "#c9d2d8"; g.lineWidth = 2; g.setLineDash([5, 4]); g.beginPath(); g.moveTo(18, y); g.lineTo(CW - 18, y); g.stroke(); g.setLineDash([]);
     }
-    function qrAt(text, col, bx, by) { // frame 158x158 at (bx,by) in card units, QR drawn on whole device pixels
-      g.strokeStyle = col; g.lineWidth = 3; rr(bx + 1.5, by + 1.5, 155, 155, 12.5); g.stroke();
+    function qrAt(text, col, bx, by) { // frame 150x150 at (bx,by) in card units, QR drawn on whole device pixels
+      g.strokeStyle = col; g.lineWidth = 3; rr(bx + 1.5, by + 1.5, 147, 147, 12.5); g.stroke();
       var q = qrcode(0, "M"); q.addData(text); q.make();
-      var n = q.getModuleCount(), px = 140 * S, cell = Math.floor(px / n), size = cell * n;
+      var n = q.getModuleCount(), px = 132 * S, cell = Math.floor(px / n), size = cell * n;
       var ox = Math.round((CX + bx + 9) * S + (px - size) / 2), oy = Math.round((CY + by + 9) * S + (px - size) / 2);
       g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = col;
       for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (q.isDark(j, i)) g.fillRect(ox + i * cell, oy + j * cell, cell, cell);
       g.restore();
     }
-    function section(sy, col, eyebrow, head, steps) {
-      txt(eyebrow, 185, sy + 26, "500 12px " + body, "#8a8f94", "left");
-      txt(head, 185, sy + 46, "600 15px " + disp, col, "left", 160);
+    function section(sy, tx, col, eyebrow, head, steps) { // tx = left edge of the text column (160 wide)
+      var T = sy + 18;
+      txt(eyebrow, tx, T + 9, "600 12px " + body, "#8a8f94", "left");
+      txt(head, tx, T + 31, "600 15px " + disp, col, "left", 160);
       steps.forEach(function (st, i) {
-        var ty = sy + 74 + i * 41;
-        g.fillStyle = col; g.beginPath(); g.arc(195, ty, 10, 0, 7); g.fill();
-        txt(String(i + 1), 195, ty + 0.5, "600 10px " + body, "#fff", "center");
-        txt(st[0], 214, ty, "600 14px " + body, "#1b1f22", "left", 132);
-        txt(st[1], 214, ty + 17, "400 12px " + body, "#5f6b73", "left", 132);
+        var top = T + 47 + i * 42.5;
+        g.fillStyle = col; g.beginPath(); g.arc(tx + 10, top + 11, 10, 0, 7); g.fill();
+        txt(String(i + 1), tx + 10, top + 11.5, "600 10px " + body, "#fff", "center");
+        txt(st[0], tx + 29, top + 10, "600 14px " + body, "#1b1f22", "left", 131);
+        txt(st[1], tx + 29, top + 27.5, "400 12px " + body, "#5f6b73", "left", 131);
       });
     }
     perf(TOP);
-    qrAt(adminUrl, "#1b1f22", 13, TOP + 20);
-    section(TOP, "#1b1f22", "สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา จุดนัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]);
+    qrAt(adminUrl, "#1b1f22", 18, TOP + 27);
+    section(TOP, 180, "#1b1f22", "สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา จุดนัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]);
     perf(TOP + SEC);
-    qrAt(link("/?t=" + (shown ? shown.id : "")), "#0b5f67", 13, TOP + SEC + 20);
-    section(TOP + SEC, "#0e7c86", "สำหรับผู้จองทริป", "สแกนเพื่อจองที่นั่ง", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["เลือกคันและที่นั่ง", "แตะที่นั่งว่างบนผัง"], ["กรอกชื่อและยืนยัน", "ชื่อแสดงบนผังทันที"]]);
+    qrAt(link("/?t=" + (shown ? shown.id : "")), "#0b5f67", 190, TOP + SEC + 27);
+    section(TOP + SEC, 18, "#0e7c86", "สำหรับผู้จองทริป", "สแกนเพื่อจองที่นั่ง", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["เลือกคันและที่นั่ง", "แตะที่นั่งว่างบนผัง"], ["กรอกชื่อและยืนยัน", "ชื่อแสดงบนผังทันที"]]);
     perf(TOP + SEC * 2);
     // warning
     var wy = TOP + SEC * 2 + 14;
