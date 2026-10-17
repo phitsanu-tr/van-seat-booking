@@ -380,7 +380,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       if (i < 3) { g.fillStyle = "#eceff1"; g.fillRect(M, y + ROW - 1, CW - M * 2, 1); }
     });
     function perf(y) {
-      g.fillStyle = "#dfe5e9"; g.beginPath(); g.arc(0, y, 12, 0, 7); g.fill(); g.beginPath(); g.arc(CW, y, 12, 0, 7); g.fill();
       g.strokeStyle = "#c9d2d8"; g.lineWidth = 2; g.setLineDash([5, 4]); g.beginPath(); g.moveTo(M, y); g.lineTo(CW - M, y); g.stroke(); g.setLineDash([]);
     }
     function qrAt(text, col, bx, by) { // frame QR x QR at (bx,by) in card units, QR drawn on whole device pixels
