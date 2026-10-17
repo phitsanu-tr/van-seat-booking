@@ -41,7 +41,7 @@ button { font: inherit; cursor: pointer; }
 .msg:empty { display: none; }
 .link { display: flex; flex-direction: column; gap: 6px; }
 .link b { font-size: 14px; }
-.link .chip { display: flex; align-items: center; gap: 4px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 6px 4px 6px 12px; }
+.link .chip { cursor: pointer; display: flex; align-items: center; gap: 4px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 6px 4px 6px 12px; }
 .link .url { flex: 1; min-width: 0; font-size: 13px; line-height: 1.4; }
 .url .code { display: block; font: 700 22px/1.2 var(--font-display); letter-spacing: 2.5px; color: var(--mine); }
 #adminUrl .code { color: var(--ink); }
@@ -257,7 +257,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     shown = { id: id, token: token };
     tripName = name || "";
     var share = shareLink = link("/?t=" + id); adminUrl = link("/admin.html?t=" + id + "&k=" + token);
-    urlBox($("shareUrl"), id, share.replace(/^https?:\/\//, "").split("/")[0]);
+    urlBox($("shareUrl"), id, "แตะเพื่อคัดลอกลิงก์");
     $("openShare").href = "/?t=" + id;
     $("resultTitle").textContent = created ? "สร้างทริปแล้ว" : "ลิงก์ของทริปนี้";
     $("resultSub").textContent = (name || "") + (vanCount ? " · " + vanCount + " คัน" : "");
@@ -267,7 +267,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     $("qr").innerHTML = qrSvg(share);
     $("qr2").innerHTML = qrSvg(adminUrl);
     // the secret is shown masked on screen; copy / save use the full link
-    urlBox($("adminUrl"), id, "รหัสลับ ••••••••");
+    urlBox($("adminUrl"), id, "แตะเพื่อคัดลอกลิงก์ (ลับ)");
     $("saveMsg").textContent = ""; $("seatMsg").textContent = "";
     $("backdrop").hidden = false;
     setStep(1);
@@ -304,8 +304,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { flash(true); }, fallback);
     else fallback();
   }
-  $("copyShare").addEventListener("click", function () { copy(shareLink, this); });
-  $("copyAdmin").addEventListener("click", function () { copy(adminUrl, this); });
+  $("copyShare").parentNode.addEventListener("click", function () { copy(shareLink, $("copyShare")); });
+  $("copyAdmin").parentNode.addEventListener("click", function () { copy(adminUrl, $("copyAdmin")); });
 
   // Draws the admin card (trip details + admin QR + guest QR) to a canvas and saves it as a PNG.
   var MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
