@@ -94,6 +94,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .passtag b { font-family: var(--font-display); font-weight: 600; font-size: 13px; letter-spacing: 1px; }
 .passtag span { color: var(--muted); font-size: 13px; }
 .passtag.dark { color: var(--ink); }
+.qr.seat { border: 3px solid #0b5f67; }
 .qr.amber { border: 3px solid var(--ink); }
 .btn.amber { background: var(--ink); color: var(--surface); }
 .btn.tealline { background: transparent; color: var(--mine); border-color: var(--mine); }
@@ -153,7 +154,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
       <div class="dots" role="tablist"><button type="button" role="tab" data-step="1" class="on" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 6v2a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-2a2 2 0 0 0 0-6V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z"/></svg>ผู้จอง</button><button type="button" role="tab" data-step="2" class="" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>ผู้ดูแล</button></div>
       <div class="passtag"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg><b>SEAT PASS</b><span>สำหรับผู้จองทริป</span></div>
       <div class="share">
-        <div class="qr" id="qr" role="img" aria-label="คิวอาร์โค้ดลิงก์จอง"></div>
+        <div class="qr seat" id="qr" role="img" aria-label="คิวอาร์โค้ดลิงก์จอง"></div>
         <div class="link"><b>ลิงก์สำหรับผู้จอง</b><div class="chip"><div class="url" id="shareUrl"></div><button class="cpbtn" id="copyShare" type="button" aria-label="คัดลอกลิงก์"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button></div></div>
       </div>
       <div class="two">
