@@ -119,6 +119,13 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .list li .w { overflow-wrap: anywhere; }
 .list li.empty .w { color: var(--muted); }
 @media (prefers-reduced-motion: no-preference) { .seat { transition: background .15s; } }
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 30;
+  max-width: min(92vw, 360px); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 12px;
+  font-size: 14px; text-align: center; box-shadow: 0 8px 28px rgba(0, 0, 0, .3);
+}
+.toast.error { background: var(--danger); color: var(--paper); }
+.seat.pending { opacity: .6; }
 button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 10px 16px; cursor: pointer; background: var(--danger); color: var(--paper); border: 1.5px solid var(--danger); }
 </style>
 </head>
@@ -206,6 +213,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   </section>
 </main>
 
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
 <script>
 (function () {
   var TOTAL = 10;
@@ -222,13 +231,15 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   var seats = {};            // n -> {name, at}
   var mineMap = readMine();  // n -> {at}: seats booked from this device (only used to tint them)
   var loaded = false, loadError = "";
-  var selected = null, busy = false, message = "", shown = false, confirming = false, lastSnapshot = "";
+  var selected = null, message = "", shown = false, confirming = false, lastSnapshot = "";
+  var pending = 0, toastTimer = null;
 
   var overlayEl = document.getElementById("overlay");
   var panelEl = document.getElementById("panel");
   var backdropEl = document.getElementById("backdrop");
   var listEl = document.getElementById("list");
   var countEl = document.getElementById("count");
+  var toastEl = document.getElementById("toast");
 
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -282,6 +293,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         if (s) {
           b.classList.add("taken");
           if (mine(n)) b.classList.add("mine");
+          if (s.pending) b.classList.add("pending");
           b.appendChild(el("span", "who", s.name));
           b.setAttribute("aria-label", "ที่นั่ง " + n + " จองโดย " + s.name);
         } else {
@@ -292,6 +304,14 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         overlayEl.appendChild(frame(b, RECT[n]));
       })(n);
     }
+  }
+
+  function showToast(text, kind) {
+    toastEl.textContent = text;
+    toastEl.className = "toast" + (kind === "error" ? " error" : "");
+    toastEl.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.hidden = true; }, kind === "error" ? 5000 : 3000);
   }
 
   function closeModal() { selected = null; message = ""; confirming = false; renderAll(); }
@@ -330,8 +350,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       ask.appendChild(document.createTextNode(" ที่ที่นั่ง " + n + " ใช่ไหม"));
       panelEl.appendChild(ask);
       actions.appendChild(plainBtn("ไม่ยกเลิก", function () { confirming = false; message = ""; renderPanel(); }));
-      var sure = el("button", "danger", busy ? "กำลังยกเลิก..." : "ยืนยันยกเลิก");
-      sure.type = "button"; sure.disabled = busy;
+      var sure = el("button", "danger", "ยืนยันยกเลิก");
+      sure.type = "button";
       sure.addEventListener("click", function () { cancelSeat(n); });
       actions.appendChild(sure);
     } else if (s) {
@@ -351,8 +371,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       input.setAttribute("aria-label", "ชื่อผู้จอง");
       input.addEventListener("keydown", function (e) { if (e.key === "Enter") book(n, input.value); });
       panelEl.appendChild(input);
-      var ok = el("button", "primary", busy ? "กำลังบันทึก..." : "OK");
-      ok.type = "button"; ok.disabled = busy;
+      var ok = el("button", "primary", "OK");
+      ok.type = "button";
       ok.addEventListener("click", function () { book(n, input.value); });
       actions.appendChild(plainBtn("ยกเลิก", closeModal));
       actions.appendChild(ok);
@@ -380,8 +400,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   function renderAll() { renderGrid(); renderPanel(); renderList(); }
 
   async function refresh(force) {
+    if (pending > 0) return;
     try {
       var r = await api("GET");
+      if (pending > 0) return;
       if (!r.ok) {
         loadError = errorText(r, "โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า");
         if (!loaded) renderAll();
@@ -407,49 +429,63 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var name = (rawName || "").trim().slice(0, 30);
     if (!name) { message = "ใส่ชื่อก่อนจอง"; renderPanel(); return; }
     saveName(name);
-    busy = true; message = ""; renderPanel();
+    // Show the name right away, then confirm with the server in the background.
+    var temp = { name: name, at: "pending-" + Date.now(), pending: true };
+    seats[n] = temp;
+    selected = null; message = ""; confirming = false;
+    pending++; renderAll();
+    var failMsg = null;
     try {
       var r = await api("POST", { seat: n, name: name });
       if (r.ok) {
+        if (seats[n] === temp) seats[n] = { name: name, at: r.data.at };
         mineMap[n] = { at: r.data.at };
-        seats[n] = { name: name, at: r.data.at };
         saveMine();
-        selected = null;
+        showToast("บันทึกแล้ว ที่นั่ง " + n + " จองให้ " + name);
+      } else if (r.data && r.data.error === "taken") {
+        failMsg = "ที่นั่ง " + n + " ถูกจองไปแล้ว เลือกที่นั่งอื่น";
       } else {
-        message = errorText(r, "จองไม่สำเร็จ ลองอีกครั้ง");
+        failMsg = errorText(r, "จองไม่สำเร็จ ลองอีกครั้ง");
       }
     } catch (e) {
-      message = "จองไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง";
+      failMsg = "จองไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง";
     }
-    busy = false;
-    renderAll();
-    refresh(false);
+    if (failMsg) {
+      if (seats[n] === temp) delete seats[n];
+      showToast(failMsg, "error");
+    }
+    pending--; renderAll(); refresh(false);
   }
 
   async function cancelSeat(n) {
-    busy = true; message = ""; renderPanel();
+    var prev = seats[n];
+    delete seats[n];
+    selected = null; message = ""; confirming = false;
+    pending++; renderAll();
+    var failMsg = null;
     try {
       var r = await api("DELETE", { seat: n });
       if (r.ok) {
         delete mineMap[n];
-        delete seats[n];
         saveMine();
-        selected = null; confirming = false;
+        showToast("ยกเลิกการจองที่นั่ง " + n + " แล้ว");
       } else {
-        message = errorText(r, "ยกเลิกไม่สำเร็จ ลองอีกครั้ง");
+        failMsg = errorText(r, "ยกเลิกไม่สำเร็จ ลองอีกครั้ง");
       }
     } catch (e) {
-      message = "ยกเลิกไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง";
+      failMsg = "ยกเลิกไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง";
     }
-    busy = false;
-    renderAll();
-    refresh(false);
+    if (failMsg) {
+      if (prev && !seats[n]) seats[n] = prev;
+      showToast(failMsg, "error");
+    }
+    pending--; renderAll(); refresh(false);
   }
 
   backdropEl.addEventListener("click", function (e) { if (e.target === backdropEl) closeModal(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && selected != null) closeModal(); });
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") refresh(false); });
-  setInterval(function () { if (document.visibilityState === "visible" && !busy) refresh(false); }, 8000);
+  setInterval(function () { if (document.visibilityState === "visible") refresh(false); }, 8000);
 
   renderAll();
   refresh(false);
