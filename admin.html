@@ -322,7 +322,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var tl, HDR, TOP, H, cwTry = 386, wrapCW;
     for (var it = 0; it < 5; it++) {
       wrapCW = cwTry; tl = wrapTitle(cwTry - M * 2);
-      HDR = 52 + 24 * tl.length + (org ? 18 : 0) + 16; TOP = HDR + 4 + ROW * 4 + 8;
+      HDR = 52 + 24 * tl.length + (org ? 18 : 0) + 16; TOP = HDR + 4 + ROW * 4; // the amber divider is the 4th row separator: sits on the row's bottom edge
       H = CY + TOP + SECA + SEC + FOOT + CY;
       var need = Math.ceil(H * 9 / 16);
       if (need === cwTry) break;
@@ -444,7 +444,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var ADM = ["สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา นัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]];
     var GST = ["สำหรับผู้จองทริป", "สแกนเพื่อจองที่นั่ง", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["เลือกคันและที่นั่ง", "แตะที่นั่งว่างบนผัง"], ["กรอกชื่อและยืนยัน", "ชื่อแสดงบนผังทันที"]]];
     var BW = Math.max(blockW(ADM[0], ADM[1], ADM[2]), blockW(GST[0], GST[1], GST[2]));
-    g.fillStyle = "#b86e00"; g.fillRect(M, TOP - 0.75, CW - M * 2, 1.5); // thin amber divider
+    g.fillStyle = "#b86e00"; g.fillRect(M, TOP - 1.5, CW - M * 2, 1.5); // thin amber divider
     section(TOP, true, "#1b1f22", "#1b1f22", adminUrl, ADM[0], ADM[1], ADM[2], BW);
     // warning sits right under the black QR it refers to (one line, red text only)
     var wy = TOP + 12 + QR + 24 + 12; // warning centred between the two panels
