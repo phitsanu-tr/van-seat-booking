@@ -351,10 +351,11 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     if ("letterSpacing" in g) g.letterSpacing = "1px";
     g.font = "600 8px " + body;
     var capW = 12 + 12 + 6 + Math.ceil(g.measureText("ADMIN PASS").width) + 12;
-    rr(M, 16, capW, 24, 12); g.fillStyle = "#f2c879"; g.fill();
-    icon(ICON.lock, M + 12, 22, "#1b1f22", 12);
-    txt("ADMIN PASS", M + 30, 28.5, "600 8px " + body, "#1b1f22", "left");
-    txt("#" + String(shown ? shown.id : "").toUpperCase(), CW - M, 28, "500 8px " + body, "#f2c879", "right");
+    var cx0 = CW - M - capW;
+    rr(cx0, 16, capW, 24, 12); g.fillStyle = "#f2c879"; g.fill();
+    icon(ICON.lock, cx0 + 12, 22, "#1b1f22", 12);
+    txt("ADMIN PASS", cx0 + 30, 28.5, "600 8px " + body, "#1b1f22", "left");
+    txt("#" + String(shown ? shown.id : "").toUpperCase(), M, 28, "500 8px " + body, "#f2c879", "left");
     if ("letterSpacing" in g) g.letterSpacing = "0px";
     g.fillStyle = "rgba(255,255,255,.16)"; g.fillRect(M, 48, CW - M * 2, 1);
     tl.forEach(function (ln, i) { txt(ln, M, 68 + i * 24, "600 18px " + disp, "#fff", "left"); });
