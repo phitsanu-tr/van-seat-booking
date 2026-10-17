@@ -74,10 +74,10 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .mh { padding-right: 34px; }
 .check.amber { background: #eceef0; color: var(--ink); }
 @media (prefers-color-scheme: dark) { .check.amber { background: #223540; } }
-.dots { display: flex; gap: 6px; justify-content: center; }
-.dots i { width: 8px; height: 8px; border-radius: 4px; background: var(--line); }
-.dots i.on { width: 22px; background: var(--mine); }
-.dots i.on.amber { background: var(--ink); }
+.dots { display: flex; width: fit-content; margin: 0 auto; background: var(--bg); border-radius: 999px; padding: 3px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.dots span { padding: 5px 16px; border-radius: 999px; }
+.dots span.on { background: var(--mine); color: #fff; }
+.dots span.on.amber { background: var(--ink); color: var(--surface); }
 .steplabel { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--mine); }
 .steplabel.amber { color: var(--ink); }
 .passtag { display: flex; align-items: center; gap: 8px; color: var(--mine); }
@@ -140,7 +140,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
         <span class="check"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
         <div><div class="mt" id="resultTitle">สร้างทริปแล้ว</div><div class="ms" id="resultSub"></div></div>
       </div>
-      <div class="dots" aria-hidden="true"><i class="on"></i><i></i></div>
+      <div class="dots" aria-hidden="true"><span class="on">ผู้จอง</span><span>ผู้ดูแล</span></div>
       <div class="passtag"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg><b>SEAT PASS</b><span>สำหรับผู้จองทริป</span></div>
       <div class="share">
         <div class="qr" id="qr" role="img" aria-label="คิวอาร์โค้ดลิงก์จอง"></div>
@@ -161,7 +161,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
         <span class="check amber"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/></svg></span>
         <div><div class="mt">ลิงก์สำหรับผู้ดูแล</div><div class="ms">ขั้นที่ 2 จาก 2 · เก็บไว้คนเดียว</div></div>
       </div>
-      <div class="dots" aria-hidden="true"><i></i><i class="on amber"></i></div>
+      <div class="dots" aria-hidden="true"><span>ผู้จอง</span><span class="on amber">ผู้ดูแล</span></div>
       <div class="passtag dark"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg><b>ADMIN PASS</b><span>สำหรับผู้ดูแลทริป</span></div>
       <div class="share">
         <div class="qr amber" id="qr2" role="img" aria-label="คิวอาร์โค้ดลิงก์แก้ไขทริป"></div>
