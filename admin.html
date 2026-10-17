@@ -348,9 +348,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     // header
     g.fillStyle = "#1b1f22"; g.fillRect(0, 0, CW, HDR);
     // label row: quiet amber label + trip id, hairline, then the trip title
-    icon(ICON.lock, M, 16, "#f2c879", 12);
+    icon(ICON.lock, M - 1, 17, "#f2c879", 10);
     if ("letterSpacing" in g) g.letterSpacing = "1px";
-    txt("ADMIN PASS", M + 18, 22.5, "500 8px " + body, "#f2c879", "left");
+    txt("ADMIN PASS", M + 11, 22.5, "500 8px " + body, "#f2c879", "left");
     txt("#" + String(shown ? shown.id : "").toUpperCase(), CW - M, 22, "500 8px " + body, "#f2c879", "right");
     if ("letterSpacing" in g) g.letterSpacing = "0px";
     g.fillStyle = "rgba(255,255,255,.16)"; g.fillRect(M, 40, CW - M * 2, 1);
