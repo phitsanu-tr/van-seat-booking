@@ -69,10 +69,36 @@ function assignVanIds(vans, taken) {
   return vans;
 }
 
-function tokenOk(trip, k) {
-  if (!trip || !trip.adminToken || typeof k !== "string") return false;
-  const a = Buffer.from(trip.adminToken), b = Buffer.from(k);
+const sha256 = (v) => L.crypto.createHash("sha256").update(String(v)).digest("hex");
+function safeEq(x, y) {
+  const a = Buffer.from(String(x)), b = Buffer.from(String(y));
   return a.length === b.length && L.crypto.timingSafeEqual(a, b);
+}
+// New trips store only a hash of the secret (adminHash); older trips still hold it in plain (adminToken).
+function tokenOk(trip, k) {
+  if (!trip || typeof k !== "string" || !k || k.length > 64) return false;
+  if (trip.adminHash) return safeEq(trip.adminHash, sha256(k));
+  return !!trip.adminToken && safeEq(trip.adminToken, k);
+}
+
+// Brute-force guard: wrong secrets are counted per network per hour.
+const MAX_BAD_TOKENS = 10;
+function clientIp(req) {
+  return (String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim() || "unknown").slice(0, 64);
+}
+function failKey(req) { return "authfail:" + clientIp(req) + ":" + Math.floor(Date.now() / 3600000); }
+async function authBlocked(req) {
+  const n = Number(await L.redis(["GET", failKey(req)]));
+  return n >= MAX_BAD_TOKENS;
+}
+async function authFailed(req) {
+  const key = failKey(req);
+  await L.pipeline([["INCR", key], ["EXPIRE", key, "7200"]]);
+}
+// Secret comes from the x-admin-key header (keeps it out of URLs/logs); ?k= still accepted for old links.
+function adminKey(req, fallback) {
+  const h = req.headers && req.headers["x-admin-key"];
+  return typeof h === "string" && h ? h : fallback;
 }
 
 module.exports = async function handler(req, res) {
@@ -83,19 +109,20 @@ module.exports = async function handler(req, res) {
       if (c.error) return L.json(res, 400, { error: c.error });
       const q = await takeQuota(req, L.readBody(req).d);
       if (q.over) return L.json(res, 429, { error: q.over, limit: TRIPS_PER_MONTH });
-      const id = L.newId(6);
-      const trip = Object.assign({ id, createdAt: Date.now(), adminToken: L.newId(20) }, c.value);
+      const id = L.newId(8), secret = L.newId(16);
+      const trip = Object.assign({ id, createdAt: Date.now(), adminHash: sha256(secret) }, c.value);
       trip.vans = assignVanIds(trip.vans, []);
       const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
       if (ok !== "OK") { await refundQuota(q.keys); return L.json(res, 502, { error: "storage_error" }); }
-      return L.json(res, 200, { id, token: trip.adminToken, trip: L.publicTrip(trip) });
+      return L.json(res, 200, { id, token: secret, trip: L.publicTrip(trip) });
     }
 
     if (req.method === "GET") {
       const t = L.tripId(req.query && req.query.t);
       const trip = t && t !== L.DEFAULT_ID ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
-      if (!tokenOk(trip, req.query.k)) return L.json(res, 403, { error: "bad_token" });
+      if (await authBlocked(req)) return L.json(res, 429, { error: "too_many" });
+      if (!tokenOk(trip, adminKey(req, req.query.k))) { await authFailed(req); return L.json(res, 403, { error: "bad_token" }); }
       return L.json(res, 200, { trip: L.publicTrip(trip) });
     }
 
@@ -104,7 +131,8 @@ module.exports = async function handler(req, res) {
       const t = L.tripId(body.t);
       const trip = t && t !== L.DEFAULT_ID ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
-      if (!tokenOk(trip, body.k)) return L.json(res, 403, { error: "bad_token" });
+      if (await authBlocked(req)) return L.json(res, 429, { error: "too_many" });
+      if (!tokenOk(trip, adminKey(req, body.k))) { await authFailed(req); return L.json(res, 403, { error: "bad_token" }); }
       const c = clean(body);
       if (c.error) return L.json(res, 400, { error: c.error });
       const oldIds = trip.vans.map((v) => v.id);

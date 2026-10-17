@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
 <title>สร้างทริป · จองที่นั่งรถตู้</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
 <style>
@@ -202,8 +204,12 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 <script>
 (function () {
   "use strict";
+  // edit link: /a#<trip>-<secret> (the part after # is never sent to the server); old ?t=&k= links still work
   var q = new URLSearchParams(location.search);
   var T = q.get("t") || "", K = q.get("k") || "";
+  var hm = /^#([a-z0-9]{3,16})-([a-z0-9]{6,64})$/i.exec(location.hash || "");
+  if (hm) { T = hm[1].toLowerCase(); K = hm[2].toLowerCase(); }
+  function editPath(id, token) { return "/a#" + id + "-" + token; }
   var editing = !!(T && K);
   var vansEl = document.getElementById("vans"), msgEl = document.getElementById("msg");
   var rows = []; // [{id, label}]
@@ -257,9 +263,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   function showResult(id, token, created, name, vanCount) {
     shown = { id: id, token: token };
     tripName = name || "";
-    var share = shareLink = link("/?t=" + id); adminUrl = link("/admin.html?t=" + id + "&k=" + token);
+    var share = shareLink = link("/" + id); adminUrl = link(editPath(id, token));
     urlBox($("shareUrl"), id, "แตะเพื่อคัดลอกลิงก์");
-    $("openShare").href = "/?t=" + id;
+    $("openShare").href = "/" + id;
     $("resultTitle").textContent = created ? "สร้างทริปแล้ว" : "ลิงก์ของทริปนี้";
     $("resultSub").textContent = (name || "") + (vanCount ? " · " + vanCount + " คัน" : "");
     var text = (name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share;
@@ -490,7 +496,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       txt(w2, wx + m1, wy + WARN / 2, "400 10px " + body, "#b3261e", "left", CW - wx - M - m1);
     }
     var gTop = GUEST ? TOP : TOP + SECA;
-    section(gTop, false, "#0e7c86", "#0b5f67", link("/?t=" + (shown ? shown.id : "")), GST[0], GST[1], GST[2], GUEST ? blockW(GST[0], GST[1], GST[2]) : BW);
+    section(gTop, false, "#0e7c86", "#0b5f67", link("/" + (shown ? shown.id : "")), GST[0], GST[1], GST[2], GUEST ? blockW(GST[0], GST[1], GST[2]) : BW);
     // footer (its grey band closes the card, so no dashed line before it)
     var fy = gTop + SEC;
     g.fillStyle = "#f4f6f7"; g.fillRect(0, fy, CW, FOOT + 40);
@@ -527,7 +533,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     bad_vans: "ใส่ชื่อรถให้ครบทุกคัน และชื่อต้องไม่ซ้ำกัน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
     quota_device: "เดือนนี้สร้างทริปครบ 5 ทริปแล้ว ลองใหม่เดือนหน้านะ",
-    quota_ip: "เครือข่ายนี้สร้างทริปเยอะเกินกำหนดของเดือนนี้ ลองใหม่เดือนหน้านะ"
+    quota_ip: "เครือข่ายนี้สร้างทริปเยอะเกินกำหนดของเดือนนี้ ลองใหม่เดือนหน้านะ",
+    too_many: "ใส่รหัสผิดหลายครั้งเกินไป รอสักครู่แล้วลองใหม่"
   };
 
   // anonymous per-browser id, used only to count how many trips this browser created this month
@@ -567,7 +574,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       } else {
         remember(data.id, data.token, data.trip.name);
         T = data.id; K = data.token; editing = true;
-        history.replaceState(null, "", "/admin.html?t=" + T + "&k=" + K);
+        history.replaceState(null, "", editPath(T, K));
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label }; }); renderVans();
         $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "บันทึก"; $("shareBtn").hidden = false;
         showResult(T, K, true, data.trip.name, data.trip.vans.length);
@@ -585,7 +592,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var ul = $("mineList"); ul.textContent = "";
     list.forEach(function (x) {
       var li = document.createElement("li");
-      var a = document.createElement("a"); a.href = "/admin.html?t=" + x.id + "&k=" + x.token; a.textContent = x.name || x.id;
+      var a = document.createElement("a"); a.href = editPath(x.id, x.token); a.textContent = x.name || x.id;
       li.appendChild(a);
       ul.appendChild(li);
     });
@@ -596,7 +603,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "แก้รายละเอียดทริปหรือเพิ่มลดจำนวนรถ ผู้จองจะเห็นข้อมูลใหม่ทันที";
       $("submit").textContent = "บันทึก";
       try {
-        var res = await fetch("/api/trip?t=" + encodeURIComponent(T) + "&k=" + encodeURIComponent(K), { cache: "no-store" });
+        var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store", headers: { "x-admin-key": K } });
         var data = await res.json();
         if (!res.ok) { msgEl.textContent = ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ"; $("submit").disabled = true; return; }
         var t = data.trip;

@@ -69,7 +69,7 @@ async function loadTrip(t) {
 }
 
 function publicTrip(trip) {
-  const { adminToken, ...rest } = trip; // never send the admin secret to passengers
+  const { adminToken, adminHash, ...rest } = trip; // never send the admin secret (or its hash) to passengers
   return rest;
 }
 
@@ -80,9 +80,8 @@ function parseSeat(value) {
 
 function newId(len) {
   const chars = "abcdefghjkmnpqrstuvwxyz23456789";
-  const bytes = crypto.randomBytes(len);
   let out = "";
-  for (let i = 0; i < len; i++) out += chars[bytes[i] % chars.length];
+  for (let i = 0; i < len; i++) out += chars[crypto.randomInt(chars.length)]; // unbiased
   return out;
 }
 

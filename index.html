@@ -269,7 +269,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   var W = 820, H = 1450;
 
   var params = new URLSearchParams(location.search);
-  var TRIP = (params.get("t") || "default").toLowerCase();
+  var pathId = /^\/([a-hj-km-np-z2-9]{6,8})\/?$/.exec(location.pathname);
+  var TRIP = (params.get("t") || (pathId && pathId[1]) || "default").toLowerCase();
   var trip = null;           // trip details from the server
   var curVan = params.get("v") || "";
   var vanCache = {};         // van id -> last seats seen
