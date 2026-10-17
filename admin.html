@@ -245,10 +245,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 
   function link(path) { return location.origin + path; }
   var shown = null; // {id, token}
-  function qrSvg(text) {
+  function qrSvg(text, color) {
     try {
       var q = qrcode(0, "M"); q.addData(text); q.make();
-      return q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+      return q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }).replace(/fill="black"/g, 'fill="' + (color || "#000") + '"');
     } catch (e) { return ""; }
   }
   function setStep(n) { $("step1").hidden = n !== 1; $("step2").hidden = n !== 2; (n === 1 ? $("doneBtn1") : $("doneBtn")).focus({ preventScroll: true }); }
@@ -264,8 +264,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var text = (name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share;
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent(text);
     $("lineAdmin").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "ลิงก์ผู้ดูแลทริป (ห้ามส่งต่อ)\n" + adminUrl);
-    $("qr").innerHTML = qrSvg(share);
-    $("qr2").innerHTML = qrSvg(adminUrl);
+    $("qr").innerHTML = qrSvg(share, "#0b5f67");
+    $("qr2").innerHTML = qrSvg(adminUrl, "#1b1f22");
     // the secret is shown masked on screen; copy / save use the full link
     urlBox($("adminUrl"), id, "แตะเพื่อคัดลอกลิงก์ (ลับ)");
     $("saveMsg").textContent = ""; $("seatMsg").textContent = "";
