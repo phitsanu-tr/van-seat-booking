@@ -302,25 +302,36 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     // layout tokens (card units): spacing 8/16/32, type 18/14/12/10/8, all even
     var S = 4, CW = 358, W = CW, CX = 0, CY = 0, P = 16, M = 24, ROW = 32, QR = 144, SEC = QR + P * 2, FOOT = 32, WARN = 16;
     var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
-    // title wraps (max 3 lines) across the full content width
-    var TW = CW - M * 2, tl = [];
-    (function () {
-      var m = document.createElement("canvas").getContext("2d");
-      m.font = "600 18px " + '"Prompt","Noto Sans Thai",system-ui,sans-serif';
-      var segs = (window.Intl && Intl.Segmenter) ? Array.from(new Intl.Segmenter("th", { granularity: "word" }).segment(nm), function (x) { return x.segment; }) : Array.from(nm);
+    // title wraps (max 3 lines) across the content width; wrap-measuring context shared by all passes
+    var wm = document.createElement("canvas").getContext("2d");
+    wm.font = "600 18px " + '"Prompt","Noto Sans Thai",system-ui,sans-serif';
+    function wrapTitle(TW) {
+      var tl = [], segs = (window.Intl && Intl.Segmenter) ? Array.from(new Intl.Segmenter("th", { granularity: "word" }).segment(nm), function (x) { return x.segment; }) : Array.from(nm);
       var cur = "";
       segs.forEach(function (w) {
-        if (m.measureText(cur + w).width <= TW) { cur += w; return; }
+        if (wm.measureText(cur + w).width <= TW) { cur += w; return; }
         if (cur) { tl.push(cur.replace(/\s+$/, "")); cur = ""; }
         w = w.replace(/^\s+/, "");
-        Array.from(w).forEach(function (ch) { if (m.measureText(cur + ch).width <= TW) cur += ch; else { tl.push(cur); cur = ch; } });
+        Array.from(w).forEach(function (ch) { if (wm.measureText(cur + ch).width <= TW) cur += ch; else { tl.push(cur); cur = ch; } });
       });
       if (cur) tl.push(cur);
-      if (tl.length > 3) { tl = tl.slice(0, 3); var last = tl[2]; while (last.length > 1 && m.measureText(last + "…").width > TW) last = last.slice(0, -1); tl[2] = last + "…"; }
-    })();
-    var HDR = 52 + 24 * tl.length + (org ? 18 : 0) + 20, TOP = HDR + 4 + ROW * 4 + 8;
-    var H = CY + TOP + SEC * 2 + P + WARN + P + FOOT + CY;
-    var c = document.createElement("canvas"); c.width = W * S; c.height = H * S;
+      if (tl.length > 3) { tl = tl.slice(0, 3); var last = tl[2]; while (last.length > 1 && wm.measureText(last + "…").width > TW) last = last.slice(0, -1); tl[2] = last + "…"; }
+      return tl;
+    }
+    // the card is always 9:16 (portrait story ratio): width follows the height the content needs
+    var tl, HDR, TOP, H, cwTry = 386, wrapCW;
+    for (var it = 0; it < 5; it++) {
+      wrapCW = cwTry; tl = wrapTitle(cwTry - M * 2);
+      HDR = 52 + 24 * tl.length + (org ? 18 : 0) + 20; TOP = HDR + 4 + ROW * 4 + 8;
+      H = CY + TOP + SEC * 2 + P + WARN + P + FOOT + CY;
+      var need = Math.ceil(H * 9 / 16);
+      if (need === cwTry) break;
+      cwTry = need;
+    }
+    CW = W = Math.max(wrapCW, Math.ceil(H * 9 / 16));
+    var TW = CW - M * 2;
+    H = Math.max(H, CW * 16 / 9);
+    var c = document.createElement("canvas"); c.width = W * S; c.height = Math.round(H * S);
     var g = c.getContext("2d");
     var disp = '"Prompt","Noto Sans Thai",system-ui,sans-serif', body = '"Noto Sans Thai",system-ui,sans-serif';
     g.scale(S, S);
