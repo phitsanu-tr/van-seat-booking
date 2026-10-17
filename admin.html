@@ -350,9 +350,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     ];
     info.forEach(function (r, i) {
       var y = HDR + 4 + i * ROW, cy = y + ROW / 2;
-      icon(ICON[r[0]], M, cy - 8, "#b86e00", 16);
-      txt(r[1], M + 28, cy, "400 10px " + body, "#5f6b73", "left");
-      txt(r[2], M + 88, cy, "600 12px " + body, "#1b1f22", "left", CW - M * 2 - 88);
+      icon(ICON[r[0]], M, cy - 6, "#b86e00", 12);
+      txt(r[1], M + 24, cy, "400 12px " + body, "#5f6b73", "left");
+      txt(r[2], M + 92, cy, "600 12px " + body, "#1b1f22", "left", CW - M * 2 - 92);
       if (i < 3) { g.fillStyle = "#eceff1"; g.fillRect(M, y + ROW - 1, CW - M * 2, 1); }
     });
     function perf(y) {
