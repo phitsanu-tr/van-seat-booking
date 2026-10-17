@@ -62,9 +62,9 @@ button { font: inherit; cursor: pointer; }
 .two > :first-child { flex: 1.3; }
 a.btn { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .btn.line { background: #06c755; color: #fff; }
-.adminbox { display: flex; gap: 10px; align-items: flex-start; background: #fff6e5; color: #7a4b00; border-radius: 12px; padding: 10px 12px; font-size: 12.5px; line-height: 1.45; }
+.adminbox { display: flex; gap: 10px; align-items: flex-start; background: #f1f2f3; color: var(--ink); border-radius: 12px; padding: 10px 12px; font-size: 12.5px; line-height: 1.45; }
 .adminbox svg { flex: none; margin-top: 2px; }
-@media (prefers-color-scheme: dark) { .adminbox { background: #3a2c10; color: #f2c879; } }
+@media (prefers-color-scheme: dark) { .adminbox { background: #223540; } }
 .linkbtn { font: inherit; font-weight: 600; text-decoration: underline; background: none; border: 0; padding: 6px 0 0; color: inherit; cursor: pointer; }
 
 .xbtn { position: absolute; top: 10px; right: 12px; width: 40px; height: 40px; border: 0; background: transparent; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; border-radius: 20px; }
@@ -72,16 +72,22 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .step { display: flex; flex-direction: column; gap: 14px; }
 .step[hidden] { display: none !important; }
 .mh { padding-right: 34px; }
-.check.amber { background: #fff6e5; color: #b86e00; }
+.check.amber { background: #eceef0; color: var(--ink); }
+@media (prefers-color-scheme: dark) { .check.amber { background: #223540; } }
 .dots { display: flex; gap: 6px; justify-content: center; }
 .dots i { width: 8px; height: 8px; border-radius: 4px; background: var(--line); }
 .dots i.on { width: 22px; background: var(--mine); }
-.dots i.on.amber { background: #b86e00; }
+.dots i.on.amber { background: var(--ink); }
 .steplabel { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--mine); }
-.steplabel.amber { color: #b86e00; }
-.qr.amber { border: 3px solid #b86e00; }
-.btn.amber { background: #b86e00; color: #fff; }
-.btn.amberline { background: transparent; color: #b86e00; border-color: #b86e00; }
+.steplabel.amber { color: var(--ink); }
+.passtag { display: flex; align-items: center; gap: 8px; color: var(--mine); }
+.passtag b { font-family: var(--font-display); font-weight: 600; font-size: 13px; letter-spacing: 1px; }
+.passtag span { color: var(--muted); font-size: 13px; }
+.passtag.dark { color: var(--ink); }
+.qr.amber { border: 3px solid var(--ink); }
+.btn.amber { background: var(--ink); color: var(--surface); }
+.btn.tealline { background: transparent; color: var(--mine); border-color: var(--mine); }
+.btn.amberline { background: transparent; color: var(--ink); border-color: var(--ink); }
 .openlink { text-align: center; font-size: 14px; color: var(--muted); padding: 2px 0; }
 </style>
 </head>
@@ -135,7 +141,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
         <div><div class="mt" id="resultTitle">สร้างทริปแล้ว</div><div class="ms" id="resultSub"></div></div>
       </div>
       <div class="dots" aria-hidden="true"><i class="on"></i><i></i></div>
-      <div class="steplabel">ขั้นที่ 1 · ส่งให้ผู้จอง</div>
+      <div class="passtag"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg><b>SEAT PASS</b><span>สำหรับผู้จองทริป</span></div>
       <div class="share">
         <div class="qr" id="qr" role="img" aria-label="คิวอาร์โค้ดลิงก์จอง"></div>
         <div class="link"><b>ลิงก์สำหรับผู้จอง</b><div class="url" id="shareUrl"></div></div>
@@ -144,6 +150,8 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
         <a class="btn line" id="lineBtn" target="_blank" rel="noopener">ส่งเข้า LINE</a>
         <button class="btn plain" id="copyShare" type="button">คัดลอก</button>
       </div>
+      <button class="btn tealline" id="saveSeat" type="button">บันทึกบัตร SEAT PASS เป็นรูป</button>
+      <div class="msg" id="seatMsg" role="status"></div>
       <button class="btn primary" id="nextBtn" type="button">ถัดไป: ลิงก์ผู้ดูแล</button>
       <a class="openlink" id="openShare">เปิดหน้าจอง</a>
     </div>
@@ -154,7 +162,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
         <div><div class="mt">ลิงก์สำหรับผู้ดูแล</div><div class="ms">ขั้นที่ 2 จาก 2 · เก็บไว้คนเดียว</div></div>
       </div>
       <div class="dots" aria-hidden="true"><i></i><i class="on amber"></i></div>
-      <div class="steplabel amber">ขั้นที่ 2 · ลิงก์แก้ไขทริป</div>
+      <div class="passtag dark"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg><b>ADMIN PASS</b><span>สำหรับผู้ดูแลทริป</span></div>
       <div class="share">
         <div class="qr amber" id="qr2" role="img" aria-label="คิวอาร์โค้ดลิงก์แก้ไขทริป"></div>
         <div class="link"><b>ลิงก์แก้ไขทริป</b><div class="url" id="adminUrl"></div></div>
@@ -251,7 +259,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     $("qr2").innerHTML = qrSvg(adminUrl);
     // the secret is shown masked on screen; copy / save use the full link
     $("adminUrl").textContent = link("/admin.html?t=" + id + "&k=") + "••••••••";
-    $("saveMsg").textContent = "";
+    $("saveMsg").textContent = ""; $("seatMsg").textContent = "";
     $("backdrop").hidden = false;
     setStep(1);
   }
@@ -298,7 +306,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var all = Promise.all(["600 15px Prompt", "500 12px Prompt", "400 12px 'Noto Sans Thai'", "500 12px 'Noto Sans Thai'", "600 12px 'Noto Sans Thai'"].map(function (f) { return document.fonts.load(f, "ก"); }));
     return Promise.race([all, new Promise(function (r) { setTimeout(r, 2500); })]).catch(function () {});
   }
-  function drawCard() {
+  function drawCard(mode) {
+    var GUEST = mode === "guest"; // SEAT PASS (guests only) vs ADMIN PASS
+    var TH = GUEST ? { hdr: "#0b5f67", lab: "#bfe9ed", bar: "#3fbac4", ic: "#0e7c86", rule: "#0e7c86", icon: "ticket", name: "SEAT PASS" } : { hdr: "#1b1f22", lab: "#f2c879", bar: "#b86e00", ic: "#b86e00", rule: "#b86e00", icon: "shield", name: "ADMIN PASS" };
     // layout tokens (card units): spacing 8/16/32, type 18/14/12/10/8, all even
     var S = 4, CW = 358, W = CW, CX = 0, CY = 0, P = 16, M = 24, ROW = 32, QR = 130, SEC = QR + 48, FOOT = 32, WARN = 16, SECA = QR + 64; // SECA: admin section incl. its warning line
     var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
@@ -323,14 +333,14 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     for (var it = 0; it < 5; it++) {
       wrapCW = cwTry; tl = wrapTitle(cwTry - M * 2);
       HDR = 52 + 24 * tl.length + (org ? 18 : 0) + 16; TOP = HDR + 4 + ROW * 4; // the amber divider is the 4th row separator: sits on the row's bottom edge
-      H = CY + TOP + SECA + SEC + FOOT + CY;
-      var need = Math.ceil(H * 9 / 16);
+      H = CY + TOP + (GUEST ? 0 : SECA) + SEC + FOOT + CY;
+      var need = GUEST ? cwTry : Math.ceil(H * 9 / 16); // the admin card is 9:16, the seat card keeps its natural height
       if (need === cwTry) break;
       cwTry = need;
     }
-    CW = W = Math.max(wrapCW, Math.ceil(H * 9 / 16));
+    CW = W = GUEST ? wrapCW : Math.max(wrapCW, Math.ceil(H * 9 / 16));
     var TW = CW - M * 2;
-    H = Math.max(H, CW * 16 / 9);
+    if (!GUEST) H = Math.max(H, CW * 16 / 9);
     var c = document.createElement("canvas"); c.width = W * S; c.height = Math.round(H * S);
     var g = c.getContext("2d");
     var disp = '"Prompt","Noto Sans Thai",system-ui,sans-serif', body = '"Noto Sans Thai",system-ui,sans-serif';
@@ -359,23 +369,24 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       pin: "M12 21s6.5-5.6 6.5-11a6.5 6.5 0 10-13 0c0 5.4 6.5 11 6.5 11zM12 7.7a2.3 2.3 0 100 4.6 2.3 2.3 0 000-4.6z",
       van: "M3 16.5V8.5a2 2 0 012-2h9l5 4.5v5.5H3zM9.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0zM18.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0z",
       shield: "M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4",
-      lock: "M7 10.5h10a2 2 0 012 2V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-5.5a2 2 0 012-2zM8.5 10.5V8a3.5 3.5 0 017 0v2.5"
+      lock: "M7 10.5h10a2 2 0 012 2V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-5.5a2 2 0 012-2zM8.5 10.5V8a3.5 3.5 0 017 0v2.5",
+      ticket: "M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"
     };
     // card
     g.save(); rr(CX, CY, CW, H - CY * 2, 24); g.fillStyle = "#fff"; g.fill(); g.clip();
     g.translate(CX, CY);
     // header
-    g.fillStyle = "#1b1f22"; g.fillRect(0, 0, CW, HDR);
+    g.fillStyle = TH.hdr; g.fillRect(0, 0, CW, HDR);
     // label row: quiet amber label + trip id, hairline, then the trip title
-    icon(ICON.shield, M - 2, 16, "#f2c879", 12);
+    icon(ICON[TH.icon], M - 2, 16, TH.lab, 12);
     if ("letterSpacing" in g) g.letterSpacing = "1px";
-    capTxt("ADMIN PASS", M + 14, 22, "500 10px " + body, "#f2c879", "left");
-    capTxt("#" + String(shown ? shown.id : "").toUpperCase(), CW - M, 22, "500 10px " + body, "#f2c879", "right");
+    capTxt(TH.name, M + 14, 22, "500 10px " + body, TH.lab, "left");
+    capTxt("#" + String(shown ? shown.id : "").toUpperCase(), CW - M, 22, "500 10px " + body, TH.lab, "right");
     if ("letterSpacing" in g) g.letterSpacing = "0px";
     g.fillStyle = "rgba(255,255,255,.16)"; g.fillRect(M, 40, CW - M * 2, 1);
     tl.forEach(function (ln, i) { txt(ln, M, 64 + i * 24, "600 18px " + disp, "#fff", "left"); });
     if (org) txt(org, M, 52 + 24 * tl.length + 11, "400 10px " + body, "rgba(255,255,255,.75)", "left", TW);
-    g.fillStyle = "#b86e00"; g.fillRect(0, HDR, CW, 4);
+    g.fillStyle = TH.bar; g.fillRect(0, HDR, CW, 4);
     // info rows
     var nv = rows.length, dep = $("departTime").value, mp = $("meetPoint").value.trim();
     var info = [
@@ -386,7 +397,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     ];
     info.forEach(function (r, i) {
       var y = HDR + 4 + i * ROW, cy = y + ROW / 2;
-      icon(ICON[r[0]], M, cy - 6, "#b86e00", 12);
+      icon(ICON[r[0]], M, cy - 6, TH.ic, 12);
       capTxt(r[1], M + 24, cy, "400 10px " + body, "#5f6b73", "left");
       capTxt(r[2], M + 72, cy, "600 12px " + body, "#1b1f22", "left", CW - M * 2 - 72);
       if (i < 3) { g.fillStyle = "#eceff1"; g.fillRect(M, y + ROW - 1, CW - M * 2, 1); }
@@ -445,19 +456,22 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var ADM = ["สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา นัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]];
     var GST = ["สำหรับผู้จองทริป", "สแกนเพื่อจองที่นั่ง", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["เลือกคันและที่นั่ง", "แตะที่นั่งว่างบนผัง"], ["กรอกชื่อและยืนยัน", "ชื่อแสดงบนผังทันที"]]];
     var BW = Math.max(blockW(ADM[0], ADM[1], ADM[2]), blockW(GST[0], GST[1], GST[2]));
-    g.fillStyle = "#b86e00"; g.fillRect(M, TOP - 1.5, CW - M * 2, 1.5); // thin amber divider
-    section(TOP, true, "#1b1f22", "#1b1f22", adminUrl, ADM[0], ADM[1], ADM[2], BW);
-    // warning sits right under the black QR it refers to (one line, red text only)
-    var wy = TOP + 12 + QR + 24 + 12; // warning centred between the two panels
-    var w1 = "สำหรับผู้ดูแลทริป ", w2 = "โปรดเก็บ Admin Pass ไว้ อย่าส่งต่อ QR Code สีดำ";
-    g.font = "600 10px " + body; var m1 = g.measureText(w1).width;
-    g.font = "400 10px " + body; var m2 = g.measureText(w2).width;
-    var wx = Math.max(M, (CW - m1 - m2) / 2);
-    txt(w1, wx, wy + WARN / 2, "600 10px " + body, "#b3261e", "left");
-    txt(w2, wx + m1, wy + WARN / 2, "400 10px " + body, "#b3261e", "left", CW - wx - M - m1);
-    section(TOP + SECA, false, "#0e7c86", "#0b5f67", link("/?t=" + (shown ? shown.id : "")), GST[0], GST[1], GST[2], BW);
+    g.fillStyle = TH.rule; g.fillRect(M, TOP - 1.5, CW - M * 2, 1.5); // thin divider (amber on the admin pass, teal on the seat pass)
+    if (!GUEST) section(TOP, true, "#1b1f22", "#1b1f22", adminUrl, ADM[0], ADM[1], ADM[2], BW);
+    if (!GUEST) {
+      // warning sits right under the black QR it refers to (one line, red text only)
+      var wy = TOP + 12 + QR + 24 + 12; // warning centred between the two panels
+      var w1 = "สำหรับผู้ดูแลทริป ", w2 = "โปรดเก็บ Admin Pass ไว้ อย่าส่งต่อ QR Code สีดำ";
+      g.font = "600 10px " + body; var m1 = g.measureText(w1).width;
+      g.font = "400 10px " + body; var m2 = g.measureText(w2).width;
+      var wx = Math.max(M, (CW - m1 - m2) / 2);
+      txt(w1, wx, wy + WARN / 2, "600 10px " + body, "#b3261e", "left");
+      txt(w2, wx + m1, wy + WARN / 2, "400 10px " + body, "#b3261e", "left", CW - wx - M - m1);
+    }
+    var gTop = GUEST ? TOP : TOP + SECA;
+    section(gTop, false, "#0e7c86", "#0b5f67", link("/?t=" + (shown ? shown.id : "")), GST[0], GST[1], GST[2], GUEST ? blockW(GST[0], GST[1], GST[2]) : BW);
     // footer (its grey band closes the card, so no dashed line before it)
-    var fy = TOP + SECA + SEC;
+    var fy = gTop + SEC;
     g.fillStyle = "#f4f6f7"; g.fillRect(0, fy, CW, FOOT + 40);
     var now = new Date(), hh = ("0" + now.getHours()).slice(-2), mm = ("0" + now.getMinutes()).slice(-2);
     txt("สร้างเมื่อ " + now.getDate() + " " + MON[now.getMonth()] + " " + (now.getFullYear() + 543) + " · " + hh + "." + mm + " น.", M, fy + FOOT / 2, "400 10px " + body, "#5f6b73", "left");
@@ -465,25 +479,27 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     g.restore();
     return c;
   }
-  $("saveImg").addEventListener("click", function () {
-    var msg = $("saveMsg"); msg.textContent = ""; msg.style.color = "";
+  function saveCard(mode, fileName, msg) {
+    msg.textContent = ""; msg.style.color = "";
     loadFonts().then(function () {
     var c;
-    try { c = drawCard(); } catch (e) { msg.textContent = "สร้างรูปไม่สำเร็จ ลองคัดลอกลิงก์แทน"; return; }
+    try { c = drawCard(mode); } catch (e) { msg.textContent = "สร้างรูปไม่สำเร็จ ลองคัดลอกลิงก์แทน"; return; }
     c.toBlob(function (blob) {
       if (!blob) { msg.textContent = "สร้างรูปไม่สำเร็จ ลองคัดลอกลิงก์แทน"; return; }
-      var file; try { file = new File([blob], "บัตรผู้ดูแลทริป.png", { type: "image/png" }); } catch (e) { file = null; }
+      var file; try { file = new File([blob], fileName, { type: "image/png" }); } catch (e) { file = null; }
       if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
         navigator.share({ files: [file] }).catch(function () {});
         return;
       }
       var url = URL.createObjectURL(blob), a = document.createElement("a");
-      a.href = url; a.download = "บัตรผู้ดูแลทริป.png"; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
       msg.style.color = "var(--muted)"; msg.textContent = "ถ้าไม่มีไฟล์ดาวน์โหลด ให้ใช้ปุ่มคัดลอกลิงก์แทน";
     }, "image/png");
     });
-  });
+  }
+  $("saveImg").addEventListener("click", function () { saveCard("admin", "ADMIN PASS.png", $("saveMsg")); });
+  $("saveSeat").addEventListener("click", function () { saveCard("guest", "SEAT PASS.png", $("seatMsg")); });
 
   var ERR = {
     bad_name: "ใส่ชื่อทริปก่อน", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง",
