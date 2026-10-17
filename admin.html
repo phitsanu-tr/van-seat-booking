@@ -411,14 +411,13 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       steps.forEach(function (st) { m(st[0], F.st, 28); m(st[1], F.sub, 28); });
       return Math.ceil(w);
     }
-    function section(sy, qrLeft, col, qrCol, qrText, eyebrow, head, steps) {
-      var bw = blockW(eyebrow, head, steps);
+    function section(sy, qrLeft, col, qrCol, qrText, eyebrow, head, steps, bw) {
       var textX = qrLeft ? CW - M - bw : M;
       var qrX = qrLeft ? M : CW - M - QR;
       // soft panel behind the text block: exactly as tall as the QR frame
       var px0 = qrLeft ? M + QR + 8 : M, px1 = qrLeft ? CW - M : qrX - 8;
       g.fillStyle = "#f4f6f7"; rr(px0, sy + P, px1 - px0, QR, 12); g.fill();
-      textX = px0 + 12;
+      textX = Math.round(px0 + (px1 - px0 - bw) / 2); // same block width in both panels, centred: equal padding on both sides
       qrAt(qrText, qrCol, qrX, sy + P);
       var T = sy + P, pad = (QR - 130) / 2, gap = 2;
       var yE = T + pad + 5, yH = yE + 21;
@@ -432,10 +431,13 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         txt(st[1], textX + 28, top + 23, F.sub, "#5f6b73", "left", bw - 28);
       });
     }
+    var ADM = ["สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา นัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]];
+    var GST = ["สำหรับผู้จองทริป", "สแกนเพื่อจองที่นั่ง", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["เลือกคันและที่นั่ง", "แตะที่นั่งว่างบนผัง"], ["กรอกชื่อและยืนยัน", "ชื่อแสดงบนผังทันที"]]];
+    var BW = Math.max(blockW(ADM[0], ADM[1], ADM[2]), blockW(GST[0], GST[1], GST[2]));
     perf(TOP);
-    section(TOP, true, "#1b1f22", "#1b1f22", adminUrl, "สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา นัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]);
+    section(TOP, true, "#1b1f22", "#1b1f22", adminUrl, ADM[0], ADM[1], ADM[2], BW);
     perf(TOP + SEC);
-    section(TOP + SEC, false, "#0e7c86", "#0b5f67", link("/?t=" + (shown ? shown.id : "")), "สำหรับผู้จองทริป", "สแกนเพื่อจองที่นั่ง", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["เลือกคันและที่นั่ง", "แตะที่นั่งว่างบนผัง"], ["กรอกชื่อและยืนยัน", "ชื่อแสดงบนผังทันที"]]);
+    section(TOP + SEC, false, "#0e7c86", "#0b5f67", link("/?t=" + (shown ? shown.id : "")), GST[0], GST[1], GST[2], BW);
     perf(TOP + SEC * 2);
     // warning (one line, red text only)
     var wy = TOP + SEC * 2 + P;
