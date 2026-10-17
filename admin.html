@@ -350,14 +350,14 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     ];
     // 2x2 grid: icon + small label over value; column 2 is sized to its widest value
     g.font = "600 12px " + body;
-    var c2w = Math.ceil(Math.max(g.measureText(info[1][2]).width, g.measureText(info[3][2]).width)) + 24;
+    var c2w = Math.ceil(Math.max(g.measureText(info[1][2]).width, g.measureText(info[3][2]).width)) + 32;
     var c2x = CW - M - c2w, c1w = c2x - M - 8;
     var gy = HDR + 4 + P;
     [[0, 0, M, c1w], [1, 0, c2x, c2w], [2, 1, M, c1w], [3, 1, c2x, c2w]].forEach(function (cl) {
       var r = info[cl[0]], x = cl[2], y = gy + cl[1] * (INFO_CELL + INFO_GAP);
-      icon(ICON[r[0]], x, y + INFO_CELL / 2 - 8, "#b86e00", 16);
-      txt(r[1], x + 24, y + 7, "400 10px " + body, "#5f6b73", "left");
-      txt(r[2], x + 24, y + 22, "600 12px " + body, "#1b1f22", "left", cl[3] - 24);
+      icon(ICON[r[0]], x, y + INFO_CELL / 2 - 12, "#b86e00", 24);
+      txt(r[1], x + 32, y + 7, "400 10px " + body, "#5f6b73", "left");
+      txt(r[2], x + 32, y + 22, "600 12px " + body, "#1b1f22", "left", cl[3] - 32);
     });
     function perf(y) {
       g.fillStyle = "#dfe5e9"; g.beginPath(); g.arc(0, y, 12, 0, 7); g.fill(); g.beginPath(); g.arc(CW, y, 12, 0, 7); g.fill();
