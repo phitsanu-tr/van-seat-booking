@@ -300,7 +300,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   function drawCard() {
     // layout tokens (card units): spacing 8/16/32, type 18/14/12/10/8, all even
-    var S = 4, CW = 358, W = CW, CX = 0, CY = 0, P = 16, M = 24, ROW = 32, QR = 144, SEC = QR + P * 2, FOOT = 32, WARN = 16;
+    var S = 4, CW = 358, W = CW, CX = 0, CY = 0, P = 16, M = 24, ROW = 32, QR = 160, SEC = QR + P * 2, FOOT = 32, WARN = 16;
     var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
     // title wraps (max 3 lines) across the content width; wrap-measuring context shared by all passes
     var wm = document.createElement("canvas").getContext("2d");
@@ -415,16 +415,17 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var bw = blockW(eyebrow, head, steps);
       var textX = qrLeft ? CW - M - bw : M;
       var qrX = qrLeft ? M : CW - M - QR;
-      // soft panel behind the text block: spans the QR height plus 8 above/below so the copy has even padding
+      // soft panel behind the text block: exactly as tall as the QR frame
       var px0 = qrLeft ? M + QR + 8 : M, px1 = qrLeft ? CW - M : qrX - 8;
-      g.fillStyle = "#f4f6f7"; rr(px0, sy + P - 8, px1 - px0, QR + 16, 12); g.fill();
+      g.fillStyle = "#f4f6f7"; rr(px0, sy + P, px1 - px0, QR, 12); g.fill();
       textX = px0 + 12;
       qrAt(qrText, qrCol, qrX, sy + P);
-      var T = sy + P, gap = (QR - 128) / 3;
-      txt(eyebrow, textX, T + 7, F.eye, "#6b747b", "left");
-      txt(head, textX, T + 28, F.head, col, "left", bw);
+      var T = sy + P, pad = (QR - 130) / 2, gap = 2;
+      var yE = T + pad + 5, yH = yE + 21;
+      txt(eyebrow, textX, yE, F.eye, "#6b747b", "left");
+      txt(head, textX, yH, F.head, col, "left", bw);
       steps.forEach(function (st, i) {
-        var top = T + 38 + gap + i * (30 + gap);
+        var top = yH + 10 + gap + i * (30 + gap);
         g.fillStyle = col; g.beginPath(); g.arc(textX + 10, top + 10, 10, 0, 7); g.fill();
         txt(String(i + 1), textX + 10, top + 10.5, F.num, "#fff", "center");
         txt(st[0], textX + 28, top + 8, F.st, "#1b1f22", "left", bw - 28);
