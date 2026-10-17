@@ -5,8 +5,18 @@
 
 const crypto = require("crypto");
 
-const REST_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const REST_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+// Accept the variable names with or without a custom prefix (e.g. STORAGE_KV_REST_API_URL).
+function pickEnv(...names) {
+  for (const name of names) {
+    for (const key of Object.keys(process.env)) {
+      if ((key === name || key.endsWith("_" + name)) && process.env[key]) return process.env[key];
+    }
+  }
+  return undefined;
+}
+
+const REST_URL = pickEnv("KV_REST_API_URL", "UPSTASH_REDIS_REST_URL");
+const REST_TOKEN = pickEnv("KV_REST_API_TOKEN", "UPSTASH_REDIS_REST_TOKEN");
 const ADMIN_CODE = process.env.ADMIN_CODE || "";
 
 const TOTAL_SEATS = 10;
