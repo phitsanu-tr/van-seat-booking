@@ -303,7 +303,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var S = 4, CW = 358, W = CW, CX = 0, CY = 0, P = 16, M = 24, ROW = 32, QR = 144, SEC = QR + P * 2, FOOT = 32, WARN = 16;
     var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
     // title wraps (max 3 lines) in the space left of the corner tag
-    var TW = CW - M - 40 - 16 - M, tl = [];
+    var TW = CW - 56 - 16 - M, tl = [];
     (function () {
       var m = document.createElement("canvas").getContext("2d");
       m.font = "600 18px " + '"Prompt","Noto Sans Thai",system-ui,sans-serif';
@@ -347,15 +347,15 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     g.translate(CX, CY);
     // header
     g.fillStyle = "#1b1f22"; g.fillRect(0, 0, CW, HDR);
-    // corner tag (hangs from the top edge, right edge aligned to where the card curve ends)
-    var tx0 = CW - M - 40;
-    g.beginPath(); g.moveTo(tx0, 0); g.lineTo(tx0 + 40, 0); g.lineTo(tx0 + 40, 48); g.arcTo(tx0 + 40, 56, tx0 + 32, 56, 8);
-    g.lineTo(tx0 + 8, 56); g.arcTo(tx0, 56, tx0, 48, 8); g.closePath(); g.fillStyle = "#f2c879"; g.fill();
-    icon(ICON.lock, tx0 + 14, 12, "#1b1f22", 12);
+    // corner tag: flush to the card edge, bottom-left curve echoes the card corner
+    var tx0 = CW - 56, tcx = tx0 + 28;
+    g.beginPath(); g.moveTo(tx0, 0); g.lineTo(CW, 0); g.lineTo(CW, 76); g.lineTo(tx0 + 24, 76); g.arcTo(tx0, 76, tx0, 52, 24);
+    g.closePath(); g.fillStyle = "#f2c879"; g.fill();
+    icon(ICON.lock, tcx - 6, 12, "#1b1f22", 12);
     if ("letterSpacing" in g) g.letterSpacing = "1px";
-    txt("ADMIN", tx0 + 20.5, 33, "600 8px " + body, "#1b1f22", "center");
-    txt("PASS", tx0 + 20.5, 43, "600 8px " + body, "#1b1f22", "center");
-    txt("#" + String(shown ? shown.id : "").toUpperCase(), tx0 + 20.5, 68, "500 8px " + body, "#f2c879", "center");
+    txt("ADMIN", tcx + 0.5, 33, "600 8px " + body, "#1b1f22", "center");
+    txt("PASS", tcx + 0.5, 43, "600 8px " + body, "#1b1f22", "center");
+    txt("#" + String(shown ? shown.id : "").toUpperCase(), tcx + 0.5, 59, "500 8px " + body, "#1b1f22", "center");
     if ("letterSpacing" in g) g.letterSpacing = "0px";
     tl.forEach(function (ln, i) { txt(ln, M, 28 + i * 24, "600 18px " + disp, "#fff", "left"); });
     if (org) txt(org, M, 16 + 24 * tl.length + 11, "400 10px " + body, "rgba(255,255,255,.75)", "left", TW);
