@@ -416,11 +416,12 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       // grey panel wraps QR + text; QR sits 12 inside its edge
       var PX = M, PI = 12;
       g.fillStyle = "#f4f6f7"; rr(PX, sy + 12, CW - PX * 2, QR + 24, 14); g.fill();
-      var qrX = qrLeft ? PX + PI : CW - PX - PI - QR;
+      var own = blockW(eyebrow, head, steps);
+      var qrX = 0, GAP = 24, avail = CW - PX * 2 - PI * 2, off = (avail - (QR + GAP + own)) / 2;
+      if (qrLeft) qrX = PX + PI + off; else qrX = CW - PX - PI - off - QR;
       // both blocks share one width and sit centred in the space between the QR and the panel edge
       var px0 = qrLeft ? qrX + QR + 8 : PX + PI, px1 = qrLeft ? CW - PX - PI : qrX - 8;
-      var own = blockW(eyebrow, head, steps);
-      var textX = qrLeft ? px1 - own : px0; // flush to the outer padding, same as the QR
+      var textX = qrLeft ? qrX + QR + GAP : qrX - GAP - own;
       qrAt(qrText, qrCol, qrX, sy + 24);
       var T = sy + 24;
       // text ink spans exactly the QR height: eyebrow ink top on the QR top, last subtitle ink bottom on the QR bottom
