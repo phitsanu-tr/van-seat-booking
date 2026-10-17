@@ -74,11 +74,11 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .mh { padding-right: 34px; }
 .check.amber { background: #eceef0; color: var(--ink); }
 @media (prefers-color-scheme: dark) { .check.amber { background: #223540; } }
-.dots { display: flex; background: var(--bg); border-radius: 999px; padding: 4px; margin: 0 0 14px; }
-.dots button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 8px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: 600 14px var(--font-body); cursor: pointer; }
+.dots { display: flex; background: var(--bg); border-radius: 12px; padding: 4px; margin: 0 0 14px; }
+.dots button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 8px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font: 600 14px var(--font-body); cursor: pointer; }
 .dots button svg { width: 15px; height: 15px; flex: none; }
-.dots button.on { background: var(--mine); color: var(--mine-ink); }
-.dots button.on.amber { background: var(--ink); color: var(--surface); }
+.dots button.on { background: var(--surface); color: var(--mine); box-shadow: 0 1px 4px rgba(0,0,0,.18); }
+.dots button.on.amber { color: var(--ink); }
 .steplabel { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--mine); }
 .steplabel.amber { color: var(--ink); }
 .passtag { display: flex; align-items: center; gap: 8px; color: var(--mine); }
