@@ -334,8 +334,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     g.fillStyle = "#1b1f22"; g.fillRect(0, 0, CW, HDR);
     icon(ICON.lock, P, 15, "#f2c879", 16);
     if ("letterSpacing" in g) g.letterSpacing = "1px";
-    txt("ADMIN PASS", P + 22, 23, "500 8px " + body, "#f2c879", "left");
-    txt("#" + String(shown ? shown.id : "").toUpperCase(), CW - P, 23, "500 8px " + body, "#f2c879", "right");
+    txt("ADMIN PASS", P + 22, 24, "500 8px " + body, "#f2c879", "left");
+    txt("#" + String(shown ? shown.id : "").toUpperCase(), CW - P, 24, "500 8px " + body, "#f2c879", "right");
     if ("letterSpacing" in g) g.letterSpacing = "0px";
     txt(nm, P, 50, "600 18px " + disp, "#fff", "left", CW - P * 2);
     if (org) txt(org, P, 73, "400 10px " + body, "rgba(255,255,255,.75)", "left", CW - P * 2);
