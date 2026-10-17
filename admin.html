@@ -415,7 +415,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     function section(sy, qrLeft, col, qrCol, qrText, eyebrow, head, steps, bw) {
       // grey panel wraps QR + text; QR sits 12 inside its edge
       var PX = M, PI = 12;
-      g.fillStyle = "#f4f6f7"; rr(PX, sy + 12, CW - PX * 2, QR + 24, 14); g.fill();
+      g.fillStyle = qrLeft ? "#eeeff0" : "#e5f2f3"; rr(PX, sy + 12, CW - PX * 2, QR + 24, 14); g.fill();
       var own = blockW(eyebrow, head, steps);
       var qrX = 0, GAP = 24, avail = CW - PX * 2 - PI * 2, off = (avail - (QR + GAP + own)) / 2;
       if (qrLeft) qrX = PX + PI + off; else qrX = CW - PX - PI - off - QR;
@@ -454,7 +454,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var wx = Math.max(M, (CW - m1 - m2) / 2);
     txt(w1, wx, wy + WARN / 2, "600 10px " + body, "#b3261e", "left");
     txt(w2, wx + m1, wy + WARN / 2, "400 10px " + body, "#b3261e", "left", CW - wx - M - m1);
-    perf(TOP + SECA);
     section(TOP + SECA, false, "#0e7c86", "#0b5f67", link("/?t=" + (shown ? shown.id : "")), GST[0], GST[1], GST[2], BW);
     // footer (its grey band closes the card, so no dashed line before it)
     var fy = TOP + SECA + SEC;
