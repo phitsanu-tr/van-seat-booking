@@ -97,21 +97,24 @@ h1 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
   background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px 20px 18px; width: 100%; max-width: 340px;
   display: flex; flex-direction: column; gap: 14px; box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
 }
-.modal { gap: 18px; padding: 22px; border-radius: 22px; max-width: 360px; }
-.mhead { display: flex; gap: 18px; align-items: stretch; }
-.mini { flex: none; width: 96px; border-radius: 14px; background: var(--bg); padding: 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
-.mini svg { width: 80px; height: 156px; display: block; }
-.mtxt { display: flex; flex-direction: column; justify-content: center; gap: 6px; min-width: 0; }
+.backdrop { align-items: flex-end; justify-content: center; padding: 0 !important; }
+.modal { gap: 18px; padding: 12px 20px calc(24px + env(safe-area-inset-bottom, 0px)); border-radius: 26px 26px 0 0; max-width: 480px; border-bottom: 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, .25); }
+.modal::before { content: ""; align-self: center; width: 42px; height: 5px; border-radius: 3px; background: var(--line); }
+.mhead { display: flex; gap: 16px; align-items: center; }
+.mini { flex: none; width: 70px; border-radius: 12px; background: var(--bg); padding: 6px; box-sizing: border-box; display: flex; justify-content: center; }
+.mini svg { width: 56px; height: 108px; display: block; }
+.mtxt { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
 .mtxt small { font-size: 13px; color: var(--muted); }
-.mtxt h2 { font-size: 30px !important; line-height: 1.1; }
+.mtxt h2 { font-size: 28px !important; line-height: 1.1; }
 .pill { align-self: flex-start; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: color-mix(in srgb, var(--mine) 18%, transparent); color: var(--mine); }
 .pill.taken { background: var(--taken); color: var(--ink); }
-.modal input[type=text] { width: 100%; height: 50px; font-size: 16px; border: 2px solid var(--mine); border-radius: 12px; padding: 0 14px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--mine) 18%, transparent); outline: none; }
-.modal .actions { flex-wrap: nowrap; }
-.modal .actions button { height: 50px; border-radius: 12px; font-size: 16px; padding: 0 16px; }
-.modal .actions button.primary { flex: 1.4; }
+.modal input[type=text] { flex: none; width: 100%; height: 58px; font-size: 18px; border: 2px solid var(--mine); border-radius: 16px; padding: 0 18px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--mine) 18%, transparent); outline: none; }
+.modal .actions { flex-wrap: nowrap; gap: 10px; }
+.modal .actions button { height: 56px; border-radius: 16px; font-size: 16px; padding: 0 16px; }
+.modal .actions button.primary { flex: 1.6; font-size: 18px; }
 .modal .actions button.plain { flex: 1; }
-.modal .actions button.danger { flex: 1.4; }
+.modal .actions button.danger { flex: 1.6; }
+.modal .actions button.ghost { flex: 1.6; align-self: auto; }
 .modal h2 { font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 0; }
 .modal p { margin: 0; color: var(--muted); }
 .modal p b { color: var(--ink); font-weight: 600; }
