@@ -322,7 +322,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var tl, HDR, TOP, H, cwTry = 386, wrapCW;
     for (var it = 0; it < 5; it++) {
       wrapCW = cwTry; tl = wrapTitle(cwTry - M * 2);
-      HDR = 52 + 24 * tl.length + (org ? 18 : 0) + 20; TOP = HDR + 4 + ROW * 4 + 8;
+      HDR = 52 + 24 * tl.length + (org ? 18 : 0) + 16; TOP = HDR + 4 + ROW * 4 + 8;
       H = CY + TOP + SEC * 2 + P + WARN + P + FOOT + CY;
       var need = Math.ceil(H * 9 / 16);
       if (need === cwTry) break;
@@ -366,10 +366,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     // header
     g.fillStyle = "#1b1f22"; g.fillRect(0, 0, CW, HDR);
     // label row: quiet amber label + trip id, hairline, then the trip title
-    icon(ICON.shield, M - 2, 17, "#f2c879", 10);
+    icon(ICON.shield, M - 2, 16, "#f2c879", 12);
     if ("letterSpacing" in g) g.letterSpacing = "1px";
-    capTxt("ADMIN PASS", M + 11, 22, "500 8px " + body, "#f2c879", "left");
-    capTxt("#" + String(shown ? shown.id : "").toUpperCase(), CW - M, 22, "500 8px " + body, "#f2c879", "right");
+    capTxt("ADMIN PASS", M + 14, 22, "500 10px " + body, "#f2c879", "left");
+    capTxt("#" + String(shown ? shown.id : "").toUpperCase(), CW - M, 22, "500 10px " + body, "#f2c879", "right");
     if ("letterSpacing" in g) g.letterSpacing = "0px";
     g.fillStyle = "rgba(255,255,255,.16)"; g.fillRect(M, 40, CW - M * 2, 1);
     tl.forEach(function (ln, i) { txt(ln, M, 64 + i * 24, "600 18px " + disp, "#fff", "left"); });
@@ -449,8 +449,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var fy = wy + WARN + P;
     g.fillStyle = "#f4f6f7"; g.fillRect(0, fy, CW, FOOT + 40);
     var now = new Date(), hh = ("0" + now.getHours()).slice(-2), mm = ("0" + now.getMinutes()).slice(-2);
-    txt("สร้างเมื่อ " + now.getDate() + " " + MON[now.getMonth()] + " " + (now.getFullYear() + 543) + " · " + hh + "." + mm + " น.", M, fy + FOOT / 2, "400 8px " + body, "#5f6b73", "left");
-    txt("van-seat-booking", CW - M, fy + FOOT / 2, "400 8px " + body, "#5f6b73", "right");
+    txt("สร้างเมื่อ " + now.getDate() + " " + MON[now.getMonth()] + " " + (now.getFullYear() + 543) + " · " + hh + "." + mm + " น.", M, fy + FOOT / 2, "400 10px " + body, "#5f6b73", "left");
+    txt("van-seat-booking", CW - M, fy + FOOT / 2, "400 10px " + body, "#5f6b73", "right");
     g.restore();
     return c;
   }
