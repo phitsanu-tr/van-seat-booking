@@ -37,6 +37,7 @@ button { font: inherit; cursor: pointer; }
 .btn.small { height: 44px; font-size: 14px; }
 .x { flex: none; width: 44px; height: 44px; border-radius: 12px; background: transparent; border: 1.5px solid var(--line); color: var(--danger); font-size: 20px; line-height: 1; }
 .msg { color: var(--danger); font-size: 14px; }
+#saveMsg { font-size: 12.5px; }
 .msg:empty { display: none; }
 .link { display: flex; flex-direction: column; gap: 6px; }
 .link b { font-size: 14px; }
@@ -65,6 +66,23 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .adminbox svg { flex: none; margin-top: 2px; }
 @media (prefers-color-scheme: dark) { .adminbox { background: #3a2c10; color: #f2c879; } }
 .linkbtn { font: inherit; font-weight: 600; text-decoration: underline; background: none; border: 0; padding: 6px 0 0; color: inherit; cursor: pointer; }
+
+.xbtn { position: absolute; top: 10px; right: 12px; width: 40px; height: 40px; border: 0; background: transparent; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; border-radius: 20px; }
+.modal { position: relative; }
+.step { display: flex; flex-direction: column; gap: 14px; }
+.step[hidden] { display: none !important; }
+.mh { padding-right: 34px; }
+.check.amber { background: #fff6e5; color: #b86e00; }
+.dots { display: flex; gap: 6px; justify-content: center; }
+.dots i { width: 8px; height: 8px; border-radius: 4px; background: var(--line); }
+.dots i.on { width: 22px; background: var(--mine); }
+.dots i.on.amber { background: #b86e00; }
+.steplabel { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--mine); }
+.steplabel.amber { color: #b86e00; }
+.qr.amber { border: 3px solid #b86e00; }
+.btn.amber { background: #b86e00; color: #fff; }
+.btn.amberline { background: transparent; color: #b86e00; border-color: #b86e00; }
+.openlink { text-align: center; font-size: 14px; color: var(--muted); padding: 2px 0; }
 </style>
 </head>
 <body>
@@ -109,26 +127,51 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 
 <div class="backdrop" id="backdrop" hidden>
   <div class="modal" id="result" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
-    <div class="mh">
-      <span class="check"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-      <div><div class="mt" id="resultTitle">สร้างทริปแล้ว</div><div class="ms" id="resultSub"></div></div>
+    <button type="button" class="xbtn" id="xBtn" aria-label="ปิด">×</button>
+    <!-- step 1: guests -->
+    <div class="step" id="step1">
+      <div class="mh">
+        <span class="check"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+        <div><div class="mt" id="resultTitle">สร้างทริปแล้ว</div><div class="ms" id="resultSub"></div></div>
+      </div>
+      <div class="dots" aria-hidden="true"><i class="on"></i><i></i></div>
+      <div class="steplabel">ขั้นที่ 1 · ส่งให้ผู้จอง</div>
+      <div class="share">
+        <div class="qr" id="qr" role="img" aria-label="คิวอาร์โค้ดลิงก์จอง"></div>
+        <div class="link"><b>ลิงก์สำหรับผู้จอง</b><div class="url" id="shareUrl"></div></div>
+      </div>
+      <div class="two">
+        <a class="btn line" id="lineBtn" target="_blank" rel="noopener">ส่งเข้า LINE</a>
+        <button class="btn plain" id="copyShare" type="button">คัดลอก</button>
+      </div>
+      <button class="btn primary" id="nextBtn" type="button">ถัดไป: ลิงก์ผู้ดูแล</button>
+      <a class="openlink" id="openShare">เปิดหน้าจอง</a>
     </div>
-    <div class="share">
-      <div class="qr" id="qr" aria-label="คิวอาร์โค้ดลิงก์จอง" role="img"></div>
-      <div class="link"><b>ลิงก์สำหรับผู้จอง</b><div class="url" id="shareUrl"></div></div>
-    </div>
-    <div class="two">
-      <a class="btn line" id="lineBtn" target="_blank" rel="noopener">ส่งเข้า LINE</a>
-      <button class="btn plain" id="copyShare" type="button">คัดลอก</button>
-    </div>
-    <div class="adminbox">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/></svg>
-      <div><b>ลิงก์แก้ไขทริป</b> เก็บไว้คนเดียว ใครมีลิงก์นี้แก้ทริปได้ อย่าส่งเข้ากลุ่ม
-        <div><button type="button" class="linkbtn" id="copyAdmin">คัดลอกลิงก์แก้ไข</button></div></div>
-    </div>
-    <div class="two">
-      <button class="btn plain" id="closeBtn" type="button">ปิด</button>
-      <a class="btn primary" id="openShare">เปิดหน้าจอง</a>
+    <!-- step 2: admin -->
+    <div class="step" id="step2" hidden>
+      <div class="mh">
+        <span class="check amber"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/></svg></span>
+        <div><div class="mt">ลิงก์สำหรับผู้ดูแล</div><div class="ms">ขั้นที่ 2 จาก 2 · เก็บไว้คนเดียว</div></div>
+      </div>
+      <div class="dots" aria-hidden="true"><i></i><i class="on amber"></i></div>
+      <div class="steplabel amber">ขั้นที่ 2 · ลิงก์แก้ไขทริป</div>
+      <div class="share">
+        <div class="qr amber" id="qr2" role="img" aria-label="คิวอาร์โค้ดลิงก์แก้ไขทริป"></div>
+        <div class="link"><b>ลิงก์แก้ไขทริป</b><div class="url" id="adminUrl"></div></div>
+      </div>
+      <div class="two">
+        <button class="btn amber" id="saveImg" type="button">บันทึกเป็นรูป</button>
+        <button class="btn amberline" id="copyAdmin" type="button">คัดลอก</button>
+      </div>
+      <div class="adminbox">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/></svg>
+        <div><b>เก็บไว้คนเดียว</b> ใครสแกนหรือมีลิงก์นี้จะแก้ทริปได้ แนะนำให้บันทึกรูปไว้ในเครื่อง</div>
+      </div>
+      <div class="msg" id="saveMsg" role="status"></div>
+      <div class="two">
+        <button class="btn plain" id="backBtn" type="button">ย้อนกลับ</button>
+        <button class="btn primary" id="doneBtn" type="button">เสร็จสิ้น</button>
+      </div>
     </div>
   </div>
 </div>
@@ -186,29 +229,37 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 
   function link(path) { return location.origin + path; }
   var shown = null; // {id, token}
-  function fillQr(text) {
-    var box = $("qr"); box.textContent = "";
+  function qrSvg(text) {
     try {
       var q = qrcode(0, "M"); q.addData(text); q.make();
-      box.innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
-    } catch (e) { box.textContent = ""; }
+      return q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+    } catch (e) { return ""; }
   }
+  function setStep(n) { $("step1").hidden = n !== 1; $("step2").hidden = n !== 2; (n === 1 ? $("nextBtn") : $("doneBtn")).focus(); }
+  var adminUrl = "", tripName = "";
   function showResult(id, token, created, name, vanCount) {
     shown = { id: id, token: token };
-    var share = link("/?t=" + id), admin = link("/admin.html?t=" + id + "&k=" + token);
+    tripName = name || "";
+    var share = link("/?t=" + id); adminUrl = link("/admin.html?t=" + id + "&k=" + token);
     $("shareUrl").textContent = share;
     $("openShare").href = "/?t=" + id;
     $("resultTitle").textContent = created ? "สร้างทริปแล้ว" : "ลิงก์ของทริปนี้";
     $("resultSub").textContent = (name || "") + (vanCount ? " · " + vanCount + " คัน" : "");
     var text = (name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share;
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent(text);
-    $("copyAdmin").dataset.url = admin;
-    fillQr(share);
+    $("qr").innerHTML = qrSvg(share);
+    $("qr2").innerHTML = qrSvg(adminUrl);
+    // the secret is shown masked on screen; copy / save use the full link
+    $("adminUrl").textContent = link("/admin.html?t=" + id + "&k=") + "••••••••";
+    $("saveMsg").textContent = "";
     $("backdrop").hidden = false;
-    $("closeBtn").focus();
+    setStep(1);
   }
   function closeResult() { $("backdrop").hidden = true; }
-  $("closeBtn").addEventListener("click", closeResult);
+  $("xBtn").addEventListener("click", closeResult);
+  $("doneBtn").addEventListener("click", closeResult);
+  $("nextBtn").addEventListener("click", function () { setStep(2); });
+  $("backBtn").addEventListener("click", function () { setStep(1); });
   $("backdrop").addEventListener("click", function (e) { if (e.target === $("backdrop")) closeResult(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("backdrop").hidden) closeResult(); });
   $("shareBtn").addEventListener("click", function () {
@@ -226,7 +277,50 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     else fallback();
   }
   $("copyShare").addEventListener("click", function () { copy($("shareUrl").textContent, this); });
-  $("copyAdmin").addEventListener("click", function () { copy(this.dataset.url || "", this); });
+  $("copyAdmin").addEventListener("click", function () { copy(adminUrl, this); });
+
+  // Draws the admin card (title + QR) to a canvas and saves it as a PNG.
+  function drawCard() {
+    var W = 720, H = 1070, c = document.createElement("canvas"); c.width = W; c.height = H;
+    var g = c.getContext("2d");
+    var font = '"Prompt","Noto Sans Thai",system-ui,sans-serif';
+    g.fillStyle = "#eef1f3"; g.fillRect(0, 0, W, H);
+    function rr(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+    g.save(); rr(40, 40, W - 80, H - 80, 36); g.fillStyle = "#fff"; g.fill(); g.clip();
+    g.fillStyle = "#b86e00"; g.fillRect(40, 40, W - 80, 170);
+    g.fillStyle = "rgba(255,255,255,.9)"; g.font = "500 24px " + font; g.fillText("บัตรผู้ดูแลทริป · ลับ", 80, 92);
+    g.fillStyle = "#fff"; g.font = "600 38px " + font;
+    var t = tripName || "ทริปของฉัน"; while (g.measureText(t).width > W - 160 && t.length > 4) t = t.slice(0, -2);
+    g.fillText(t === (tripName || "ทริปของฉัน") ? t : t + "…", 80, 160);
+    var q = qrcode(0, "M"); q.addData(adminUrl); q.make();
+    var n = q.getModuleCount(), cell = Math.floor(440 / n), size = cell * n, ox = (W - size) / 2, oy = 270;
+    g.strokeStyle = "#b86e00"; g.lineWidth = 8; rr(ox - 24, oy - 24, size + 48, size + 48, 24); g.stroke();
+    g.fillStyle = "#1b1f22";
+    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (q.isDark(j, i)) g.fillRect(ox + i * cell, oy + j * cell, cell, cell);
+    g.textAlign = "center"; g.fillStyle = "#1b1f22"; g.font = "600 30px " + font; g.fillText("สแกนเพื่อเข้าหน้าแก้ไขทริป", W / 2, oy + size + 90);
+    g.fillStyle = "#5f6b73"; g.font = "400 24px " + font; g.fillText("เพิ่ม–ลดรถ แก้วันเวลา และจุดนัดพบ", W / 2, oy + size + 132);
+    g.fillStyle = "#fff6e5"; rr(80, 860, W - 160, 96, 18); g.fill();
+    g.fillStyle = "#7a4b00"; g.font = "500 24px " + font; g.fillText("ห้ามส่งภาพนี้เข้ากลุ่ม ใครสแกนได้จะแก้ทริปได้", W / 2, 916);
+    g.restore();
+    return c;
+  }
+  $("saveImg").addEventListener("click", function () {
+    var msg = $("saveMsg"); msg.textContent = ""; msg.style.color = "";
+    var c;
+    try { c = drawCard(); } catch (e) { msg.textContent = "สร้างรูปไม่สำเร็จ ลองคัดลอกลิงก์แทน"; return; }
+    c.toBlob(function (blob) {
+      if (!blob) { msg.textContent = "สร้างรูปไม่สำเร็จ ลองคัดลอกลิงก์แทน"; return; }
+      var file; try { file = new File([blob], "บัตรผู้ดูแลทริป.png", { type: "image/png" }); } catch (e) { file = null; }
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file] }).catch(function () {});
+        return;
+      }
+      var url = URL.createObjectURL(blob), a = document.createElement("a");
+      a.href = url; a.download = "บัตรผู้ดูแลทริป.png"; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      msg.style.color = "var(--muted)"; msg.textContent = "ถ้าไม่มีไฟล์ดาวน์โหลด ให้ใช้ปุ่มคัดลอกลิงก์แทน";
+    }, "image/png");
+  });
 
   var ERR = {
     bad_name: "ใส่ชื่อทริปก่อน", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง",
