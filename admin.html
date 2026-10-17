@@ -403,12 +403,12 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       g.restore();
     }
     // QR frames and text blocks sit on the same side margin M (24) as the header, rows and footer
-    var F = { eye: "600 10px " + body, head: "600 14px " + disp, st: "600 12px " + body, sub: "400 10px " + body, num: "600 8px " + body };
+    var F = { eye: "600 10px " + body, head: "600 16px " + disp, st: "600 13px " + body, sub: "400 11px " + body, num: "600 9px " + body };
     function blockW(eyebrow, head, steps) {
       var w = 0;
       function m(t, f, add) { g.font = f; w = Math.max(w, g.measureText(t).width + (add || 0)); }
       m(eyebrow, F.eye); m(head, F.head);
-      steps.forEach(function (st) { m(st[0], F.st, 28); m(st[1], F.sub, 28); });
+      steps.forEach(function (st) { m(st[0], F.st, 30); m(st[1], F.sub, 30); });
       return Math.ceil(w);
     }
     function section(sy, qrLeft, col, qrCol, qrText, eyebrow, head, steps, bw) {
@@ -419,15 +419,15 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       qrAt(qrText, qrCol, qrX, sy + P);
       var T = sy + P;
       // text block spans the full QR height: eyebrow at the top edge, last step circle on the bottom edge
-      var yE = T + 5, yH = yE + 28;
+      var yE = T + 4, yH = yE + 27;
       txt(eyebrow, textX, yE, F.eye, "#6b747b", "left");
       txt(head, textX, yH, F.head, col, "left", bw);
       steps.forEach(function (st, i) {
-        var top = yH + 23 + i * 38;
-        g.fillStyle = col; g.beginPath(); g.arc(textX + 10, top + 10, 10, 0, 7); g.fill();
-        txt(String(i + 1), textX + 10, top + 10.5, F.num, "#fff", "center");
-        txt(st[0], textX + 28, top + 8, F.st, "#1b1f22", "left", bw - 28);
-        txt(st[1], textX + 28, top + 23, F.sub, "#5f6b73", "left", bw - 28);
+        var top = yH + 21 + i * 38;
+        g.fillStyle = col; g.beginPath(); g.arc(textX + 11, top + 11, 11, 0, 7); g.fill();
+        txt(String(i + 1), textX + 11, top + 11.5, F.num, "#fff", "center");
+        txt(st[0], textX + 30, top + 8, F.st, "#1b1f22", "left", bw - 30);
+        txt(st[1], textX + 30, top + 24, F.sub, "#5f6b73", "left", bw - 30);
       });
     }
     var ADM = ["สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา นัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]];
