@@ -414,8 +414,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     }
     function section(sy, qrLeft, col, qrCol, qrText, eyebrow, head, steps, bw) {
       // grey panel wraps QR + text; QR sits 12 inside its edge
-      var PX = 10, PI = 12;
-      g.fillStyle = "#f4f6f7"; rr(PX, sy + 4, CW - PX * 2, QR + PI * 2, 14); g.fill();
+      var PX = M, PI = 12;
+      g.fillStyle = "#f4f6f7"; rr(PX, sy + 4, CW - PX * 2, QR + 24, 14); g.fill();
       var qrX = qrLeft ? PX + PI : CW - PX - PI - QR;
       // both blocks share one width and sit centred in the space between the QR and the panel edge
       var px0 = qrLeft ? qrX + QR + 8 : PX + PI, px1 = qrLeft ? CW - PX - PI : qrX - 8;
