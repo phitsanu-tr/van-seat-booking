@@ -153,14 +153,14 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
       </div>
       <button class="btn tealline" id="saveSeat" type="button">บันทึกบัตร SEAT PASS เป็นรูป</button>
       <div class="msg" id="seatMsg" role="status"></div>
-      <button class="btn primary" id="nextBtn" type="button">ถัดไป: ลิงก์ผู้ดูแล</button>
+      <button class="btn primary" id="doneBtn1" type="button">เสร็จสิ้น</button>
       <a class="openlink" id="openShare">เปิดหน้าจอง</a>
     </div>
     <!-- step 2: admin -->
     <div class="step" id="step2" hidden>
       <div class="mh">
         <span class="check amber"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/></svg></span>
-        <div><div class="mt">ลิงก์สำหรับผู้ดูแล</div><div class="ms">ขั้นที่ 2 จาก 2 · เก็บไว้คนเดียว</div></div>
+        <div><div class="mt">ลิงก์สำหรับผู้ดูแล</div><div class="ms">เก็บไว้คนเดียว</div></div>
       </div>
       <div class="dots" role="tablist"><button type="button" role="tab" data-step="1" class="" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 6v2a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-2a2 2 0 0 0 0-6V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z"/></svg>ผู้จอง</button><button type="button" role="tab" data-step="2" class="on amber" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>ผู้ดูแล</button></div>
       <div class="passtag dark"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg><b>ADMIN PASS</b><span>สำหรับผู้ดูแลทริป</span></div>
@@ -177,10 +177,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
         <div><b>เก็บไว้คนเดียว</b> ใครสแกนหรือมีลิงก์นี้จะแก้ทริปได้ แนะนำให้บันทึกรูปไว้ในเครื่อง</div>
       </div>
       <div class="msg" id="saveMsg" role="status"></div>
-      <div class="two">
-        <button class="btn plain" id="backBtn" type="button">ย้อนกลับ</button>
-        <button class="btn primary" id="doneBtn" type="button">เสร็จสิ้น</button>
-      </div>
+      <button class="btn primary" id="doneBtn" type="button">เสร็จสิ้น</button>
     </div>
   </div>
 </div>
@@ -244,7 +241,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       return q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
     } catch (e) { return ""; }
   }
-  function setStep(n) { $("step1").hidden = n !== 1; $("step2").hidden = n !== 2; (n === 1 ? $("nextBtn") : $("doneBtn")).focus({ preventScroll: true }); }
+  function setStep(n) { $("step1").hidden = n !== 1; $("step2").hidden = n !== 2; (n === 1 ? $("doneBtn1") : $("doneBtn")).focus({ preventScroll: true }); }
   var adminUrl = "", tripName = "";
   function showResult(id, token, created, name, vanCount) {
     shown = { id: id, token: token };
@@ -267,9 +264,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   function closeResult() { $("backdrop").hidden = true; }
   $("xBtn").addEventListener("click", closeResult);
   $("doneBtn").addEventListener("click", closeResult);
-  $("nextBtn").addEventListener("click", function () { setStep(2); });
+  $("doneBtn1").addEventListener("click", closeResult);
   Array.prototype.forEach.call(document.querySelectorAll(".dots button"), function (b) { b.addEventListener("click", function () { setStep(+b.getAttribute("data-step")); }); });
-  $("backBtn").addEventListener("click", function () { setStep(1); });
   $("backdrop").addEventListener("click", function (e) { if (e.target === $("backdrop")) closeResult(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("backdrop").hidden) closeResult(); });
   $("shareBtn").addEventListener("click", function () {
