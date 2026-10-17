@@ -97,6 +97,21 @@ h1 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
   background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px 20px 18px; width: 100%; max-width: 340px;
   display: flex; flex-direction: column; gap: 14px; box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
 }
+.modal { gap: 18px; padding: 22px; border-radius: 22px; max-width: 360px; }
+.mhead { display: flex; gap: 18px; align-items: stretch; }
+.mini { flex: none; width: 96px; border-radius: 14px; background: var(--bg); padding: 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
+.mini svg { width: 80px; height: 156px; display: block; }
+.mtxt { display: flex; flex-direction: column; justify-content: center; gap: 6px; min-width: 0; }
+.mtxt small { font-size: 13px; color: var(--muted); }
+.mtxt h2 { font-size: 30px !important; line-height: 1.1; }
+.pill { align-self: flex-start; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: color-mix(in srgb, var(--mine) 18%, transparent); color: var(--mine); }
+.pill.taken { background: var(--taken); color: var(--ink); }
+.modal input[type=text] { width: 100%; height: 50px; font-size: 16px; border: 2px solid var(--mine); border-radius: 12px; padding: 0 14px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--mine) 18%, transparent); outline: none; }
+.modal .actions { flex-wrap: nowrap; }
+.modal .actions button { height: 50px; border-radius: 12px; font-size: 16px; padding: 0 16px; }
+.modal .actions button.primary { flex: 1.4; }
+.modal .actions button.plain { flex: 1; }
+.modal .actions button.danger { flex: 1.4; }
 .modal h2 { font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 0; }
 .modal p { margin: 0; color: var(--muted); }
 .modal p b { color: var(--ink); font-weight: 600; }
@@ -316,6 +331,18 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 
   function closeModal() { selected = null; message = ""; confirming = false; renderAll(); }
 
+  function miniSvg(sel, isTaken) {
+    var out = '<svg viewBox="40 20 740 1440" aria-hidden="true"><path d="M75 1385 V160 Q75 62 205 46 Q410 22 615 46 Q745 62 745 160 V1385 Q745 1430 700 1430 H120 Q75 1430 75 1385 Z" fill="none" stroke="currentColor" stroke-width="22" stroke-linejoin="round" style="color:var(--ink)"/>';
+    out += '<rect x="514" y="185" width="202" height="182" fill="var(--taken)" stroke="var(--line)" stroke-width="12"/>';
+    for (var k in RECT) {
+      var r = RECT[k], me = Number(k) === sel;
+      var fill = me ? (isTaken ? "var(--ink)" : "var(--mine)") : (seats[k] ? "var(--taken)" : "var(--surface)");
+      var stroke = me ? fill : "var(--line)";
+      out += '<rect x="' + r[0] + '" y="' + r[1] + '" width="' + r[2] + '" height="' + r[3] + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="12"/>';
+    }
+    return out + '</svg>';
+  }
+
   function renderPanel() {
     var keep = document.getElementById("nameInput");
     var typedName = keep ? keep.value : savedName();
@@ -328,9 +355,18 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 
     var n = selected, s = seats[n];
     if (!s) confirming = false;
+    var head = el("div", "mhead");
+    var mini = el("div", "mini");
+    mini.innerHTML = miniSvg(n, !!s);
+    head.appendChild(mini);
+    var txt = el("div", "mtxt");
+    txt.appendChild(el("small", null, s ? "ที่นั่งนี้" : "คุณกำลังจอง"));
     var title = el("h2", null, "ที่นั่ง " + n);
     title.id = "mTitle";
-    panelEl.appendChild(title);
+    txt.appendChild(title);
+    txt.appendChild(el("span", s ? "pill taken" : "pill", s ? "จองแล้ว" : "ว่าง"));
+    head.appendChild(txt);
+    panelEl.appendChild(head);
     var actions = el("div", "actions");
     var input = null;
 
@@ -366,7 +402,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     } else {
       input = el("input");
       input.type = "text"; input.id = "nameInput"; input.maxLength = 30;
-      input.placeholder = "ชื่อหรือชื่อเล่น"; input.value = typedName;
+      input.placeholder = "ชื่อหรือชื่อเล่น เช่น ต้น"; input.value = typedName;
       input.autocomplete = "off";
       input.setAttribute("aria-label", "ชื่อผู้จอง");
       input.addEventListener("keydown", function (e) { if (e.key === "Enter") book(n, input.value); });
