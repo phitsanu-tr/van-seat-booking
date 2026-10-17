@@ -105,7 +105,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
       <label>รถออกเวลา <input type="time" id="departTime"></label>
       <span></span>
     </div>
-    <label>จุดนัดพบ <small>ไม่บังคับ</small>
+    <label>นัดพบ <small>ไม่บังคับ</small>
       <input type="text" id="meetPoint" maxlength="120" placeholder="เช่น หน้าห้างเซ็นทรัล ลาดพร้าว">
     </label>
     <div>
@@ -345,14 +345,14 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var info = [
       ["cal", "วันที่", dateRange($("startDate").value, $("endDate").value)],
       ["clock", "รถออก", dep ? dep.replace(":", ".") + " น." : "ยังไม่ระบุ"],
-      ["pin", "จุดนัดพบ", mp || "ยังไม่ระบุ"],
+      ["pin", "นัดพบ", mp || "ยังไม่ระบุ"],
       ["van", "รถตู้", nv + " คัน · รวม " + nv * 10 + " ที่นั่ง"]
     ];
     info.forEach(function (r, i) {
       var y = HDR + 4 + i * ROW, cy = y + ROW / 2;
       icon(ICON[r[0]], M, cy - 6, "#b86e00", 12);
       txt(r[1], M + 24, cy + 1, "400 10px " + body, "#5f6b73", "left");
-      txt(r[2], M + 84, cy + 1, "600 12px " + body, "#1b1f22", "left", CW - M * 2 - 84);
+      txt(r[2], M + 72, cy + 1, "600 12px " + body, "#1b1f22", "left", CW - M * 2 - 72);
       if (i < 3) { g.fillStyle = "#eceff1"; g.fillRect(M, y + ROW - 1, CW - M * 2, 1); }
     });
     function perf(y) {
@@ -394,7 +394,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       });
     }
     perf(TOP);
-    section(TOP, true, "#1b1f22", "#1b1f22", adminUrl, "สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา จุดนัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]);
+    section(TOP, true, "#1b1f22", "#1b1f22", adminUrl, "สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา นัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]);
     perf(TOP + SEC);
     section(TOP + SEC, false, "#0e7c86", "#0b5f67", link("/?t=" + (shown ? shown.id : "")), "สำหรับผู้จองทริป", "สแกนเพื่อจองที่นั่ง", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["เลือกคันและที่นั่ง", "แตะที่นั่งว่างบนผัง"], ["กรอกชื่อและยืนยัน", "ชื่อแสดงบนผังทันที"]]);
     perf(TOP + SEC * 2);

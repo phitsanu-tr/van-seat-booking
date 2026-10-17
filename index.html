@@ -497,7 +497,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var dr = dateRange(trip.startDate, trip.endDate);
     if (dr) rows.push(["วันที่", dr]);
     if (trip.departTime) rows.push(["รถออก", trip.departTime.replace(":", ".") + " น."]);
-    if (trip.meetPoint) rows.push(["จุดนัดพบ", trip.meetPoint]);
+    if (trip.meetPoint) rows.push(["นัดพบ", trip.meetPoint]);
     factsEl.textContent = "";
     rows.forEach(function (r) {
       var d = el("div"); d.appendChild(el("dt", null, r[0])); d.appendChild(el("dd", null, r[1])); factsEl.appendChild(d);
