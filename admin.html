@@ -300,7 +300,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   function drawCard() {
     // layout tokens (card units): spacing 8/16/32, type 18/14/12/10/8, all even
-    var S = 4, CW = 358, W = CW, CX = 0, CY = 0, P = 16, M = 24, ROW = 32, QR = 130, SEC = QR + 48, FOOT = 32, WARN = 16, SECA = QR + 74; // SECA: admin section incl. its warning line
+    var S = 4, CW = 358, W = CW, CX = 0, CY = 0, P = 16, M = 24, ROW = 32, QR = 130, SEC = QR + 72, FOOT = 32, WARN = 16, SECA = QR + 98; // SECA: admin section incl. its warning line
     var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
     // title wraps (max 3 lines) across the content width; wrap-measuring context shared by all passes
     var wm = document.createElement("canvas").getContext("2d");
@@ -414,15 +414,16 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     }
     function section(sy, qrLeft, col, qrCol, qrText, eyebrow, head, steps, bw) {
       // grey panel wraps QR + text; QR sits 12 inside its edge
-      var PX = M, PI = 12;
-      g.fillStyle = "#f4f6f7"; rr(PX, sy + 12, CW - PX * 2, QR + 24, 14); g.fill();
+      var PX = M, PI = 24; // PI: content inset from the grey panel = 12 (to the inner white frame) + 12 (inside it)
+      g.fillStyle = "#f4f6f7"; rr(PX, sy + 12, CW - PX * 2, QR + PI * 2, 16); g.fill();
+      g.fillStyle = "#fff"; rr(PX + 12, sy + 24, CW - PX * 2 - 24, QR + 24, 10); g.fill(); // inner frame, 12 inside the panel
       var qrX = qrLeft ? PX + PI : CW - PX - PI - QR;
       // both blocks share one width and sit centred in the space between the QR and the panel edge
       var px0 = qrLeft ? qrX + QR + 8 : PX + PI, px1 = qrLeft ? CW - PX - PI : qrX - 8;
       var own = blockW(eyebrow, head, steps);
       var textX = qrLeft ? px1 - own : px0; // flush to the outer padding, same as the QR
-      qrAt(qrText, qrCol, qrX, sy + 24);
-      var T = sy + 24;
+      qrAt(qrText, qrCol, qrX, sy + 36);
+      var T = sy + 36;
       // text ink spans exactly the QR height: eyebrow ink top on the QR top, last subtitle ink bottom on the QR bottom
       g.textBaseline = "middle";
       g.font = F.eye; var asc = g.measureText(eyebrow).actualBoundingBoxAscent || 6;
@@ -446,7 +447,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     perf(TOP);
     section(TOP, true, "#1b1f22", "#1b1f22", adminUrl, ADM[0], ADM[1], ADM[2], BW);
     // warning sits right under the black QR it refers to (one line, red text only)
-    var wy = TOP + 24 + QR + 12 + 10;
+    var wy = TOP + 12 + QR + 48 + 10;
     var w1 = "สำหรับผู้ดูแลทริป ", w2 = "โปรดเก็บ Admin Pass ไว้ อย่าส่งต่อ QR Code สีดำ";
     g.font = "600 10px " + body; var m1 = g.measureText(w1).width;
     g.font = "400 10px " + body; var m2 = g.measureText(w2).width;
