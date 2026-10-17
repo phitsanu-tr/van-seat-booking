@@ -413,7 +413,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     }
     function section(sy, qrLeft, col, qrCol, qrText, eyebrow, head, steps, bw) {
       var qrX = qrLeft ? M : CW - M - QR;
-      var textX = qrLeft ? CW - M - bw : M; // both blocks share one width: mirrored, flush to the side margins
+      // both blocks share one width and sit centred in the space between the QR and the side margin
+      var px0 = qrLeft ? M + QR + 8 : M, px1 = qrLeft ? CW - M : qrX - 8;
+      var textX = Math.round(px0 + (px1 - px0 - bw) / 2);
       qrAt(qrText, qrCol, qrX, sy + P);
       var T = sy + P, pad = (QR - 130) / 2, gap = 2;
       var yE = T + pad + 5, yH = yE + 21;
