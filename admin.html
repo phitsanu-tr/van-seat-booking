@@ -300,7 +300,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   function drawCard() {
     // layout tokens (card units): spacing 8/16/32, type 18/14/12/10/8, all even
-    var S = 2, W = 390, CW = 358, CX = 16, CY = 16, P = 16, ROW = 32, QR = 144, SEC = QR + P * 2, FOOT = 32, WARN = 16;
+    var S = 2, W = 390, CW = 358, CX = 16, CY = 16, P = 16, M = 24, ROW = 32, QR = 144, SEC = QR + P * 2, FOOT = 32, WARN = 16;
     var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
     var HDR = org ? 96 : 78, TOP = HDR + 4 + ROW * 4 + 8;
     var H = CY + TOP + SEC * 2 + P + WARN + P + FOOT + CY;
@@ -332,13 +332,13 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     g.translate(CX, CY);
     // header
     g.fillStyle = "#1b1f22"; g.fillRect(0, 0, CW, HDR);
-    icon(ICON.lock, P, 15, "#f2c879", 16);
+    icon(ICON.lock, M, 15, "#f2c879", 16);
     if ("letterSpacing" in g) g.letterSpacing = "1px";
-    txt("ADMIN PASS", P + 22, 24, "500 8px " + body, "#f2c879", "left");
-    txt("#" + String(shown ? shown.id : "").toUpperCase(), CW - P, 24, "500 8px " + body, "#f2c879", "right");
+    txt("ADMIN PASS", M + 22, 24, "500 8px " + body, "#f2c879", "left");
+    txt("#" + String(shown ? shown.id : "").toUpperCase(), CW - M, 24, "500 8px " + body, "#f2c879", "right");
     if ("letterSpacing" in g) g.letterSpacing = "0px";
-    txt(nm, P, 50, "600 18px " + disp, "#fff", "left", CW - P * 2);
-    if (org) txt(org, P, 73, "400 10px " + body, "rgba(255,255,255,.75)", "left", CW - P * 2);
+    txt(nm, M, 50, "600 18px " + disp, "#fff", "left", CW - M * 2);
+    if (org) txt(org, M, 73, "400 10px " + body, "rgba(255,255,255,.75)", "left", CW - M * 2);
     g.fillStyle = "#b86e00"; g.fillRect(0, HDR, CW, 4);
     // info rows
     var nv = rows.length, dep = $("departTime").value, mp = $("meetPoint").value.trim();
@@ -350,14 +350,14 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     ];
     info.forEach(function (r, i) {
       var y = HDR + 4 + i * ROW, cy = y + ROW / 2;
-      icon(ICON[r[0]], P, cy - 8, "#b86e00", 16);
-      txt(r[1], P + 28, cy, "400 10px " + body, "#5f6b73", "left");
-      txt(r[2], P + 88, cy, "600 12px " + body, "#1b1f22", "left", CW - P * 2 - 88);
-      if (i < 3) { g.fillStyle = "#eceff1"; g.fillRect(P, y + ROW - 1, CW - P * 2, 1); }
+      icon(ICON[r[0]], M, cy - 8, "#b86e00", 16);
+      txt(r[1], M + 28, cy, "400 10px " + body, "#5f6b73", "left");
+      txt(r[2], M + 88, cy, "600 12px " + body, "#1b1f22", "left", CW - M * 2 - 88);
+      if (i < 3) { g.fillStyle = "#eceff1"; g.fillRect(M, y + ROW - 1, CW - M * 2, 1); }
     });
     function perf(y) {
       g.fillStyle = "#dfe5e9"; g.beginPath(); g.arc(0, y, 12, 0, 7); g.fill(); g.beginPath(); g.arc(CW, y, 12, 0, 7); g.fill();
-      g.strokeStyle = "#c9d2d8"; g.lineWidth = 2; g.setLineDash([5, 4]); g.beginPath(); g.moveTo(P, y); g.lineTo(CW - P, y); g.stroke(); g.setLineDash([]);
+      g.strokeStyle = "#c9d2d8"; g.lineWidth = 2; g.setLineDash([5, 4]); g.beginPath(); g.moveTo(M, y); g.lineTo(CW - M, y); g.stroke(); g.setLineDash([]);
     }
     function qrAt(text, col, bx, by) { // frame QR x QR at (bx,by) in card units, QR drawn on whole device pixels
       g.strokeStyle = col; g.lineWidth = 3; rr(bx + 1.5, by + 1.5, QR - 3, QR - 3, 12.5); g.stroke();
@@ -368,20 +368,19 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (q.isDark(j, i)) g.fillRect(ox + i * cell, oy + j * cell, cell, cell);
       g.restore();
     }
-    // one half of the content width (163 wide); text block is centred in its half, QR centred in the other
-    var HALF = (CW - P * 2) / 2;
+    // QR frames and text blocks sit on the same side margin M (24) as the header, rows and footer
     var F = { eye: "600 10px " + body, head: "600 14px " + disp, st: "600 12px " + body, sub: "400 10px " + body, num: "600 8px " + body };
     function blockW(eyebrow, head, steps) {
       var w = 0;
-      function m(t, f) { g.font = f; w = Math.max(w, g.measureText(t).width); }
+      function m(t, f, add) { g.font = f; w = Math.max(w, g.measureText(t).width + (add || 0)); }
       m(eyebrow, F.eye); m(head, F.head);
-      steps.forEach(function (st) { m(st[0], F.st); m(st[1], F.sub); });
-      return w;
+      steps.forEach(function (st) { m(st[0], F.st, 28); m(st[1], F.sub, 28); });
+      return Math.ceil(w);
     }
     function section(sy, qrLeft, col, qrCol, qrText, eyebrow, head, steps) {
-      var tw = Math.ceil(blockW(eyebrow, head, steps)) , bw = Math.min(HALF, Math.max(tw + 28, 28));
-      var textX = qrLeft ? P + HALF + Math.round((HALF - bw) / 2) : P + Math.round((HALF - bw) / 2);
-      var qrX = qrLeft ? P + Math.round((HALF - QR) / 2) : P + HALF + Math.round((HALF - QR) / 2);
+      var bw = blockW(eyebrow, head, steps);
+      var textX = qrLeft ? CW - M - bw : M;
+      var qrX = qrLeft ? M : CW - M - QR;
       qrAt(qrText, qrCol, qrX, sy + P);
       var T = sy + P, gap = (QR - 128) / 3;
       txt(eyebrow, textX, T + 7, F.eye, "#6b747b", "left");
@@ -404,15 +403,15 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var w1 = "สำหรับผู้ดูแลทริป ", w2 = "โปรดเก็บ Admin Pass ไว้ อย่าส่งต่อ QR Code สีดำ";
     g.font = "600 10px " + body; var m1 = g.measureText(w1).width;
     g.font = "400 10px " + body; var m2 = g.measureText(w2).width;
-    var wx = Math.max(P, (CW - m1 - m2) / 2);
+    var wx = Math.max(M, (CW - m1 - m2) / 2);
     txt(w1, wx, wy + WARN / 2, "600 10px " + body, "#b3261e", "left");
-    txt(w2, wx + m1, wy + WARN / 2, "400 10px " + body, "#b3261e", "left", CW - wx - P - m1);
+    txt(w2, wx + m1, wy + WARN / 2, "400 10px " + body, "#b3261e", "left", CW - wx - M - m1);
     // footer
     var fy = wy + WARN + P;
     g.fillStyle = "#f4f6f7"; g.fillRect(0, fy, CW, FOOT + 40);
     var now = new Date(), hh = ("0" + now.getHours()).slice(-2), mm = ("0" + now.getMinutes()).slice(-2);
-    txt("สร้างเมื่อ " + now.getDate() + " " + MON[now.getMonth()] + " " + (now.getFullYear() + 543) + " · " + hh + "." + mm + " น.", P, fy + FOOT / 2, "400 8px " + body, "#5f6b73", "left");
-    txt("van-seat-booking", CW - P, fy + FOOT / 2, "400 8px " + body, "#5f6b73", "right");
+    txt("สร้างเมื่อ " + now.getDate() + " " + MON[now.getMonth()] + " " + (now.getFullYear() + 543) + " · " + hh + "." + mm + " น.", M, fy + FOOT / 2, "400 8px " + body, "#5f6b73", "left");
+    txt("van-seat-booking", CW - M, fy + FOOT / 2, "400 8px " + body, "#5f6b73", "right");
     g.restore();
     return c;
   }
