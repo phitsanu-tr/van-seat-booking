@@ -417,13 +417,12 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var px0 = qrLeft ? M + QR + 8 : M, px1 = qrLeft ? CW - M : qrX - 8;
       var textX = Math.round(px0 + (px1 - px0 - bw) / 2);
       qrAt(qrText, qrCol, qrX, sy + P);
-      var T = sy + P;
-      // text block spans the full QR height: eyebrow at the top edge, last step circle on the bottom edge
-      var yE = T + 5, yH = yE + 28;
+      var T = sy + P, pad = (QR - 130) / 2, gap = 2;
+      var yE = T + pad + 5, yH = yE + 21;
       txt(eyebrow, textX, yE, F.eye, "#6b747b", "left");
       txt(head, textX, yH, F.head, col, "left", bw);
       steps.forEach(function (st, i) {
-        var top = yH + 23 + i * 38;
+        var top = yH + 10 + gap + i * (30 + gap);
         g.fillStyle = col; g.beginPath(); g.arc(textX + 10, top + 10, 10, 0, 7); g.fill();
         txt(String(i + 1), textX + 10, top + 10.5, F.num, "#fff", "center");
         txt(st[0], textX + 28, top + 8, F.st, "#1b1f22", "left", bw - 28);
