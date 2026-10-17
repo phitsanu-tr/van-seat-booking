@@ -279,33 +279,129 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   $("copyShare").addEventListener("click", function () { copy($("shareUrl").textContent, this); });
   $("copyAdmin").addEventListener("click", function () { copy(adminUrl, this); });
 
-  // Draws the admin card (title + QR) to a canvas and saves it as a PNG.
+  // Draws the admin card (trip details + admin QR + guest QR) to a canvas and saves it as a PNG.
+  var MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  function thDate(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ""); if (!m) return null;
+    return { d: +m[3], mo: +m[2] - 1, y: +m[1] + 543 };
+  }
+  function dateRange(a, b) {
+    var x = thDate(a), y = thDate(b);
+    if (!x && !y) return "ยังไม่ระบุ";
+    if (!x || !y || (a === b)) { var o = x || y; return o.d + " " + MON[o.mo] + " " + o.y; }
+    if (x.y === y.y && x.mo === y.mo) return x.d + " – " + y.d + " " + MON[y.mo] + " " + y.y;
+    if (x.y === y.y) return x.d + " " + MON[x.mo] + " – " + y.d + " " + MON[y.mo] + " " + y.y;
+    return x.d + " " + MON[x.mo] + " " + x.y + " – " + y.d + " " + MON[y.mo] + " " + y.y;
+  }
+  function loadFonts() {
+    if (!document.fonts || !document.fonts.load) return Promise.resolve();
+    var all = Promise.all(["600 15px Prompt", "500 12px Prompt", "400 12px 'Noto Sans Thai'", "500 12px 'Noto Sans Thai'", "600 12px 'Noto Sans Thai'"].map(function (f) { return document.fonts.load(f, "ก"); }));
+    return Promise.race([all, new Promise(function (r) { setTimeout(r, 2500); })]).catch(function () {});
+  }
   function drawCard() {
-    var W = 720, H = 1070, c = document.createElement("canvas"); c.width = W; c.height = H;
+    var S = 2, W = 390, CW = 358, CX = 16, CY = 16, FOOT = 34;
+    var SEC = 197, TOP = 260, H = CY + TOP + SEC * 2 + 14 + 56 + 14 + FOOT + 16;
+    var c = document.createElement("canvas"); c.width = W * S; c.height = H * S;
     var g = c.getContext("2d");
-    var font = '"Prompt","Noto Sans Thai",system-ui,sans-serif';
-    g.fillStyle = "#eef1f3"; g.fillRect(0, 0, W, H);
+    var disp = '"Prompt","Noto Sans Thai",system-ui,sans-serif', body = '"Noto Sans Thai",system-ui,sans-serif';
+    g.scale(S, S);
+    g.fillStyle = "#dfe5e9"; g.fillRect(0, 0, W, H);
     function rr(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
-    g.save(); rr(40, 40, W - 80, H - 80, 36); g.fillStyle = "#fff"; g.fill(); g.clip();
-    g.fillStyle = "#b86e00"; g.fillRect(40, 40, W - 80, 170);
-    g.fillStyle = "rgba(255,255,255,.9)"; g.font = "500 24px " + font; g.fillText("บัตรผู้ดูแลทริป · ลับ", 80, 92);
-    g.fillStyle = "#fff"; g.font = "600 38px " + font;
-    var t = tripName || "ทริปของฉัน"; while (g.measureText(t).width > W - 160 && t.length > 4) t = t.slice(0, -2);
-    g.fillText(t === (tripName || "ทริปของฉัน") ? t : t + "…", 80, 160);
-    var q = qrcode(0, "M"); q.addData(adminUrl); q.make();
-    var n = q.getModuleCount(), cell = Math.floor(440 / n), size = cell * n, ox = (W - size) / 2, oy = 270;
-    g.strokeStyle = "#b86e00"; g.lineWidth = 8; rr(ox - 24, oy - 24, size + 48, size + 48, 24); g.stroke();
-    g.fillStyle = "#1b1f22";
-    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (q.isDark(j, i)) g.fillRect(ox + i * cell, oy + j * cell, cell, cell);
-    g.textAlign = "center"; g.fillStyle = "#1b1f22"; g.font = "600 30px " + font; g.fillText("สแกนเพื่อเข้าหน้าแก้ไขทริป", W / 2, oy + size + 90);
-    g.fillStyle = "#5f6b73"; g.font = "400 24px " + font; g.fillText("เพิ่ม–ลดรถ แก้วันเวลา และจุดนัดพบ", W / 2, oy + size + 132);
-    g.fillStyle = "#fff6e5"; rr(80, 860, W - 160, 96, 18); g.fill();
-    g.fillStyle = "#7a4b00"; g.font = "500 24px " + font; g.fillText("ห้ามส่งภาพนี้เข้ากลุ่ม ใครสแกนได้จะแก้ทริปได้", W / 2, 916);
+    function txt(t, x, y, font, color, align, maxW) {
+      g.font = font; g.fillStyle = color; g.textAlign = align || "left"; g.textBaseline = "middle";
+      if (maxW) { var s0 = t; while (g.measureText(s0).width > maxW && s0.length > 3) s0 = s0.slice(0, -1); if (s0 !== t) t = s0.replace(/\s+$/, "") + "…"; }
+      g.fillText(t, x, y);
+    }
+    function icon(p, x, y, col, size, extra) {
+      g.save(); g.translate(x, y); g.scale(size / 24, size / 24);
+      g.strokeStyle = col; g.lineWidth = 1.9; g.lineCap = "round"; g.lineJoin = "round";
+      g.stroke(new Path2D(p)); g.restore();
+    }
+    var ICON = {
+      cal: "M6.5 5.5h11A2.5 2.5 0 0120 8v9.5a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 014 17.5V8a2.5 2.5 0 012.5-2.5zM4 10h16M8.5 3.5v4M15.5 3.5v4",
+      clock: "M12 3.5a8.5 8.5 0 100 17 8.5 8.5 0 000-17zM12 7.5V12l3 2",
+      pin: "M12 21s6.5-5.6 6.5-11a6.5 6.5 0 10-13 0c0 5.4 6.5 11 6.5 11zM12 7.7a2.3 2.3 0 100 4.6 2.3 2.3 0 000-4.6z",
+      van: "M3 16.5V8.5a2 2 0 012-2h9l5 4.5v5.5H3zM9.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0zM18.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0z",
+      lock: "M7 10.5h10a2 2 0 012 2V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-5.5a2 2 0 012-2zM8.5 10.5V8a3.5 3.5 0 017 0v2.5"
+    };
+    // card
+    g.save(); rr(CX, CY, CW, H - CY * 2, 24); g.fillStyle = "#fff"; g.fill(); g.clip();
+    g.translate(CX, CY);
+    // header
+    g.fillStyle = "#1b1f22"; g.fillRect(0, 0, CW, 103);
+    icon(ICON.lock, 18, 16, "#f2c879", 16);
+    if ("letterSpacing" in g) g.letterSpacing = "1.5px";
+    txt("ADMIN PASS", 40, 24, "500 11px " + body, "#f2c879", "left");
+    txt("#" + String(shown ? shown.id : "").toUpperCase(), CW - 18, 24, "500 11px " + body, "#f2c879", "right");
+    if ("letterSpacing" in g) g.letterSpacing = "0px";
+    var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
+    if (org) txt(org, 18, 51, "400 12px " + body, "rgba(255,255,255,.75)", "left", CW - 36);
+    txt(nm, 18, org ? 74 : 62, "600 21px " + disp, "#fff", "left", CW - 36);
+    g.fillStyle = "#b86e00"; g.fillRect(0, 103, CW, 4);
+    // info rows
+    var nv = rows.length, dep = $("departTime").value, mp = $("meetPoint").value.trim();
+    var info = [
+      ["cal", "วันที่", dateRange($("startDate").value, $("endDate").value)],
+      ["clock", "รถออก", dep ? dep.replace(":", ".") + " น." : "ยังไม่ระบุ"],
+      ["pin", "จุดนัดพบ", mp || "ยังไม่ระบุ"],
+      ["van", "รถตู้", nv + " คัน · รวม " + nv * 10 + " ที่นั่ง"]
+    ];
+    info.forEach(function (r, i) {
+      var y = 111 + i * 36, cy = y + 18;
+      icon(ICON[r[0]], 18, cy - 8, "#b86e00", 16);
+      txt(r[1], 44, cy, "400 12px " + body, "#5f6b73", "left");
+      txt(r[2], 116, cy, "600 13px " + body, "#1b1f22", "left", CW - 116 - 18);
+      if (i < 3) { g.fillStyle = "#eceff1"; g.fillRect(18, y + 36 - 1, CW - 36, 1); }
+    });
+    function perf(y) {
+      g.fillStyle = "#dfe5e9"; g.beginPath(); g.arc(0, y, 12, 0, 7); g.fill(); g.beginPath(); g.arc(CW, y, 12, 0, 7); g.fill();
+      g.strokeStyle = "#c9d2d8"; g.lineWidth = 2; g.setLineDash([5, 4]); g.beginPath(); g.moveTo(18, y); g.lineTo(CW - 18, y); g.stroke(); g.setLineDash([]);
+    }
+    function qrAt(text, col, bx, by) { // frame 158x158 at (bx,by) in card units, QR drawn on whole device pixels
+      g.strokeStyle = col; g.lineWidth = 3; rr(bx + 1.5, by + 1.5, 155, 155, 12.5); g.stroke();
+      var q = qrcode(0, "M"); q.addData(text); q.make();
+      var n = q.getModuleCount(), px = 140 * S, cell = Math.floor(px / n), size = cell * n;
+      var ox = Math.round((CX + bx + 9) * S + (px - size) / 2), oy = Math.round((CY + by + 9) * S + (px - size) / 2);
+      g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = col;
+      for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (q.isDark(j, i)) g.fillRect(ox + i * cell, oy + j * cell, cell, cell);
+      g.restore();
+    }
+    function section(sy, col, eyebrow, head, steps) {
+      txt(eyebrow, 185, sy + 26, "500 11.5px " + body, "#8a8f94", "left");
+      txt(head, 185, sy + 46, "600 15px " + disp, col, "left", 160);
+      steps.forEach(function (st, i) {
+        var ty = sy + 74 + i * 41;
+        g.fillStyle = col; g.beginPath(); g.arc(195, ty, 10, 0, 7); g.fill();
+        txt(String(i + 1), 195, ty + 0.5, "600 11px " + body, "#fff", "center");
+        txt(st[0], 214, ty, "600 13px " + body, "#1b1f22", "left", 132);
+        txt(st[1], 214, ty + 17, "400 11.5px " + body, "#5f6b73", "left", 132);
+      });
+    }
+    perf(TOP);
+    qrAt(adminUrl, "#1b1f22", 13, TOP + 20);
+    section(TOP, "#1b1f22", "สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา จุดนัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]);
+    perf(TOP + SEC);
+    qrAt(link("/?t=" + (shown ? shown.id : "")), "#0b5f67", 13, TOP + SEC + 20);
+    section(TOP + SEC, "#0e7c86", "สำหรับผู้จองทริป", "สแกนเพื่อจองที่นั่ง", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["เลือกคันและที่นั่ง", "แตะที่นั่งว่างบนผัง"], ["กรอกชื่อและยืนยัน", "ชื่อแสดงบนผังทันที"]]);
+    perf(TOP + SEC * 2);
+    // warning
+    var wy = TOP + SEC * 2 + 14;
+    g.fillStyle = "#fdeded"; rr(18, wy, CW - 36, 56, 12); g.fill();
+    g.fillStyle = "#c62828"; g.save(); rr(18, wy, CW - 36, 56, 12); g.clip(); g.fillRect(18, wy, 4, 56); g.restore();
+    txt("คำเตือน สำหรับผู้ดูแลทริป", 34, wy + 20, "600 12.5px " + body, "#b3261e", "left");
+    txt("โปรดเก็บ Admin Pass ไว้ อย่าส่งต่อ QR Code สีดำ", 34, wy + 39, "400 11.5px " + body, "#7a1f1a", "left", CW - 66);
+    // footer
+    var fy = wy + 56 + 14;
+    g.fillStyle = "#f4f6f7"; g.fillRect(0, fy, CW, FOOT + 40);
+    var now = new Date(), hh = ("0" + now.getHours()).slice(-2), mm = ("0" + now.getMinutes()).slice(-2);
+    txt("สร้างเมื่อ " + now.getDate() + " " + MON[now.getMonth()] + " " + (now.getFullYear() + 543) + " · " + hh + "." + mm + " น.", 18, fy + FOOT / 2, "400 11px " + body, "#5f6b73", "left");
+    txt("van-seat-booking", CW - 18, fy + FOOT / 2, "400 11px " + body, "#5f6b73", "right");
     g.restore();
     return c;
   }
   $("saveImg").addEventListener("click", function () {
     var msg = $("saveMsg"); msg.textContent = ""; msg.style.color = "";
+    loadFonts().then(function () {
     var c;
     try { c = drawCard(); } catch (e) { msg.textContent = "สร้างรูปไม่สำเร็จ ลองคัดลอกลิงก์แทน"; return; }
     c.toBlob(function (blob) {
@@ -320,6 +416,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
       msg.style.color = "var(--muted)"; msg.textContent = "ถ้าไม่มีไฟล์ดาวน์โหลด ให้ใช้ปุ่มคัดลอกลิงก์แทน";
     }, "image/png");
+    });
   });
 
   var ERR = {
