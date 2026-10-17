@@ -119,7 +119,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .list li .w { overflow-wrap: anywhere; }
 .list li.empty .w { color: var(--muted); }
 @media (prefers-reduced-motion: no-preference) { .seat { transition: background .15s; } }
-.modal p.hint { font-size: 12px; margin: -6px 0 0; }
+button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 10px 16px; cursor: pointer; background: var(--danger); color: var(--paper); border: 1.5px solid var(--danger); }
 </style>
 </head>
 <body>
@@ -220,9 +220,9 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   var W = 820, H = 1450;
 
   var seats = {};            // n -> {name, at}
-  var mineMap = readMine();  // n -> {pin, at}: seats booked from this device
+  var mineMap = readMine();  // n -> {at}: seats booked from this device (only used to tint them)
   var loaded = false, loadError = "";
-  var selected = null, busy = false, message = "", shown = false, lastSnapshot = "";
+  var selected = null, busy = false, message = "", shown = false, confirming = false, lastSnapshot = "";
 
   var overlayEl = document.getElementById("overlay");
   var panelEl = document.getElementById("panel");
@@ -264,9 +264,6 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   function errorText(r, fallback) {
     var code = r && r.data && r.data.error;
     if (code === "taken") return "ที่นั่งนี้ถูกจองไปแล้ว เลือกที่นั่งอื่น";
-    if (code === "wrong_code") return "PIN ไม่ถูกต้อง";
-    if (code === "too_many_tries") return "ใส่ผิดหลายครั้งแล้ว รอสักครู่แล้วลองใหม่";
-    if (code === "bad_pin") return "PIN ต้องเป็นตัวเลข 4 หลัก";
     if (code === "bad_name") return "ใส่ชื่อก่อนจอง";
     if (code === "not_configured") return "ยังไม่ได้เชื่อมต่อฐานข้อมูล ติดต่อเจ้าของหน้า";
     return fallback;
@@ -291,30 +288,18 @@ button:disabled { opacity: .5; cursor: not-allowed; }
           b.setAttribute("aria-label", "ที่นั่ง " + n + " ว่าง");
         }
         if (selected === n) { b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
-        b.addEventListener("click", function () { selected = n; message = ""; renderAll(); });
+        b.addEventListener("click", function () { selected = n; message = ""; confirming = false; renderAll(); });
         overlayEl.appendChild(frame(b, RECT[n]));
       })(n);
     }
   }
 
-  function closeModal() { selected = null; message = ""; renderAll(); }
-
-  function textInput(id, placeholder, value, label, numeric) {
-    var i = el("input");
-    i.type = "text"; i.id = id; i.placeholder = placeholder; i.value = value || "";
-    i.setAttribute("aria-label", label);
-    i.autocomplete = "off";
-    if (numeric) { i.inputMode = "numeric"; i.maxLength = 4; i.pattern = "[0-9]*"; } else { i.maxLength = 30; }
-    return i;
-  }
+  function closeModal() { selected = null; message = ""; confirming = false; renderAll(); }
 
   function renderPanel() {
-    var ae = document.activeElement;
-    var focusId = ae && (ae.id === "nameInput" || ae.id === "pinInput") ? ae.id : null;
-    var nameKeep = document.getElementById("nameInput");
-    var pinKeep = document.getElementById("pinInput");
-    var typedName = nameKeep ? nameKeep.value : savedName();
-    var typedPin = pinKeep ? pinKeep.value : "";
+    var keep = document.getElementById("nameInput");
+    var typedName = keep ? keep.value : savedName();
+    var hadFocus = !!keep && document.activeElement === keep;
     var opening = selected != null && !shown;
     shown = selected != null;
     backdropEl.hidden = selected == null;
@@ -322,62 +307,59 @@ button:disabled { opacity: .5; cursor: not-allowed; }
     if (selected == null) return;
 
     var n = selected, s = seats[n];
+    if (!s) confirming = false;
     var title = el("h2", null, "ที่นั่ง " + n);
     title.id = "mTitle";
     panelEl.appendChild(title);
     var actions = el("div", "actions");
-    var firstInput = null;
+    var input = null;
 
-    function closeBtn(label) {
+    function plainBtn(label, onClick) {
       var c = el("button", "plain", label);
       c.type = "button";
-      c.addEventListener("click", closeModal);
+      c.addEventListener("click", onClick);
       return c;
     }
 
     if (!loaded) {
       panelEl.appendChild(el("p", null, loadError || "กำลังโหลดข้อมูลการจอง..."));
-      actions.appendChild(closeBtn("ปิด"));
+      actions.appendChild(plainBtn("ปิด", closeModal));
+    } else if (s && confirming) {
+      var ask = el("p", null, "ยกเลิกการจองของ ");
+      ask.appendChild(el("b", null, s.name));
+      ask.appendChild(document.createTextNode(" ที่ที่นั่ง " + n + " ใช่ไหม"));
+      panelEl.appendChild(ask);
+      actions.appendChild(plainBtn("ไม่ยกเลิก", function () { confirming = false; message = ""; renderPanel(); }));
+      var sure = el("button", "danger", "ยืนยันยกเลิก");
+      sure.type = "button"; sure.disabled = busy;
+      sure.addEventListener("click", function () { cancelSeat(n); });
+      actions.appendChild(sure);
     } else if (s) {
       var info = el("p", null, "จองโดย ");
       info.appendChild(el("b", null, s.name));
       panelEl.appendChild(info);
       var cancel = el("button", "ghost", "ยกเลิกการจอง");
-      cancel.type = "button"; cancel.disabled = busy;
-      if (mine(n)) {
-        cancel.addEventListener("click", function () { cancelSeat(n, mineMap[n].pin); });
-      } else {
-        panelEl.appendChild(el("p", "hint", "ถ้าเป็นที่นั่งของคุณ ใส่ PIN ที่ตั้งตอนจองเพื่อยกเลิก"));
-        var pin = textInput("pinInput", "PIN 4 หลัก", typedPin, "PIN ของผู้จอง", true);
-        pin.addEventListener("keydown", function (e) { if (e.key === "Enter") cancelSeat(n, pin.value); });
-        panelEl.appendChild(pin);
-        firstInput = pin;
-        cancel.addEventListener("click", function () { cancelSeat(n, pin.value); });
-      }
+      cancel.type = "button";
+      cancel.addEventListener("click", function () { confirming = true; message = ""; renderPanel(); });
       actions.appendChild(cancel);
-      actions.appendChild(closeBtn("ปิด"));
+      actions.appendChild(plainBtn("ปิด", closeModal));
     } else {
-      var nameIn = textInput("nameInput", "ชื่อหรือชื่อเล่น", typedName, "ชื่อผู้จอง", false);
-      var pinIn = textInput("pinInput", "PIN 4 หลัก", typedPin, "PIN สำหรับยกเลิกการจอง", true);
-      function submit() { book(n, nameIn.value, pinIn.value); }
-      nameIn.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
-      pinIn.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
-      panelEl.appendChild(nameIn);
-      panelEl.appendChild(pinIn);
-      panelEl.appendChild(el("p", "hint", "ตั้ง PIN ตัวเลข 4 หลักไว้ ใช้ตอนต้องการยกเลิกการจอง"));
-      firstInput = nameIn;
+      input = el("input");
+      input.type = "text"; input.id = "nameInput"; input.maxLength = 30;
+      input.placeholder = "ชื่อหรือชื่อเล่น"; input.value = typedName;
+      input.autocomplete = "off";
+      input.setAttribute("aria-label", "ชื่อผู้จอง");
+      input.addEventListener("keydown", function (e) { if (e.key === "Enter") book(n, input.value); });
+      panelEl.appendChild(input);
       var ok = el("button", "primary", "OK");
       ok.type = "button"; ok.disabled = busy;
-      ok.addEventListener("click", submit);
-      actions.appendChild(closeBtn("ยกเลิก"));
+      ok.addEventListener("click", function () { book(n, input.value); });
+      actions.appendChild(plainBtn("ยกเลิก", closeModal));
       actions.appendChild(ok);
     }
     if (message) panelEl.appendChild(el("div", "msg", message));
     panelEl.appendChild(actions);
-
-    var target = focusId && document.getElementById(focusId);
-    if (target) target.focus();
-    else if (opening && firstInput) firstInput.focus();
+    if (input && (opening || hadFocus)) input.focus();
   }
 
   function renderList() {
@@ -421,17 +403,15 @@ button:disabled { opacity: .5; cursor: not-allowed; }
     }
   }
 
-  async function book(n, rawName, rawPin) {
+  async function book(n, rawName) {
     var name = (rawName || "").trim().slice(0, 30);
-    var pin = (rawPin || "").trim();
     if (!name) { message = "ใส่ชื่อก่อนจอง"; renderPanel(); return; }
-    if (!/^\d{4}$/.test(pin)) { message = "PIN ต้องเป็นตัวเลข 4 หลัก"; renderPanel(); return; }
     saveName(name);
     busy = true; message = ""; renderPanel();
     try {
-      var r = await api("POST", { seat: n, name: name, pin: pin });
+      var r = await api("POST", { seat: n, name: name });
       if (r.ok) {
-        mineMap[n] = { pin: pin, at: r.data.at };
+        mineMap[n] = { at: r.data.at };
         saveMine();
         selected = null;
       } else {
@@ -445,16 +425,14 @@ button:disabled { opacity: .5; cursor: not-allowed; }
     renderAll();
   }
 
-  async function cancelSeat(n, code) {
-    code = (code || "").trim();
-    if (!code) { message = "ใส่ PIN เพื่อยกเลิก"; renderPanel(); return; }
+  async function cancelSeat(n) {
     busy = true; message = ""; renderPanel();
     try {
-      var r = await api("DELETE", { seat: n, code: code });
+      var r = await api("DELETE", { seat: n });
       if (r.ok) {
         delete mineMap[n];
         saveMine();
-        selected = null;
+        selected = null; confirming = false;
       } else {
         message = errorText(r, "ยกเลิกไม่สำเร็จ ลองอีกครั้ง");
       }

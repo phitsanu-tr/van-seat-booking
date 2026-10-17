@@ -1,11 +1,13 @@
 // Vercel serverless function: GET / POST / DELETE /api/seats
-// Storage: one Redis hash (field = seat number, value = JSON). Works with the
-// Upstash Redis integration from the Vercel Marketplace (KV_REST_API_* variables)
-// or a plain Upstash database (UPSTASH_REDIS_REST_* variables).
+// Storage: one Redis hash (field = seat number, value = JSON {name, at}).
+// Works with the Upstash Redis integration from the Vercel Marketplace
+// (KV_REST_API_* variables, with or without a custom prefix) or a plain
+// Upstash database (UPSTASH_REDIS_REST_* variables).
 
-const crypto = require("crypto");
+const TOTAL_SEATS = 10;
+const SEATS_KEY = "van:seats";
 
-// Accept the variable names with or without a custom prefix (e.g. STORAGE_KV_REST_API_URL).
+// Accept the variable names with or without a custom prefix (e.g. VAN_SEAT_BOOKING_KV_REST_API_URL).
 function pickEnv(...names) {
   for (const name of names) {
     for (const key of Object.keys(process.env)) {
@@ -17,33 +19,17 @@ function pickEnv(...names) {
 
 const REST_URL = pickEnv("KV_REST_API_URL", "UPSTASH_REDIS_REST_URL");
 const REST_TOKEN = pickEnv("KV_REST_API_TOKEN", "UPSTASH_REDIS_REST_TOKEN");
-const ADMIN_CODE = process.env.ADMIN_CODE || "";
 
-const TOTAL_SEATS = 10;
-const SEATS_KEY = "van:seats";
-const FAIL_LIMIT = 8;       // wrong codes allowed per seat ...
-const FAIL_WINDOW_SEC = 600; // ... within this many seconds
-
-async function redisPipeline(commands) {
+async function redis(command) {
   const res = await fetch(REST_URL.replace(/\/$/, "") + "/pipeline", {
     method: "POST",
     headers: { Authorization: "Bearer " + REST_TOKEN, "Content-Type": "application/json" },
-    body: JSON.stringify(commands),
+    body: JSON.stringify([command]),
   });
   const out = await res.json();
-  if (!res.ok || !Array.isArray(out)) throw new Error("redis_http_" + res.status);
-  return out.map((item) => {
-    if (item && item.error) throw new Error(item.error);
-    return item.result;
-  });
-}
-
-async function redis(command) {
-  return (await redisPipeline([command]))[0];
-}
-
-function hashPin(seat, pin) {
-  return crypto.createHash("sha256").update(seat + ":" + pin).digest("hex");
+  if (!res.ok || !Array.isArray(out) || !out[0]) throw new Error("redis_http_" + res.status);
+  if (out[0].error) throw new Error(out[0].error);
+  return out[0].result;
 }
 
 function readBody(req) {
@@ -88,40 +74,20 @@ module.exports = async function handler(req, res) {
       const body = readBody(req);
       const seat = parseSeat(body.seat);
       const name = String(body.name || "").trim().slice(0, 30);
-      const pin = String(body.pin || "");
       if (seat === null) return json(res, 400, { error: "bad_seat" });
       if (!name) return json(res, 400, { error: "bad_name" });
-      if (!/^\d{4}$/.test(pin)) return json(res, 400, { error: "bad_pin" });
 
       const at = Date.now();
-      const value = JSON.stringify({ name, h: hashPin(String(seat), pin), at });
-      const created = await redis(["HSETNX", SEATS_KEY, String(seat), value]);
+      // HSETNX only writes when the seat is still empty, so two people can never take the same seat.
+      const created = await redis(["HSETNX", SEATS_KEY, String(seat), JSON.stringify({ name, at })]);
       if (created !== 1) return json(res, 409, { error: "taken" });
       return json(res, 200, { ok: true, at });
     }
 
     if (req.method === "DELETE") {
-      const body = readBody(req);
-      const seat = parseSeat(body.seat);
-      const code = String(body.code || "").slice(0, 64);
+      const seat = parseSeat(readBody(req).seat);
       if (seat === null) return json(res, 400, { error: "bad_seat" });
-      if (!code) return json(res, 400, { error: "bad_code" });
-
-      const failKey = "van:fail:" + seat;
-      const [raw, fails] = await redisPipeline([["HGET", SEATS_KEY, String(seat)], ["GET", failKey]]);
-      if (raw === null || raw === undefined) return json(res, 200, { ok: true });
-      if (Number(fails || 0) >= FAIL_LIMIT) return json(res, 429, { error: "too_many_tries" });
-
-      let stored = {};
-      try { stored = JSON.parse(raw); } catch (e) { /* treat as no hash: only admin can remove */ }
-      const isAdmin = ADMIN_CODE !== "" && code === ADMIN_CODE;
-      const isOwner = !!stored.h && hashPin(String(seat), code) === stored.h;
-
-      if (!isAdmin && !isOwner) {
-        await redisPipeline([["INCR", failKey], ["EXPIRE", failKey, String(FAIL_WINDOW_SEC)]]);
-        return json(res, 403, { error: "wrong_code" });
-      }
-      await redisPipeline([["HDEL", SEATS_KEY, String(seat)], ["DEL", failKey]]);
+      await redis(["HDEL", SEATS_KEY, String(seat)]);
       return json(res, 200, { ok: true });
     }
 
