@@ -415,6 +415,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var bw = blockW(eyebrow, head, steps);
       var textX = qrLeft ? CW - M - bw : M;
       var qrX = qrLeft ? M : CW - M - QR;
+      // soft panel behind the text block: spans the QR height plus 8 above/below so the copy has even padding
+      var px0 = qrLeft ? M + QR + 8 : M, px1 = qrLeft ? CW - M : qrX - 8;
+      g.fillStyle = "#f4f6f7"; rr(px0, sy + P - 8, px1 - px0, QR + 16, 12); g.fill();
+      textX = px0 + 12;
       qrAt(qrText, qrCol, qrX, sy + P);
       var T = sy + P, gap = (QR - 128) / 3;
       txt(eyebrow, textX, T + 7, F.eye, "#6b747b", "left");
