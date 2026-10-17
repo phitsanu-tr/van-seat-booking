@@ -407,10 +407,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var F = { eye: "600 10px " + body, head: "600 14px " + disp, st: "600 12px " + body, sub: "400 10px " + body, num: "600 8px " + body };
     function blockW(eyebrow, head, steps) {
       var w = 0;
-      function m(t, f, add) { g.font = f; w = Math.max(w, g.measureText(t).width + (add || 0)); }
+      function m(t, f, add) { g.font = f; g.textBaseline = "middle"; var mt = g.measureText(t); w = Math.max(w, (mt.actualBoundingBoxRight || mt.width) + (add || 0)); } // ink width, so the text lands exactly on the padding
       m(eyebrow, F.eye); m(head, F.head);
       steps.forEach(function (st) { m(st[0], F.st, 28); m(st[1], F.sub, 28); });
-      return Math.ceil(w);
+      return w;
     }
     function section(sy, qrLeft, col, qrCol, qrText, eyebrow, head, steps, bw) {
       // grey panel wraps QR + text; QR sits 12 inside its edge
@@ -419,18 +419,25 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var qrX = qrLeft ? PX + PI : CW - PX - PI - QR;
       // both blocks share one width and sit centred in the space between the QR and the panel edge
       var px0 = qrLeft ? qrX + QR + 8 : PX + PI, px1 = qrLeft ? CW - PX - PI : qrX - 8;
-      var textX = qrLeft ? px1 - bw : px0; // flush to the outer padding, same as the QR
+      var own = blockW(eyebrow, head, steps);
+      var textX = qrLeft ? px1 - own : px0; // flush to the outer padding, same as the QR
       qrAt(qrText, qrCol, qrX, sy + 24);
-      var T = sy + 24, pad = (QR - 130) / 2, gap = 2;
-      var yE = T + pad + 5, yH = yE + 21;
+      var T = sy + 24;
+      // text ink spans exactly the QR height: eyebrow ink top on the QR top, last subtitle ink bottom on the QR bottom
+      g.textBaseline = "middle";
+      g.font = F.eye; var asc = g.measureText(eyebrow).actualBoundingBoxAscent || 6;
+      g.font = F.sub; var dsc = g.measureText(steps[steps.length - 1][1]).actualBoundingBoxDescent || 3;
+      var yE = T + asc, yH = yE + 21, lastY = T + QR - dsc;
+      var pitch = (lastY - 23 - (yH + 12)) / (steps.length - 1);
+      pitch = Math.max(28, Math.min(36, pitch));
       txt(eyebrow, textX, yE, F.eye, "#6b747b", "left");
-      txt(head, textX, yH, F.head, col, "left", bw);
+      txt(head, textX, yH, F.head, col, "left", bw + 8);
       steps.forEach(function (st, i) {
-        var top = yH + 10 + gap + i * (30 + gap);
+        var top = yH + 12 + i * pitch;
         g.fillStyle = col; g.beginPath(); g.arc(textX + 10, top + 10, 10, 0, 7); g.fill();
         txt(String(i + 1), textX + 10, top + 10.5, F.num, "#fff", "center");
-        txt(st[0], textX + 28, top + 8, F.st, "#1b1f22", "left", bw - 28);
-        txt(st[1], textX + 28, top + 23, F.sub, "#5f6b73", "left", bw - 28);
+        txt(st[0], textX + 28, top + 8, F.st, "#1b1f22", "left", bw - 20);
+        txt(st[1], textX + 28, top + 23, F.sub, "#5f6b73", "left", bw - 20);
       });
     }
     var ADM = ["สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา นัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]];
