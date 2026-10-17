@@ -300,7 +300,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   function drawCard() {
     // layout tokens (card units): spacing 8/16/32, type 18/14/12/10/8, all even
-    var S = 4, CW = 358, W = CW, CX = 0, CY = 0, P = 16, M = 24, ROW = 32, QR = 154, TH = 130, SEC = QR + 48, FOOT = 32, WARN = 16, SECA = QR + 74; // SECA: admin section incl. its warning line
+    var S = 4, CW = 358, W = CW, CX = 0, CY = 0, P = 16, M = 24, ROW = 32, QR = 154, TH = 154, SEC = QR + 48, FOOT = 32, WARN = 16, SECA = QR + 74; // SECA: admin section incl. its warning line
     var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
     // title wraps (max 3 lines) across the content width; wrap-measuring context shared by all passes
     var wm = document.createElement("canvas").getContext("2d");
@@ -428,13 +428,14 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       g.textBaseline = "middle";
       g.font = F.eye; var asc = g.measureText(eyebrow).actualBoundingBoxAscent || 6;
       g.font = F.sub; var dsc = g.measureText(steps[steps.length - 1][1]).actualBoundingBoxDescent || 3;
-      var yE = T + asc, yH = yE + 21, lastY = T + TH - dsc;
-      var pitch = (lastY - 23 - (yH + 12)) / (steps.length - 1);
-      pitch = Math.max(28, Math.min(36, pitch));
+      var k = Math.max(0, (TH - 130) / 6); // spread the extra height over the three gaps
+      var yE = T + asc, yH = yE + 21 + k, lastY = T + TH - dsc, s0 = yH + 12 + k;
+      var pitch = (lastY - 23 - s0) / (steps.length - 1);
+      pitch = Math.max(28, Math.min(48, pitch));
       txt(eyebrow, textX, yE, F.eye, "#6b747b", "left");
       txt(head, textX, yH, F.head, col, "left", bw + 8);
       steps.forEach(function (st, i) {
-        var top = yH + 12 + i * pitch;
+        var top = s0 + i * pitch;
         g.fillStyle = col; g.beginPath(); g.arc(textX + 10, top + 10, 10, 0, 7); g.fill();
         txt(String(i + 1), textX + 10, top + 10.5, F.num, "#fff", "center");
         txt(st[0], textX + 28, top + 8, F.st, "#1b1f22", "left", bw - 20);
