@@ -335,8 +335,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     txt("#" + String(shown ? shown.id : "").toUpperCase(), CW - 18, 24, "500 10px " + body, "#f2c879", "right");
     if ("letterSpacing" in g) g.letterSpacing = "0px";
     var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
-    if (org) txt(org, 18, 51, "400 12px " + body, "rgba(255,255,255,.75)", "left", CW - 36);
-    txt(nm, 18, org ? 74 : 62, "600 20px " + disp, "#fff", "left", CW - 36);
+    txt(nm, 18, org ? 56 : 66, "600 20px " + disp, "#fff", "left", CW - 36);
+    if (org) txt(org, 18, 82, "400 12px " + body, "rgba(255,255,255,.75)", "left", CW - 36);
     g.fillStyle = "#b86e00"; g.fillRect(0, 103, CW, 4);
     // info rows
     var nv = rows.length, dep = $("departTime").value, mp = $("meetPoint").value.trim();
