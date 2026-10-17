@@ -363,8 +363,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     g.fillStyle = "rgba(255,255,255,.16)"; g.fillRect(M, 40, CW - M * 2, 1);
     tl.forEach(function (ln, i) { txt(ln, M, 64 + i * 24, "600 18px " + disp, "#fff", "left"); });
     if (org) txt(org, M, 52 + 24 * tl.length + 11, "400 10px " + body, "rgba(255,255,255,.75)", "left", TW);
-    g.fillStyle = "#1b1f22"; g.fillRect(0, HDR, CW, 4);
-    g.fillStyle = "#b86e00"; g.fillRect(M, HDR, CW - M * 2, 4);
+    g.fillStyle = "#b86e00"; g.fillRect(0, HDR, CW, 4);
     // info rows
     var nv = rows.length, dep = $("departTime").value, mp = $("meetPoint").value.trim();
     var info = [
