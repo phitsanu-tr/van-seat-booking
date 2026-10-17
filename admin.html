@@ -419,9 +419,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       g.fillStyle = "#fff"; rr(PX + FI, sy + 12 + FI, CW - PX * 2 - FI * 2, QR, 14); g.fill(); // inner frame, 12 inside the panel
       var qrX = qrLeft ? PX + FI : CW - PX - FI - QR;
       // both blocks share one width and sit centred in the space between the QR and the panel edge
-      var px0 = qrLeft ? qrX + QR + 8 : PX + FI + 12, px1 = qrLeft ? CW - PX - FI - 12 : qrX - 8;
+      var px0 = qrLeft ? qrX + QR + 12 : PX + FI + 12, px1 = qrLeft ? CW - PX - FI - 12 : qrX - 12;
       var own = blockW(eyebrow, head, steps);
-      var textX = qrLeft ? px1 - own : px0; // flush to the outer padding, same as the QR
+      var textX = qrLeft ? px0 : px1 - own; // text block hugs the QR (12 away); lines are left-aligned, longest line on the block's left edge
       qrAt(qrText, qrCol, qrX, sy + 24);
       var T = sy + 24 + (QR - TH) / 2; // text block (height TH) centred in the QR-high inner frame -> 12 above and below
       // text ink spans exactly the QR height: eyebrow ink top on the QR top, last subtitle ink bottom on the QR bottom
