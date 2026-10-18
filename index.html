@@ -66,6 +66,13 @@ header.trip { display: block; }
 .vanbar { display: flex; flex-direction: column; gap: 8px; }
 .vanbar .vrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .vanbar .count { margin-left: auto; }
+.deck { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.deck .tabs { flex-wrap: wrap; overflow: visible; padding: 12px 12px 10px; }
+.deck .sheet { border: 0; border-radius: 0; }
+.deck .list { border: 0; border-radius: 0; }
+.deck .vsw { background: none; border-radius: 0; padding: 0 12px; gap: 0; border-bottom: 1.5px solid var(--line); }
+.deck .vsw button { border-radius: 0; border-bottom: 3px solid transparent; margin-bottom: -1.5px; min-height: 44px; }
+.deck .vsw button[aria-selected="true"] { background: none; box-shadow: none; border-bottom-color: var(--mine); }
 .shead { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 8px 8px; }
 .shead .count { margin-left: auto; }
 .plate { font-size: 13px; line-height: 20px; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
@@ -198,9 +205,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     <dl class="facts" id="tripFacts" hidden></dl>
   </header>
 
-  <div class="vanbar">
-    <div class="tabs" id="tabs" role="tablist" aria-label="เลือกคันรถ" hidden></div>
-  </div>
+  <section class="deck">
+  <div class="tabs" id="tabs" role="tablist" aria-label="เลือกคันรถ" hidden></div>
 
   <div class="vsw" id="viewSw" role="tablist" aria-label="เลือกมุมมอง">
     <button type="button" role="tab" id="swMap" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h6a3 3 0 013 3v6H7z"/><path d="M5 13h14v3a2 2 0 01-2 2H7a2 2 0 01-2-2z"/><path d="M8 18v2M16 18v2"/></svg>ผังที่นั่ง</button>
@@ -282,6 +288,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   <section class="list" id="listView" hidden>
     <h2>รายชื่อผู้จอง<small id="listSub"></small></h2>
     <ul id="list"></ul>
+  </section>
   </section>
 </main>
 
