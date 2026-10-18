@@ -56,7 +56,7 @@ function route(pathname, query) {
 }
 
 function startApp() {
-  http.createServer((req, res) => {
+  const app = http.createServer((req, res) => {
     const u = new URL(req.url, "http://localhost");
     if (u.pathname === "/api/trip" || u.pathname === "/api/seats") {
       let raw = ""; req.on("data", (c) => (raw += c));
@@ -80,7 +80,15 @@ function startApp() {
       res.setHeader("Cache-Control", "no-store");
       res.end(data);
     });
-  }).listen(PORT, () => {
+  });
+  app.on("error", (e) => {
+    if (e.code === "EADDRINUSE") {
+      console.error("\n  Port " + PORT + " is already in use (an old server is still running).");
+      console.error("  Stop it:  lsof -ti:" + PORT + " | xargs kill     or use another port:  PORT=8766 node dev.js\n");
+    } else console.error(e);
+    process.exit(1);
+  });
+  app.listen(PORT, () => {
     console.log("\n  Van seat booking (local dev)\n");
     console.log("  Home            http://localhost:" + PORT + "/");
     console.log("  My trips (/a)   http://localhost:" + PORT + "/a");
