@@ -129,6 +129,8 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .mtop { display: flex; font-family: var(--font-display); font-weight: 600; font-size: 16px; color: #fff; }
 #mState { display: inline-flex; align-items: center; gap: 9px; }
 #mState svg { width: 18px; height: 18px; flex: none; }
+#mState .okdot { flex: none; width: 26px; height: 26px; margin-left: -3px; border-radius: 50%; background: #fff; color: #0b5f67; display: inline-flex; align-items: center; justify-content: center; }
+#mState .okdot svg { width: 16px; height: 16px; }
 .mbar { display: none; }
 .mbody { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
 .modal.admin .mband { background: #1b1f22; }
@@ -788,7 +790,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     urlBox($("shareUrl"), id, "แตะเพื่อคัดลอกลิงก์");
     $("openShare").href = "/" + id; $("openShare2").href = "/" + id;
     var SHARE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
-    $("mState").innerHTML = (created ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปสำเร็จแล้ว" : created ? "สร้างทริปสำเร็จแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
+    $("mState").innerHTML = (created ? '<span class="okdot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span>' : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปสำเร็จแล้ว" : created ? "สร้างทริปสำเร็จแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
     $("resultTitle").textContent = name || "ทริป";
     var rowsEl = $("resultSub"); rowsEl.textContent = "";
     function trow(icon, text) {
