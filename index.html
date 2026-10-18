@@ -53,10 +53,15 @@ header { display: flex; justify-content: space-between; align-items: flex-end; g
 h1 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 1.2; margin: 0; text-wrap: balance; }
 header.trip { display: block; }
 .org { font-size: 13px; color: var(--mine); font-weight: 600; margin-bottom: 2px; }
-.facts { margin: 10px 0 0; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; display: grid; gap: 6px; font-size: 14px; }
-.facts div { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 8px; }
-.facts dt { color: var(--muted); }
-.facts dd { margin: 0; overflow-wrap: anywhere; }
+.hero { --hbg: color-mix(in srgb, var(--mine) 10%, var(--surface)); display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--hbg); border-radius: 18px; padding: 16px 18px; }
+.hero .ht { min-width: 0; }
+.hero h1 { font-size: 22px; overflow-wrap: anywhere; }
+.hero .hv { flex: none; width: 76px; height: auto; }
+.facts { margin: 12px 0 0; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: 8px; font-size: 14px; }
+.facts div { display: flex; align-items: flex-start; gap: 10px; }
+.facts svg { flex: none; width: 16px; height: 16px; color: var(--mine); margin-top: 3px; }
+.facts dt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .vanbar { display: flex; flex-direction: column; gap: 8px; }
 .vanbar .vrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .vanbar .count { margin-left: auto; }
@@ -187,8 +192,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 <body>
 <main>
   <header class="trip">
-    <div class="org" id="tripOrg" hidden></div>
-    <h1 id="tripName">จองที่นั่งรถตู้</h1>
+    <div class="hero"><div class="ht"><div class="org" id="tripOrg" hidden></div>
+    <h1 id="tripName">จองที่นั่งรถตู้</h1></div><svg class="hv" viewBox="0 0 96 64" fill="none" aria-hidden="true"><path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--hbg)"/></g><g transform="translate(-2 3) scale(.82)"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/><g fill="color-mix(in srgb,var(--mine) 25%,var(--surface))" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g><g fill="var(--ink)"><circle cx="26" cy="43" r="6.5"/><circle cx="70" cy="43" r="6.5"/></g><g fill="var(--surface)"><circle cx="26" cy="43" r="2.4"/><circle cx="70" cy="43" r="2.4"/></g></g></svg></div>
     <dl class="facts" id="tripFacts" hidden></dl>
   </header>
 
@@ -550,12 +555,22 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     orgEl.hidden = !trip.organizer; orgEl.textContent = trip.organizer || "";
     var rows = [];
     var dr = dateRange(trip.startDate, trip.endDate);
-    if (dr) rows.push(["วันที่", dr]);
-    if (trip.departTime) rows.push(["รถออก", trip.departTime.replace(":", ".") + " น."]);
-    if (trip.meetPoint) rows.push(["นัดพบ", trip.meetPoint]);
+    var IC = {
+      cal: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+      clk: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'
+    };
+    if (dr) rows.push(["วันที่", dr, "cal"]);
+    if (trip.departTime) rows.push(["รถออก", trip.departTime.replace(":", ".") + " น.", "clk"]);
+    if (trip.meetPoint) rows.push(["นัดพบ", trip.meetPoint, "pin"]);
     factsEl.textContent = "";
     rows.forEach(function (r) {
-      var d = el("div"); d.appendChild(el("dt", null, r[0])); d.appendChild(el("dd", null, r[1])); factsEl.appendChild(d);
+      var d = el("div");
+      var ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg");
+      sv.setAttribute("viewBox", "0 0 24 24"); sv.setAttribute("fill", "none"); sv.setAttribute("stroke", "currentColor");
+      sv.setAttribute("stroke-width", "2"); sv.setAttribute("stroke-linecap", "round"); sv.setAttribute("stroke-linejoin", "round");
+      sv.setAttribute("aria-hidden", "true"); sv.innerHTML = IC[r[2]]; d.appendChild(sv);
+      d.appendChild(el("dt", null, r[0])); d.appendChild(el("dd", null, r[1])); factsEl.appendChild(d);
     });
     factsEl.hidden = rows.length === 0;
     var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0] || trip.vans[0];
