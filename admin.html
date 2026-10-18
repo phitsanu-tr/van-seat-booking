@@ -493,7 +493,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 
   var s = document.getElementById("startDate"), e = document.getElementById("endDate"), t = document.getElementById("departTime");
   if (s && e && t) {
-    dateField(s, "วันเดินทางไป");
+    dateField(s, "วันเดินทางไป", function () { var v = s.value; return v && v < todayIso() ? v : todayIso(); }); // a saved past date (editing an old trip) stays selectable
     dateField(e, "วันเดินทางกลับ", function () { return s.value || todayIso(); });
     timeField(t, "เวลาออกเดินทาง");
   }
