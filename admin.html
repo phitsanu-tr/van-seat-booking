@@ -1108,13 +1108,13 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         T = data.id; K = data.token; editing = true;
         history.replaceState(null, "", editPath(T, K));
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
-        $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "บันทึก"; $("shareBtn").hidden = false;
+        $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "อัปเดตทริป"; $("shareBtn").hidden = false;
         showResult(T, K, true, data.trip.name, data.trip.vans.length, data.trip.startDate, data.trip.endDate, data.trip.departTime, data.trip.meetPoint, data.trip.organizer);
       }
     } catch (x) {
       toast("เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง");
     } finally {
-      busy = false; $("submit").disabled = false; $("cancelBtn").disabled = false; $("submit").textContent = editing ? "บันทึก" : "สร้างทริป";
+      busy = false; $("submit").disabled = false; $("cancelBtn").disabled = false; $("submit").textContent = editing ? "อัปเดตทริป" : "สร้างทริป";
     }
   });
 
@@ -1219,7 +1219,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     $("formMain").hidden = false;
     if (editing) {
       $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตรายละเอียดทริป ผู้จองเห็นข้อมูลใหม่ทันที";
-      $("submit").textContent = "บันทึก";
+      $("submit").textContent = "อัปเดตทริป";
       try {
         var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store", headers: { "x-admin-key": K } });
         var data = await res.json();
