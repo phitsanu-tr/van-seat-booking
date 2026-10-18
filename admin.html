@@ -82,12 +82,14 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .modal { position: relative; padding: 0; gap: 0; overflow: hidden; }
 .mband { background: #0b5f67; color: #fff; padding: 18px 20px 16px; display: flex; flex-direction: column; gap: 4px; }
 .mband .mt { color: #fff; overflow-wrap: anywhere; }
-.mband .ms { color: #bfe9ed; }
+.mband .ms { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.mchip { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.14); border-radius: 999px; padding: 4px 11px; font-size: 13px; font-weight: 500; color: #fff; }
+.mchip svg { width: 15px; height: 15px; flex: none; }
 .mtop { display: flex; justify-content: space-between; gap: 12px; font-family: var(--font-display); font-weight: 600; font-size: 12px; letter-spacing: 1.5px; color: #bfe9ed; text-transform: uppercase; }
 .mbar { height: 3px; background: #3fbac4; }
 .mbody { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
 .modal.admin .mband { background: #1b1f22; }
-.modal.admin .mband .ms, .modal.admin .mtop { color: #c5cdd2; }
+.modal.admin .mtop { color: #c5cdd2; }
 .modal.admin .mbar { background: #5f6b73; }
 .xbtn { color: #fff; }
 .step { display: flex; flex-direction: column; gap: 14px; }
@@ -95,7 +97,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .steps > .step { grid-area: 1 / 1; }
 .step[hidden] { display: flex !important; visibility: hidden; pointer-events: none; }
 .step > .btn.plain:last-child { margin-top: auto; }
-.mband .ms { min-height: 1.4em; }
+.mband .ms { min-height: 28px; }
 .mh { padding-right: 34px; }
 .check.amber { background: #eceef0; color: var(--ink); }
 @media (prefers-color-scheme: dark) { .check.amber { background: #223540; } }
@@ -280,6 +282,11 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       b.classList.toggle("on", on); b.classList.toggle("amber", on && n === 2); b.setAttribute("aria-selected", on ? "true" : "false");
     }); (n === 1 ? $("doneBtn1") : $("doneBtn")).focus({ preventScroll: true }); }
   var adminUrl = "", shareLink = "", tripName = "";
+  var SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+  var ICON_SM = {
+    cal: SVG_OPEN + '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+    van: SVG_OPEN + '<path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg>'
+  };
   function showResult(id, token, created, name, vanCount, startDate, endDate) {
     shown = { id: id, token: token };
     tripName = name || "";
@@ -289,7 +296,12 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     $("mState").textContent = created ? "✓ สร้างทริปแล้ว" : "ลิงก์ของทริปนี้";
     $("mCode").textContent = "#" + String(id).toUpperCase();
     $("resultTitle").textContent = name || "ทริป";
-    $("resultSub").textContent = [vanCount ? vanCount + " คัน" : "", (startDate || endDate) ? dateRange(startDate, endDate) : ""].filter(Boolean).join(" · ");
+    var subEl = $("resultSub"); subEl.textContent = "";
+    function chip(icon, text) {
+      var c = document.createElement("span"); c.className = "mchip"; c.innerHTML = ICON_SM[icon]; c.appendChild(document.createTextNode(text)); subEl.appendChild(c);
+    }
+    if (startDate || endDate) chip("cal", dateRange(startDate, endDate));
+    if (vanCount) chip("van", vanCount + " คัน");
     var text = (name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share;
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent(text);
     $("lineAdmin").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "ลิงก์ผู้ดูแลทริป (ห้ามส่งต่อ)\n" + adminUrl);
