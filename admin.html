@@ -362,7 +362,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   $("copyAdmin").parentNode.addEventListener("click", function () { copy(adminUrl, $("copyAdmin")); });
 
   // Draws the admin card (trip details + admin QR + guest QR) to a canvas and saves it as a PNG.
-  var MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  var MON = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
   function thDate(iso) {
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ""); if (!m) return null;
     return { d: +m[3], mo: +m[2] - 1, y: +m[1] + 543 };

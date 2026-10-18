@@ -477,15 +477,17 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     countEl.appendChild(document.createTextNode(" / " + TOTAL));
   }
 
-  function fmtDate(iso) {
+  var MONTHS = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+  function parseD(iso) {
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
-    if (!m) return "";
-    var months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-    return Number(m[3]) + " " + months[Number(m[2]) - 1] + " " + (Number(m[1]) + 543);
+    return m ? { y: Number(m[1]) + 543, mo: Number(m[2]) - 1, d: Number(m[3]) } : null;
   }
   function dateRange(a, b) {
-    if (a && b && a !== b) return fmtDate(a) + " – " + fmtDate(b);
-    return fmtDate(a || b);
+    var x = parseD(a), y = parseD(b);
+    if (!x || !y || a === b) { var o = x || y; return o ? o.d + " " + MONTHS[o.mo] + " " + o.y : ""; }
+    if (x.y === y.y && x.mo === y.mo) return x.d + " – " + y.d + " " + MONTHS[y.mo] + " " + y.y;
+    if (x.y === y.y) return x.d + " " + MONTHS[x.mo] + " – " + y.d + " " + MONTHS[y.mo] + " " + y.y;
+    return x.d + " " + MONTHS[x.mo] + " " + x.y + " – " + y.d + " " + MONTHS[y.mo] + " " + y.y;
   }
   function renderTrip() {
     var orgEl = document.getElementById("tripOrg"), nameEl = document.getElementById("tripName");
