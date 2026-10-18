@@ -121,7 +121,7 @@ header.trip { display: block; }
 .count b { color: var(--ink); font-size: 14px; font-weight: 600; }
 
 .sheet { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 10px; }
-.plan { position: relative; width: 100%; aspect-ratio: 820 / 1450; container-type: inline-size; }
+.plan { position: relative; width: 100%; aspect-ratio: 820 / 1345; container-type: inline-size; }
 .plan svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .ln { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
 .ln.bold { stroke-width: 5.5; }
@@ -255,10 +255,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     <div id="notice"></div>
     <div class="vrow shead"><div class="plate" id="plate" hidden></div><div class="count" id="count">จองแล้ว <b>0</b>&thinsp;/&thinsp;10</div></div>
     <div class="plan">
-      <svg viewBox="0 0 820 1450" aria-hidden="true" focusable="false">
+      <svg viewBox="0 0 820 1345" aria-hidden="true" focusable="false">
         <!-- body -->
-        <path class="ln bold" d="M75 1385 V160 Q75 62 205 46 Q410 22 615 46 Q745 62 745 160 V1385 Q745 1430 700 1430 H120 Q75 1430 75 1385 Z"/>
-        <path class="ln thin" d="M92 1398 V165 Q92 98 215 74 Q410 50 605 74 Q728 98 732 165 V1398"/>
+        <path class="ln bold" d="M75 1280 V160 Q75 62 205 46 Q410 22 615 46 Q745 62 745 160 V1280 Q745 1325 700 1325 H120 Q75 1325 75 1280 Z"/>
+        <path class="ln thin" d="M92 1293 V165 Q92 98 215 74 Q410 50 605 74 Q728 98 732 165 V1293"/>
         <path class="ln" d="M95 152 Q410 70 727 152"/>
         <!-- mirrors -->
         <path class="ln fillp" d="M20 128 L75 120 L75 142 L24 144 Z"/>
@@ -269,9 +269,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         <path class="ln" d="M615 114 V92 M608 128 L588 140 M622 128 L642 140" style="stroke-width:6"/>
         <!-- wall pillars -->
         <rect class="solid" x="76" y="372" width="14" height="58"/>
-        <rect class="solid" x="76" y="852" width="14" height="52"/>
+        <rect class="solid" x="76" y="816" width="14" height="52"/>
         <rect class="solid" x="732" y="372" width="13" height="52"/>
-        <rect class="solid" x="732" y="820" width="13" height="84"/>
+        <rect class="solid" x="732" y="784" width="13" height="84"/>
         <!-- front row boxes -->
         <rect class="ln" x="110" y="185" width="202" height="182"/>
         <rect class="ln" x="312" y="185" width="160" height="182"/>
@@ -285,31 +285,31 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         <circle class="ln" cx="468" cy="403" r="9"/>
         <circle class="ln" cx="468" cy="433" r="9"/>
         <!-- wheel well -->
-        <path class="ln" d="M92 486 L124 496 Q140 502 140 522 V800 Q140 826 120 832 L92 838"/>
+        <path class="ln" d="M92 486 L124 496 Q140 502 140 522 V764 Q140 790 120 796 L92 802"/>
         <!-- seat boxes -->
         <g class="ln">
-          <rect x="132" y="550" width="178" height="183"/><path d="M132 682 H310"/>
-          <rect x="312" y="550" width="200" height="183"/><path d="M312 682 H512"/>
-          <rect x="514" y="550" width="198" height="183"/><path d="M514 682 H712"/>
-          <rect x="108" y="857" width="204" height="183"/><path d="M108 990 H312"/>
-          <rect x="352" y="857" width="180" height="183"/><path d="M352 990 H532"/>
-          <rect x="532" y="857" width="182" height="183"/><path d="M532 990 H714"/>
-          <rect x="108" y="1200" width="204" height="185"/><path d="M108 1333 H312"/>
-          <rect x="314" y="1200" width="198" height="185"/><path d="M314 1333 H512"/>
-          <rect x="514" y="1200" width="200" height="185"/><path d="M514 1333 H714"/>
+          <rect x="132" y="548" width="178" height="183"/><path d="M132 680 H310"/>
+          <rect x="312" y="548" width="200" height="183"/><path d="M312 680 H512"/>
+          <rect x="514" y="548" width="198" height="183"/><path d="M514 680 H712"/>
+          <rect x="108" y="821" width="204" height="183"/><path d="M108 954 H312"/>
+          <rect x="352" y="821" width="180" height="183"/><path d="M352 954 H532"/>
+          <rect x="532" y="821" width="182" height="183"/><path d="M532 954 H714"/>
+          <rect x="108" y="1094" width="204" height="185"/><path d="M108 1227 H312"/>
+          <rect x="314" y="1094" width="198" height="185"/><path d="M314 1227 H512"/>
+          <rect x="514" y="1094" width="200" height="185"/><path d="M514 1227 H714"/>
         </g>
         <!-- armrests -->
         <g class="ln fillp">
-          <rect x="120" y="602" width="25" height="130" rx="8"/><rect x="300" y="602" width="25" height="130" rx="8"/>
-          <rect x="500" y="602" width="25" height="130" rx="8"/><rect x="698" y="602" width="26" height="130" rx="8"/>
-          <rect x="102" y="1252" width="26" height="132" rx="8"/><rect x="300" y="1252" width="25" height="132" rx="8"/>
-          <rect x="500" y="1252" width="25" height="132" rx="8"/><rect x="698" y="1252" width="26" height="132" rx="8"/>
+          <rect x="120" y="600" width="25" height="130" rx="8"/><rect x="300" y="600" width="25" height="130" rx="8"/>
+          <rect x="500" y="600" width="25" height="130" rx="8"/><rect x="698" y="600" width="26" height="130" rx="8"/>
+          <rect x="102" y="1146" width="26" height="132" rx="8"/><rect x="300" y="1146" width="25" height="132" rx="8"/>
+          <rect x="500" y="1146" width="25" height="132" rx="8"/><rect x="698" y="1146" width="26" height="132" rx="8"/>
         </g>
         <!-- sliding door -->
-        <path class="ln" d="M82 430 H56 V806" style="stroke-dasharray:3 5"/>
-        <path class="solid" d="M56 822 L49 802 L63 802 Z"/>
-        <rect class="ln fillp" x="50" y="822" width="16" height="374"/>
-        <text class="lbl" transform="translate(36 1010) rotate(-90)" text-anchor="middle">ประตูเลื่อน</text>
+        <path class="ln" d="M82 430 H56 V770" style="stroke-dasharray:3 5"/>
+        <path class="solid" d="M56 786 L49 766 L63 766 Z"/>
+        <rect class="ln fillp" x="50" y="786" width="16" height="304"/>
+        <text class="lbl" transform="translate(36 938) rotate(-90)" text-anchor="middle">ประตูเลื่อน</text>
       </svg>
       <div id="overlay"></div>
     </div>
@@ -352,14 +352,14 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 (function () {
   var TOTAL = 10;
   var API = "/api/seats";
-  // Seat boxes in the plan's own coordinate space (x, y, w, h in a 820 x 1450 drawing).
+  // Seat boxes in the plan's own coordinate space (x, y, w, h in a 820 x 1345 drawing).
   var RECT = {
     1: [110, 185, 202, 182],
-    4: [132, 550, 178, 183], 3: [312, 550, 200, 183], 2: [514, 550, 198, 183],
-    7: [108, 857, 204, 183], 6: [352, 857, 180, 183], 5: [532, 857, 182, 183],
-    10: [108, 1200, 204, 185], 9: [314, 1200, 198, 185], 8: [514, 1200, 200, 185]
+    4: [132, 548, 178, 183], 3: [312, 548, 200, 183], 2: [514, 548, 198, 183],
+    7: [108, 821, 204, 183], 6: [352, 821, 180, 183], 5: [532, 821, 182, 183],
+    10: [108, 1094, 204, 185], 9: [314, 1094, 198, 185], 8: [514, 1094, 200, 185]
   };
-  var W = 820, H = 1450;
+  var W = 820, H = 1345;
 
   var params = new URLSearchParams(location.search);
   var pathId = /^\/([a-hj-km-np-z2-9]{6,8})\/?$/.exec(location.pathname);
@@ -470,7 +470,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   }
 
   function miniSvg(sel, isTaken) {
-    var out = '<svg viewBox="40 20 740 1440" aria-hidden="true"><path d="M75 1385 V160 Q75 62 205 46 Q410 22 615 46 Q745 62 745 160 V1385 Q745 1430 700 1430 H120 Q75 1430 75 1385 Z" fill="none" stroke="currentColor" stroke-width="22" stroke-linejoin="round" style="color:var(--ink)"/>';
+    var out = '<svg viewBox="40 20 740 1335" aria-hidden="true"><path d="M75 1280 V160 Q75 62 205 46 Q410 22 615 46 Q745 62 745 160 V1280 Q745 1325 700 1325 H120 Q75 1325 75 1280 Z" fill="none" stroke="currentColor" stroke-width="22" stroke-linejoin="round" style="color:var(--ink)"/>';
     out += '<rect x="514" y="185" width="202" height="182" fill="var(--taken)" stroke="var(--line)" stroke-width="12"/>';
     for (var k in RECT) {
       var r = RECT[k], me = Number(k) === sel;
