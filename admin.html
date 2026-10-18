@@ -266,12 +266,12 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .cf-sum { margin: -4px 0 4px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--ink) 4%, var(--surface)); }
 .cf-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .cf-top b { font: 600 15px/22px var(--font-display); overflow-wrap: anywhere; }
-.cf-tot { flex: none; font-size: 12.5px; line-height: 18px; color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border-radius: 20px; padding: 3px 10px; margin-top: 2px; }
+.cf-tot { flex: none; font-size: 12.5px; line-height: 18px; color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border-radius: 20px; padding: 3px 10px; }
 .cf-meta { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; line-height: 20px; color: var(--muted); margin-top: 6px; }
 .cf-meta svg { flex: none; width: 16px; height: 16px; margin-top: 2px; }
 .cf-meta span { min-width: 0; overflow-wrap: anywhere; }
 .cf-hr { height: 1px; background: var(--line); opacity: .6; margin: 12px 0; }
-.cf-lbl { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; }
+.cf-lbl { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); margin-bottom: 8px; }
 .cf-vg { display: grid; gap: 8px; }
 .cf-vg.g2 { grid-template-columns: 1fr 1fr; }
 .cf-vc { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; min-width: 0; }
@@ -667,11 +667,13 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         var sb = document.createElement("div"); sb.className = "cf-sum";
         var top = document.createElement("div"); top.className = "cf-top";
         var sn = document.createElement("b"); sn.textContent = sum.name; top.appendChild(sn);
-        var tt = document.createElement("span"); tt.className = "cf-tot"; tt.textContent = sum.total; top.appendChild(tt); sb.appendChild(top);
+        sb.appendChild(top);
         sum.rows.forEach(function (r) { var m = document.createElement("div"); m.className = "cf-meta"; m.appendChild(icon(r[0])); var sp = document.createElement("span"); sp.textContent = r[1]; m.appendChild(sp); sb.appendChild(m); });
         if (sum.vans && sum.vans.length) {
           var hr = document.createElement("div"); hr.className = "cf-hr"; sb.appendChild(hr);
-          var lb = document.createElement("div"); lb.className = "cf-lbl"; lb.textContent = "ที่นั่งที่จองแล้วแยกตามคัน"; sb.appendChild(lb);
+          var lb = document.createElement("div"); lb.className = "cf-lbl";
+          var ls = document.createElement("span"); ls.textContent = "จองแล้วแยกตามคัน"; lb.appendChild(ls);
+          var tt = document.createElement("span"); tt.className = "cf-tot"; tt.textContent = sum.total; lb.appendChild(tt); sb.appendChild(lb);
           var vg = document.createElement("div"); vg.className = "cf-vg" + (sum.vans.length > 2 ? " g2" : "");
           sum.vans.forEach(function (v) {
             var c = document.createElement("div"); c.className = "cf-vc";
