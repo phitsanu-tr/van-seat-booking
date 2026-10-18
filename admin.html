@@ -251,6 +251,15 @@ form#form { background: none; border: 0; padding: 0; gap: 12px; }
 .hb b { font: 600 15px/22px var(--font-display); }
 .tile { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--mine) 12%, var(--surface)); color: var(--mine); }
 .tile svg { width: 16px; height: 16px; }
+/* error handling: red field + message under it; form-level errors as a floating toast */
+label.bad { color: var(--danger); }
+input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 14%, transparent); }
+.fe { display: flex; gap: 6px; align-items: center; color: var(--danger); font: 400 12.5px/18px var(--font-body); margin-top: 6px; }
+.fe svg { flex: none; width: 14px; height: 14px; }
+.toast { position: fixed; z-index: 30; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 76px); width: min(calc(100% - 32px), 428px); transform: translateX(-50%); display: flex; gap: 10px; align-items: flex-start; background: #1b1f22; color: #fff; border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 21px; box-shadow: 0 12px 28px rgba(0,0,0,.32); animation: toastIn .2s ease-out; cursor: pointer; }
+.toast svg { flex: none; width: 20px; height: 20px; margin-top: 0.5px; color: #ff8a80; }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
 </style>
 </head>
 <body>
@@ -314,10 +323,10 @@ form#form { background: none; border: 0; padding: 0; gap: 12px; }
       <button type="button" class="btn plain small" id="addVan" style="margin-top:8px">+ เพิ่มรถอีกคัน</button>
     </div>
    </section>
-    <div class="msg" id="msg" role="alert"></div>
     <button type="submit" class="btn primary" id="submit">สร้างทริป</button>
   </form>
 
+  <div class="toast" id="toast" role="alert" hidden></div>
   <button type="button" class="btn plain" id="shareBtn" hidden>ลิงก์ของทริปนี้ (แชร์ / QR)</button>
 
 </main>
@@ -528,7 +537,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   var editing = !!(T && K);
   var creating = q.get("new") === "1";
   var listMode = !editing && !creating;
-  var vansEl = document.getElementById("vans"), msgEl = document.getElementById("msg");
+  var vansEl = document.getElementById("vans");
   var rows = []; // [{id, label}]
   var busy = false;
 
@@ -542,7 +551,46 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     saveMine(list);
   }
 
+  var ERR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg>';
+  // field-level errors: red field + label, message right under it
+  function clearOne(t) {
+    var c = t.type === "hidden" && t.parentNode ? (t.parentNode.querySelector(".pk") || t) : t;
+    if (c.closest && c.closest("#vans")) {
+      [].forEach.call(vansEl.querySelectorAll(".bad"), function (n) { n.classList.remove("bad"); n.removeAttribute("aria-invalid"); });
+      var f = vansEl.nextElementSibling; if (f && f.classList.contains("fe")) f.remove();
+      return;
+    }
+    if (!c.classList || !c.classList.contains("bad")) return;
+    c.classList.remove("bad"); c.removeAttribute("aria-invalid");
+    var lab = c.closest("label"); if (lab) lab.classList.remove("bad");
+    var m = c.nextElementSibling; if (m && m.classList.contains("fe")) m.remove();
+  }
+  function clearFieldErrors() {
+    [].forEach.call(document.querySelectorAll("#form .fe"), function (n) { n.remove(); });
+    [].forEach.call(document.querySelectorAll("#form .bad"), function (n) { n.classList.remove("bad"); n.removeAttribute("aria-invalid"); });
+  }
+  function fieldErr(ctrl, text, anchor) {
+    if (ctrl.type === "hidden") ctrl = ctrl.parentNode.querySelector(".pk") || ctrl;
+    ctrl.classList.add("bad"); ctrl.setAttribute("aria-invalid", "true");
+    var lab = ctrl.closest("label"); if (lab) lab.classList.add("bad");
+    var m = document.createElement("div"); m.className = "fe"; m.setAttribute("role", "alert"); m.innerHTML = ERR_SVG + "<span></span>"; m.lastChild.textContent = text;
+    (anchor || ctrl).insertAdjacentElement("afterend", m);
+    return ctrl;
+  }
+  function focusFirst(c) { if (!c) return; try { c.focus({ preventScroll: true }); c.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} }
+  ["input", "change"].forEach(function (ev) { $("form").addEventListener(ev, function (e) { clearOne(e.target); }); });
+  // form-level errors (quota, network, server): floating toast that fades on its own
+  var toastTimer = null, toastEl = $("toast");
+  function hideToast() { clearTimeout(toastTimer); toastEl.hidden = true; }
+  function toast(text, sticky) {
+    clearTimeout(toastTimer); toastEl.innerHTML = ERR_SVG + "<span></span>"; toastEl.lastChild.textContent = text; toastEl.hidden = false;
+    toastEl.style.animation = "none"; void toastEl.offsetWidth; toastEl.style.animation = "";
+    if (!sticky) toastTimer = setTimeout(hideToast, 5000);
+  }
+  toastEl.addEventListener("click", hideToast);
+
   function renderVans() {
+    var oldFe = vansEl.nextElementSibling; if (oldFe && oldFe.classList.contains("fe")) oldFe.remove();
     vansEl.textContent = "";
     rows.forEach(function (r, i) {
       var d = document.createElement("div"); d.className = "van";
@@ -888,22 +936,36 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   $("form").addEventListener("submit", async function (e) {
     e.preventDefault();
     if (busy) return;
-    msgEl.textContent = "";
+    hideToast(); clearFieldErrors();
     var labels = rows.map(function (r) { return r.label.trim(); });
-    if (!$("name").value.trim()) { msgEl.textContent = ERR.bad_name; $("name").focus(); return; }
-    if (labels.some(function (l) { return !l; }) || new Set(labels).size !== labels.length) { msgEl.textContent = ERR.bad_vans; return; }
+    var first = null, bad = false;
+    if (!$("name").value.trim()) { first = fieldErr($("name"), ERR.bad_name); }
+    if ($("startDate").value && $("endDate").value && $("endDate").value < $("startDate").value) { var ed = fieldErr($("endDate"), "วันกลับต้องไม่ก่อนวันไป"); first = first || ed; }
+    var seen = {}, dupBad = false;
+    [].forEach.call(vansEl.querySelectorAll("input"), function (inp, i) {
+      var l = labels[i]; if (!l || seen[l]) { inp.classList.add("bad"); inp.setAttribute("aria-invalid", "true"); dupBad = true; } else seen[l] = 1;
+    });
+    if (dupBad) {
+      var vb = vansEl.querySelector("input.bad"); fieldErr(vb, ERR.bad_vans, vansEl); first = first || vb;
+    }
+    if (first) { focusFirst(first); return; }
     var body = {
       name: $("name").value, organizer: $("organizer").value, startDate: $("startDate").value, endDate: $("endDate").value,
       departTime: $("departTime").value, meetPoint: $("meetPoint").value,
       vans: rows.map(function (r) { return { id: r.id, label: r.label.trim() }; })
     };
-    if (body.startDate && body.endDate && body.endDate < body.startDate) { msgEl.textContent = "วันกลับต้องไม่ก่อนวันไป"; return; }
     if (editing) { body.t = T; body.k = K; } else { body.d = deviceId(); }
     busy = true; $("submit").disabled = true; $("submit").textContent = "กำลังบันทึก...";
     try {
       var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       var data = {}; try { data = await res.json(); } catch (x) {}
-      if (!res.ok) { msgEl.textContent = ERR[data.error] || "บันทึกไม่สำเร็จ ลองอีกครั้ง"; return; }
+      if (!res.ok) {
+        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime" };
+        if (map[data.error]) { focusFirst(fieldErr($(map[data.error]), ERR[data.error])); }
+        else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input"); if (v0) { v0.classList.add("bad"); fieldErr(v0, ERR.bad_vans, vansEl); focusFirst(v0); } else toast(ERR.bad_vans); }
+        else toast(ERR[data.error] || "บันทึกไม่สำเร็จ ลองอีกครั้ง");
+        return;
+      }
       if (editing) {
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label }; }); renderVans();
         remember(T, K, data.trip.name);
@@ -917,7 +979,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         showResult(T, K, true, data.trip.name, data.trip.vans.length, data.trip.startDate, data.trip.endDate, data.trip.departTime, data.trip.meetPoint, data.trip.organizer);
       }
     } catch (x) {
-      msgEl.textContent = "เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง";
+      toast("เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง");
     } finally {
       busy = false; $("submit").disabled = false; $("submit").textContent = editing ? "บันทึก" : "สร้างทริป";
     }
@@ -1003,14 +1065,14 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       try {
         var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store", headers: { "x-admin-key": K } });
         var data = await res.json();
-        if (!res.ok) { msgEl.textContent = ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ"; $("submit").disabled = true; return; }
+        if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
         var t = data.trip;
         $("name").value = t.name; $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || "";
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label }; });
         remember(T, K, t.name);
         shown = { id: T, token: K }; $("shareBtn").hidden = false;
-      } catch (x) { msgEl.textContent = "เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า"; }
+      } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
     } else {
       rows = [{ id: "", label: "A" }];
     }
