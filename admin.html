@@ -210,7 +210,7 @@ input[type=text], input[type=date], input[type=time] { background: var(--surface
 .pk-title svg { width: 14px; height: 14px; }
 .pk-wd { display: grid; grid-template-columns: repeat(7, 1fr); background: color-mix(in srgb, var(--mine) 8%, var(--surface)); border-radius: 12px; padding: 10px 0; text-align: center; font: 600 12px/16px var(--font-display); color: var(--muted); }
 .pk-wd .we { color: var(--mine); }
-.pk-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px; }
+.pk-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px; height: 262px; align-content: start; }
 .pk-d { height: 42px; display: grid; place-items: center; background: transparent; border: 0; padding: 0; font: 500 16px var(--font-display); color: var(--ink); }
 .pk-d i { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; font-style: normal; }
 .pk-d.we { color: var(--mine); }
@@ -218,8 +218,8 @@ input[type=text], input[type=date], input[type=time] { background: var(--surface
 .pk-d.sel i { background: var(--mine); color: var(--mine-ink); font-weight: 600; box-shadow: none; }
 .pk-d:disabled { color: color-mix(in srgb, var(--muted) 45%, transparent); cursor: default; }
 .pk-d.pad { visibility: hidden; }
-.pk-mg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.pk-m { height: 48px; border-radius: 12px; border: 1.5px solid var(--line); background: transparent; color: var(--ink); font: 500 15px var(--font-display); }
+.pk-mg { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 8px; height: 312px; }
+.pk-m { min-height: 0; border-radius: 12px; border: 1.5px solid var(--line); background: transparent; color: var(--ink); font: 500 15px var(--font-display); }
 .pk-m.sel { background: var(--mine); color: var(--mine-ink); border-color: var(--mine); }
 .pk-m:disabled { opacity: .35; }
 .pk-aux { display: flex; justify-content: space-between; align-items: center; min-height: 32px; }
