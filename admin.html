@@ -774,7 +774,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var share = shareLink = link("/" + id); adminUrl = link(editPath(id, token));
     urlBox($("shareUrl"), id, "แตะเพื่อคัดลอกลิงก์");
     $("openShare").href = "/" + id; $("openShare2").href = "/" + id;
-    $("mState").innerHTML = (created ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : "") + "<span>" + (created === "saved" ? "บันทึกการแก้ไขแล้ว" : created ? "สร้างทริปสำเร็จแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
+    $("mState").innerHTML = (created ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : "") + "<span>" + (created === "saved" ? "แก้ไขทริปสำเร็จแล้ว" : created ? "สร้างทริปสำเร็จแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
     $("resultTitle").textContent = name || "ทริป";
     var rowsEl = $("resultSub"); rowsEl.textContent = "";
     function trow(icon, text) {
