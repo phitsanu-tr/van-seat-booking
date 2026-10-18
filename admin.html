@@ -115,7 +115,8 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .panel { background: #e5f2f3; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
 .panel.dark { background: #eeeeec; }
 .panel .qr { width: 112px; height: 112px; }
-.panel .link { gap: 4px; }
+.panel .link { gap: 2px; }
+.panel .hint { margin-bottom: 8px; }
 .panel .hint { font-size: 12px; color: var(--muted); line-height: 1.35; margin-bottom: 4px; }
 .panel .btn.ghost { background: #fff; border: 1.5px solid var(--mine); color: var(--mine); height: 38px; }
 .panel.dark .btn.ghost { border-color: var(--ink); color: var(--ink); }
@@ -182,8 +183,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
     <div class="steps">
     <!-- step 1: guests -->
     <div class="step" id="step1">
-      <div class="panel"><div class="passtag"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg><b>SEAT PASS</b><span>สำหรับผู้จองทริป</span></div>
-      <div class="share"><div class="qr seat" id="qr" role="img" aria-label="คิวอาร์โค้ดลิงก์จอง"></div><div class="link"><b>สแกนเพื่อจองที่นั่ง</b><span class="hint">ส่งลิงก์หรือรูปบัตรให้ผู้จอง</span><button class="btn ghost small ic " id="copyShare" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span class="lb">คัดลอกลิงก์</span></button></div></div></div>
+      <div class="panel"><div class="share"><div class="qr seat" id="qr" role="img" aria-label="คิวอาร์โค้ดลิงก์จอง"></div><div class="link"><div class="passtag"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg><b>SEAT PASS</b></div><span class="hint">สำหรับผู้จองทริป<br>สแกนเพื่อจองที่นั่ง</span><button class="btn ghost small ic " id="copyShare" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span class="lb">คัดลอกลิงก์</span></button></div></div></div>
       <div class="two">
         <a class="btn line small ic" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span class="lb">ส่งเข้า LINE</span></a>
       
@@ -195,8 +195,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
     </div>
     <!-- step 2: admin -->
     <div class="step" id="step2" hidden>
-      <div class="panel dark"><div class="passtag dark"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg><b>ADMIN PASS</b><span>สำหรับผู้ดูแลทริป</span></div>
-      <div class="share"><div class="qr amber" id="qr2" role="img" aria-label="คิวอาร์โค้ดลิงก์แก้ไขทริป"></div><div class="link"><b>สแกนเพื่อแก้ไขทริป</b><span class="hint">ลิงก์ลับ ห้ามส่งต่อ</span><button class="btn ghost small ic " id="copyAdmin" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span class="lb">คัดลอกลิงก์</span></button></div></div></div>
+      <div class="panel dark"><div class="share"><div class="qr amber" id="qr2" role="img" aria-label="คิวอาร์โค้ดลิงก์แก้ไขทริป"></div><div class="link"><div class="passtag dark"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg><b>ADMIN PASS</b></div><span class="hint">สำหรับผู้ดูแลทริป<br>ลิงก์ลับ ห้ามส่งต่อ</span><button class="btn ghost small ic " id="copyAdmin" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span class="lb">คัดลอกลิงก์</span></button></div></div></div>
       <div class="two">
         <a class="btn line small ic" id="lineAdmin" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span class="lb">ส่งเข้า LINE</span></a>
       
