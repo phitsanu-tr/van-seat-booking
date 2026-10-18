@@ -180,11 +180,11 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .openlink { text-align: center; font-size: 14px; color: var(--muted); padding: 2px 0; }
 
 /* create / edit form: matches the home page */
-.hero { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: color-mix(in srgb, var(--mine) 10%, var(--surface)); border-radius: 18px; padding: 16px 18px; }
+.hero { --hbg: color-mix(in srgb, var(--mine) 10%, var(--surface)); display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--hbg); border-radius: 18px; padding: 16px 18px; }
 .hero > div { min-width: 0; }
 .hero h1 { font-size: 23px; }
 .hero p { font-size: 13px; line-height: 19px; margin-top: 4px; }
-.hero svg { flex: none; width: 40px; height: auto; color: var(--ink); }
+.hero svg { flex: none; width: 68px; height: auto; color: var(--ink); }
 form label { display: block; font-size: 14px; }
 form label small, .vh small { margin-left: 0; font-size: 12px; font-weight: 400; color: var(--muted); }
 /* one look for every field: regular weight, same placeholder colour (inputs sit inside bold labels and used to inherit 600) */
@@ -305,12 +305,11 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
       <h1 id="title">สร้างทริป</h1>
       <p id="lead">กรอกรายละเอียดทริป แล้วรับลิงก์ไปแชร์ให้เพื่อน</p>
     </div>
-    <svg viewBox="0 0 70 140" fill="none" aria-hidden="true">
-      <rect x="2" y="2" width="66" height="136" rx="22" stroke="currentColor" stroke-width="3" fill="var(--surface)"/>
-      <g stroke="currentColor" stroke-width="1.3">
-        <rect x="8" y="12" width="20" height="22" rx="3" fill="var(--surface)"/><rect x="32" y="12" width="20" height="22" rx="3" fill="var(--mine)" stroke="none"/>
-        <rect x="8" y="40" width="20" height="22" rx="3" fill="var(--mine)" stroke="none"/><rect x="32" y="40" width="20" height="22" rx="3" fill="var(--surface)"/>
-      </g>
+    <svg viewBox="0 0 96 56" fill="none" aria-hidden="true">
+      <path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+      <g fill="color-mix(in srgb, var(--mine) 28%, var(--surface))" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g>
+      <path d="M85 36h3" stroke="var(--mine)" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="26" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="26" cy="43" r="6.5" fill="var(--ink)"/><circle cx="26" cy="43" r="2.4" fill="var(--surface)"/><circle cx="70" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="70" cy="43" r="6.5" fill="var(--ink)"/><circle cx="70" cy="43" r="2.4" fill="var(--surface)"/>
     </svg>
   </section>
 
