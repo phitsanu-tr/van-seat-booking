@@ -264,9 +264,26 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .vch .x { width: 36px; height: 36px; margin: -4px -4px -4px 0; border-radius: 10px; border-color: transparent; background: transparent; }
 .cf-title { margin: 0; font: 600 18px/26px var(--font-display); }
 .cf-sum { margin: -4px 0 4px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--ink) 4%, var(--surface)); }
-.cf-sum b { display: block; font: 600 15px/22px var(--font-display); overflow-wrap: anywhere; }
-.cf-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.cf-chips span { font-size: 12.5px; line-height: 18px; color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border-radius: 20px; padding: 3px 10px; }
+.cf-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.cf-top b { font: 600 15px/22px var(--font-display); overflow-wrap: anywhere; }
+.cf-tot { flex: none; font-size: 12.5px; line-height: 18px; color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border-radius: 20px; padding: 3px 10px; margin-top: 2px; }
+.cf-meta { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; line-height: 20px; color: var(--muted); margin-top: 6px; }
+.cf-meta svg { flex: none; width: 16px; height: 16px; margin-top: 2px; }
+.cf-meta span { min-width: 0; overflow-wrap: anywhere; }
+.cf-hr { height: 1px; background: var(--line); opacity: .6; margin: 12px 0; }
+.cf-lbl { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; }
+.cf-vg { display: grid; gap: 8px; }
+.cf-vg.g2 { grid-template-columns: 1fr 1fr; }
+.cf-vc { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; min-width: 0; }
+.cf-vg.g2 .cf-vc { padding: 8px 10px; }
+.cf-vk { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+.cf-vk b { font: 600 13.5px/20px var(--font-display); }
+.cf-vk small { display: block; font-size: 11.5px; line-height: 16px; color: var(--muted); overflow-wrap: anywhere; }
+.cf-vk em { flex: none; font-style: normal; font-size: 13px; color: var(--muted); }
+.cf-dots { display: flex; gap: 4px; margin-top: 8px; }
+.cf-vg.g2 .cf-dots { gap: 2px; }
+.cf-dots i { flex: 1; height: 8px; border-radius: 3px; background: var(--line); }
+.cf-dots i.on { background: var(--mine); }
 .cf-text { margin: -6px 0 2px; color: var(--muted); font-size: 14px; line-height: 21px; }
 .dz { margin-top: 12px; border: 1.5px solid color-mix(in srgb, var(--danger) 40%, var(--surface)); background: var(--surface); border-radius: 16px; padding: 14px; display: flex; gap: 12px; align-items: center; justify-content: space-between; }
 .dz[hidden] { display: none; }
@@ -648,10 +665,27 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       act.appendChild(no); act.appendChild(ok); sheet.appendChild(h); sheet.appendChild(p);
       if (sum) {
         var sb = document.createElement("div"); sb.className = "cf-sum";
-        var sn = document.createElement("b"); sn.textContent = sum.name; sb.appendChild(sn);
-        var sc = document.createElement("div"); sc.className = "cf-chips";
-        sum.chips.forEach(function (c) { var e = document.createElement("span"); e.textContent = c; sc.appendChild(e); });
-        sb.appendChild(sc); sheet.appendChild(sb);
+        var top = document.createElement("div"); top.className = "cf-top";
+        var sn = document.createElement("b"); sn.textContent = sum.name; top.appendChild(sn);
+        var tt = document.createElement("span"); tt.className = "cf-tot"; tt.textContent = sum.total; top.appendChild(tt); sb.appendChild(top);
+        sum.rows.forEach(function (r) { var m = document.createElement("div"); m.className = "cf-meta"; m.appendChild(icon(r[0])); var sp = document.createElement("span"); sp.textContent = r[1]; m.appendChild(sp); sb.appendChild(m); });
+        if (sum.vans && sum.vans.length) {
+          var hr = document.createElement("div"); hr.className = "cf-hr"; sb.appendChild(hr);
+          var lb = document.createElement("div"); lb.className = "cf-lbl"; lb.textContent = "ที่นั่งที่จองแล้วแยกตามคัน"; sb.appendChild(lb);
+          var vg = document.createElement("div"); vg.className = "cf-vg" + (sum.vans.length > 2 ? " g2" : "");
+          sum.vans.forEach(function (v) {
+            var c = document.createElement("div"); c.className = "cf-vc";
+            var k = document.createElement("div"); k.className = "cf-vk";
+            var l = document.createElement("div"); var lbn = document.createElement("b"); lbn.textContent = "คัน " + v.label; l.appendChild(lbn);
+            if (v.plate) { var pl = document.createElement("small"); pl.textContent = v.plate; l.appendChild(pl); }
+            var em = document.createElement("em"); em.textContent = v.n + "/" + SEATS; k.appendChild(l); k.appendChild(em); c.appendChild(k);
+            var ds = document.createElement("span"); ds.className = "cf-dots";
+            for (var q = 0; q < SEATS; q++) { var di = document.createElement("i"); if (q < v.n) di.className = "on"; ds.appendChild(di); }
+            c.appendChild(ds); vg.appendChild(c);
+          });
+          sb.appendChild(vg);
+        }
+        sheet.appendChild(sb);
       }
       sheet.appendChild(act); back.appendChild(sheet);
       var prev = document.body.style.overflow;
@@ -1083,6 +1117,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   var SV = {
     cal: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
     pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+    clk: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     go: '<path d="M9 6l6 6-6 6"/>'
   };
   function icon(path) { var s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("fill", "none"); s.setAttribute("stroke", "currentColor"); s.setAttribute("stroke-width", "2"); s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round"); s.setAttribute("aria-hidden", "true"); s.innerHTML = path; return s; }
@@ -1149,10 +1184,15 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     }));
   }
 
-  var booked = 0, tripName = "";
+  var booked = 0, loaded = null, perVan = {};
   $("delBtn").addEventListener("click", async function () {
+    var t = loaded || {}, rws = [];
+    if (t.startDate || t.endDate) rws.push([SV.cal, dateRange(t.startDate, t.endDate)]);
+    if (t.departTime) rws.push([SV.clk, t.departTime + " น."]);
+    if (t.meetPoint) rws.push([SV.pin, t.meetPoint]);
     var ok = await askConfirm("ต้องการลบทริปนี้?", "ข้อมูลต่อไปนี้จะถูกลบถาวร ผู้จองและลิงก์ที่แชร์จะใช้ไม่ได้", "ลบทริป", $("delBtn"),
-      { name: tripName || "ทริปนี้", chips: [(booked ? "จองแล้ว " + booked + " ที่นั่ง" : "ยังไม่มีผู้จอง"), rows.length + " คัน"] });
+      { name: t.name || "ทริปนี้", total: booked ? booked + " ที่นั่ง" : "ยังไม่มีผู้จอง", rows: rws,
+        vans: (t.vans || []).map(function (v) { return { label: v.label, plate: v.plate, n: perVan[v.id] || 0 }; }) });
     if (!ok) return;
     $("delBtn").disabled = true;
     try {
@@ -1179,7 +1219,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
         remember(T, K, t.name);
         shown = { id: T, token: K }; $("shareBtn").hidden = false; $("dz").hidden = false;
-        booked = data.booked || 0; tripName = t.name;
+        booked = data.booked || 0; perVan = data.perVan || {}; loaded = t;
       } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
     } else {
       rows = [{ id: "", label: "A" }];

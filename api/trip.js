@@ -126,8 +126,10 @@ module.exports = async function handler(req, res) {
       if (await authBlocked(req)) return L.json(res, 429, { error: "too_many" });
       if (!tokenOk(trip, adminKey(req, req.query.k))) { await authFailed(req); return L.json(res, 403, { error: "bad_token" }); }
       const counts = await L.pipeline(trip.vans.map((v) => ["HLEN", L.seatsKey(t, v.id)]));
+      const perVan = {};
+      trip.vans.forEach((v, i) => { perVan[v.id] = Number(counts[i]) || 0; });
       const booked = counts.reduce((a, n) => a + (Number(n) || 0), 0);
-      return L.json(res, 200, { trip: L.publicTrip(trip), booked });
+      return L.json(res, 200, { trip: L.publicTrip(trip), booked, perVan });
     }
 
     if (req.method === "DELETE") {
