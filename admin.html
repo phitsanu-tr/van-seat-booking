@@ -257,6 +257,7 @@ label.bad { color: var(--danger); }
 input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 14%, transparent); }
 .fe { display: flex; gap: 6px; align-items: center; color: var(--danger); font: 400 12.5px/18px var(--font-body); margin-top: 6px; }
 .fe svg { flex: none; width: 14px; height: 14px; }
+.vans + .fe { margin-left: 62px; } /* line up with the van name inputs (54px label + 8px gap) */
 .toast { position: fixed; z-index: 30; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 76px); width: min(calc(100% - 32px), 428px); transform: translateX(-50%); display: flex; gap: 10px; align-items: flex-start; background: #1b1f22; color: #fff; border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 21px; box-shadow: 0 12px 28px rgba(0,0,0,.32); animation: toastIn .2s ease-out; cursor: pointer; }
 .toast svg { flex: none; width: 20px; height: 20px; margin-top: 0.5px; color: #ff8a80; }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } }
