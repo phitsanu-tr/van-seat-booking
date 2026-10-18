@@ -1151,7 +1151,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 
   var booked = 0, tripName = "";
   $("delBtn").addEventListener("click", async function () {
-    var ok = await askConfirm("ต้องการลบทริปนี้?", "สิ่งต่อไปนี้จะถูกลบถาวร ผู้จองและลิงก์ที่แชร์ไปจะใช้ไม่ได้อีก", "ลบทริป", $("delBtn"),
+    var ok = await askConfirm("ต้องการลบทริปนี้?", "ข้อมูลต่อไปนี้จะถูกลบถาวร ผู้จองและลิงก์ที่แชร์ไปจะใช้ไม่ได้", "ลบทริป", $("delBtn"),
       { name: tripName || "ทริปนี้", chips: [(booked ? "จองแล้ว " + booked + " ที่นั่ง" : "ยังไม่มีผู้จอง"), rows.length + " คัน"] });
     if (!ok) return;
     $("delBtn").disabled = true;
