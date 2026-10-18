@@ -112,7 +112,9 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 @media (prefers-color-scheme: dark) { .check.amber { background: #223540; } }
 .dots { display: flex; background: var(--tint); border-radius: 12px; padding: 4px; margin: 0; }
 .dots button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 8px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font: 600 14px var(--font-body); cursor: pointer; }
-.dots button svg { width: 15px; height: 15px; flex: none; }
+.dots button svg { flex: none; }
+.dots button svg.tk { width: 17px; height: 11.6px; }
+.dots button svg.sh { width: 12.5px; height: 14.6px; }
 .dots button.on { background: var(--surface); color: var(--mine); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
 .dots button.on.amber { color: var(--ink); }
 .steplabel { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--mine); }
@@ -193,7 +195,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
     <div class="mbar" id="mbar"></div>
     <div class="mbody">
       <div class="tcard"><div class="mt" id="resultTitle"></div><div class="trows" id="resultSub"></div></div>
-      <div class="dots" role="tablist"><button type="button" role="tab" data-step="1" class="on" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 6v2a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-2a2 2 0 0 0 0-6V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z"/></svg>ผู้จอง</button><button type="button" role="tab" data-step="2" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>ผู้ดูแล</button></div>
+      <div class="dots" role="tablist"><button type="button" role="tab" data-step="1" class="on" aria-selected="true"><svg class="tk" viewBox="2.5 5.5 19 13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg>ผู้จองทริป</button><button type="button" role="tab" data-step="2" aria-selected="false"><svg class="sh" viewBox="3 1.5 18 21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg>ผู้ดูแลทริป</button></div>
     <div class="steps">
     <!-- step 1: guests -->
     <div class="step" id="step1">
