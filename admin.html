@@ -28,6 +28,7 @@ input[type=text], input[type=date], input[type=time] { width: 100%; height: 48px
 input:focus { outline: none; border-color: var(--mine); box-shadow: 0 0 0 3px color-mix(in srgb, var(--mine) 20%, transparent); }
 .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
 .row > * { min-width: 0; }
+.row.one { grid-template-columns: minmax(0, 1fr); }
 input[type=date], input[type=time] { min-width: 0; -webkit-appearance: none; appearance: none; text-align: left; }
 .vans { display: flex; flex-direction: column; gap: 8px; }
 .van { display: flex; gap: 8px; align-items: center; }
@@ -234,14 +235,11 @@ input[type=text], input[type=date], input[type=time] { background: var(--surface
     <label>ผู้จัด <small>(ไม่บังคับ)</small>
       <input type="text" id="organizer" maxlength="80" placeholder="เช่น เดินป่าด้วยกัน">
     </label>
-    <div class="row">
+    <div class="row one">
       <label>วันเดินทางไป <input type="date" id="startDate"></label>
       <label>วันเดินทางกลับ <input type="date" id="endDate"></label>
     </div>
-    <div class="row">
-      <label>เวลาออกเดินทาง <input type="time" id="departTime"></label>
-      <span></span>
-    </div>
+    <label>เวลาออกเดินทาง <input type="time" id="departTime"></label>
     <label>จุดนัดพบ <small>(ไม่บังคับ)</small>
       <input type="text" id="meetPoint" maxlength="120" placeholder="เช่น หน้าห้างเซ็นทรัล ลาดพร้าว">
     </label>
