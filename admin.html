@@ -297,6 +297,7 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 input.vp::placeholder { font-size: 14px; } /* long example text still fits on 360px phones */
 .toast { position: fixed; z-index: 30; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); width: min(calc(100% - 32px), 428px); transform: translateX(-50%); display: flex; gap: 10px; align-items: flex-start; background: #1b1f22; color: #fff; border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 21px; box-shadow: 0 12px 28px rgba(0,0,0,.32); animation: toastIn .2s ease-out; cursor: pointer; }
 .toast svg { flex: none; width: 20px; height: 20px; margin-top: 0.5px; color: #ff8a80; }
+.toast.ok svg { color: #6fe0c0; }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } }
 @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
 .foot { margin: 16px auto 0; text-align: center; font-size: 10px; line-height: 14px; color: var(--muted); white-space: nowrap; }
@@ -375,7 +376,6 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
     </div>
   </form>
 
-  <div class="toast" id="toast" role="alert" hidden></div>
   <button type="button" class="btn plain" id="shareBtn" hidden>ลิงก์ของทริปนี้ (แชร์ / QR)</button>
   <section class="dz" id="dz" hidden>
     <div><b>ลบทริปนี้</b><span>ผู้จองและลิงก์ที่แชร์ไปจะใช้ไม่ได้อีก ย้อนกลับไม่ได้</span></div>
@@ -384,6 +384,7 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
 
 </main>
 
+<div class="toast" id="toast" role="alert" hidden></div>
 <div class="foot">© 2025 PHITSANU_ · <a href="https://github.com/phitsanu-tr" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>View on GitHub</a></div>
 
 <div class="backdrop" id="backdrop" hidden>
@@ -637,8 +638,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   // form-level errors (quota, network, server): floating toast that fades on its own
   var toastTimer = null, toastEl = $("toast");
   function hideToast() { clearTimeout(toastTimer); toastEl.hidden = true; }
-  function toast(text, sticky) {
-    clearTimeout(toastTimer); toastEl.innerHTML = ERR_SVG + "<span></span>"; toastEl.lastChild.textContent = text; toastEl.hidden = false;
+  var OK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>';
+  function toast(text, sticky, ok) {
+    toastEl.classList.toggle("ok", !!ok);
+    clearTimeout(toastTimer); toastEl.innerHTML = (ok ? OK_SVG : ERR_SVG) + "<span></span>"; toastEl.lastChild.textContent = text; toastEl.hidden = false;
     toastEl.style.animation = "none"; void toastEl.offsetWidth; toastEl.style.animation = "";
     if (!sticky) toastTimer = setTimeout(hideToast, 5000);
   }
@@ -1201,12 +1204,17 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var r = await fetch("/api/trip?t=" + encodeURIComponent(T), { method: "DELETE", headers: { "x-admin-key": K } });
       if (!r.ok && r.status !== 404) { var d = {}; try { d = await r.json(); } catch (e) {} toast(ERR[d.error] || "ลบไม่สำเร็จ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; return; }
       saveMine(loadMine().filter(function (y) { return y.id !== T; }));
+      try { sessionStorage.setItem("van-flash", "ลบทริปแล้ว"); } catch (e) {}
       location.href = "/a";
     } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
   });
 
   async function init() {
-    if (listMode) { initList(); return; }
+    if (listMode) {
+      initList();
+      try { var fl = sessionStorage.getItem("van-flash"); if (fl) { sessionStorage.removeItem("van-flash"); toast(fl, false, true); } } catch (e) {}
+      return;
+    }
     $("formMain").hidden = false;
     if (editing) {
       $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตรายละเอียดทริป ผู้จองเห็นข้อมูลใหม่ทันที";
