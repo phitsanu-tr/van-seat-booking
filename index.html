@@ -81,8 +81,8 @@ header.trip { display: block; }
 .deck .tabs .tab { padding: 0 6px; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
 .deck .sheet { border: 0; border-radius: 0; }
 .deck .list { border: 0; border-radius: 0; }
-.deck .vsw { background: none; border-radius: 0; padding: 0 16px; gap: 0; border-bottom: 1.5px solid var(--line); }
-.deck .vsw button { border-radius: 0; border-bottom: 3px solid transparent; margin-bottom: -1.5px; min-height: 44px; }
+.deck .vsw { background: linear-gradient(color-mix(in srgb, var(--line) 60%, transparent), color-mix(in srgb, var(--line) 60%, transparent)) 16px 100% / calc(100% - 32px) 1px no-repeat; border-radius: 0; padding: 0 16px; gap: 0; }
+.deck .vsw button { border-radius: 0; border-bottom: 3px solid transparent; margin-bottom: 0; min-height: 44px; }
 .deck .vsw button[aria-selected="true"] { background: none; box-shadow: none; border-bottom-color: var(--mine); }
 .shead { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 6px 10px; }
 .shead .count { margin-left: auto; }
