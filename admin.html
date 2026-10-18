@@ -318,7 +318,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var r = document.createElement("div"); r.className = "trow"; r.innerHTML = ICON_SM[icon]; var t = document.createElement("span"); t.textContent = text; r.appendChild(t); rowsEl.appendChild(r);
     }
     $("resultOrg").hidden = !organizer; $("resultOrg").textContent = organizer || "";
-    if (startDate || endDate || departTime) trow("cal", [(startDate || endDate) ? dateRange(startDate, endDate) : "", departTime ? departTime + " น." : ""].filter(Boolean).join(" · "));
+    if (startDate || endDate) trow("cal", dateRange(startDate, endDate));
+    if (departTime) trow("clk", "รถออก " + departTime + " น.");
     if (meetPoint) trow("pin", meetPoint);
     if (vanCount) trow("van", vanCount + " คัน (" + vanCount * 10 + " ที่นั่ง)");
     var text = (name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share;
