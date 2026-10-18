@@ -62,6 +62,7 @@ button { font: inherit; cursor: pointer; }
 .lv-grp { display: flex; flex-direction: column; gap: 10px; }
 .tc { display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; color: inherit; text-decoration: none; }
 .tc.past { opacity: .8; }
+.tc.new { border-color: var(--mine); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mine) 14%, transparent); }
 .tc .r1 { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .tc .r1 b { font: 600 15px/22px var(--font-display); min-width: 0; overflow-wrap: anywhere; }
 .tc .chip { flex: none; font-style: normal; font-size: 11px; font-weight: 600; line-height: 18px; padding: 2px 9px; border-radius: 999px; background: color-mix(in srgb, var(--mine) 14%, transparent); color: var(--mine); }
@@ -85,7 +86,7 @@ button { font: inherit; cursor: pointer; }
 .lv-empty p { max-width: 260px; font-size: 13px; line-height: 20px; margin-bottom: 8px; }
 .lv-empty .lv-cta { padding: 0 28px; }
 
-.backdrop { position: fixed; inset: 0; z-index: 20; background: rgba(8, 14, 18, .6); display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
+.backdrop { position: fixed; inset: 0; z-index: 20; background: rgba(8, 14, 18, .6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
 .modal { width: 100%; max-width: 400px; background: var(--surface); border-radius: 24px; padding: 22px 20px 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 18px 50px rgba(0,0,0,.35); margin: auto; }
 .mh { display: flex; align-items: center; gap: 12px; }
 .check { flex: none; width: 44px; height: 44px; border-radius: 22px; background: color-mix(in srgb, var(--mine) 18%, transparent); color: var(--mine); display: flex; align-items: center; justify-content: center; }
@@ -768,7 +769,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     van: SVG_OPEN + '<path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg>'
   };
   function showResult(id, token, created, name, vanCount, startDate, endDate, departTime, meetPoint, organizer) {
-    shown = { id: id, token: token };
+    shown = { id: id, token: token }; goList = created === true;
     tripName = name || "";
     var share = shareLink = link("/" + id); adminUrl = link(editPath(id, token));
     urlBox($("shareUrl"), id, "แตะเพื่อคัดลอกลิงก์");
@@ -794,7 +795,11 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     $("backdrop").hidden = false;
     setStep(1);
   }
-  function closeResult() { $("backdrop").hidden = true; }
+  var goList = false; // right after creating a trip, closing the result sheet leads to the my-trips list
+  function closeResult() {
+    if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = "/a"; return; }
+    $("backdrop").hidden = true;
+  }
   $("closeX").addEventListener("click", closeResult);
   Array.prototype.forEach.call(document.querySelectorAll(".dots button"), function (b) { b.addEventListener("click", function () { setStep(+b.getAttribute("data-step")); }); });
   $("backdrop").addEventListener("click", function (e) { if (e.target === $("backdrop")) closeResult(); });
@@ -1140,7 +1145,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       rm.addEventListener("click", function () { saveMine(loadMine().filter(function (y) { return y.id !== x.id; })); initList(); });
       g.appendChild(rm); return g;
     }
-    var a = node("a", "tc" + (past ? " past" : "")); a.href = editPath(x.id, x.token);
+    var a = node("a", "tc" + (past ? " past" : "") + (x.id === newId ? " new" : "")); a.href = editPath(x.id, x.token);
     var r1 = node("div", "r1"); r1.appendChild(node("b", "", (t && t.name) || x.name || x.id));
     if (it.state === "ok") r1.appendChild(node("em", "chip" + (past ? " g" : ""), past ? "ผ่านไปแล้ว" : full ? "เต็มแล้ว" : "เปิดจอง"));
     a.appendChild(r1);
@@ -1188,9 +1193,11 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       } catch (e) { it.state = "err"; }
       renderList(items);
     }));
+    var nw = document.querySelector(".tc.new"); if (nw && nw.scrollIntoView) nw.scrollIntoView({ block: "center", behavior: "smooth" });
   }
 
   var booked = 0, loaded = null, perVan = {};
+  var newId = ""; // id of the trip just created (highlighted once on the list)
   $("delBtn").addEventListener("click", async function () {
     var t = loaded || {}, rws = [];
     if (t.startDate || t.endDate) rws.push([SV.cal, dateRange(t.startDate, t.endDate)]);
@@ -1212,8 +1219,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 
   async function init() {
     if (listMode) {
+      var fl = "";
+      try { fl = sessionStorage.getItem("van-flash") || ""; newId = sessionStorage.getItem("van-new") || ""; sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); } catch (e) {}
       initList();
-      try { var fl = sessionStorage.getItem("van-flash"); if (fl) { sessionStorage.removeItem("van-flash"); toast(fl, false, true); } } catch (e) {}
+      if (fl) toast(fl, false, true);
       return;
     }
     $("formMain").hidden = false;
