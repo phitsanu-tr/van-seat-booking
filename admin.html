@@ -1087,7 +1087,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       vans: rows.map(function (r) { return { id: r.id, label: r.label.trim(), plate: (r.plate || "").trim() }; })
     };
     if (editing) { body.t = T; body.k = K; } else { body.d = deviceId(); }
-    busy = true; $("submit").disabled = true; $("cancelBtn").disabled = true; $("submit").textContent = "กำลังบันทึก...";
+    busy = true; $("submit").disabled = true; $("cancelBtn").disabled = true; $("submit").textContent = (editing ? "กำลังแก้ไข..." : "กำลังสร้าง...");
     try {
       var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       var data = {}; try { data = await res.json(); } catch (x) {}
