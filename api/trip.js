@@ -9,6 +9,7 @@ const L = require("./_lib");
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
 const MAX_VANS = 5;           // vans per trip (a trip created earlier with more keeps its count when edited)
+const QUOTA_ENABLED = false;    // monthly creation limit is switched off for now; set to true to bring it back
 const TRIPS_PER_MONTH = 5;      // per creator (browser/device id)
 const TRIPS_PER_MONTH_IP = 15;  // backstop per network, so clearing browser data is not a free reset
 
@@ -109,7 +110,7 @@ module.exports = async function handler(req, res) {
     if (req.method === "POST") {
       const c = clean(L.readBody(req));
       if (c.error) return L.json(res, 400, { error: c.error });
-      const q = await takeQuota(req, L.readBody(req).d);
+      const q = QUOTA_ENABLED ? await takeQuota(req, L.readBody(req).d) : { over: null, keys: [] };
       if (q.over) return L.json(res, 429, { error: q.over, limit: TRIPS_PER_MONTH });
       const id = L.newId(8), secret = L.newId(16);
       const trip = Object.assign({ id, createdAt: Date.now(), adminHash: sha256(secret) }, c.value);
