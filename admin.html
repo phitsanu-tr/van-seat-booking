@@ -118,6 +118,8 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .panel .link { gap: 2px; }
 .panel .hint { margin-bottom: 8px; }
 .panel .hint { font-size: 12px; color: var(--muted); line-height: 1.35; margin-bottom: 4px; }
+.panel .chip { background: #fff; }
+.panel .url .code { font-size: 18px; }
 .panel .btn.ghost { background: #fff; border: 1.5px solid var(--mine); color: var(--mine); height: 38px; }
 .panel.dark .btn.ghost { border-color: var(--ink); color: var(--ink); }
 .panel .btn.ghost.ok { background: var(--mine); color: #fff; }
@@ -183,7 +185,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
     <div class="steps">
     <!-- step 1: guests -->
     <div class="step" id="step1">
-      <div class="panel"><div class="share"><div class="qr seat" id="qr" role="img" aria-label="คิวอาร์โค้ดลิงก์จอง"></div><div class="link"><div class="passtag"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg><b>SEAT PASS</b></div><span class="hint">สำหรับผู้จองทริป<br>สแกนเพื่อจองที่นั่ง</span><button class="btn ghost small ic " id="copyShare" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span class="lb">คัดลอกลิงก์</span></button></div></div></div>
+      <div class="panel"><div class="share"><div class="qr seat" id="qr" role="img" aria-label="คิวอาร์โค้ดลิงก์จอง"></div><div class="link"><div class="passtag"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg><b>SEAT PASS</b></div><span class="hint">สำหรับผู้จองทริป<br>สแกนเพื่อจองที่นั่ง</span><div class="chip"><div class="url" id="shareUrl"></div><button class="cpbtn" id="copyShare" type="button" aria-label="คัดลอกลิงก์"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button></div></div></div></div>
       <div class="two">
         <a class="btn line small ic" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span class="lb">ส่งเข้า LINE</span></a>
       
@@ -195,7 +197,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
     </div>
     <!-- step 2: admin -->
     <div class="step" id="step2" hidden>
-      <div class="panel dark"><div class="share"><div class="qr amber" id="qr2" role="img" aria-label="คิวอาร์โค้ดลิงก์แก้ไขทริป"></div><div class="link"><div class="passtag dark"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg><b>ADMIN PASS</b></div><span class="hint">สำหรับผู้ดูแลทริป<br>ลิงก์ลับ ห้ามส่งต่อ</span><button class="btn ghost small ic " id="copyAdmin" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span class="lb">คัดลอกลิงก์</span></button></div></div></div>
+      <div class="panel dark"><div class="share"><div class="qr amber" id="qr2" role="img" aria-label="คิวอาร์โค้ดลิงก์แก้ไขทริป"></div><div class="link"><div class="passtag dark"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg><b>ADMIN PASS</b></div><span class="hint">สำหรับผู้ดูแลทริป<br>ลิงก์ลับ ห้ามส่งต่อ</span><div class="chip"><div class="url" id="adminUrl"></div><button class="cpbtn" id="copyAdmin" type="button" aria-label="คัดลอกลิงก์"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button></div></div></div></div>
       <div class="two">
         <a class="btn line small ic" id="lineAdmin" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span class="lb">ส่งเข้า LINE</span></a>
       
@@ -293,6 +295,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     shown = { id: id, token: token };
     tripName = name || "";
     var share = shareLink = link("/" + id); adminUrl = link(editPath(id, token));
+    urlBox($("shareUrl"), id, "แตะเพื่อคัดลอกลิงก์");
     $("openShare").href = "/" + id;
     $("mState").textContent = created ? "✓ สร้างทริปแล้ว" : "ลิงก์ของทริปนี้";
     $("mCode").textContent = "#" + String(id).toUpperCase();
@@ -309,6 +312,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     $("qr").innerHTML = qrSvg(share, "#0b5f67");
     $("qr2").innerHTML = qrSvg(adminUrl, "#1b1f22");
     // the secret is shown masked on screen; copy / save use the full link
+    urlBox($("adminUrl"), id, "แตะเพื่อคัดลอกลิงก์ (ลับ)");
     $("saveMsg").textContent = ""; $("seatMsg").textContent = "";
     $("backdrop").hidden = false;
     setStep(1);
@@ -332,8 +336,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
     function flash(ok) {
       var o = btn.innerHTML; btn.classList.toggle("ok", ok);
-      btn.innerHTML = CHECK + '<span class="lb">' + (ok ? "คัดลอกแล้ว" : "คัดลอกไม่ได้") + "</span>";
-      setTimeout(function () { btn.innerHTML = o; btn.classList.remove("ok"); }, 1600);
+      btn.innerHTML = ok ? CHECK : '<span style="font-size:11px">กดค้างที่รหัส</span>'; btn.style.width = ok ? "" : "auto";
+      setTimeout(function () { btn.innerHTML = o; btn.classList.remove("ok"); btn.style.width = ""; }, 1600);
     }
     function fallback() {
       var ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
@@ -344,8 +348,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { flash(true); }, fallback);
     else fallback();
   }
-  $("copyShare").addEventListener("click", function () { copy(shareLink, $("copyShare")); });
-  $("copyAdmin").addEventListener("click", function () { copy(adminUrl, $("copyAdmin")); });
+  $("copyShare").parentNode.addEventListener("click", function () { copy(shareLink, $("copyShare")); });
+  $("copyAdmin").parentNode.addEventListener("click", function () { copy(adminUrl, $("copyAdmin")); });
 
   // Draws the admin card (trip details + admin QR + guest QR) to a canvas and saves it as a PNG.
   var MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
