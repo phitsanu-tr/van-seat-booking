@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>จองที่นั่งรถตู้</title>
+<meta name="description" content="สร้างทริปรถตู้แล้วแชร์ลิงก์ให้เพื่อนเลือกที่นั่งเอง ไม่ต้องสมัครสมาชิก ใช้ใน LINE ได้เลย">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
+<style>
+[hidden] { display: none !important; }
+:root {
+  --bg: #eef1f3; --surface: #ffffff; --ink: #1b1f22; --muted: #5f6b73; --line: #c9d2d8; --mine: #0e7c86; --deep: #0b5f67; --tint: #e5f2f3; --edge: #dde3e7; --danger: #b3261e;
+  --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif; --font-body: "Noto Sans Thai", system-ui, sans-serif; color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0d151a; --surface: #17252e; --ink: #e6ecef; --muted: #93a6b0; --line: #2d4350; --mine: #3cc0cc; --deep: #7fd6de; --tint: #1a3138; --edge: #243845; --danger: #ff8a80; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
+.top { background: var(--surface); border-bottom: 1px solid var(--edge); }
+.top div { max-width: 520px; margin: 0 auto; height: 52px; padding: 0 max(18px, env(safe-area-inset-left)); display: flex; align-items: center; font: 600 15px var(--font-display); color: var(--deep); }
+main { max-width: 520px; margin: 0 auto; padding: 20px max(18px, env(safe-area-inset-left)) calc(40px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; }
+h1 { font: 600 22px/1.25 var(--font-display); margin: 0; }
+h2 { font: 600 17px var(--font-display); margin: 10px 0 0; }
+p { margin: 0; color: var(--muted); font-size: 14px; }
+.hero { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--tint); border-radius: 18px; padding: 18px 16px; }
+.hero p { margin-top: 6px; }
+.hero svg { flex: none; width: 54px; height: auto; }
+.path { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 14px; color: inherit; text-decoration: none; font: inherit; cursor: pointer; }
+.path .pi { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--bg); color: var(--ink); }
+.path .pi.a { background: var(--tint); color: var(--deep); }
+.path .pi svg { width: 20px; height: 20px; }
+.path .tx { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.path .tx b { font: 600 15px var(--font-display); }
+.path .tx span { font-size: 13px; color: var(--muted); }
+.path > svg { flex: none; width: 18px; height: 18px; color: var(--muted); }
+.path:active { background: var(--tint); }
+.code { display: flex; gap: 8px; }
+.code input { flex: 1; min-width: 0; height: 46px; font: inherit; font-size: 16px; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 0 14px; }
+.code input:focus { outline: none; border-color: var(--mine); box-shadow: 0 0 0 3px color-mix(in srgb, var(--mine) 20%, transparent); }
+.code button { flex: none; width: 46px; height: 46px; border: 0; border-radius: 12px; background: var(--ink); color: var(--bg); display: grid; place-items: center; cursor: pointer; }
+.code button svg { width: 18px; height: 18px; }
+.err { color: var(--danger); font-size: 13px; margin-top: -4px; }
+.feat { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.feat div { background: var(--surface); border: 1px solid var(--edge); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 4px; color: var(--mine); }
+.feat svg { width: 20px; height: 20px; }
+.feat b { color: var(--ink); font-size: 13.5px; font-weight: 600; }
+.feat span { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.steps { background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.st { display: flex; gap: 12px; align-items: center; }
+.st i { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--tint); color: var(--deep); font: 600 14px var(--font-display); font-style: normal; display: grid; place-items: center; }
+.st b { display: block; font: 600 14px var(--font-display); }
+.st span { font-size: 13px; color: var(--muted); }
+.note { background: var(--surface); border: 1px solid var(--edge); border-radius: 14px; padding: 12px 14px; font-size: 13px; color: var(--muted); line-height: 1.55; }
+.note b { color: var(--ink); }
+.foot { text-align: center; font-size: 12px; color: var(--muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="top"><div>จองที่นั่งรถตู้</div></div>
+<main>
+  <section class="hero">
+    <div>
+      <h1>จองที่นั่งรถตู้<br>ผ่านลิงก์เดียว</h1>
+      <p>ให้เพื่อนเลือกที่นั่งเอง ไม่ต้องสมัครสมาชิก</p>
+    </div>
+    <svg viewBox="0 0 70 140" fill="none" aria-hidden="true">
+      <rect x="2" y="2" width="66" height="136" rx="22" stroke="currentColor" stroke-width="3" fill="var(--surface)"/>
+      <g stroke="currentColor" stroke-width="1.3">
+        <rect x="8" y="12" width="20" height="22" rx="3" fill="var(--surface)"/><rect x="32" y="12" width="20" height="22" rx="3" fill="var(--surface)"/>
+        <rect x="8" y="42" width="20" height="22" rx="3" fill="var(--mine)"/><rect x="32" y="42" width="20" height="22" rx="3" fill="var(--surface)"/>
+        <rect x="8" y="72" width="20" height="22" rx="3" fill="var(--mine)"/><rect x="32" y="72" width="20" height="22" rx="3" fill="var(--surface)"/>
+        <rect x="8" y="102" width="16" height="22" rx="3" fill="var(--surface)"/><rect x="27" y="102" width="16" height="22" rx="3" fill="var(--surface)"/><rect x="46" y="102" width="16" height="22" rx="3" fill="var(--surface)"/>
+      </g>
+    </svg>
+  </section>
+
+  <a class="path" href="/a">
+    <div class="pi a"><svg viewBox="2.5 5.5 19 13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg></div>
+    <div class="tx"><b>ฉันเป็นผู้จัด</b><span>สร้างทริปและรับลิงก์ไปแชร์</span></div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </a>
+  <button class="path" type="button" id="pickSeat">
+    <div class="pi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="10" rx="3"/><path d="M7 13v4h10v-4M5 21h14"/></svg></div>
+    <div class="tx"><b>ฉันจะจองที่นั่ง</b><span>ใส่รหัสทริปที่ผู้จัดส่งให้</span></div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </button>
+  <form class="code" id="codeForm" autocomplete="off">
+    <input type="text" id="code" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="200" placeholder="ใส่รหัสทริป หรือวางลิงก์" aria-label="รหัสทริป">
+    <button type="submit" aria-label="ไปหน้าจอง"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </form>
+  <div class="err" id="err" role="alert" hidden></div>
+
+  <h2>ทำไมต้องใช้</h2>
+  <div class="feat">
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg><b>แชร์ลิงก์</b><span>ส่งเข้า LINE หรือให้สแกน QR</span></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="10" rx="3"/><path d="M7 13v4h10v-4M5 21h14"/></svg><b>เลือกที่นั่งเอง</b><span>เห็นผังรถ ที่ว่าง / จองแล้ว</span></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><b>ใช้ใน LINE</b><span>เปิดได้เลย ไม่ต้องโหลดแอป</span></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg><b>ไม่ต้องสมัคร</b><span>ไม่ต้องล็อกอิน ไม่ต้องจำรหัส</span></div>
+  </div>
+
+  <h2>ใช้งาน 3 ขั้นตอน</h2>
+  <div class="steps">
+    <div class="st"><i>1</i><div><b>สร้างทริป</b><span>ใส่ชื่อ วันที่ จุดนัดพบ และจำนวนรถ</span></div></div>
+    <div class="st"><i>2</i><div><b>แชร์ลิงก์ให้เพื่อน</b><span>เพื่อนเลือกที่นั่งเองได้ทันที</span></div></div>
+    <div class="st"><i>3</i><div><b>ดูว่าใครจองที่ไหน</b><span>รายชื่อผู้จองอัปเดตเองขณะเปิดหน้า</span></div></div>
+  </div>
+
+  <div class="note"><b>ฟรี</b> สร้างได้ 5 ทริปต่อเดือน · รถละ 10 ที่นั่ง<br>ผู้ดูแลเข้าด้วยลิงก์ลับ ไม่ต้องจำรหัสผ่าน</div>
+  <div class="foot">เก็บเฉพาะชื่อที่ใส่จองและเวลาที่จอง</div>
+</main>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var form = $("codeForm"), input = $("code"), err = $("err");
+  function parse(v) {
+    v = String(v || "").trim().toLowerCase();
+    if (!v) return "";
+    var m = /[?&]t=([a-z0-9]+)/.exec(v);                       // old style ...?t=code
+    if (m) v = m[1];
+    else { v = v.split("#")[0].split("?")[0].replace(/\/+$/, ""); v = v.slice(v.lastIndexOf("/") + 1); }
+    return /^[a-hj-km-np-z2-9]{6,8}$/.test(v) ? v : "";
+  }
+  function showErr(t) { err.textContent = t; err.hidden = !t; }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var id = parse(input.value);
+    if (!id) { showErr(input.value.trim() ? "รหัสไม่ถูกต้อง ตรวจสอบรหัสหรือลิงก์ที่ผู้จัดส่งให้อีกครั้ง" : "ใส่รหัสทริปก่อน"); input.focus(); return; }
+    location.href = "/" + id;
+  });
+  input.addEventListener("input", function () { showErr(""); });
+  $("pickSeat").addEventListener("click", function () {
+    input.scrollIntoView({ block: "center", behavior: "smooth" });
+    input.focus({ preventScroll: true });
+  });
+})();
+</script>
+</body>
+</html>

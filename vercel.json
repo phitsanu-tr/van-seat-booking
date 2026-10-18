@@ -1,15 +1,40 @@
 {
   "rewrites": [
-    { "source": "/a", "destination": "/admin.html" },
-    { "source": "/:t([a-hj-km-np-z2-9]{6,8})", "destination": "/index.html" }
+    {
+      "source": "/",
+      "missing": [
+        {
+          "type": "query",
+          "key": "t"
+        }
+      ],
+      "destination": "/home.html"
+    },
+    {
+      "source": "/a",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/:t([a-hj-km-np-z2-9]{6,8})",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
       "source": "/(a|admin.html)",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
-        { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "Cache-Control", "value": "no-store" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
       ]
     }
   ]
