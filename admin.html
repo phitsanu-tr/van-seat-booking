@@ -906,7 +906,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       if (need === cwTry) break;
       cwTry = need;
     }
-    CW = W = GUEST ? wrapCW : Math.max(wrapCW, Math.ceil(H * 9 / 16));
+    CW = W = GUEST ? wrapCW : Math.max(364, wrapCW, Math.ceil(H * 9 / 16)); // min 364 -> 1456 x 2588 at 4x
     var TW = CW - M * 2;
     if (!GUEST) H = Math.max(H, CW * 16 / 9);
     var c = document.createElement("canvas"); c.width = W * S; c.height = Math.round(H * S);
