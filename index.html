@@ -273,10 +273,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         <rect class="solid" x="732" y="372" width="13" height="52"/>
         <rect class="solid" x="732" y="784" width="13" height="84"/>
         <!-- front row boxes -->
-        <rect class="ln" x="115" y="185" width="190" height="182" rx="12"/>
-        <rect class="ln" x="317" y="185" width="190" height="182" rx="12"/>
-        <rect class="ln" x="519" y="185" width="190" height="182" rx="12"/>
-        <path class="ln thin" d="M127 318 H293 M329 318 H495"/>
+        <rect class="ln" x="126" y="185" width="180" height="182" rx="12"/>
+        <rect class="ln" x="322" y="185" width="180" height="182" rx="12"/>
+        <rect class="ln" x="518" y="185" width="180" height="182" rx="12"/>
+        <path class="ln thin" d="M138 318 H294 M334 318 H490"/>
         <!-- console -->
         <rect class="ln" x="90" y="372" width="230" height="86" rx="18"/>
         <rect class="ln" x="497" y="372" width="235" height="86" rx="18"/>
@@ -288,9 +288,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         <path class="ln" d="M92 486 L102 493 Q112 498 112 514 V766 Q112 788 102 794 L92 802"/>
         <!-- seat boxes -->
         <g class="ln">
-          <rect x="115" y="517" width="190" height="200" rx="12"/><path class="ln thin" d="M127 666 H293"/><rect x="317" y="517" width="190" height="200" rx="12"/><path class="ln thin" d="M329 666 H495"/><rect x="519" y="517" width="190" height="200" rx="12"/><path class="ln thin" d="M531 666 H697"/>
-          <rect x="115" y="776" width="190" height="200" rx="12"/><path class="ln thin" d="M127 925 H293"/><rect x="317" y="776" width="190" height="200" rx="12"/><path class="ln thin" d="M329 925 H495"/><rect x="519" y="776" width="190" height="200" rx="12"/><path class="ln thin" d="M531 925 H697"/>
-          <rect x="115" y="1035" width="190" height="200" rx="12"/><path class="ln thin" d="M127 1184 H293"/><rect x="317" y="1035" width="190" height="200" rx="12"/><path class="ln thin" d="M329 1184 H495"/><rect x="519" y="1035" width="190" height="200" rx="12"/><path class="ln thin" d="M531 1184 H697"/>
+          <rect x="126" y="548" width="180" height="190" rx="12"/><path class="ln thin" d="M138 687 H294"/><rect x="322" y="548" width="180" height="190" rx="12"/><path class="ln thin" d="M334 687 H490"/><rect x="518" y="548" width="180" height="190" rx="12"/><path class="ln thin" d="M530 687 H686"/>
+          <rect x="126" y="821" width="180" height="190" rx="12"/><path class="ln thin" d="M138 960 H294"/><rect x="322" y="821" width="180" height="190" rx="12"/><path class="ln thin" d="M334 960 H490"/><rect x="518" y="821" width="180" height="190" rx="12"/><path class="ln thin" d="M530 960 H686"/>
+          <rect x="126" y="1094" width="180" height="190" rx="12"/><path class="ln thin" d="M138 1233 H294"/><rect x="322" y="1094" width="180" height="190" rx="12"/><path class="ln thin" d="M334 1233 H490"/><rect x="518" y="1094" width="180" height="190" rx="12"/><path class="ln thin" d="M530 1233 H686"/>
         </g>
         <!-- sliding door -->
         <path class="ln" d="M82 430 H56 V770" style="stroke-dasharray:3 5"/>
@@ -341,10 +341,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   var API = "/api/seats";
   // Seat boxes in the plan's own coordinate space (x, y, w, h in a 820 x 1345 drawing).
   var RECT = {
-    1: [115, 185, 190, 182],
-    4: [115, 517, 190, 200], 3: [317, 517, 190, 200], 2: [519, 517, 190, 200],
-    7: [115, 776, 190, 200], 6: [317, 776, 190, 200], 5: [519, 776, 190, 200],
-    10: [115, 1035, 190, 200], 9: [317, 1035, 190, 200], 8: [519, 1035, 190, 200]
+    1: [126, 185, 180, 182],
+    4: [126, 548, 180, 190], 3: [322, 548, 180, 190], 2: [518, 548, 180, 190],
+    7: [126, 821, 180, 190], 6: [322, 821, 180, 190], 5: [518, 821, 180, 190],
+    10: [126, 1094, 180, 190], 9: [322, 1094, 180, 190], 8: [518, 1094, 180, 190]
   };
   var W = 820, H = 1345;
 
@@ -416,7 +416,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 
   function renderGrid() {
     overlayEl.textContent = "";
-    overlayEl.appendChild(frame(el("div", "driver", "คนขับ"), [523, 189, 182, 174]));
+    overlayEl.appendChild(frame(el("div", "driver", "คนขับ"), [522, 189, 172, 174]));
 
     for (var n = 1; n <= TOTAL; n++) {
       (function (n) {
@@ -923,7 +923,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
       lines.forEach(function (ln, i) { ctx.fillText(ln, bx + bw / 2, ty + numSize + 8 + i * (nameSize + 6)); });
     }
-    var dx = PX + 523 * k, dy = PY + 189 * k, dw = 182 * k, dh = 174 * k;
+    var dx = PX + 522 * k, dy = PY + 189 * k, dw = 172 * k, dh = 174 * k;
     var gr = ctx.createLinearGradient(dx, dy, dx, dy + dh); gr.addColorStop(0, "#dbe7ee"); gr.addColorStop(1, "#c5d4de");
     rrect(ctx, dx + 3, dy + 3, dw - 6, dh - 6, 18); ctx.fillStyle = gr; ctx.fill();
     ctx.fillStyle = "#c43d56"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
