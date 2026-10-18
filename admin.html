@@ -218,6 +218,10 @@ input[type=text], input[type=date], input[type=time] { background: var(--surface
 .pk-d.sel i { background: var(--mine); color: var(--mine-ink); font-weight: 600; box-shadow: none; }
 .pk-d:disabled { color: color-mix(in srgb, var(--muted) 45%, transparent); cursor: default; }
 .pk-d.pad { visibility: hidden; }
+.pk-d.ov { color: color-mix(in srgb, var(--muted) 30%, transparent); pointer-events: none; }
+.pk-sliden { animation: pkn .18s ease-out; } .pk-slidep { animation: pkp .18s ease-out; }
+@keyframes pkn { from { transform: translateX(28px); opacity: 0; } } @keyframes pkp { from { transform: translateX(-28px); opacity: 0; } }
+.pk-act .btn:disabled { opacity: .4; cursor: default; }
 .pk-mg { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 8px; height: 312px; }
 .pk-m { min-height: 0; border-radius: 12px; border: 1.5px solid var(--line); background: transparent; color: var(--ink); font: 500 15px var(--font-display); }
 .pk-m.sel { background: var(--mine); color: var(--mine-ink); border-color: var(--mine); }
@@ -398,10 +402,11 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   function openCal(input, title, trigger, minFn, sync) {
     var cur = parse(input.value), now = parse(todayIso()), min = minFn ? minFn() : "";
-    var sel = input.value || "", view = cur ? { y: cur.y, m: cur.m } : (min && parse(min) && min > todayIso() ? { y: parse(min).y, m: parse(min).m } : { y: now.y, m: now.m });
+    var sel = input.value || (min && min > todayIso() ? min : todayIso()), sp0 = parse(sel), view = { y: sp0.y, m: sp0.m }, slide = 0;
     var picking = false, sheet = shell(title, trigger), body = el("div");
     sheet.appendChild(body); body.style.cssText = "display:flex;flex-direction:column;gap:14px";
     var ok;
+    function upd() { if (!ok) return; var d = parse(sel); ok.disabled = !!d && (picking || d.y !== view.y || d.m !== view.m); }
     function minM() { var m = parse(min); return m ? m.y * 12 + m.m : -Infinity; }
     function draw() {
       body.innerHTML = "";
@@ -409,8 +414,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var tt = btn("pk-title", "<span>" + (picking ? "พ.ศ. " + (view.y + 543) : MON[view.m] + " " + (view.y + 543)) + "</span>" + ICON.down);
       tt.setAttribute("aria-expanded", picking);
       pv.disabled = !picking && view.y * 12 + view.m <= minM(); if (picking) pv.disabled = (view.y - 1) * 12 + 11 < minM();
-      pv.addEventListener("click", function () { if (picking) view.y--; else if (view.m === 0) { view.y--; view.m = 11; } else view.m--; draw(); });
-      nx.addEventListener("click", function () { if (picking) view.y++; else if (view.m === 11) { view.y++; view.m = 0; } else view.m++; draw(); });
+      pv.addEventListener("click", function () { slide = -1; if (picking) view.y--; else if (view.m === 0) { view.y--; view.m = 11; } else view.m--; draw(); });
+      nx.addEventListener("click", function () { slide = 1; if (picking) view.y++; else if (view.m === 11) { view.y++; view.m = 0; } else view.m++; draw(); });
       tt.addEventListener("click", function () { picking = !picking; draw(); });
       nav.appendChild(pv); nav.appendChild(tt); nav.appendChild(nx); body.appendChild(nav);
       if (picking) {
@@ -432,8 +437,17 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
           if (v === sel) b.setAttribute("aria-pressed", "true");
           b.addEventListener("click", function () { sel = v; draw(); }); grid.appendChild(b);
         })(d);
+        for (var n = 1; grid.children.length < 42; n++) { var o = el("span", "pk-d ov", "<i>" + n + "</i>"); o.setAttribute("aria-hidden", "true"); grid.appendChild(o); }
+        if (slide) grid.className += " pk-slide" + (slide > 0 ? "n" : "p");
+        slide = 0;
+        grid.addEventListener("touchstart", function (e) { var t = e.touches[0]; grid._x = t.clientX; grid._y = t.clientY; }, { passive: true });
+        grid.addEventListener("touchend", function (e) {
+          var t = e.changedTouches[0], dx = t.clientX - grid._x, dy = t.clientY - grid._y;
+          if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) { if (dx < 0) nx.click(); else if (!pv.disabled) pv.click(); }
+        }, { passive: true });
         body.appendChild(grid);
       }
+      upd();
       var aux = el("div", "pk-aux"), clr = btn("pk-pill q", "ล้างวันที่"), td = btn("pk-pill", "วันนี้");
       clr.style.visibility = sel ? "visible" : "hidden";
       clr.addEventListener("click", function () { sel = ""; draw(); });
@@ -442,7 +456,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       aux.appendChild(clr); aux.appendChild(td); body.appendChild(aux);
     }
     draw();
-    actions(sheet, function () { input.value = sel; input.dispatchEvent(new Event("change", { bubbles: true })); close(); });
+    ok = actions(sheet, function () { input.value = sel; input.dispatchEvent(new Event("change", { bubbles: true })); close(); });
+    upd();
   }
 
   function timeField(input, title) {
@@ -454,7 +469,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     b.addEventListener("click", function () { openTime(input, title, b); });
   }
   function openTime(input, title, trigger) {
-    var m = /^(\d{2}):(\d{2})$/.exec(input.value), h = m ? +m[1] : 8, mi = m ? +m[2] : 0;
+    var m = /^(\d{2}):(\d{2})$/.exec(input.value), h = m ? +m[1] : new Date().getHours(), mi = m ? +m[2] : new Date().getMinutes();
     var sheet = shell(title, trigger), wrap = el("div", "pk-time"), H = el("div", "pk-col"), M = el("div", "pk-col");
     H.setAttribute("aria-label", "ชั่วโมง"); M.setAttribute("aria-label", "นาที");
     function fill(col, n, get, set) {
