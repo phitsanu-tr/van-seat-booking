@@ -66,11 +66,8 @@ button { font: inherit; cursor: pointer; }
 .qr svg { width: 100%; height: 100%; display: block; }
 .qr:empty { display: none; }
 .share .link { min-width: 0; flex: 1; }
-.two { display: flex; gap: 10px; }
-.two > * { flex: 1; }
-.two > .btn.small { height: 52px; }
-.btn .lb2 { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.25; text-align: left; }
-.btn .lb2 small { font-size: 11px; font-weight: 400; opacity: .85; }
+.two { display: flex; flex-direction: column; gap: 10px; }
+.two > * { flex: none; }
 .btn.ic { display: flex; align-items: center; justify-content: center; gap: 7px; }
 .btn.ic svg { width: 16px; height: 16px; flex: none; }
 
@@ -208,7 +205,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
       <div class="two">
         <a class="btn line small ic" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span class="lb">ส่งเข้า LINE</span></a>
       
-        <button class="btn primary ic small" id="saveSeat" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg><span class="lb2"><small>ดาวน์โหลด</small>SEAT PASS</span></button>
+        <button class="btn primary ic small" id="saveSeat" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg><span class="lb">ดาวน์โหลด SEAT PASS</span></button>
 </div>
       <div class="msg" id="seatMsg" role="status"></div>
       <a class="btn plain ic small foot" id="openShare" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="lb">เปิดหน้าจองที่นั่ง</span></a>
@@ -219,7 +216,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
       <div class="two">
         <a class="btn line small ic" id="lineAdmin" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span class="lb">ส่งเข้า LINE</span></a>
       
-        <button class="btn amber ic small" id="saveImg" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg><span class="lb2"><small>ดาวน์โหลด</small>ADMIN PASS</span></button>
+        <button class="btn amber ic small" id="saveImg" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg><span class="lb">ดาวน์โหลด ADMIN PASS</span></button>
 </div>
       <div class="msg" id="saveMsg" role="status"></div>
       <a class="btn plain ic small foot" id="openShare2" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="lb">เปิดหน้าจองที่นั่ง</span></a>
