@@ -58,7 +58,10 @@ header.trip { display: block; }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; overflow-wrap: anywhere; }
 .vanbar { display: flex; flex-direction: column; gap: 8px; }
-.vanbar .count { align-self: flex-end; }
+.vanbar .vrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.vanbar .count { margin-left: auto; }
+.plate { font-size: 13px; line-height: 20px; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
+.plate b { color: var(--ink); font-weight: 600; }
 .tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
 .tabs .tab { flex: none; }
 .tab { font: inherit; font-weight: 600; font-family: var(--font-display); font-size: 15px; min-height: 40px; padding: 0 14px; border-radius: 999px; cursor: pointer; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); }
@@ -176,7 +179,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 
   <div class="vanbar">
     <div class="tabs" id="tabs" role="tablist" aria-label="เลือกคันรถ" hidden></div>
-    <div class="count" id="count">จองแล้ว <b>0</b> / 10</div>
+    <div class="vrow"><div class="plate" id="plate" hidden></div><div class="count" id="count">จองแล้ว <b>0</b> / 10</div></div>
   </div>
 
   <section class="sheet" aria-label="ผังที่นั่งรถตู้">
@@ -512,6 +515,11 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       var d = el("div"); d.appendChild(el("dt", null, r[0])); d.appendChild(el("dd", null, r[1])); factsEl.appendChild(d);
     });
     factsEl.hidden = rows.length === 0;
+    var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0] || trip.vans[0];
+    var plateEl = document.getElementById("plate");
+    plateEl.textContent = "";
+    if (cur && cur.plate) { plateEl.appendChild(document.createTextNode("ทะเบียน ")); plateEl.appendChild(el("b", null, cur.plate)); }
+    plateEl.hidden = !(cur && cur.plate);
     tabsEl.textContent = "";
     tabsEl.hidden = trip.vans.length < 2;
     trip.vans.forEach(function (v) {

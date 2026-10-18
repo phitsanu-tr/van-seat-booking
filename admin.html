@@ -257,7 +257,10 @@ label.bad { color: var(--danger); }
 input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 14%, transparent); }
 .fe { display: flex; gap: 6px; align-items: center; color: var(--danger); font: 400 12.5px/18px var(--font-body); margin-top: 6px; }
 .fe svg { flex: none; width: 14px; height: 14px; }
-.vans + .fe { margin-left: 62px; } /* line up with the van name inputs (54px label + 8px gap) */
+.vcols { display: flex; gap: 8px; font-weight: 600; font-size: 13px; margin-bottom: -2px; }
+.vcols i { font-style: normal; } .vcols i:first-child { flex: none; width: 84px; } .vcols small { font-weight: 400; font-size: 12px; color: var(--muted); }
+.van input.vn { flex: none; width: 84px; }
+.van input.vp { flex: 1; min-width: 0; }
 .toast { position: fixed; z-index: 30; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 76px); width: min(calc(100% - 32px), 428px); transform: translateX(-50%); display: flex; gap: 10px; align-items: flex-start; background: #1b1f22; color: #fff; border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 21px; box-shadow: 0 12px 28px rgba(0,0,0,.32); animation: toastIn .2s ease-out; cursor: pointer; }
 .toast svg { flex: none; width: 20px; height: 20px; margin-top: 0.5px; color: #ff8a80; }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } }
@@ -602,13 +605,18 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     vanCap = Math.max(MAX_VANS, vanCap, rows.length);
     var oldFe = vansEl.nextElementSibling; if (oldFe && oldFe.classList.contains("fe")) oldFe.remove();
     vansEl.textContent = "";
+    var hd = document.createElement("div"); hd.className = "vcols";
+    hd.innerHTML = "<i>ชื่อคัน</i><i>ทะเบียน <small>(ไม่บังคับ)</small></i>"; vansEl.appendChild(hd);
     rows.forEach(function (r, i) {
       var d = document.createElement("div"); d.className = "van";
-      var sp = document.createElement("span"); sp.textContent = "คันที่ " + (i + 1); d.appendChild(sp);
-      var inp = document.createElement("input"); inp.type = "text"; inp.maxLength = 12; inp.value = r.label;
-      inp.placeholder = "ชื่อคัน เช่น A"; inp.setAttribute("aria-label", "ชื่อรถคันที่ " + (i + 1));
+      var inp = document.createElement("input"); inp.type = "text"; inp.className = "vn"; inp.maxLength = 12; inp.value = r.label;
+      inp.placeholder = "เช่น A"; inp.setAttribute("aria-label", "ชื่อรถคันที่ " + (i + 1));
       inp.addEventListener("input", function () { r.label = inp.value; });
       d.appendChild(inp);
+      var pl = document.createElement("input"); pl.type = "text"; pl.className = "vp"; pl.maxLength = 15; pl.value = r.plate || "";
+      pl.placeholder = "เช่น 1กข 1234"; pl.setAttribute("aria-label", "ทะเบียนรถคันที่ " + (i + 1)); pl.autocomplete = "off";
+      pl.addEventListener("input", function () { r.plate = pl.value; });
+      d.appendChild(pl);
       if (rows.length > 1) {
         var x = document.createElement("button"); x.type = "button"; x.className = "x"; x.textContent = "×"; x.setAttribute("aria-label", "ลบรถคันนี้");
         x.addEventListener("click", function () {
@@ -958,17 +966,17 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     if ($("startDate").value && $("endDate").value && $("endDate").value < $("startDate").value) { var ed = fieldErr($("endDate"), "วันกลับต้องไม่ก่อนวันไป"); first = first || ed; }
     if (!$("departTime").value) { var tc = fieldErr($("departTime"), "ระบุเวลาออกเดินทาง"); first = first || tc; }
     var seen = {}, dupBad = false;
-    [].forEach.call(vansEl.querySelectorAll("input"), function (inp, i) {
+    [].forEach.call(vansEl.querySelectorAll("input.vn"), function (inp, i) {
       var l = labels[i]; if (!l || seen[l]) { inp.classList.add("bad"); inp.setAttribute("aria-invalid", "true"); dupBad = true; } else seen[l] = 1;
     });
     if (dupBad) {
-      var vb = vansEl.querySelector("input.bad"); fieldErr(vb, ERR.bad_vans, vansEl); first = first || vb;
+      var vb = vansEl.querySelector("input.vn.bad"); fieldErr(vb, ERR.bad_vans, vansEl); first = first || vb;
     }
     if (first) { focusFirst(first); return; }
     var body = {
       name: $("name").value, organizer: $("organizer").value, startDate: $("startDate").value, endDate: $("endDate").value,
       departTime: $("departTime").value, meetPoint: $("meetPoint").value,
-      vans: rows.map(function (r) { return { id: r.id, label: r.label.trim() }; })
+      vans: rows.map(function (r) { return { id: r.id, label: r.label.trim(), plate: (r.plate || "").trim() }; })
     };
     if (editing) { body.t = T; body.k = K; } else { body.d = deviceId(); }
     busy = true; $("submit").disabled = true; $("submit").textContent = "กำลังบันทึก...";
@@ -978,19 +986,19 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       if (!res.ok) {
         var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime" };
         if (map[data.error]) { focusFirst(fieldErr($(map[data.error]), ERR[data.error])); }
-        else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input"); if (v0) { v0.classList.add("bad"); fieldErr(v0, ERR.bad_vans, vansEl); focusFirst(v0); } else toast(ERR.bad_vans); }
+        else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input.vn"); if (v0) { v0.classList.add("bad"); fieldErr(v0, ERR.bad_vans, vansEl); focusFirst(v0); } else toast(ERR.bad_vans); }
         else toast(ERR[data.error] || "บันทึกไม่สำเร็จ ลองอีกครั้ง");
         return;
       }
       if (editing) {
-        rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label }; }); renderVans();
+        rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
         remember(T, K, data.trip.name);
         showResult(T, K, false, data.trip.name, data.trip.vans.length, data.trip.startDate, data.trip.endDate, data.trip.departTime, data.trip.meetPoint, data.trip.organizer);
       } else {
         remember(data.id, data.token, data.trip.name);
         T = data.id; K = data.token; editing = true;
         history.replaceState(null, "", editPath(T, K));
-        rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label }; }); renderVans();
+        rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
         $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "บันทึก"; $("shareBtn").hidden = false;
         showResult(T, K, true, data.trip.name, data.trip.vans.length, data.trip.startDate, data.trip.endDate, data.trip.departTime, data.trip.meetPoint, data.trip.organizer);
       }
@@ -1085,7 +1093,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         var t = data.trip;
         $("name").value = t.name; $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || "";
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
-        rows = t.vans.map(function (v) { return { id: v.id, label: v.label }; });
+        rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
         remember(T, K, t.name);
         shown = { id: T, token: K }; $("shareBtn").hidden = false;
       } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }

@@ -49,7 +49,8 @@ function clean(body, vanCap) {
     const id = s(v && v.id, 12);
     if (id && (seen.has(id) || !/^[A-Za-z0-9]+$/.test(id))) return { error: "bad_vans" };
     if (id) seen.add(id);
-    outVans.push({ id, label });
+    const plate = s(v && v.plate, 15);
+    outVans.push(plate ? { id, label, plate } : { id, label });
   }
   return {
     value: { name, organizer: s(body.organizer, 80), startDate, endDate, departTime, meetPoint: s(body.meetPoint, 120), vans: outVans },
@@ -136,7 +137,7 @@ module.exports = async function handler(req, res) {
       const c = clean(body, trip.vans.length);
       if (c.error) return L.json(res, 400, { error: c.error });
       const oldIds = trip.vans.map((v) => v.id);
-      const next = assignVanIds(c.value.vans.map((v) => ({ id: oldIds.includes(v.id) ? v.id : "", label: v.label })), oldIds);
+      const next = assignVanIds(c.value.vans.map((v) => ({ id: oldIds.includes(v.id) ? v.id : "", label: v.label, plate: v.plate })), oldIds);
       const kept = new Set(next.map((v) => v.id));
       const removed = oldIds.filter((id) => !kept.has(id));
       const updated = Object.assign({}, trip, c.value, { vans: next });
