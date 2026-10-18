@@ -43,8 +43,8 @@ a.path:active { background: var(--tint); }
 .code button { flex: none; width: 46px; height: 46px; border: 0; border-radius: 12px; background: var(--ink); color: var(--bg); display: grid; place-items: center; cursor: pointer; }
 .code button svg { width: 18px; height: 18px; }
 .err { color: var(--danger); font-size: 13px; margin-top: -4px; }
-.feat { display: grid; grid-template-columns: 1fr; gap: 8px; }
-.feat div { background: var(--surface); border: 1px solid var(--edge); border-radius: 14px; padding: 12px; display: grid; grid-template-columns: 38px 1fr; column-gap: 10px; align-items: center; color: var(--mine); }
+.feat { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.feat div { background: var(--surface); border: 1px solid var(--edge); border-radius: 14px; padding: 12px 10px; display: grid; grid-template-columns: 38px 1fr; column-gap: 8px; align-items: center; color: var(--mine); }
 .feat svg { grid-row: 1 / span 2; width: 38px; height: 38px; }
 .feat div:nth-child(1) svg { transform: translateY(.75px) scale(1.09); }
 .feat div:nth-child(2) svg { transform: translateY(-2px); }
@@ -100,9 +100,9 @@ a.path:active { background: var(--tint); }
 
   <h2>ทำไมต้องใช้</h2>
   <div class="feat">
-    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg><b>แชร์ลิงก์</b><span>ส่งเข้า LINE หรือสแกน QR</span></div>
-    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="10" rx="3"/><path d="M7 13v4h10v-4M5 21h14"/></svg><b>เลือกที่นั่งเอง</b><span>เห็นผังรถ ที่ว่าง / จองแล้ว</span></div>
-    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><b>ใช้ใน LINE</b><span>เปิดได้เลย ไม่ต้องโหลดแอป</span></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg><b>แชร์ลิงก์</b><span>ส่งลิงก์หรือ QR</span></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="10" rx="3"/><path d="M7 13v4h10v-4M5 21h14"/></svg><b>เลือกที่นั่งเอง</b><span>เห็นผังรถจริง</span></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><b>ใช้ใน LINE</b><span>ไม่ต้องโหลดแอป</span></div>
     <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg><b>ไม่ต้องสมัคร</b><span>ไม่ต้องล็อกอิน</span></div>
   </div>
 
