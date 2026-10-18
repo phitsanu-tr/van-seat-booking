@@ -264,6 +264,11 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .vch .x { width: 36px; height: 36px; margin: -4px -4px -4px 0; border-radius: 10px; border-color: transparent; background: transparent; }
 .cf-title { margin: 0; font: 600 18px/26px var(--font-display); }
 .cf-text { margin: -6px 0 2px; color: var(--muted); font-size: 14px; line-height: 21px; }
+.dz { margin-top: 12px; border: 1.5px solid color-mix(in srgb, var(--danger) 40%, var(--surface)); background: var(--surface); border-radius: 16px; padding: 14px; display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+.dz[hidden] { display: none; }
+.dz b { display: block; font: 600 15px/22px var(--font-display); color: var(--danger); }
+.dz span { display: block; font-size: 12.5px; line-height: 18px; color: var(--muted); margin-top: 2px; }
+.dz button { flex: none; height: 40px; padding: 0 18px; border-radius: 12px; border: 1.5px solid var(--danger); background: transparent; color: var(--danger); font: 600 15px var(--font-display); cursor: pointer; }
 .btn.danger { background: var(--danger); color: #fff; font-family: var(--font-display); height: 48px; }
 @media (prefers-color-scheme: dark) { .btn.danger { color: #3a0d09; } }
 .vf { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px; }
@@ -351,6 +356,10 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
 
   <div class="toast" id="toast" role="alert" hidden></div>
   <button type="button" class="btn plain" id="shareBtn" hidden>ลิงก์ของทริปนี้ (แชร์ / QR)</button>
+  <section class="dz" id="dz" hidden>
+    <div><b>ลบทริปนี้</b><span>ผู้จองและลิงก์ที่แชร์ไปจะใช้ไม่ได้อีก ย้อนกลับไม่ได้</span></div>
+    <button type="button" id="delBtn">ลบ</button>
+  </section>
 
 </main>
 
@@ -1128,6 +1137,20 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     }));
   }
 
+  var booked = 0, tripName = "";
+  $("delBtn").addEventListener("click", async function () {
+    var ok = await askConfirm("ลบทริป" + (tripName ? " " + tripName : "นี้") + "?",
+      (booked ? "มีผู้จอง " + booked + " ที่นั่ง " : "") + "ผู้จองและลิงก์ที่แชร์ไปจะใช้ไม่ได้อีก ย้อนกลับไม่ได้", "ลบทริป", $("delBtn"));
+    if (!ok) return;
+    $("delBtn").disabled = true;
+    try {
+      var r = await fetch("/api/trip?t=" + encodeURIComponent(T), { method: "DELETE", headers: { "x-admin-key": K } });
+      if (!r.ok && r.status !== 404) { var d = {}; try { d = await r.json(); } catch (e) {} toast(ERR[d.error] || "ลบไม่สำเร็จ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; return; }
+      saveMine(loadMine().filter(function (y) { return y.id !== T; }));
+      location.href = "/a";
+    } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
+  });
+
   async function init() {
     if (listMode) { initList(); return; }
     $("formMain").hidden = false;
@@ -1143,7 +1166,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
         remember(T, K, t.name);
-        shown = { id: T, token: K }; $("shareBtn").hidden = false;
+        shown = { id: T, token: K }; $("shareBtn").hidden = false; $("dz").hidden = false;
+        booked = data.booked || 0; tripName = t.name;
       } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
     } else {
       rows = [{ id: "", label: "A" }];

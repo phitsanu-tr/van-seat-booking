@@ -2,6 +2,7 @@
 //   POST            create a trip                 -> { id, token }
 //   GET  ?t=&k=     read a trip for editing (needs the admin token k)
 //   PUT             update a trip (body has t, k)
+//   DELETE ?t=      delete a trip and its bookings (admin token in x-admin-key)
 // No accounts: whoever holds the secret admin link (t + k) manages the trip.
 const L = require("./_lib");
 
@@ -124,7 +125,21 @@ module.exports = async function handler(req, res) {
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (await authBlocked(req)) return L.json(res, 429, { error: "too_many" });
       if (!tokenOk(trip, adminKey(req, req.query.k))) { await authFailed(req); return L.json(res, 403, { error: "bad_token" }); }
-      return L.json(res, 200, { trip: L.publicTrip(trip) });
+      const counts = await L.pipeline(trip.vans.map((v) => ["HLEN", L.seatsKey(t, v.id)]));
+      const booked = counts.reduce((a, n) => a + (Number(n) || 0), 0);
+      return L.json(res, 200, { trip: L.publicTrip(trip), booked });
+    }
+
+    if (req.method === "DELETE") {
+      const t = L.tripId(req.query && req.query.t);
+      const trip = t && t !== L.DEFAULT_ID ? await L.loadTrip(t) : null;
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      if (await authBlocked(req)) return L.json(res, 429, { error: "too_many" });
+      if (!tokenOk(trip, adminKey(req, req.query.k))) { await authFailed(req); return L.json(res, 403, { error: "bad_token" }); }
+      const cmds = [["DEL", L.tripKey(t)]];
+      trip.vans.forEach((v) => cmds.push(["DEL", L.seatsKey(t, v.id)]));
+      await L.pipeline(cmds);
+      return L.json(res, 200, { ok: true });
     }
 
     if (req.method === "PUT") {
@@ -147,7 +162,7 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { ok: true, trip: L.publicTrip(updated) });
     }
 
-    res.setHeader("Allow", "GET, POST, PUT");
+    res.setHeader("Allow", "GET, POST, PUT, DELETE");
     return L.json(res, 405, { error: "method_not_allowed" });
   } catch (e) {
     return L.json(res, 502, { error: "storage_error" });
