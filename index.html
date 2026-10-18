@@ -67,24 +67,24 @@ header.trip { display: block; }
 .vanbar .vrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .vanbar .count { margin-left: auto; }
 .deck { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
-.tlbl { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px 0; font-size: 14px; color: var(--muted); }
+.tlbl { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px 0; font-size: 14px; color: var(--muted); }
 .tlbl .tl { display: flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 600; }
 .tlbl .tl svg { color: var(--mine); flex: none; }
 .tlbl .tp { min-width: 0; text-align: right; overflow-wrap: anywhere; }
 .tlbl .tp b { color: var(--ink); font-weight: 600; }
-.deck .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; overflow: visible; padding: 10px 12px 12px; background: linear-gradient(color-mix(in srgb, var(--line) 60%, transparent), color-mix(in srgb, var(--line) 60%, transparent)) 14px 100% / calc(100% - 28px) 1px no-repeat; }
+.deck .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; overflow: visible; padding: 12px 16px 14px; background: linear-gradient(color-mix(in srgb, var(--line) 60%, transparent), color-mix(in srgb, var(--line) 60%, transparent)) 16px 100% / calc(100% - 32px) 1px no-repeat; }
 .deck .tabs .tab { flex-direction: column; gap: 0; line-height: 1.25; min-height: 52px; padding-block: 6px; }
 .deck .tabs .tab small { margin-left: 0; font-size: 12px; }
 .deck .tabs .tab .tn { font-size: 16px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
-.deck .tabs .tab { flex: none; width: calc((100% - 16px) / 3); }
-@media (max-width: 350px) { .deck .tabs .tab small { font-size: 12px; } .deck .tabs { gap: 6px; padding-inline: 10px; } .deck .tabs .tab { width: calc((100% - 12px) / 3); } }
+.deck .tabs .tab { flex: none; width: calc((100% - 20px) / 3); }
+@media (max-width: 350px) { .deck .tabs .tab small { font-size: 12px; } .deck .tabs { gap: 8px; padding-inline: 12px; } .deck .tabs .tab { width: calc((100% - 16px) / 3); } }
 .deck .tabs .tab { padding: 0 6px; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
 .deck .sheet { border: 0; border-radius: 0; }
 .deck .list { border: 0; border-radius: 0; }
-.deck .vsw { background: none; border-radius: 0; padding: 0 12px; gap: 0; border-bottom: 1.5px solid var(--line); }
+.deck .vsw { background: none; border-radius: 0; padding: 0 16px; gap: 0; border-bottom: 1.5px solid var(--line); }
 .deck .vsw button { border-radius: 0; border-bottom: 3px solid transparent; margin-bottom: -1.5px; min-height: 44px; }
 .deck .vsw button[aria-selected="true"] { background: none; box-shadow: none; border-bottom-color: var(--mine); }
-.shead { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 8px 8px; }
+.shead { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 6px 10px; }
 .shead .count { margin-left: auto; }
 .plate { font-size: 14px; line-height: 22px; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
 .plate b { color: var(--ink); font-weight: 600; }
