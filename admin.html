@@ -741,7 +741,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       d.appendChild(h);
       var two = document.createElement("div"); two.className = "vf";
       var l1 = document.createElement("label"); l1.appendChild(document.createTextNode("ชื่อคัน"));
-      var inp = document.createElement("input"); inp.type = "text"; inp.className = "vn"; inp.maxLength = 12; inp.value = r.label;
+      var inp = document.createElement("input"); inp.type = "text"; inp.className = "vn"; inp.maxLength = 4; inp.value = r.label;
       inp.placeholder = "เช่น A"; inp.setAttribute("aria-label", "ชื่อรถคันที่ " + (i + 1));
       inp.addEventListener("input", function () { r.label = inp.value; });
       l1.appendChild(inp);
