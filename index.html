@@ -989,25 +989,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     y = HH + 10;
     // ---- my seat + facts (only when this device holds a seat)
     if (hasMine) {
-      y += 34;
-      var bh0 = 156;
-      ctx.fillStyle = TEAL; rrect(ctx, X - 14, y, IW + 28, bh0, 44); ctx.fill();
-      var nums = myNums.join(", ");
-      var big = 120; ctx.font = '600 ' + big + 'px Prompt, "Noto Sans Thai", sans-serif';
-      while (ctx.measureText(nums).width > 300 && big > 50) { big -= 6; ctx.font = '600 ' + big + 'px Prompt, "Noto Sans Thai", sans-serif'; }
-      ctx.fillStyle = "#ffffff"; ctx.textAlign = "left"; ctx.textBaseline = "middle";
-      var bw0 = ctx.measureText(nums).width;
-      ctx.fillText(nums, X + 30, y + bh0 / 2 + 4);
-      var tx = X + 30 + Math.max(bw0, 120) + 36, tw = X + IW - tx;
-      ctx.font = '400 30px "Noto Sans Thai", sans-serif'; ctx.globalAlpha = .88;
-      ctx.fillText(myNums.length > 1 ? "ที่นั่งของฉัน" : "ที่นั่งของฉัน", tx, y + 42); ctx.globalAlpha = 1;
-      ctx.font = '600 42px Prompt, "Noto Sans Thai", sans-serif';
-      var who = wrapText(ctx, myNames.join(", "), tw, 1)[0];
-      ctx.fillText(who, tx, y + 90);
-      ctx.font = '400 30px "Noto Sans Thai", sans-serif'; ctx.globalAlpha = .88;
-      ctx.fillText(wrapText(ctx, multi && cur ? "รถตู้ " + cur.label : "รถตู้", tw, 1)[0], tx, y + 128); ctx.globalAlpha = 1;
-      ctx.textBaseline = "alphabetic";
-      y += bh0 + 34;
+      y += 40;
+
       // facts
       var dr = dateRange(trip.startDate, trip.endDate), dep = trip.departTime ? trip.departTime.replace(":", ".") + " น." : "";
       function fact(label, val, fx, fy, fw) {
