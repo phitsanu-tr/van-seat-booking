@@ -67,8 +67,9 @@ header.trip { display: block; }
 .vanbar .vrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .vanbar .count { margin-left: auto; }
 .deck { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
-.deck .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; overflow: visible; padding: 12px 12px 10px; }
-@media (max-width: 350px) { .deck .tabs .tab small { font-size: 11px; margin-left: 3px; } .deck .tabs { gap: 6px; padding-inline: 10px; } }
+.deck .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; overflow: visible; padding: 12px 12px 10px; }
+.deck .tabs .tab { flex: none; width: calc((100% - 16px) / 3); }
+@media (max-width: 350px) { .deck .tabs .tab small { font-size: 11px; margin-left: 3px; } .deck .tabs { gap: 6px; padding-inline: 10px; } .deck .tabs .tab { width: calc((100% - 12px) / 3); } }
 .deck .tabs .tab { padding: 0 6px; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
 .deck .sheet { border: 0; border-radius: 0; }
 .deck .list { border: 0; border-radius: 0; }
