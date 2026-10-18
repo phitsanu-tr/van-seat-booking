@@ -41,7 +41,11 @@ a.path:active { background: var(--tint); }
 .code input:focus { outline: none; border-color: var(--mine); box-shadow: 0 0 0 3px color-mix(in srgb, var(--mine) 20%, transparent); }
 .code button { flex: none; width: 46px; height: 46px; border: 0; border-radius: 12px; background: var(--ink); color: var(--bg); display: grid; place-items: center; cursor: pointer; }
 .code button svg { width: 18px; height: 18px; }
-.err { color: var(--danger); font-size: 13px; margin-top: -4px; }
+.err { display: flex; gap: 6px; align-items: center; color: var(--danger); font-size: 12.5px; line-height: 18px; margin-top: -4px; }
+.err[hidden] { display: none; }
+.err svg { flex: none; width: 15px; height: 15px; }
+.code input[aria-invalid="true"], .code input[aria-invalid="true"]:focus { border-color: var(--danger); box-shadow: none; }
+.code input[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent); }
 .feat { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .steps { display: flex; flex-direction: column; gap: 8px; }
 .foot { margin-top: 12px; text-align: center; font-size: 10px; line-height: 14px; color: var(--muted); white-space: nowrap; }
@@ -123,11 +127,17 @@ a.path:active { background: var(--tint); }
     else { v = v.split("#")[0].split("?")[0].replace(/\/+$/, ""); v = v.slice(v.lastIndexOf("/") + 1); }
     return /^[a-hj-km-np-z2-9]{6,8}$/.test(v) ? v : "";
   }
-  function showErr(t) { err.textContent = t; err.hidden = !t; }
+  var ERR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>';
+  function showErr(t) {
+    err.textContent = "";
+    if (t) { err.insertAdjacentHTML("beforeend", ERR_ICON); var sp = document.createElement("span"); sp.textContent = t; err.appendChild(sp); }
+    err.hidden = !t;
+    if (t) input.setAttribute("aria-invalid", "true"); else input.removeAttribute("aria-invalid");
+  }
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var id = parse(input.value);
-    if (!id) { showErr(input.value.trim() ? "รหัสไม่ถูกต้อง ตรวจสอบรหัสหรือลิงก์ที่ผู้จัดส่งให้อีกครั้ง" : "ใส่รหัสทริปก่อน"); input.focus(); return; }
+    if (!id) { showErr(input.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริปก่อน"); input.focus(); return; }
     location.href = "/" + id;
   });
   input.addEventListener("input", function () { showErr(""); });
