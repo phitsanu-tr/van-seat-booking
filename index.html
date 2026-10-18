@@ -1051,11 +1051,11 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     }
     var total = y + FH;
     // ---- compose onto a light backdrop with rounded corners
-    var out = document.createElement("canvas"); out.width = OUT; out.height = total + 2 * PADO;
+    var OW = 1432, k = OW / CW; // same width as the admin pass (358 x 4)
+    var out = document.createElement("canvas"); out.width = OW; out.height = Math.round(total * k);
     var oc = out.getContext("2d");
-    oc.fillStyle = "#e6ebee"; oc.fillRect(0, 0, out.width, out.height);
-    oc.save(); rrect(oc, PADO, PADO, CW, total, 56); oc.clip();
-    oc.drawImage(tc, 0, 0, CW, total, PADO, PADO, CW, total);
+    oc.save(); rrect(oc, 0, 0, OW, out.height, 56 * k); oc.clip();
+    oc.drawImage(tc, 0, 0, CW, total, 0, 0, OW, out.height);
     oc.restore();
     return out;
   }
