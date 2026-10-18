@@ -74,10 +74,10 @@ header.trip { display: block; }
 .tlbl .tp b { color: var(--ink); font-weight: 600; }
 .deck .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; overflow: visible; padding: 10px 12px 12px; background: linear-gradient(color-mix(in srgb, var(--line) 60%, transparent), color-mix(in srgb, var(--line) 60%, transparent)) 14px 100% / calc(100% - 28px) 1px no-repeat; }
 .deck .tabs .tab { flex-direction: column; gap: 0; line-height: 1.25; min-height: 52px; padding-block: 6px; }
-.deck .tabs .tab small { margin-left: 0; font-size: 13px; }
+.deck .tabs .tab small { margin-left: 0; font-size: 12px; }
 .deck .tabs .tab .tn { font-size: 16px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 .deck .tabs .tab { flex: none; width: calc((100% - 16px) / 3); }
-@media (max-width: 350px) { .deck .tabs .tab small { font-size: 12.5px; } .deck .tabs { gap: 6px; padding-inline: 10px; } .deck .tabs .tab { width: calc((100% - 12px) / 3); } }
+@media (max-width: 350px) { .deck .tabs .tab small { font-size: 12px; } .deck .tabs { gap: 6px; padding-inline: 10px; } .deck .tabs .tab { width: calc((100% - 12px) / 3); } }
 .deck .tabs .tab { padding: 0 6px; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
 .deck .sheet { border: 0; border-radius: 0; }
 .deck .list { border: 0; border-radius: 0; }
@@ -226,7 +226,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   </div>
 
   <section class="sheet" id="sheetView" aria-label="ผังที่นั่งรถตู้">
-    <div class="vrow shead"><div class="plate" id="plate" hidden></div><div class="count" id="count">จองแล้ว <b>0</b> / 10</div></div>
+    <div class="vrow shead"><div class="plate" id="plate" hidden></div><div class="count" id="count">จองแล้ว <b>0</b>&thinsp;/&thinsp;10</div></div>
     <div class="plan">
       <svg viewBox="0 0 820 1450" aria-hidden="true" focusable="false">
         <!-- body -->
@@ -550,7 +550,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     countEl.textContent = "";
     countEl.appendChild(document.createTextNode("จองแล้ว "));
     countEl.appendChild(el("b", null, loaded ? String(Object.keys(seats).length) : "-"));
-    countEl.appendChild(document.createTextNode(" / " + TOTAL));
+    countEl.appendChild(document.createTextNode("\u2009/\u2009" + TOTAL));
   }
 
   var MONTHS = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
