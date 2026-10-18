@@ -45,7 +45,7 @@ button { font: inherit; cursor: pointer; }
 .link b { font-size: 14px; }
 .link .chip { cursor: pointer; display: flex; align-items: center; gap: 4px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 6px 4px 6px 12px; }
 .link .url { flex: 1; min-width: 0; font-size: 13px; line-height: 1.4; }
-.url .code { display: block; font: 700 22px/1.2 var(--font-display); letter-spacing: 2.5px; color: var(--mine); }
+.url .code { display: block; font: 700 20px/1.2 var(--font-display); letter-spacing: 1.5px; color: var(--mine); overflow: hidden; text-overflow: clip; white-space: nowrap; }
 #adminUrl .code { color: var(--ink); }
 .url .sub { display: block; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cpbtn { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border: 0; background: transparent; color: var(--muted); border-radius: 9px; cursor: pointer; }
@@ -91,7 +91,11 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .modal.admin .mbar { background: #5f6b73; }
 .xbtn { color: #fff; }
 .step { display: flex; flex-direction: column; gap: 14px; }
-.step[hidden] { display: none !important; }
+.steps { display: grid; grid-template-columns: minmax(0, 1fr); }
+.steps > .step { grid-area: 1 / 1; }
+.step[hidden] { display: flex !important; visibility: hidden; pointer-events: none; }
+.step > .btn.plain:last-child { margin-top: auto; }
+.mband .ms { min-height: 1.4em; }
 .mh { padding-right: 34px; }
 .check.amber { background: #eceef0; color: var(--ink); }
 @media (prefers-color-scheme: dark) { .check.amber { background: #223540; } }
@@ -165,6 +169,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
     <div class="mbar" id="mbar"></div>
     <div class="mbody">
       <div class="dots" role="tablist"><button type="button" role="tab" data-step="1" class="on" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 6v2a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-2a2 2 0 0 0 0-6V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z"/></svg>ผู้จอง</button><button type="button" role="tab" data-step="2" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>ผู้ดูแล</button></div>
+    <div class="steps">
     <!-- step 1: guests -->
     <div class="step" id="step1">
       <div class="passtag"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg><b>SEAT PASS</b><span>สำหรับผู้จองทริป</span></div>
@@ -178,8 +183,8 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
         <button class="btn primary ic small" id="saveSeat" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg><span class="lb">ดาวน์โหลดบัตร</span></button>
 </div>
       <div class="msg" id="seatMsg" role="status"></div>
-      <button class="btn plain" id="doneBtn1" type="button">เสร็จสิ้น</button>
       <a class="openlink" id="openShare">เปิดหน้าจอง</a>
+      <button class="btn plain" id="doneBtn1" type="button">เสร็จสิ้น</button>
     </div>
     <!-- step 2: admin -->
     <div class="step" id="step2" hidden>
@@ -199,6 +204,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
       </div>
       <div class="msg" id="saveMsg" role="status"></div>
       <button class="btn plain" id="doneBtn" type="button">เสร็จสิ้น</button>
+    </div>
     </div>
     </div>
   </div>
