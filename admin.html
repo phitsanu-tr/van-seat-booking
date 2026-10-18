@@ -292,6 +292,14 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .dz b { display: block; font: 600 15px/22px var(--font-display); color: var(--danger); }
 .dz span { display: block; font-size: 12.5px; line-height: 18px; color: var(--muted); margin-top: 2px; }
 .dz button { flex: none; height: 40px; padding: 0 18px; border-radius: 12px; border: 1.5px solid var(--danger); background: transparent; color: var(--danger); font: 600 15px var(--font-display); cursor: pointer; }
+.shrow { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; color: var(--ink); font-family: inherit; cursor: pointer; margin: 0; }
+.shrow[hidden] { display: none; }
+.shrow .ric { flex: none; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--mine) 12%, var(--surface)); color: var(--mine); }
+.shrow .ric svg { width: 18px; height: 18px; }
+.shrow .stx { flex: 1; min-width: 0; }
+.shrow b { display: block; font: 600 15px/22px var(--font-display); }
+.shrow small { display: block; font-size: 12.5px; line-height: 18px; color: var(--muted); }
+.shrow .chev { flex: none; width: 16px; height: 16px; color: var(--muted); }
 .btn.danger { background: var(--danger); color: #fff; font-family: var(--font-display); height: 48px; }
 @media (prefers-color-scheme: dark) { .btn.danger { color: #3a0d09; } }
 .vf { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px; }
@@ -346,6 +354,12 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
     </svg>
   </section>
 
+  <button type="button" class="shrow" id="shareBtn" hidden>
+    <span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></span>
+    <span class="stx"><b>ลิงก์ของทริปนี้</b><small>แชร์ลิงก์ / แสดงคิวอาร์ให้ผู้จอง</small></span>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+  </button>
+
   <form id="form" novalidate>
    <section class="card fg"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></span><b>ข้อมูลทริป</b></div>
     <label>ชื่อทริป
@@ -378,7 +392,6 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
     </div>
   </form>
 
-  <button type="button" class="btn plain" id="shareBtn" hidden>ลิงก์ของทริปนี้ (แชร์ / QR)</button>
   <section class="dz" id="dz" hidden>
     <div><b>ลบทริปนี้</b><span>ผู้จองและลิงก์ที่แชร์ไปจะใช้ไม่ได้อีก ย้อนกลับไม่ได้</span></div>
     <button type="button" id="delBtn">ลบ</button>
