@@ -393,7 +393,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
     function sync() {
       var d = parse(input.value);
-      sp.textContent = d ? d.d + " " + MS[d.m] + " " + (d.y + 543) : "ระบุวันที่";
+      sp.textContent = d ? d.d + " " + MON[d.m] + " " + (d.y + 543) : "ระบุวันที่";
       b.classList.toggle("ph", !d);
     }
     Object.defineProperty(input, "value", { get: function () { return desc.get.call(input); }, set: function (v) { desc.set.call(input, v); sync(); } });
