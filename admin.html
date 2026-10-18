@@ -80,18 +80,20 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 
 .xbtn { z-index: 2; position: absolute; top: 10px; right: 12px; width: 40px; height: 40px; border: 0; background: transparent; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; border-radius: 20px; }
 .modal { position: relative; padding: 0; gap: 0; overflow: hidden; }
-.mband { position: relative; background: #0b5f67; color: #fff; padding: 18px 20px 16px; display: flex; flex-direction: column; gap: 4px; }
-.mband .mt { color: #fff; overflow-wrap: anywhere; }
-.mclose { position: absolute; right: 12px; top: 10px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255,255,255,.16); color: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; }
+.mband { position: relative; background: #0b5f67; color: #fff; padding: 12px 56px 12px 18px; min-height: 56px; display: flex; align-items: center; }
+.tcard { background: var(--bg); border-radius: 14px; padding: 10px 14px 12px; }
+.tcard .mt { color: var(--ink); overflow-wrap: anywhere; font-size: 18px; margin-bottom: 6px; }
+.mclose { position: absolute; right: 12px; top: 11px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255,255,255,.16); color: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; }
 .mclose svg { width: 18px; height: 18px; }
-.mband .ms { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-.mchip { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.14); border-radius: 999px; padding: 4px 11px; font-size: 13px; font-weight: 500; color: #fff; }
+.tcard .ms { display: flex; flex-wrap: wrap; gap: 8px; }
+.mchip { display: inline-flex; align-items: center; gap: 6px; background: #fff; border-radius: 999px; padding: 4px 11px; font-size: 13px; font-weight: 500; color: var(--ink); }
 .mchip svg { width: 15px; height: 15px; flex: none; }
-.mtop { display: flex; justify-content: space-between; gap: 12px; font-family: var(--font-display); font-weight: 600; font-size: 12px; letter-spacing: 1.5px; color: #bfe9ed; text-transform: uppercase; }
-.mbar { height: 3px; background: #3fbac4; }
+.mtop { display: flex; font-family: var(--font-display); font-weight: 600; font-size: 16px; color: #fff; }
+#mState { display: inline-flex; align-items: center; gap: 9px; }
+#mState svg { width: 18px; height: 18px; flex: none; }
+.mbar { display: none; }
 .mbody { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
 .modal.admin .mband { background: #1b1f22; }
-.modal.admin .mtop { color: #c5cdd2; }
 .modal.admin .mbar { background: #5f6b73; }
 .xbtn { color: #fff; }
 .step { display: flex; flex-direction: column; gap: 14px; }
@@ -101,7 +103,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .step > .foot { margin-top: auto; }
 .step > a.foot { height: 44px; }
 .btn.dark { background: var(--ink); color: #fff; }
-.mband .ms { min-height: 28px; }
+.tcard .ms { min-height: 28px; }
 .mh { padding-right: 34px; }
 .check.amber { background: #eceef0; color: var(--ink); }
 @media (prefers-color-scheme: dark) { .check.amber { background: #223540; } }
@@ -184,12 +186,11 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
   <div class="modal" id="result" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
     <div class="mband" id="mband">
       <div class="mtop"><span id="mState"></span></div>
-      <div class="mt" id="resultTitle"></div>
-      <div class="ms" id="resultSub"></div>
       <button class="mclose" id="closeX" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="mbar" id="mbar"></div>
     <div class="mbody">
+      <div class="tcard"><div class="mt" id="resultTitle"></div><div class="ms" id="resultSub"></div></div>
       <div class="dots" role="tablist"><button type="button" role="tab" data-step="1" class="on" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 6v2a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-2a2 2 0 0 0 0-6V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z"/></svg>ผู้จอง</button><button type="button" role="tab" data-step="2" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>ผู้ดูแล</button></div>
     <div class="steps">
     <!-- step 1: guests -->
@@ -305,7 +306,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var share = shareLink = link("/" + id); adminUrl = link(editPath(id, token));
     urlBox($("shareUrl"), id, "แตะเพื่อคัดลอกลิงก์");
     $("openShare").href = "/" + id; $("openShare2").href = "/" + id;
-    $("mState").textContent = created ? "✓ สร้างทริปแล้ว" : "ลิงก์ของทริปนี้";
+    $("mState").innerHTML = (created ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : "") + "<span>" + (created ? "สร้างทริปสำเร็จแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
     $("resultTitle").textContent = name || "ทริป";
     var subEl = $("resultSub"); subEl.textContent = "";
     function chip(icon, text) {
