@@ -44,22 +44,15 @@ a.path:active { background: var(--tint); }
 .code button svg { width: 18px; height: 18px; }
 .err { color: var(--danger); font-size: 13px; margin-top: -4px; }
 .feat { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.feat div { background: var(--surface); border: 1px solid var(--edge); border-radius: 14px; padding: 12px; display: grid; grid-template-columns: 16px 1fr; column-gap: 8px; row-gap: 4px; align-content: start; align-items: center; color: var(--mine); }
-.feat svg { width: 16px; height: 16px; }
-.feat svg { transform-origin: 50% 100%; }
-.feat div:nth-child(1) svg { transform: translateY(-1.75px); }
-.feat div:nth-child(2) svg { transform: translateY(-2.5px) scale(.92); }
-.feat div:nth-child(3) svg { transform: translateY(-1.75px); }
-.feat div:nth-child(4) svg { transform: translateY(-2.5px) scale(.86); }
-.feat b { color: var(--ink); font-size: 14px; font-weight: 600; line-height: 20px; }
-.feat span { grid-column: 2; font-size: 12px; color: var(--muted); line-height: 17px; }
 .steps { display: flex; flex-direction: column; gap: 8px; }
-.st { background: var(--surface); border: 1px solid var(--edge); border-radius: 14px; padding: 12px; display: flex; gap: 12px; align-items: center; }
-.st i { flex: none; width: 42px; height: 42px; border-radius: 12px; background: var(--tint); color: var(--mine); display: grid; place-items: center; }
-.st i svg { width: 22px; height: 22px; }
-.st small { display: block; font-size: 11px; font-weight: 600; color: var(--mine); letter-spacing: .2px; line-height: 16px; }
-.st b { display: block; font: 600 14px var(--font-display); line-height: 20px; }
-.st span { display: block; font-size: 12px; color: var(--muted); line-height: 17px; }
+.fc, .st { background: var(--surface); border: 1px solid var(--edge); border-radius: 14px; padding: 10px 8px; display: flex; gap: 8px; align-items: center; color: var(--mine); }
+.fc i, .st i { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--tint); display: grid; place-items: center; }
+.fc i svg, .st i svg { width: 16px; height: 16px; }
+.fc div, .st div { min-width: 0; }
+.fc b, .st b { display: block; color: var(--ink); font: 600 14px var(--font-display); line-height: 20px; }
+.fc span, .st span { display: block; font-size: 12px; color: var(--muted); line-height: 17px; }
+.st { padding: 12px 8px; gap: 10px; }
+@media (min-width: 380px) { .fc, .st { padding-left: 10px; padding-right: 10px; gap: 10px; } .fc i, .st i { width: 34px; height: 34px; } .fc i svg, .st i svg { width: 18px; height: 18px; } }
 .note { background: var(--surface); border: 1px solid var(--edge); border-radius: 14px; padding: 12px 14px; font-size: 13px; color: var(--muted); line-height: 1.55; }
 .note b { color: var(--ink); }
 .foot { text-align: center; font-size: 12px; color: var(--muted); margin-top: 4px; }
@@ -103,17 +96,17 @@ a.path:active { background: var(--tint); }
 
   <h2>ทำไมต้องใช้</h2>
   <div class="feat">
-    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><b>ใช้ได้เลย</b><span>ไม่ต้องโหลดแอป</span></div>
-    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg><b>ไม่ต้องล็อกอิน</b><span>ไม่ต้องสมัครสมาชิก</span></div>
-    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg><b>แชร์ลิงก์</b><span>หรือสแกน QR Code</span></div>
-    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="10" rx="3"/><path d="M7 13v4h10v-4M5 21h14"/></svg><b>เลือกที่นั่งเอง</b><span>เห็นที่นั่งว่าง / จองแล้ว</span></div>
+    <div class="fc"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg></i><div><b>ใช้ได้เลย</b><span>ไม่ต้องโหลดแอป</span></div></div>
+    <div class="fc"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg></i><div><b>ไม่ต้องล็อกอิน</b><span>ไม่ต้องสมัครสมาชิก</span></div></div>
+    <div class="fc"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg></i><div><b>แชร์ลิงก์</b><span>หรือสแกน QR Code</span></div></div>
+    <div class="fc"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="10" rx="3"/><path d="M7 13v4h10v-4M5 21h14"/></svg></i><div><b>เลือกที่นั่งเอง</b><span>เห็นที่ว่าง / จองแล้ว</span></div></div>
   </div>
 
   <h2>ใช้งาน 3 ขั้นตอน</h2>
   <div class="steps">
-    <div class="st"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></i><div><small>ขั้นที่ 1</small><b>สร้างทริป</b><span>กรอกรายละเอียดทริปสั้น ๆ</span></div></div>
-    <div class="st"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg></i><div><small>ขั้นที่ 2</small><b>แชร์ลิงก์ให้เพื่อน</b><span>เลือกที่นั่งเองได้เลย</span></div></div>
-    <div class="st"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></i><div><small>ขั้นที่ 3</small><b>ดูว่าใครจองที่นั่งตรงไหน</b><span>ผังและรายชื่ออัปเดตเอง</span></div></div>
+    <div class="st"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></i><div><b>สร้างทริป</b><span>กรอกรายละเอียดทริปสั้น ๆ</span></div></div>
+    <div class="st"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg></i><div><b>แชร์ลิงก์ให้เพื่อน</b><span>เลือกที่นั่งเองได้เลย</span></div></div>
+    <div class="st"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></i><div><b>ดูว่าใครจองที่นั่งตรงไหน</b><span>ผังและรายชื่ออัปเดตเอง</span></div></div>
   </div>
 
   <div class="note"><b>ฟรี</b> สร้างได้ 5 ทริปต่อเดือน · รถละ 10 ที่นั่ง<br>ผู้ดูแลเข้าด้วยลิงก์ลับ ไม่ต้องจำรหัสผ่าน</div>
