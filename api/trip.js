@@ -49,7 +49,7 @@ function clean(body, vanCap) {
     const id = s(v && v.id, 12);
     if (id && (seen.has(id) || !/^[A-Za-z0-9]+$/.test(id))) return { error: "bad_vans" };
     if (id) seen.add(id);
-    const plate = s(v && v.plate, 15);
+    const plate = s(v && v.plate, 25);
     outVans.push(plate ? { id, label, plate } : { id, label });
   }
   return {

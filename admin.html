@@ -627,7 +627,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       inp.addEventListener("input", function () { r.label = inp.value; });
       l1.appendChild(inp);
       var l2 = document.createElement("label"); l2.innerHTML = "ทะเบียน <small>(ไม่บังคับ)</small>";
-      var pl = document.createElement("input"); pl.type = "text"; pl.className = "vp"; pl.maxLength = 15; pl.value = r.plate || "";
+      var pl = document.createElement("input"); pl.type = "text"; pl.className = "vp"; pl.maxLength = 25; pl.value = r.plate || "";
       pl.placeholder = "เช่น 1กข 1234"; pl.setAttribute("aria-label", "ทะเบียนรถคันที่ " + (i + 1)); pl.autocomplete = "off";
       pl.addEventListener("input", function () { r.plate = pl.value; });
       l2.appendChild(pl);
