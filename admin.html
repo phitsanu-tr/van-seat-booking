@@ -194,6 +194,7 @@ input::placeholder { color: var(--muted); opacity: .75; }
 form label input { margin-top: 6px; }
 input[type=text], input[type=date], input[type=time] { background: var(--surface); }
 #addVan { width: 100%; border: 1.5px dashed color-mix(in srgb, var(--mine) 55%, transparent); background: color-mix(in srgb, var(--mine) 7%, transparent); color: var(--mine); }
+#addVan:disabled { opacity: .55; cursor: default; }
 #submit { position: sticky; bottom: 12px; z-index: 2; box-shadow: 0 8px 20px color-mix(in srgb, var(--mine) 28%, transparent); }
 /* custom date / time pickers */
 .pk { width: 100%; height: 48px; display: flex; align-items: center; gap: 10px; text-align: left; font: inherit; font-size: 16px; font-weight: 400; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 0 12px; }
@@ -589,7 +590,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   toastEl.addEventListener("click", hideToast);
 
+  var MAX_VANS = 5, vanCap = MAX_VANS; // trips made earlier with more vans keep their count
   function renderVans() {
+    vanCap = Math.max(MAX_VANS, vanCap, rows.length);
     var oldFe = vansEl.nextElementSibling; if (oldFe && oldFe.classList.contains("fe")) oldFe.remove();
     vansEl.textContent = "";
     rows.forEach(function (r, i) {
@@ -609,9 +612,11 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       }
       vansEl.appendChild(d);
     });
+    var add = $("addVan"), full = rows.length >= vanCap;
+    add.disabled = full; add.textContent = full ? "เพิ่มรถได้สูงสุด " + vanCap + " คัน" : "+ เพิ่มรถอีกคัน";
   }
   $("addVan").addEventListener("click", function () {
-    if (rows.length >= 12) return;
+    if (rows.length >= vanCap) return;
     rows.push({ id: "", label: letter(rows.length) }); renderVans();
   });
 

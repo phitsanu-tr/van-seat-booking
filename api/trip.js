@@ -7,7 +7,7 @@ const L = require("./_lib");
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
-const MAX_VANS = 12;
+const MAX_VANS = 5;           // vans per trip (a trip created earlier with more keeps its count when edited)
 const TRIPS_PER_MONTH = 5;      // per creator (browser/device id)
 const TRIPS_PER_MONTH_IP = 15;  // backstop per network, so clearing browser data is not a free reset
 
@@ -31,7 +31,7 @@ async function refundQuota(keys) {
   try { await L.pipeline(keys.map((k) => ["DECR", k[0]])); } catch (e) { /* best effort */ }
 }
 
-function clean(body) {
+function clean(body, vanCap) {
   const s = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
   const name = s(body.name, 80);
   if (!name) return { error: "bad_name" };
@@ -40,7 +40,7 @@ function clean(body) {
   if (endDate && !DATE_RE.test(endDate)) return { error: "bad_date" };
   if (departTime && !TIME_RE.test(departTime)) return { error: "bad_time" };
   const vans = Array.isArray(body.vans) ? body.vans : [];
-  if (vans.length < 1 || vans.length > MAX_VANS) return { error: "bad_vans" };
+  if (vans.length < 1 || vans.length > Math.max(MAX_VANS, vanCap || 0)) return { error: "bad_vans" };
   const seen = new Set();
   const outVans = [];
   for (const v of vans) {
@@ -133,7 +133,7 @@ module.exports = async function handler(req, res) {
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (await authBlocked(req)) return L.json(res, 429, { error: "too_many" });
       if (!tokenOk(trip, adminKey(req, body.k))) { await authFailed(req); return L.json(res, 403, { error: "bad_token" }); }
-      const c = clean(body);
+      const c = clean(body, trip.vans.length);
       if (c.error) return L.json(res, 400, { error: c.error });
       const oldIds = trip.vans.map((v) => v.id);
       const next = assignVanIds(c.value.vans.map((v) => ({ id: oldIds.includes(v.id) ? v.id : "", label: v.label })), oldIds);
