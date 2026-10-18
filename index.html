@@ -147,6 +147,21 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .msg:empty { display: none; }
 
 .list { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.vsw { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: color-mix(in srgb, var(--ink) 9%, var(--bg)); }
+.vsw button { font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 14px; min-height: 42px; border: 0; border-radius: 11px; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.vsw button svg { width: 16px; height: 16px; flex: none; }
+.vsw button[aria-selected="true"] { background: var(--surface); color: var(--mine); box-shadow: 0 1px 3px rgba(0, 0, 0, .14); }
+.vsw button:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
+.list h2 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.list h2 small { font-family: var(--font-body); font-size: 12.5px; font-weight: 400; color: var(--muted); }
+.list li.bk { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+.list li.bk .sn { flex: none; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font: 600 14px var(--font-display); background: color-mix(in srgb, var(--ink) 7%, var(--surface)); font-variant-numeric: tabular-nums; }
+.list li.bk .w { flex: 1; min-width: 0; font-weight: 600; font-size: 15px; }
+.list li.bk .me { flex: none; font-size: 11.5px; font-weight: 600; color: var(--mine); background: color-mix(in srgb, var(--mine) 14%, transparent); border-radius: 999px; padding: 2px 9px; }
+.list li.mine-row { background: color-mix(in srgb, var(--mine) 8%, var(--surface)); }
+.list li.mine-row .sn { background: var(--mine); color: var(--mine-ink); }
+.list li.none, .list li.free { display: block; padding: 12px 16px; font-size: 13px; color: var(--muted); }
+.list li.free b { color: var(--ink); font-weight: 600; margin-right: 6px; }
 .list h2 { font-family: var(--font-display); font-size: 15px; font-weight: 500; margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--line); }
 .list ul { list-style: none; margin: 0; padding: 0; }
 .list li { display: grid; grid-template-columns: 64px minmax(0, 1fr); padding: 8px 16px; border-bottom: 1px solid var(--line); gap: 8px; }
@@ -182,7 +197,12 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     <div class="vrow"><div class="plate" id="plate" hidden></div><div class="count" id="count">จองแล้ว <b>0</b> / 10</div></div>
   </div>
 
-  <section class="sheet" aria-label="ผังที่นั่งรถตู้">
+  <div class="vsw" id="viewSw" role="tablist" aria-label="เลือกมุมมอง">
+    <button type="button" role="tab" id="swMap" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h6a3 3 0 013 3v6H7z"/><path d="M5 13h14v3a2 2 0 01-2 2H7a2 2 0 01-2-2z"/><path d="M8 18v2M16 18v2"/></svg>ผังที่นั่ง</button>
+    <button type="button" role="tab" id="swList" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>รายชื่อผู้จอง</button>
+  </div>
+
+  <section class="sheet" id="sheetView" aria-label="ผังที่นั่งรถตู้">
     <div class="plan">
       <svg viewBox="0 0 820 1450" aria-hidden="true" focusable="false">
         <!-- body -->
@@ -253,8 +273,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     <div class="modal" id="panel" role="dialog" aria-modal="true" aria-labelledby="mTitle"></div>
   </div>
 
-  <section class="list">
-    <h2>รายชื่อผู้จอง</h2>
+  <section class="list" id="listView" hidden>
+    <h2>รายชื่อผู้จอง<small id="listSub"></small></h2>
     <ul id="list"></ul>
   </section>
   <div class="pagefoot"><a href="/admin.html">สร้างทริปของคุณเอง</a></div>
@@ -471,15 +491,38 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     if (input && hadFocus) input.focus();
   }
 
+  var view = "map";
+  try { view = sessionStorage.getItem("van-view") === "list" ? "list" : "map"; } catch (e) {}
+  function setView(v) {
+    view = v;
+    try { sessionStorage.setItem("van-view", v); } catch (e) {}
+    document.getElementById("sheetView").hidden = v !== "map";
+    document.getElementById("listView").hidden = v !== "list";
+    document.getElementById("swMap").setAttribute("aria-selected", v === "map" ? "true" : "false");
+    document.getElementById("swList").setAttribute("aria-selected", v === "list" ? "true" : "false");
+  }
+  document.getElementById("swMap").addEventListener("click", function () { setView("map"); });
+  document.getElementById("swList").addEventListener("click", function () { setView("list"); });
+  setView(view);
+
   function renderList() {
     listEl.textContent = "";
-    for (var n = 1; n <= TOTAL; n++) {
-      var s = seats[n];
-      var li = el("li", s ? "" : "empty");
-      li.appendChild(el("span", "n", "ที่นั่ง " + n));
-      li.appendChild(el("span", "w", s ? s.name : "ว่าง"));
+    var booked = [], free = [];
+    for (var n = 1; n <= TOTAL; n++) { if (seats[n]) booked.push(n); else free.push(n); }
+    document.getElementById("listSub").textContent = loaded ? booked.length + " / " + TOTAL + " ที่นั่ง" : "";
+    booked.forEach(function (n) {
+      var m = mine(n);
+      var li = el("li", "bk" + (m ? " mine-row" : ""));
+      li.appendChild(el("span", "sn", String(n)));
+      li.appendChild(el("span", "w", seats[n].name));
+      if (m) li.appendChild(el("span", "me", "ที่นั่งของคุณ"));
       listEl.appendChild(li);
+    });
+    if (loaded && !booked.length) listEl.appendChild(el("li", "none", "ยังไม่มีผู้จอง"));
+    if (loaded && booked.length && free.length) {
+      var fl = el("li", "free"); fl.appendChild(el("b", null, "ที่นั่งว่าง")); fl.appendChild(document.createTextNode(free.join(" · "))); listEl.appendChild(fl);
     }
+    if (loaded && !free.length) listEl.appendChild(el("li", "none", "เต็มแล้ว"));
     countEl.textContent = "";
     countEl.appendChild(document.createTextNode("จองแล้ว "));
     countEl.appendChild(el("b", null, loaded ? String(Object.keys(seats).length) : "-"));
