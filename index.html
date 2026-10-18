@@ -928,7 +928,13 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   }
   // "Seat pass" picture: dark-teal header like the admin pass. With a seat booked on this device it leads with
   // "my seat"; otherwise the details go into the header as chips and a QR code sits at the bottom.
-  function drawPoster(useQr) {
+  var posterFixed = 0;
+  function drawPoster(useQr) { // 9:16 output: shrink the van map until the whole card fits
+    var c0 = drawPoster0(useQr, 780);
+    var tgt = 1008 * 16 / 9, pw = Math.max(420, Math.min(780, (tgt - posterFixed) / (H / W)));
+    return pw < 780 ? drawPoster0(useQr, pw) : c0;
+  }
+  function drawPoster0(useQr, pwOv) {
     var OUT = 1080, PADO = 36, CW = OUT - 2 * PADO, X = 44, IW = CW - 2 * X;
     var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0] || trip.vans[0];
     var multi = trip.vans.length > 1;
@@ -1008,7 +1014,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     }
     // ---- map card
     y += 34;
-    var MX = 34, MW = CW - 2 * MX, PW = 780, k = PW / W, PH = H * k;
+    var MX = 34, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k;
     var mh = 24 + 54 + 14 + PH + 30;
     ctx.fillStyle = "#f3f6f7"; rrect(ctx, MX, y, MW, mh, 50); ctx.fill();
     var cnt = Object.keys(seats).length, ry = y + 24 + 38;
@@ -1049,13 +1055,14 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       ctx.strokeStyle = "#0b5f67"; ctx.lineWidth = 5; rrect(ctx, qx - 14, qy - 14, qs + 28, qs + 28, 26); ctx.stroke();
       drawQr(ctx, url, qx, qy, qs, "#0b5f67");
     }
-    var total = y + FH;
+    var total = y + FH; posterFixed = total - PH;
     // ---- compose onto a light backdrop with rounded corners
     var OW = 1432, k = OW / CW; // same width as the admin pass (358 x 4)
-    var out = document.createElement("canvas"); out.width = OW; out.height = Math.round(total * k);
+    var out = document.createElement("canvas"); out.width = OW; out.height = Math.max(Math.round(total * k), Math.round(OW * 16 / 9));
     var oc = out.getContext("2d");
     oc.save(); rrect(oc, 0, 0, OW, out.height, 56 * k); oc.clip();
-    oc.drawImage(tc, 0, 0, CW, total, 0, 0, OW, out.height);
+    oc.fillStyle = "#eef1f3"; oc.fillRect(0, 0, OW, out.height);
+    oc.drawImage(tc, 0, 0, CW, total, 0, 0, OW, Math.round(total * k));
     oc.restore();
     return out;
   }
