@@ -137,7 +137,7 @@ a.path:active { background: var(--tint); }
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var id = parse(input.value);
-    if (!id) { showErr(input.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริปก่อน"); input.focus(); return; }
+    if (!id) { showErr(input.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); input.focus(); return; }
     location.href = "/" + id;
   });
   input.addEventListener("input", function () { showErr(""); });
