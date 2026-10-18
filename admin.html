@@ -228,21 +228,21 @@ input[type=text], input[type=date], input[type=time] { background: var(--surface
   </section>
 
   <form id="form" novalidate>
-    <label>ชื่อทริป / ทัวร์
+    <label>ชื่อทริป
       <input type="text" id="name" maxlength="80" placeholder="เช่น ทริปเชียงดาว 2 วัน 1 คืน" required>
     </label>
-    <label>เพจ / ผู้จัด <small>ไม่บังคับ</small>
+    <label>ผู้จัด <small>(ไม่บังคับ)</small>
       <input type="text" id="organizer" maxlength="80" placeholder="เช่น เดินป่าด้วยกัน">
     </label>
     <div class="row">
-      <label>วันไป <input type="date" id="startDate"></label>
-      <label>วันกลับ <input type="date" id="endDate"></label>
+      <label>วันเดินทางไป <input type="date" id="startDate"></label>
+      <label>วันเดินทางกลับ <input type="date" id="endDate"></label>
     </div>
     <div class="row">
-      <label>รถออกเวลา <input type="time" id="departTime"></label>
+      <label>เวลาออกเดินทาง <input type="time" id="departTime"></label>
       <span></span>
     </div>
-    <label>นัดพบ <small>ไม่บังคับ</small>
+    <label>จุดนัดพบ <small>(ไม่บังคับ)</small>
       <input type="text" id="meetPoint" maxlength="120" placeholder="เช่น หน้าห้างเซ็นทรัล ลาดพร้าว">
     </label>
     <div>
