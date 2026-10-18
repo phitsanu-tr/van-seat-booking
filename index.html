@@ -1057,7 +1057,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     }
     var total = y + FH; posterFixed = total - PH;
     // ---- compose onto a light backdrop with rounded corners
-    var OW = 1432, k = OW / CW; // same width as the admin pass (358 x 4)
+    var OW = 1456, k = OW / CW;
     var out = document.createElement("canvas"); out.width = OW; out.height = Math.max(Math.round(total * k), Math.round(OW * 16 / 9));
     var oc = out.getContext("2d");
     oc.save(); rrect(oc, 0, 0, OW, out.height, 56 * k); oc.clip();
