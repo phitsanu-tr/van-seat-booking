@@ -80,6 +80,27 @@ header.trip { display: block; }
 @media (max-width: 350px) { .deck .tabs .tab small { font-size: 12px; } .deck .tabs { gap: 8px; padding-inline: 12px; } .deck .tabs .tab { width: calc((100% - 16px) / 3); } }
 .deck .tabs .tab { padding: 0 6px; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
 .deck .sheet { border: 0; border-radius: 0; }
+.ended { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding: 12px 14px; border-radius: 16px; background: color-mix(in srgb, var(--ink) 6%, var(--surface)); border: 1px solid var(--line); font-size: 14px; line-height: 1.5; }
+.ended svg { flex: none; width: 16px; height: 16px; margin-top: 4px; color: var(--mine); }
+.ended b { font-family: var(--font-display); font-weight: 600; }
+.deck.isended .seat { cursor: default; }
+.deck.isended .seat:hover { background: transparent; }
+.deck.isended .seat.taken:hover { background: color-mix(in srgb, var(--taken) 94%, transparent); }
+.deck.isended .seat.mine:hover { background: var(--mine); }
+#notice:empty { display: none; }
+.tip { margin: 10px 6px 0; background: color-mix(in srgb, var(--mine) 10%, var(--surface)); border-radius: 12px; padding: 9px 12px; display: flex; gap: 8px; align-items: center; font-size: 14px; line-height: 1.4; }
+.tip svg { flex: none; width: 16px; height: 16px; color: var(--mine); }
+.fullbar { margin: 10px 6px 0; background: color-mix(in srgb, var(--sel) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--sel) 42%, var(--surface)); border-radius: 12px; padding: 10px 12px; display: flex; gap: 10px; align-items: center; justify-content: space-between; font-size: 14px; line-height: 1.5; }
+.fullbar .ft { min-width: 0; }
+.fullbar b { font-family: var(--font-display); font-weight: 600; }
+.fullbar .go { flex: none; font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 14px; color: var(--mine); background: none; border: 0; padding: 6px 2px 6px 8px; display: flex; align-items: center; gap: 2px; cursor: pointer; white-space: nowrap; }
+.fullbar .go svg { width: 16px; height: 16px; }
+.shbtn { display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - 12px); margin: 12px 6px 4px; height: 46px; border-radius: 999px; border: 1.5px solid var(--mine); background: transparent; color: var(--mine); font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 15px; cursor: pointer; }
+.shbtn svg { width: 18px; height: 18px; }
+.shbtn:disabled { opacity: .6; cursor: default; }
+.imgm { max-height: 94vh; overflow-y: auto; }
+.imgm img { align-self: center; max-width: 100%; max-height: 58vh; object-fit: contain; border-radius: 12px; border: 1px solid var(--line); background: #fff; }
+.imgm .imgh { text-align: center; font-size: 13px; }
 .deck .list { border: 0; border-radius: 0; }
 .deck .vsw { background: linear-gradient(color-mix(in srgb, var(--line) 60%, transparent), color-mix(in srgb, var(--line) 60%, transparent)) 16px 100% / calc(100% - 32px) 1px no-repeat; border-radius: 0; padding: 0 16px; gap: 0; }
 .deck .vsw button { border-radius: 0; border-bottom: 3px solid transparent; margin-bottom: 0; min-height: 44px; }
@@ -213,10 +234,11 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   <header class="trip">
     <div class="hero"><div class="ht"><h1 id="tripName">จองที่นั่งรถตู้</h1>
     <div class="org" id="tripOrg" hidden></div></div><svg class="hv" viewBox="0 0 96 64" fill="none" aria-hidden="true"><path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--hbg)"/></g><g transform="translate(-2 3) scale(.82)"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/><g fill="color-mix(in srgb,var(--mine) 25%,var(--surface))" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g><g fill="var(--ink)"><circle cx="26" cy="43" r="6.5"/><circle cx="70" cy="43" r="6.5"/></g><g fill="var(--surface)"><circle cx="26" cy="43" r="2.4"/><circle cx="70" cy="43" r="2.4"/></g></g></svg></div>
+    <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
     <dl class="facts" id="tripFacts" hidden></dl>
   </header>
 
-  <section class="deck">
+  <section class="deck" id="deck">
   <div class="tlbl" id="tabLbl" hidden><span class="tl"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg>เลือกรถตู้</span></div>
   <div class="tabs" id="tabs" role="tablist" aria-label="เลือกคันรถ" hidden></div>
 
@@ -226,6 +248,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   </div>
 
   <section class="sheet" id="sheetView" aria-label="ผังที่นั่งรถตู้">
+    <div id="notice"></div>
     <div class="vrow shead"><div class="plate" id="plate" hidden></div><div class="count" id="count">จองแล้ว <b>0</b>&thinsp;/&thinsp;10</div></div>
     <div class="plan">
       <svg viewBox="0 0 820 1450" aria-hidden="true" focusable="false">
@@ -291,10 +314,23 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       <span><i class="l-taken"></i>มีคนจองแล้ว</span>
       <span><i class="l-mine"></i>ที่นั่งของคุณ</span>
     </div>
+    <button type="button" class="shbtn" id="shareImg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.7"/><path d="M21 16l-5-5-8 8"/></svg>บันทึกผังเป็นรูป</button>
   </section>
 
   <div class="backdrop" id="backdrop" hidden>
     <div class="modal" id="panel" role="dialog" aria-modal="true" aria-labelledby="mTitle"></div>
+  </div>
+
+  <div class="backdrop" id="imgBackdrop" hidden>
+    <div class="modal imgm" role="dialog" aria-modal="true" aria-label="รูปผังที่นั่ง">
+      <img id="imgPrev" alt="รูปผังที่นั่งรถตู้">
+      <p class="imgh">กดค้างที่รูปเพื่อบันทึก หรือใช้ปุ่มด้านล่าง</p>
+      <div class="actions">
+        <button type="button" class="plain" id="imgClose">ปิด</button>
+        <button type="button" class="plain" id="imgSave">ดาวน์โหลด</button>
+        <button type="button" class="primary" id="imgShare" hidden>แชร์</button>
+      </div>
+    </div>
   </div>
 
   <section class="list" id="listView" hidden>
@@ -332,7 +368,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   var mineMap = {};          // n -> {at}: seats booked from this device (only used to tint them)
   var loaded = false, loadError = "";
   var selected = null, message = "", shown = false, confirming = false, lastSnapshot = "";
-  var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "";
+  var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false;
 
   var overlayEl = document.getElementById("overlay");
   var panelEl = document.getElementById("panel");
@@ -380,6 +416,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var code = r && r.data && r.data.error;
     if (code === "taken") return "ที่นั่งนี้ถูกจองไปแล้ว เลือกที่นั่งอื่น";
     if (code === "bad_name") return "ใส่ชื่อก่อนจอง";
+    if (code === "ended") return "ทริปนี้สิ้นสุดแล้ว ปิดรับจอง";
     if (code === "no_trip") return "ไม่พบทริปนี้ ตรวจสอบลิงก์อีกครั้ง";
     if (code === "no_van") return "ไม่พบรถคันนี้ รีเฟรชหน้าแล้วลองใหม่";
     if (code === "not_configured") return "ยังไม่ได้เชื่อมต่อฐานข้อมูล ติดต่อเจ้าของหน้า";
@@ -406,7 +443,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
           b.setAttribute("aria-label", "ที่นั่ง " + n + " ว่าง");
         }
         if (selected === n) { b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
-        b.addEventListener("click", function () { selected = n; message = ""; confirming = false; renderAll(); });
+        b.addEventListener("click", function () { if (ended) return; selected = n; message = ""; confirming = false; renderAll(); });
         overlayEl.appendChild(frame(b, RECT[n]));
       })(n);
     }
@@ -626,7 +663,55 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     renderAll(); refresh(true);
   }
 
-  function renderAll() { renderTrip(); renderGrid(); renderPanel(); renderList(); }
+  var HAND_PATH = "M9 11V5a1.5 1.5 0 013 0v5m0-1a1.5 1.5 0 013 0v2m0-.5a1.5 1.5 0 013 0V15a6 6 0 01-6 6h-1a6 6 0 01-5-2.7L4 14a1.5 1.5 0 012.5-1.6L9 15";
+  var ARROW_PATH = "M9 6l6 6-6 6";
+  function icon(d) {
+    var sv = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    sv.setAttribute("viewBox", "0 0 24 24"); sv.setAttribute("fill", "none"); sv.setAttribute("stroke", "currentColor");
+    sv.setAttribute("stroke-width", "2"); sv.setAttribute("stroke-linecap", "round"); sv.setAttribute("stroke-linejoin", "round");
+    sv.setAttribute("aria-hidden", "true");
+    var p = document.createElementNS("http://www.w3.org/2000/svg", "path"); p.setAttribute("d", d); sv.appendChild(p);
+    return sv;
+  }
+  function renderNotice() {
+    var box = document.getElementById("notice");
+    document.getElementById("endedBar").hidden = !ended;
+    document.getElementById("deck").classList.toggle("isended", ended);
+    box.textContent = "";
+    if (ended || !loaded || !trip) return;
+    var used = Object.keys(seats).length;
+    if (used < TOTAL) {
+      var tip = el("div", "tip");
+      tip.appendChild(icon(HAND_PATH));
+      tip.appendChild(el("span", null, "แตะที่นั่งว่างเพื่อจอง · แตะที่นั่งของคุณเพื่อยกเลิก"));
+      box.appendChild(tip);
+      return;
+    }
+    var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0];
+    var multi = trip.vans.length > 1;
+    var others = trip.vans.filter(function (v) { return v.id !== curVan && counts[v.id] != null && counts[v.id] < TOTAL; });
+    var bar = el("div", "fullbar"), t = el("span", "ft");
+    t.appendChild(el("b", null, (multi && cur ? "รถตู้ " + cur.label : "รถตู้") + " เต็มแล้ว"));
+    if (others.length) {
+      t.appendChild(el("br"));
+      t.appendChild(document.createTextNode("ยังว่าง: " + others.map(function (v) { return v.label + " (" + (TOTAL - counts[v.id]) + ")"; }).join(" · ")));
+    } else if (multi) {
+      t.appendChild(el("br"));
+      t.appendChild(document.createTextNode("ทุกคันเต็มแล้ว"));
+    }
+    bar.appendChild(t);
+    if (others.length) {
+      var go = el("button", "go");
+      go.type = "button";
+      go.appendChild(document.createTextNode("ไปรถตู้ " + others[0].label));
+      go.appendChild(icon(ARROW_PATH));
+      go.addEventListener("click", function () { switchVan(others[0].id); });
+      bar.appendChild(go);
+    }
+    box.appendChild(bar);
+  }
+
+  function renderAll() { renderTrip(); renderNotice(); renderGrid(); renderPanel(); renderList(); }
 
   async function refresh(force) {
     if (pending > 0) return;
@@ -646,6 +731,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         if (firstLoad) mineMap = readMine();
       }
       counts = (r.data && r.data.counts) || counts;
+      ended = !!(r.data && r.data.ended);
       var next = {};
       var src = (r.data && r.data.seats) || {};
       Object.keys(src).forEach(function (k) {
@@ -653,8 +739,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         if (n >= 1 && n <= TOTAL && src[k] && src[k].name) next[n] = { name: String(src[k].name), at: src[k].at };
       });
       var snap = JSON.stringify(next);
-      var changed = snap !== lastSnapshot || !loaded || JSON.stringify(counts) !== lastCounts || JSON.stringify(trip) !== lastTrip;
-      lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip);
+      var changed = snap !== lastSnapshot || !loaded || JSON.stringify(counts) !== lastCounts || JSON.stringify(trip) + ended !== lastTrip;
+      lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip) + ended;
       seats = next; lastSnapshot = snap; loaded = true; loadError = "";
       if (changed || force) renderAll();
     } catch (e) {
@@ -720,8 +806,204 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     pending--; renderAll(); refresh(false);
   }
 
+  // ---- save the seat map as a picture (drawn on a canvas, always in the light theme) ----
+  var shareBtn = document.getElementById("shareImg");
+  var imgBackdrop = document.getElementById("imgBackdrop"), imgPrev = document.getElementById("imgPrev");
+  var imgUrl = "", imgFile = null;
+
+  function loadFonts() {
+    if (!document.fonts || !document.fonts.load) return Promise.resolve();
+    var t = "ผังที่นั่งรถตู้ ABC 0123456789 กขค";
+    return Promise.all([
+      document.fonts.load('600 40px Prompt', t), document.fonts.load('500 30px Prompt', t),
+      document.fonts.load('400 30px "Noto Sans Thai"', t), document.fonts.load('600 30px "Noto Sans Thai"', t)
+    ]).catch(function () {});
+  }
+  function wrapText(ctx, text, maxW, maxLines) {
+    var segs;
+    try { segs = Array.from(new Intl.Segmenter("th", { granularity: "word" }).segment(text), function (x) { return x.segment; }); }
+    catch (e) { segs = Array.from(text); }
+    var parts = [];
+    segs.forEach(function (sg) {
+      if (ctx.measureText(sg).width <= maxW) parts.push(sg); else Array.from(sg).forEach(function (ch) { parts.push(ch); });
+    });
+    var lines = [], cur = "";
+    parts.forEach(function (sg) {
+      var test = cur + sg;
+      if (!cur || ctx.measureText(test).width <= maxW) cur = test;
+      else { lines.push(cur.replace(/\s+$/, "")); cur = sg.replace(/^\s+/, ""); }
+    });
+    if (cur) lines.push(cur.replace(/\s+$/, ""));
+    if (lines.length > maxLines) {
+      lines = lines.slice(0, maxLines);
+      var last = lines[maxLines - 1];
+      while (last.length > 1 && ctx.measureText(last + "…").width > maxW) last = last.slice(0, -1);
+      lines[maxLines - 1] = last + "…";
+    }
+    return lines;
+  }
+  function rrect(ctx, x, y, w, h, r) {
+    r = Math.min(r || 0, w / 2, h / 2);
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+  var INK = "#1b1f22", MUTED = "#5f6b73", TEAL = "#0e7c86", TAKEN = "#d9e0e5";
+  function drawPlan(ctx, ox, oy, k) {
+    var svg = document.querySelector(".plan svg");
+    function drawNode(n, cls) {
+      var tag = n.tagName.toLowerCase();
+      var w = /\bbold\b/.test(cls) ? 7 : /\bthin\b/.test(cls) ? 1.4 : 2.2;
+      if (n.style && n.style.strokeWidth) w = parseFloat(n.style.strokeWidth) || w;
+      var dash = (n.style && n.style.strokeDasharray) ? n.style.strokeDasharray.split(/[ ,]+/).map(Number).filter(function (x) { return x === x; }) : [];
+      ctx.save();
+      ctx.translate(ox, oy); ctx.scale(k, k);
+      ctx.lineWidth = w; ctx.lineJoin = "round"; ctx.lineCap = "round"; ctx.setLineDash(dash);
+      ctx.strokeStyle = INK; ctx.globalAlpha = /\bthin\b/.test(cls) ? .7 : 1;
+      var solid = /\bsolid\b/.test(cls), fillp = /\bfillp\b/.test(cls);
+      function paint() {
+        if (solid) { ctx.fillStyle = INK; ctx.fill(); return; }
+        if (fillp) { ctx.fillStyle = "#ffffff"; ctx.fill(); }
+        ctx.stroke();
+      }
+      if (tag === "path") { var pa = new Path2D(n.getAttribute("d")); if (solid) { ctx.fillStyle = INK; ctx.fill(pa); } else { if (fillp) { ctx.fillStyle = "#ffffff"; ctx.fill(pa); } ctx.stroke(pa); } }
+      else if (tag === "rect") { rrect(ctx, +n.getAttribute("x"), +n.getAttribute("y"), +n.getAttribute("width"), +n.getAttribute("height"), +(n.getAttribute("rx") || 0)); paint(); }
+      else if (tag === "circle") { ctx.beginPath(); ctx.arc(+n.getAttribute("cx"), +n.getAttribute("cy"), +n.getAttribute("r"), 0, Math.PI * 2); paint(); }
+      else if (tag === "text") {
+        var tr = n.getAttribute("transform") || "", m = /translate\(([-\d.]+)[ ,]+([-\d.]+)\)/.exec(tr), rot = /rotate\(([-\d.]+)\)/.exec(tr);
+        if (m) ctx.translate(+m[1], +m[2]);
+        if (rot) ctx.rotate(+rot[1] * Math.PI / 180);
+        ctx.fillStyle = MUTED; ctx.font = '400 24px "Noto Sans Thai", sans-serif'; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+        ctx.fillText(n.textContent, 0, 0);
+      }
+      ctx.restore();
+    }
+    Array.prototype.forEach.call(svg.children, function (n) {
+      var cls = n.getAttribute("class") || "";
+      if (n.tagName.toLowerCase() === "g") Array.prototype.forEach.call(n.children, function (c) { drawNode(c, cls); });
+      else drawNode(n, cls);
+    });
+  }
+  function drawPoster() {
+    var CW = 1080, M = 60;
+    var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0] || trip.vans[0];
+    var multi = trip.vans.length > 1;
+    var probe = document.createElement("canvas").getContext("2d");
+    probe.font = '600 60px Prompt, "Noto Sans Thai", sans-serif';
+    var nameLines = wrapText(probe, trip.name || "", CW - 2 * M, 2);
+    var bits = [];
+    var dr = dateRange(trip.startDate, trip.endDate);
+    if (trip.organizer) bits.push(trip.organizer);
+    if (dr) bits.push(dr);
+    if (trip.departTime) bits.push("รถออก " + trip.departTime.replace(":", ".") + " น.");
+    probe.font = '400 30px "Noto Sans Thai", sans-serif';
+    var subLines = bits.length ? wrapText(probe, bits.join(" · "), CW - 2 * M, 2) : [];
+    var H1 = 44 + nameLines.length * 72 + (subLines.length ? 14 + subLines.length * 42 : 0) + 34;
+    var rowY = H1 + 70;
+    var PW = 780, k = PW / W, PH = H * k, PX = (CW - PW) / 2, PY = rowY + 36;
+    var FH = 120, CH = Math.round(PY + PH + 30 + FH);
+    var cv = document.createElement("canvas"); cv.width = CW; cv.height = CH;
+    var ctx = cv.getContext("2d");
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, CW, CH);
+    // header
+    ctx.fillStyle = TEAL; ctx.fillRect(0, 0, CW, H1);
+    ctx.fillStyle = "#ffffff"; ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+    ctx.font = '600 60px Prompt, "Noto Sans Thai", sans-serif';
+    var y = 44;
+    nameLines.forEach(function (ln) { y += 72; ctx.fillText(ln, M, y - 14); });
+    ctx.font = '400 30px "Noto Sans Thai", sans-serif'; ctx.globalAlpha = .93;
+    if (subLines.length) { y += 14; subLines.forEach(function (ln) { y += 42; ctx.fillText(ln, M, y - 10); }); }
+    ctx.globalAlpha = 1;
+    // van row
+    var cnt = Object.keys(seats).length;
+    ctx.textAlign = "right"; ctx.fillStyle = TEAL; ctx.font = '600 38px Prompt, "Noto Sans Thai", sans-serif';
+    var right = "จอง " + cnt + " / " + TOTAL;
+    ctx.fillText(right, CW - M, rowY);
+    var rightW = ctx.measureText(right).width;
+    ctx.textAlign = "left"; var x = M;
+    if (multi && cur) { ctx.fillStyle = INK; ctx.font = '600 38px Prompt, "Noto Sans Thai", sans-serif'; var lab = "รถตู้ " + cur.label; ctx.fillText(lab, x, rowY); x += ctx.measureText(lab).width + 24; }
+    if (cur && cur.plate) {
+      ctx.fillStyle = MUTED; ctx.font = '400 30px "Noto Sans Thai", sans-serif';
+      var room = CW - M - rightW - 24 - x, pl = wrapText(ctx, "ทะเบียน " + cur.plate, room, 1)[0];
+      if (pl) ctx.fillText(pl, x, rowY - 2);
+    }
+    // van
+    drawPlan(ctx, PX, PY, k);
+    for (var n = 1; n <= TOTAL; n++) {
+      var rc = RECT[n], s = seats[n], bx = PX + rc[0] * k, by = PY + rc[1] * k, bw = rc[2] * k, bh = rc[3] * k;
+      var isMine = !!s && mine(n);
+      if (s) { ctx.globalAlpha = isMine ? 1 : .94; ctx.fillStyle = isMine ? TEAL : TAKEN; ctx.fillRect(bx, by, bw, bh); ctx.globalAlpha = 1; }
+      var numSize = PW * 0.064, nameSize = 25, lines = [];
+      ctx.font = '400 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
+      if (s) lines = wrapText(ctx, s.name, bw - 16, 2);
+      var blockH = numSize + (lines.length ? 8 + lines.length * (nameSize + 6) : 0);
+      var ty = by + (bh - blockH) / 2;
+      ctx.textAlign = "center"; ctx.textBaseline = "top";
+      ctx.fillStyle = isMine ? "#ffffff" : (s ? MUTED : INK);
+      ctx.font = '500 ' + numSize + 'px Prompt, "Noto Sans Thai", sans-serif';
+      ctx.fillText(String(n), bx + bw / 2, ty);
+      ctx.fillStyle = isMine ? "#ffffff" : INK;
+      ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
+      lines.forEach(function (ln, i) { ctx.fillText(ln, bx + bw / 2, ty + numSize + 8 + i * (nameSize + 6)); });
+    }
+    var dx = PX + 518 * k, dy = PY + 189 * k, dw = 194 * k, dh = 174 * k;
+    var gr = ctx.createLinearGradient(dx, dy, dx, dy + dh); gr.addColorStop(0, "#dbe7ee"); gr.addColorStop(1, "#c5d4de");
+    rrect(ctx, dx + 3, dy + 3, dw - 6, dh - 6, 18); ctx.fillStyle = gr; ctx.fill();
+    ctx.fillStyle = "#c43d56"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.font = '600 ' + (PW * 0.05) + 'px Prompt, "Noto Sans Thai", sans-serif';
+    ctx.fillText("คนขับ", dx + dw / 2, dy + dh / 2);
+    // footer
+    var fy = CH - FH;
+    ctx.fillStyle = "#eef1f3"; ctx.fillRect(0, fy, CW, FH);
+    ctx.textBaseline = "alphabetic"; ctx.textAlign = "center";
+    ctx.fillStyle = MUTED; ctx.font = '400 26px "Noto Sans Thai", sans-serif';
+    ctx.fillText("แตะลิงก์เพื่อจองที่นั่ง", CW / 2, fy + 48);
+    var url = location.host + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
+    ctx.fillStyle = TEAL; ctx.font = '600 30px "Noto Sans Thai", sans-serif';
+    while (url.length > 8 && ctx.measureText(url).width > CW - 2 * M) url = url.slice(0, -2) + "…";
+    ctx.fillText(url, CW / 2, fy + 92);
+    return cv;
+  }
+  function closeImg() {
+    imgBackdrop.hidden = true;
+    if (imgUrl) { try { URL.revokeObjectURL(imgUrl); } catch (e) {} imgUrl = ""; }
+    imgPrev.removeAttribute("src"); imgFile = null;
+  }
+  async function openImg() {
+    if (!trip || !loaded) return;
+    var label = shareBtn.lastChild.textContent;
+    shareBtn.disabled = true; shareBtn.lastChild.textContent = "กำลังสร้างรูป...";
+    try {
+      await loadFonts();
+      var cv = drawPoster();
+      var blob = await new Promise(function (res) { cv.toBlob(res, "image/png"); });
+      if (!blob) throw new Error("no blob");
+      imgFile = null;
+      try { imgFile = new File([blob], "van-seats.png", { type: "image/png" }); } catch (e) {}
+      imgUrl = URL.createObjectURL(blob);
+      imgPrev.src = imgUrl;
+      var canShare = !!(imgFile && navigator.canShare && navigator.share && navigator.canShare({ files: [imgFile] }));
+      document.getElementById("imgShare").hidden = !canShare;
+      imgBackdrop.hidden = false;
+    } catch (e) {
+      showToast("สร้างรูปไม่สำเร็จ ลองอีกครั้ง", "error");
+    }
+    shareBtn.disabled = false; shareBtn.lastChild.textContent = label;
+  }
+  shareBtn.addEventListener("click", openImg);
+  document.getElementById("imgClose").addEventListener("click", closeImg);
+  imgBackdrop.addEventListener("click", function (e) { if (e.target === imgBackdrop) closeImg(); });
+  document.getElementById("imgSave").addEventListener("click", function () {
+    if (!imgUrl) return;
+    var a = document.createElement("a"); a.href = imgUrl; a.download = "van-seats.png";
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  document.getElementById("imgShare").addEventListener("click", async function () {
+    if (!imgFile) return;
+    try { await navigator.share({ files: [imgFile], title: trip ? trip.name : "ผังที่นั่งรถตู้" }); } catch (e) {}
+  });
+
   backdropEl.addEventListener("click", function (e) { if (e.target === backdropEl) closeModal(); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && selected != null) closeModal(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if (!imgBackdrop.hidden) closeImg(); else if (selected != null) closeModal(); } });
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") refresh(false); });
   setInterval(function () { if (document.visibilityState === "visible") refresh(false); }, 8000);
 

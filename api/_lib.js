@@ -73,6 +73,14 @@ function publicTrip(trip) {
   return rest;
 }
 
+// A trip is over once today's date in Bangkok is after its last day (endDate, or startDate when there is no endDate).
+function tripEnded(trip) {
+  const end = (trip && (trip.endDate || trip.startDate)) || "";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(end)) return false;
+  const today = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
+  return today > end;
+}
+
 function parseSeat(value) {
   const n = Number(value);
   return Number.isInteger(n) && n >= 1 && n <= TOTAL_SEATS ? n : null;
@@ -87,5 +95,5 @@ function newId(len) {
 
 module.exports = {
   TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json, DEFAULT_ID,
-  tripId, tripKey, seatsKey, loadTrip, publicTrip, parseSeat, newId, crypto,
+  tripId, tripKey, seatsKey, loadTrip, publicTrip, tripEnded, parseSeat, newId, crypto,
 };

@@ -32,8 +32,10 @@ module.exports = async function handler(req, res) {
       }
       const counts = {};
       trip.vans.forEach((x, i) => { counts[x.id] = Number(out[i + 1]) || 0; });
-      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts });
+      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip) });
     }
+
+    if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
 
     if (req.method === "POST") {
       const seat = L.parseSeat(body.seat);
