@@ -123,9 +123,9 @@ header.trip { display: block; }
 .sheet { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 10px; }
 .plan { position: relative; width: 100%; aspect-ratio: 820 / 1450; container-type: inline-size; }
 .plan svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.ln { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
-.ln.bold { stroke-width: 7; }
-.ln.thin { stroke-width: 1.4; opacity: .7; }
+.ln { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.ln.bold { stroke-width: 5.5; }
+.ln.thin { stroke-width: 1.2; opacity: .7; }
 .ln.fillp { fill: var(--paper); }
 .solid { fill: var(--ink); stroke: none; }
 .lbl { fill: var(--muted); font-family: var(--font-body); font-size: 24px; letter-spacing: 2px; }
@@ -136,7 +136,8 @@ header.trip { display: block; }
   display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 3px; cursor: pointer; text-align: center; min-width: 0;
 }
 .seat .no { font-family: var(--font-display); font-weight: 500; font-size: 26px; font-size: clamp(18px, 6.4cqw, 30px); line-height: 1; }
-.seat .who { font-size: 11.5px; font-size: clamp(10px, 3cqw, 13px); line-height: 1.2; font-weight: 500; overflow-wrap: anywhere; max-height: 2.45em; overflow: hidden; }
+.seat .who { font-size: 11.5px; font-size: clamp(10px, 3cqw, 13px); line-height: 1.2; font-weight: 500; overflow-wrap: break-word; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; max-width: 100%; }
+.seat.taken:not(.mine)::before { content: ""; position: absolute; top: 5%; left: 6%; width: clamp(11px, 3.6cqw, 15px); aspect-ratio: 1; border-radius: 50%; background: var(--muted) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 6.3l2 2 4-4.3' fill='none' stroke='%23fff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 100% no-repeat; opacity: .85; }
 .seat:hover { background: color-mix(in srgb, var(--mine) 12%, transparent); }
 .seat.taken { background: color-mix(in srgb, var(--taken) 94%, transparent); cursor: default; }
 .seat.taken .no { color: var(--muted); }
@@ -855,7 +856,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var svg = document.querySelector(".plan svg");
     function drawNode(n, cls) {
       var tag = n.tagName.toLowerCase();
-      var w = /\bbold\b/.test(cls) ? 7 : /\bthin\b/.test(cls) ? 1.4 : 2.2;
+      var w = /\bbold\b/.test(cls) ? 5.5 : /\bthin\b/.test(cls) ? 1.2 : 1.8;
       if (n.style && n.style.strokeWidth) w = parseFloat(n.style.strokeWidth) || w;
       var dash = (n.style && n.style.strokeDasharray) ? n.style.strokeDasharray.split(/[ ,]+/).map(Number).filter(function (x) { return x === x; }) : [];
       ctx.save();
@@ -910,6 +911,19 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       var isMine = !!s && mine(n);
       if (s) { ctx.globalAlpha = isMine ? 1 : .94; ctx.fillStyle = isMine ? TEAL : TAKEN; ctx.fillRect(bx, by, bw, bh); ctx.globalAlpha = 1; }
       var numSize = PW * 0.064, nameSize = 25, lines = [];
+      if (s && !isMine) { // small check badge on taken seats
+        ctx.fillStyle = MUTED; ctx.beginPath(); ctx.arc(bx + 20, by + 20, 11, 0, 7); ctx.fill();
+        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.6; ctx.lineCap = "round"; ctx.lineJoin = "round";
+        ctx.beginPath(); ctx.moveTo(bx + 15.5, by + 20.5); ctx.lineTo(bx + 19, by + 24); ctx.lineTo(bx + 25.5, by + 16.5); ctx.stroke();
+      }
+      if (s) { // shrink the name font until its longest word fits the seat (no mid-word breaks)
+        var words = s.name.split(/\s+/);
+        while (nameSize > 17) {
+          ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
+          if (words.every(function (w) { return ctx.measureText(w).width <= bw - 16; })) break;
+          nameSize--;
+        }
+      }
       ctx.font = '400 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
       if (s) lines = wrapText(ctx, s.name, bw - 16, 2);
       var blockH = numSize + (lines.length ? 8 + lines.length * (nameSize + 6) : 0);
