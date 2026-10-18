@@ -1195,7 +1195,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     if (t.startDate || t.endDate) rws.push([SV.cal, dateRange(t.startDate, t.endDate)]);
     if (t.departTime) rws.push([SV.clk, t.departTime + " น."]);
     if (t.meetPoint) rws.push([SV.pin, t.meetPoint]);
-    var ok = await askConfirm("ต้องการลบทริปนี้?", "ข้อมูลต่อไปนี้จะถูกลบถาวร ผู้จองและลิงก์ที่แชร์จะใช้ไม่ได้", "ลบทริป", $("delBtn"),
+    var ok = await askConfirm("ต้องการลบทริปนี้?", "ข้อมูลจะถูกลบถาวร ผู้จองและลิงก์ที่แชร์ออกไปจะใช้ไม่ได้", "ลบทริป", $("delBtn"),
       { name: t.name || "ทริปนี้", total: booked ? booked + " ที่นั่ง" : "ยังไม่มีผู้จอง", rows: rws,
         vans: (t.vans || []).map(function (v) { return { label: v.label, plate: v.plate, n: perVan[v.id] || 0 }; }) });
     if (!ok) return;
