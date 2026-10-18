@@ -44,10 +44,15 @@ a.path:active { background: var(--tint); }
 .code button svg { width: 18px; height: 18px; }
 .err { color: var(--danger); font-size: 13px; margin-top: -4px; }
 .feat { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.feat div { background: var(--surface); border: 1px solid var(--edge); border-radius: 14px; padding: 12px; display: grid; grid-template-columns: 20px 1fr; column-gap: 8px; row-gap: 6px; align-content: start; align-items: center; color: var(--mine); }
-.feat svg { width: 20px; height: 20px; }
-.feat b { color: var(--ink); font-size: 13.5px; font-weight: 600; line-height: 20px; }
-.feat span { grid-column: 1 / -1; white-space: nowrap; font-size: 12px; color: var(--muted); line-height: 17px; }
+.feat div { background: var(--surface); border: 1px solid var(--edge); border-radius: 14px; padding: 12px; display: grid; grid-template-columns: 16px 1fr; column-gap: 8px; row-gap: 4px; align-content: start; align-items: center; color: var(--mine); }
+.feat svg { width: 16px; height: 16px; }
+.feat svg { transform-origin: 50% 100%; }
+.feat div:nth-child(1) svg { transform: translateY(-1.75px); }
+.feat div:nth-child(2) svg { transform: translateY(-2.5px) scale(.92); }
+.feat div:nth-child(3) svg { transform: translateY(-1.75px); }
+.feat div:nth-child(4) svg { transform: translateY(-2.5px) scale(.86); }
+.feat b { color: var(--ink); font-size: 14px; font-weight: 600; line-height: 20px; }
+.feat span { grid-column: 2; white-space: nowrap; font-size: 12px; color: var(--muted); line-height: 17px; }
 .steps { background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
 .st { display: flex; gap: 12px; align-items: center; }
 .st i { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--tint); color: var(--deep); font: 600 14px var(--font-display); font-style: normal; display: grid; place-items: center; }
