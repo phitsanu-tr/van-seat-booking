@@ -68,6 +68,7 @@ header.trip { display: block; }
 .vanbar .count { margin-left: auto; }
 .deck { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
 .deck .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; overflow: visible; padding: 12px 12px 10px; }
+@media (max-width: 350px) { .deck .tabs .tab small { font-size: 11px; margin-left: 3px; } .deck .tabs { gap: 6px; padding-inline: 10px; } }
 .deck .tabs .tab { padding: 0 6px; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
 .deck .sheet { border: 0; border-radius: 0; }
 .deck .list { border: 0; border-radius: 0; }
@@ -596,7 +597,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       b.setAttribute("aria-selected", String(v.id === curVan));
       b.appendChild(document.createTextNode("คัน " + v.label));
       var c = counts[v.id];
-      if (c != null) b.appendChild(el("small", null, c + "/" + TOTAL));
+      if (c != null) b.appendChild(el("small", null, c >= TOTAL ? "เต็ม" : "ว่าง " + (TOTAL - c)));
       b.addEventListener("click", function () { switchVan(v.id); });
       tabsEl.appendChild(b);
     });
