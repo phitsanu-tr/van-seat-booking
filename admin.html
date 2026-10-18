@@ -945,7 +945,11 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var labels = rows.map(function (r) { return r.label.trim(); });
     var first = null, bad = false;
     if (!$("name").value.trim()) { first = fieldErr($("name"), ERR.bad_name); }
+    [["startDate", "เลือกวันเดินทางไปก่อน"], ["endDate", "เลือกวันเดินทางกลับก่อน"]].forEach(function (f) {
+      if (!$(f[0]).value) { var c = fieldErr($(f[0]), f[1]); first = first || c; }
+    });
     if ($("startDate").value && $("endDate").value && $("endDate").value < $("startDate").value) { var ed = fieldErr($("endDate"), "วันกลับต้องไม่ก่อนวันไป"); first = first || ed; }
+    if (!$("departTime").value) { var tc = fieldErr($("departTime"), "เลือกเวลาออกเดินทางก่อน"); first = first || tc; }
     var seen = {}, dupBad = false;
     [].forEach.call(vansEl.querySelectorAll("input"), function (inp, i) {
       var l = labels[i]; if (!l || seen[l]) { inp.classList.add("bad"); inp.setAttribute("aria-invalid", "true"); dupBad = true; } else seen[l] = 1;
