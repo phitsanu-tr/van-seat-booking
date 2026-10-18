@@ -449,7 +449,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       }
       upd();
       var aux = el("div", "pk-aux"), clr = btn("pk-pill q", "ล้างวันที่"), td = btn("pk-pill", "วันนี้");
-      clr.style.visibility = sel ? "visible" : "hidden";
+      clr.style.visibility = sel && sel !== todayIso() ? "visible" : "hidden";
       clr.addEventListener("click", function () { sel = ""; draw(); });
       td.disabled = !!min && todayIso() < min;
       td.addEventListener("click", function () { sel = todayIso(); view = { y: now.y, m: now.m }; picking = false; draw(); });
