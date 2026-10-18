@@ -73,7 +73,7 @@ button { font: inherit; cursor: pointer; }
 
 a.btn { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .btn.line { background: #06c755; color: #fff; }
-.adminbox { display: flex; gap: 10px; align-items: flex-start; background: var(--bg); color: var(--ink); border-radius: 12px; padding: 10px 12px; font-size: 12.5px; line-height: 1.45; }
+.adminbox { display: flex; gap: 10px; align-items: flex-start; background: var(--tint); color: var(--ink); border-radius: 12px; padding: 10px 12px; font-size: 12.5px; line-height: 1.45; }
 .adminbox svg { flex: none; margin-top: 2px; }
 @media (prefers-color-scheme: dark) { .adminbox { background: #223540; } }
 .linkbtn { font: inherit; font-weight: 600; text-decoration: underline; background: none; border: 0; padding: 6px 0 0; color: inherit; cursor: pointer; }
@@ -81,7 +81,10 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .xbtn { z-index: 2; position: absolute; top: 10px; right: 12px; width: 40px; height: 40px; border: 0; background: transparent; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; border-radius: 20px; }
 .modal { position: relative; padding: 0; gap: 0; overflow: hidden; }
 .mband { position: relative; background: #0b5f67; color: #fff; padding: 12px 56px 12px 18px; min-height: 56px; display: flex; align-items: center; }
-.tcard { background: var(--bg); border-radius: 14px; padding: 12px 14px; }
+.modal { --tint: #e5f2f3; }
+.modal.admin { --tint: #eef1f3; }
+@media (prefers-color-scheme: dark) { .modal, .modal.admin { --tint: #223540; } }
+.tcard { background: var(--tint); border-radius: 14px; padding: 12px 14px; }
 .tcard .mt { color: var(--ink); overflow-wrap: anywhere; font-size: 18px; line-height: 1.25; }
 .trows { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
 .trow { display: flex; gap: 9px; align-items: flex-start; font-size: 14px; line-height: 1.4; color: var(--ink); }
@@ -107,10 +110,10 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .mh { padding-right: 34px; }
 .check.amber { background: #eceef0; color: var(--ink); }
 @media (prefers-color-scheme: dark) { .check.amber { background: #223540; } }
-.dots { display: flex; background: var(--bg); border-radius: 12px; padding: 4px; margin: 0; }
+.dots { display: flex; background: var(--tint); border-radius: 12px; padding: 4px; margin: 0; }
 .dots button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 8px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font: 600 14px var(--font-body); cursor: pointer; }
 .dots button svg { width: 15px; height: 15px; flex: none; }
-.dots button.on { background: var(--surface); color: var(--mine); box-shadow: 0 1px 4px rgba(0,0,0,.18); }
+.dots button.on { background: var(--surface); color: var(--mine); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
 .dots button.on.amber { color: var(--ink); }
 .steplabel { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--mine); }
 .steplabel.amber { color: var(--ink); }
@@ -120,8 +123,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .passtag.dark { color: var(--ink); }
 .passtag .ic-t { transform: translateY(1.25px); }
 .passtag .ic-s { transform: translateY(1.375px); }
-.panel { background: #e5f2f3; border-radius: 16px; padding: 8.25px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
-.panel.dark { background: var(--bg); }
+.panel { background: var(--tint); border-radius: 16px; padding: 8.25px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
 .panel .share { align-items: flex-start; }
 .panel .qr { width: 112.5px; height: auto; align-self: stretch; margin-top: 3.75px; }
 .panel .link { gap: 0; }
