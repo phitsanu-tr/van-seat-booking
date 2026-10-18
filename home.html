@@ -43,12 +43,15 @@ a.path:active { background: var(--tint); }
 .code button { flex: none; width: 46px; height: 46px; border: 0; border-radius: 12px; background: var(--ink); color: var(--bg); display: grid; place-items: center; cursor: pointer; }
 .code button svg { width: 18px; height: 18px; }
 .err { color: var(--danger); font-size: 13px; margin-top: -4px; }
-.feat { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.feat div { background: var(--surface); border: 1px solid var(--edge); border-radius: 14px; padding: 12px; display: grid; grid-template-columns: 20px 1fr; column-gap: 8px; row-gap: 2px; align-items: center; color: var(--mine); }
-.feat svg { width: 20px; height: 20px; }
-.feat span { grid-column: 1 / -1; }
-.feat b { color: var(--ink); font-size: 13.5px; font-weight: 600; }
-.feat span { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.feat { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.feat div { background: var(--surface); border: 1px solid var(--edge); border-radius: 14px; padding: 12px; display: grid; grid-template-columns: 38px 1fr; column-gap: 10px; align-items: center; color: var(--mine); }
+.feat svg { grid-row: 1 / span 2; width: 38px; height: 38px; }
+.feat div:nth-child(1) svg { transform: translateY(.75px) scale(1.09); }
+.feat div:nth-child(2) svg { transform: translateY(-2px); }
+.feat div:nth-child(3) svg { transform: translateY(-1.75px) scale(1.09); }
+.feat div:nth-child(4) svg { transform: translateY(-1.5px) scale(.97); }
+.feat b { color: var(--ink); font-size: 13.5px; font-weight: 600; line-height: 20px; align-self: end; }
+.feat span { font-size: 12px; color: var(--muted); line-height: 17px; align-self: start; }
 .steps { background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
 .st { display: flex; gap: 12px; align-items: center; }
 .st i { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--tint); color: var(--deep); font: 600 14px var(--font-display); font-style: normal; display: grid; place-items: center; }
