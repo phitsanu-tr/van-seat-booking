@@ -263,6 +263,10 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .vch b { font: 600 14px/20px var(--font-display); }
 .vch .x { width: 36px; height: 36px; margin: -4px -4px -4px 0; border-radius: 10px; border-color: transparent; background: transparent; }
 .cf-title { margin: 0; font: 600 18px/26px var(--font-display); }
+.cf-sum { margin: -4px 0 4px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--ink) 4%, var(--surface)); }
+.cf-sum b { display: block; font: 600 15px/22px var(--font-display); overflow-wrap: anywhere; }
+.cf-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.cf-chips span { font-size: 12.5px; line-height: 18px; color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border-radius: 20px; padding: 3px 10px; }
 .cf-text { margin: -6px 0 2px; color: var(--muted); font-size: 14px; line-height: 21px; }
 .dz { margin-top: 12px; border: 1.5px solid color-mix(in srgb, var(--danger) 40%, var(--surface)); background: var(--surface); border-radius: 16px; padding: 14px; display: flex; gap: 12px; align-items: center; justify-content: space-between; }
 .dz[hidden] { display: none; }
@@ -632,7 +636,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   });
 
   // in-app confirm dialog (replaces the browser's English "localhost says" box); resolves true / false
-  function askConfirm(title, text, okLabel, returnFocus) {
+  function askConfirm(title, text, okLabel, returnFocus, sum) {
     return new Promise(function (resolve) {
       var back = document.createElement("div"); back.className = "pk-back";
       var sheet = document.createElement("div"); sheet.className = "pk-sheet"; sheet.setAttribute("role", "alertdialog"); sheet.setAttribute("aria-modal", "true"); sheet.setAttribute("aria-label", title);
@@ -641,7 +645,15 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var act = document.createElement("div"); act.className = "pk-act";
       var no = document.createElement("button"); no.type = "button"; no.className = "btn plain"; no.textContent = "ยกเลิก";
       var ok = document.createElement("button"); ok.type = "button"; ok.className = "btn danger"; ok.textContent = okLabel;
-      act.appendChild(no); act.appendChild(ok); sheet.appendChild(h); sheet.appendChild(p); sheet.appendChild(act); back.appendChild(sheet);
+      act.appendChild(no); act.appendChild(ok); sheet.appendChild(h); sheet.appendChild(p);
+      if (sum) {
+        var sb = document.createElement("div"); sb.className = "cf-sum";
+        var sn = document.createElement("b"); sn.textContent = sum.name; sb.appendChild(sn);
+        var sc = document.createElement("div"); sc.className = "cf-chips";
+        sum.chips.forEach(function (c) { var e = document.createElement("span"); e.textContent = c; sc.appendChild(e); });
+        sb.appendChild(sc); sheet.appendChild(sb);
+      }
+      sheet.appendChild(act); back.appendChild(sheet);
       var prev = document.body.style.overflow;
       function done(v) { document.removeEventListener("keydown", key, true); back.remove(); document.body.style.overflow = prev; if (returnFocus && returnFocus.isConnected) { try { returnFocus.focus(); } catch (e) {} } resolve(v); }
       function key(e) { if (e.key === "Escape") { e.stopPropagation(); done(false); } }
@@ -1139,8 +1151,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 
   var booked = 0, tripName = "";
   $("delBtn").addEventListener("click", async function () {
-    var ok = await askConfirm("ลบทริป" + (tripName ? " " + tripName : "นี้") + "?",
-      (booked ? "มีผู้จอง " + booked + " ที่นั่ง " : "") + "ผู้จองและลิงก์ที่แชร์ไปจะใช้ไม่ได้อีก ย้อนกลับไม่ได้", "ลบทริป", $("delBtn"));
+    var ok = await askConfirm("ต้องการลบทริปนี้?", "สิ่งต่อไปนี้จะถูกลบถาวร ผู้จองและลิงก์ที่แชร์ไปจะใช้ไม่ได้อีก", "ลบทริป", $("delBtn"),
+      { name: tripName || "ทริปนี้", chips: [(booked ? "จองแล้ว " + booked + " ที่นั่ง" : "ยังไม่มีผู้จอง"), rows.length + " คัน"] });
     if (!ok) return;
     $("delBtn").disabled = true;
     try {
