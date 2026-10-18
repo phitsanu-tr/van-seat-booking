@@ -72,7 +72,7 @@ function startApp() {
     }
     const rel = route(u.pathname, u.searchParams);
     // only plain static assets at the project root (never dev.js, api/, vercel.json, .git ...)
-    if (!/^\/[A-Za-z0-9_-]+\.(html|css|svg|png|ico|webmanifest)$/.test(rel)) { res.statusCode = 404; return res.end("Not found"); }
+    if (rel !== "/qrcode.js" && !/^\/[A-Za-z0-9_-]+\.(html|css|svg|png|ico|webmanifest)$/.test(rel)) { res.statusCode = 404; return res.end("Not found"); }
     const file = path.join(ROOT, rel);
     fs.readFile(file, (err, data) => {
       if (err) { res.statusCode = 404; return res.end("Not found"); }
