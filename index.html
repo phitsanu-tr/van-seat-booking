@@ -217,7 +217,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   </header>
 
   <section class="deck">
-  <div class="tlbl" id="tabLbl" hidden><span class="tl"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg>เลือกรถตู้</span><span class="tp" id="plate2" hidden></span></div>
+  <div class="tlbl" id="tabLbl" hidden><span class="tl"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg>เลือกรถตู้</span></div>
   <div class="tabs" id="tabs" role="tablist" aria-label="เลือกคันรถ" hidden></div>
 
   <div class="vsw" id="viewSw" role="tablist" aria-label="เลือกมุมมอง">
@@ -597,13 +597,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0] || trip.vans[0];
     var plateEl = document.getElementById("plate");
     var multi = trip.vans.length > 1;
-    var plate2El = document.getElementById("plate2"), lblEl = document.getElementById("tabLbl");
-    [plateEl, plate2El].forEach(function (pe) {
-      pe.textContent = "";
-      if (cur && cur.plate) { pe.appendChild(document.createTextNode("ทะเบียน ")); pe.appendChild(el("b", null, cur.plate)); }
-    });
-    plateEl.hidden = multi || !(cur && cur.plate);
-    plate2El.hidden = !multi || !(cur && cur.plate);
+    var lblEl = document.getElementById("tabLbl");
+    plateEl.textContent = "";
+    if (cur && cur.plate) { plateEl.appendChild(document.createTextNode("ทะเบียน ")); plateEl.appendChild(el("b", null, cur.plate)); }
+    plateEl.hidden = !(cur && cur.plate);
     lblEl.hidden = !multi;
     tabsEl.textContent = "";
     tabsEl.hidden = trip.vans.length < 2;
