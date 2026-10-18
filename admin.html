@@ -298,6 +298,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   var SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
   var ICON_SM = {
     cal: SVG_OPEN + '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+    clk: SVG_OPEN + '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
     pin: SVG_OPEN + '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0113 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>',
     van: SVG_OPEN + '<path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg>'
   };
@@ -313,7 +314,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     function trow(icon, text) {
       var r = document.createElement("div"); r.className = "trow"; r.innerHTML = ICON_SM[icon]; var t = document.createElement("span"); t.textContent = text; r.appendChild(t); rowsEl.appendChild(r);
     }
-    if (startDate || endDate || departTime) trow("cal", (startDate || endDate ? dateRange(startDate, endDate) : "") + (departTime ? ((startDate || endDate) ? " · " : "") + departTime + " น." : ""));
+    if (startDate || endDate) trow("cal", dateRange(startDate, endDate));
+    if (departTime) trow("clk", "รถออก " + departTime + " น.");
     if (meetPoint) trow("pin", meetPoint);
     if (vanCount) trow("van", vanCount + " คัน (" + vanCount * 10 + " ที่นั่ง)");
     var text = (name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share;
