@@ -570,7 +570,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var c = t.type === "hidden" && t.parentNode ? (t.parentNode.querySelector(".pk") || t) : t;
     if (c.closest && c.closest("#vans")) {
       [].forEach.call(vansEl.querySelectorAll(".bad"), function (n) { n.classList.remove("bad"); n.removeAttribute("aria-invalid"); });
-      var f = vansEl.nextElementSibling; if (f && f.classList.contains("fe")) f.remove();
+      [].forEach.call(vansEl.querySelectorAll(".fe"), function (n) { n.remove(); });
       return;
     }
     if (!c.classList || !c.classList.contains("bad")) return;
@@ -977,7 +977,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var l = labels[i]; if (!l || seen[l]) { inp.classList.add("bad"); inp.setAttribute("aria-invalid", "true"); dupBad = true; } else seen[l] = 1;
     });
     if (dupBad) {
-      var vb = vansEl.querySelector("input.vn.bad"); fieldErr(vb, ERR.bad_vans, vansEl); first = first || vb;
+      [].forEach.call(vansEl.querySelectorAll("input.vn.bad"), function (inp) { fieldErr(inp, ERR.bad_vans, inp.closest(".vf")); first = first || inp; });
     }
     if (first) { focusFirst(first); return; }
     var body = {
@@ -993,7 +993,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       if (!res.ok) {
         var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime" };
         if (map[data.error]) { focusFirst(fieldErr($(map[data.error]), ERR[data.error])); }
-        else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input.vn"); if (v0) { v0.classList.add("bad"); fieldErr(v0, ERR.bad_vans, vansEl); focusFirst(v0); } else toast(ERR.bad_vans); }
+        else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input.vn"); if (v0) { fieldErr(v0, ERR.bad_vans, v0.closest(".vf")); focusFirst(v0); } else toast(ERR.bad_vans); }
         else toast(ERR[data.error] || "บันทึกไม่สำเร็จ ลองอีกครั้ง");
         return;
       }
