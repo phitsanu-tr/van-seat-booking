@@ -1168,6 +1168,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     if (it.state === "ok") r1.appendChild(node("em", "chip" + (past ? " g" : ""), past ? "ผ่านไปแล้ว" : full ? "เต็มแล้ว" : "ยังมีที่ว่าง"));
     a.appendChild(r1);
     if (t && (t.startDate || t.endDate)) { var m = node("div", "meta"); m.appendChild(icon(SV.cal)); m.appendChild(node("span", "", dateRange(t.startDate, t.endDate))); a.appendChild(m); }
+    if (t && t.departTime) { var mt = node("div", "meta"); mt.appendChild(icon(SV.clk)); mt.appendChild(node("span", "", t.departTime + " น.")); a.appendChild(mt); }
     if (t && t.meetPoint) { var m2 = node("div", "meta"); m2.appendChild(icon(SV.pin)); m2.appendChild(node("span", "", t.meetPoint)); a.appendChild(m2); }
     var r3 = node("div", "r3"), pw = node("div", "pw");
     if (it.state === "ok") {
