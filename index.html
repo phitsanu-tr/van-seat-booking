@@ -67,6 +67,11 @@ header.trip { display: block; }
 .vanbar .vrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .vanbar .count { margin-left: auto; }
 .deck { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.tlbl { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px 0; font-size: 13px; color: var(--muted); }
+.tlbl .tl { display: flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 600; }
+.tlbl .tl svg { color: var(--mine); flex: none; }
+.tlbl .tp { min-width: 0; text-align: right; overflow-wrap: anywhere; }
+.tlbl .tp b { color: var(--ink); font-weight: 600; }
 .deck .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; overflow: visible; padding: 12px 12px 10px; }
 .deck .tabs .tab { flex-direction: column; gap: 0; line-height: 1.25; min-height: 52px; padding-block: 6px; }
 .deck .tabs .tab small { margin-left: 0; font-size: 12.5px; }
@@ -212,6 +217,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   </header>
 
   <section class="deck">
+  <div class="tlbl" id="tabLbl" hidden><span class="tl"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg>เลือกรถตู้</span><span class="tp" id="plate2" hidden></span></div>
   <div class="tabs" id="tabs" role="tablist" aria-label="เลือกคันรถ" hidden></div>
 
   <div class="vsw" id="viewSw" role="tablist" aria-label="เลือกมุมมอง">
@@ -590,9 +596,15 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     factsEl.hidden = rows.length === 0;
     var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0] || trip.vans[0];
     var plateEl = document.getElementById("plate");
-    plateEl.textContent = "";
-    if (cur && cur.plate) { plateEl.appendChild(document.createTextNode("ทะเบียน ")); plateEl.appendChild(el("b", null, cur.plate)); }
-    plateEl.hidden = !(cur && cur.plate);
+    var multi = trip.vans.length > 1;
+    var plate2El = document.getElementById("plate2"), lblEl = document.getElementById("tabLbl");
+    [plateEl, plate2El].forEach(function (pe) {
+      pe.textContent = "";
+      if (cur && cur.plate) { pe.appendChild(document.createTextNode("ทะเบียน ")); pe.appendChild(el("b", null, cur.plate)); }
+    });
+    plateEl.hidden = multi || !(cur && cur.plate);
+    plate2El.hidden = !multi || !(cur && cur.plate);
+    lblEl.hidden = !multi;
     tabsEl.textContent = "";
     tabsEl.hidden = trip.vans.length < 2;
     trip.vans.forEach(function (v) {
