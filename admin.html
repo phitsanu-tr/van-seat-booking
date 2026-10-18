@@ -76,9 +76,7 @@ a.tc:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 .tc .meta span { min-width: 0; overflow-wrap: anywhere; }
 .tc .r3 { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
 .tc .pw { flex: 1; min-width: 0; }
-.tc .pb { height: 6px; border-radius: 99px; background: color-mix(in srgb, var(--ink) 10%, transparent); overflow: hidden; }
-.tc .pb i { display: block; height: 100%; background: var(--mine); border-radius: 99px; }
-.tc .pw small { display: block; margin-top: 4px; font-size: 11.5px; color: var(--muted); }
+.tc .pw small { display: block; font-size: 11.5px; color: var(--muted); }
 .tc .go { flex: none; display: flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600; color: var(--mine); }
 .tc .go svg { width: 14px; height: 14px; }
 .tc .rm { align-self: flex-start; margin-top: 2px; background: none; border: 0; padding: 4px 0; color: var(--danger); font-size: 13px; text-decoration: underline; }
@@ -1173,7 +1171,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     if (t && t.meetPoint) { var m2 = node("div", "meta"); m2.appendChild(icon(SV.pin)); m2.appendChild(node("span", "", t.meetPoint)); a.appendChild(m2); }
     var r3 = node("div", "r3"), pw = node("div", "pw");
     if (it.state === "ok") {
-      var pb = node("div", "pb"), bar = node("i"); bar.style.width = Math.min(100, Math.round(it.booked / it.total * 100)) + "%"; pb.appendChild(bar); pw.appendChild(pb);
       pw.appendChild(node("small", "", "จองแล้ว " + it.booked + "/" + it.total + " ที่นั่ง · " + t.vans.length + " คัน"));
     } else pw.appendChild(node("small", "", it.state === "load" ? "กำลังโหลด..." : "โหลดข้อมูลไม่ได้"));
     r3.appendChild(pw);
