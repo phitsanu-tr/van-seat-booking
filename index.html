@@ -1040,8 +1040,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var shortUrl = location.host + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var d = new Date(), pad = function (v) { return (v < 10 ? "0" : "") + v; };
     var stamp = "สร้างเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + pad(d.getHours()) + "." + pad(d.getMinutes()) + " น.";
-    var withQr = !hasMine && useQr;
-    var FH = withQr ? 230 : 190;
+    var withQr = useQr;
+    var FH = withQr ? 250 : 190;
     ctx.fillStyle = "#eef1f3"; ctx.fillRect(0, y, CW, FH);
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
     var fx0 = X, fw = IW - (withQr ? 190 : 0);
@@ -1053,10 +1053,12 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     ctx.fillStyle = MUTED; ctx.font = '400 26px "Noto Sans Thai", sans-serif';
     ctx.fillText(stamp + " · van-seat-booking", fx0, y + FH - 34);
     if (withQr) {
-      var qs = 150, qx = X + IW - qs - 14, qy = y + (FH - qs - 14) / 2;
-      ctx.fillStyle = "#ffffff"; rrect(ctx, qx - 14, qy - 14, qs + 28, qs + 28, 26); ctx.fill();
-      ctx.strokeStyle = "#0b5f67"; ctx.lineWidth = 5; rrect(ctx, qx - 14, qy - 14, qs + 28, qs + 28, 26); ctx.stroke();
-      drawQr(ctx, url, qx, qy, qs, "#0b5f67");
+      var qs = 130, tl = qs + 24, tx = X + IW - tl, ty = y + 26;
+      ctx.fillStyle = "#ffffff"; rrect(ctx, tx, ty, tl, tl, 24); ctx.fill();
+      ctx.strokeStyle = "#0b5f67"; ctx.lineWidth = 5; rrect(ctx, tx, ty, tl, tl, 24); ctx.stroke();
+      drawQr(ctx, url, tx + 12, ty + 12, qs, "#0b5f67");
+      ctx.fillStyle = TEAL; ctx.font = '600 24px Prompt, "Noto Sans Thai", sans-serif'; ctx.textAlign = "center";
+      ctx.fillText("สแกนเพื่อจอง", tx + tl / 2, y + FH - 34); ctx.textAlign = "left";
     }
     var total = y + FH; posterFixed = total - PH;
     // ---- compose onto a light backdrop with rounded corners
