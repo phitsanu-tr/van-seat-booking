@@ -261,6 +261,10 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .vch { display: flex; justify-content: space-between; align-items: center; min-height: 28px; }
 .vch b { font: 600 14px/20px var(--font-display); }
 .vch .x { width: 36px; height: 36px; margin: -4px -4px -4px 0; border-radius: 10px; border-color: transparent; background: transparent; }
+.cf-title { margin: 0; font: 600 18px/26px var(--font-display); }
+.cf-text { margin: -6px 0 2px; color: var(--muted); font-size: 14px; line-height: 21px; }
+.btn.danger { background: var(--danger); color: #fff; font-family: var(--font-display); height: 48px; }
+@media (prefers-color-scheme: dark) { .btn.danger { color: #3a0d09; } }
 .vf { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px; }
 .vf > * { min-width: 0; }
 input.vp::placeholder { font-size: 14px; } /* long example text still fits on 360px phones */
@@ -603,6 +607,26 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   toastEl.addEventListener("click", hideToast);
 
+  // in-app confirm dialog (replaces the browser's English "localhost says" box); resolves true / false
+  function askConfirm(title, text, okLabel, returnFocus) {
+    return new Promise(function (resolve) {
+      var back = document.createElement("div"); back.className = "pk-back";
+      var sheet = document.createElement("div"); sheet.className = "pk-sheet"; sheet.setAttribute("role", "alertdialog"); sheet.setAttribute("aria-modal", "true"); sheet.setAttribute("aria-label", title);
+      var h = document.createElement("h2"); h.className = "cf-title"; h.textContent = title;
+      var p = document.createElement("p"); p.className = "cf-text"; p.textContent = text;
+      var act = document.createElement("div"); act.className = "pk-act";
+      var no = document.createElement("button"); no.type = "button"; no.className = "btn plain"; no.textContent = "ยกเลิก";
+      var ok = document.createElement("button"); ok.type = "button"; ok.className = "btn danger"; ok.textContent = okLabel;
+      act.appendChild(no); act.appendChild(ok); sheet.appendChild(h); sheet.appendChild(p); sheet.appendChild(act); back.appendChild(sheet);
+      var prev = document.body.style.overflow;
+      function done(v) { document.removeEventListener("keydown", key, true); back.remove(); document.body.style.overflow = prev; if (returnFocus && returnFocus.isConnected) { try { returnFocus.focus(); } catch (e) {} } resolve(v); }
+      function key(e) { if (e.key === "Escape") { e.stopPropagation(); done(false); } }
+      no.addEventListener("click", function () { done(false); }); ok.addEventListener("click", function () { done(true); });
+      back.addEventListener("mousedown", function (e) { if (e.target === back) done(false); });
+      document.addEventListener("keydown", key, true);
+      document.body.style.overflow = "hidden"; document.body.appendChild(back); no.focus();
+    });
+  }
   var MAX_VANS = 5, vanCap = MAX_VANS; // trips made earlier with more vans keep their count
   function renderVans() {
     vanCap = Math.max(MAX_VANS, vanCap, rows.length);
@@ -614,8 +638,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var t = document.createElement("b"); t.textContent = "คันที่ " + (i + 1); h.appendChild(t);
       if (rows.length > 1) {
         var x = document.createElement("button"); x.type = "button"; x.className = "x"; x.textContent = "×"; x.setAttribute("aria-label", "ลบรถคันที่ " + (i + 1));
-        x.addEventListener("click", function () {
-          if (r.id && !confirm("ลบรถ \"" + (r.label || "") + "\" ? รายชื่อผู้จองในคันนี้จะหายไปด้วย")) return;
+        x.addEventListener("click", async function () {
+          if (r.id && !(await askConfirm("ลบรถคัน " + (r.label || "นี้") + "?", "รายชื่อผู้จองในคันนี้จะหายไปด้วย", "ลบรถ", x))) return;
           rows.splice(i, 1); renderVans();
         });
         h.appendChild(x);
