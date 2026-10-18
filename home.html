@@ -34,7 +34,9 @@ p { margin: 0; color: var(--muted); font-size: 14px; }
 .path .tx b { font: 600 15px var(--font-display); }
 .path .tx span { font-size: 13px; color: var(--muted); }
 .path > svg { flex: none; width: 18px; height: 18px; color: var(--muted); }
-.path:active { background: var(--tint); }
+a.path:active { background: var(--tint); }
+.path.col { flex-direction: column; align-items: stretch; gap: 12px; cursor: default; }
+.path .head { display: flex; gap: 12px; align-items: center; }
 .code { display: flex; gap: 8px; }
 .code input { flex: 1; min-width: 0; height: 46px; font: inherit; font-size: 16px; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 0 14px; }
 .code input:focus { outline: none; border-color: var(--mine); box-shadow: 0 0 0 3px color-mix(in srgb, var(--mine) 20%, transparent); }
@@ -80,16 +82,17 @@ p { margin: 0; color: var(--muted); font-size: 14px; }
     <div class="tx"><b>ฉันเป็นผู้จัด</b><span>สร้างทริปและรับลิงก์ไปแชร์</span></div>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
   </a>
-  <button class="path" type="button" id="pickSeat">
-    <div class="pi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="10" rx="3"/><path d="M7 13v4h10v-4M5 21h14"/></svg></div>
-    <div class="tx"><b>ฉันจะจองที่นั่ง</b><span>ใส่รหัสทริปที่ผู้จัดส่งให้</span></div>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-  </button>
-  <form class="code" id="codeForm" autocomplete="off">
-    <input type="text" id="code" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="200" placeholder="ใส่รหัสทริป หรือวางลิงก์" aria-label="รหัสทริป">
-    <button type="submit" aria-label="ไปหน้าจอง"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-  </form>
-  <div class="err" id="err" role="alert" hidden></div>
+  <section class="path col">
+    <div class="head">
+      <div class="pi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="10" rx="3"/><path d="M7 13v4h10v-4M5 21h14"/></svg></div>
+      <div class="tx"><b>ฉันจะจองที่นั่ง</b><span>ใส่รหัสทริปที่ผู้จัดส่งให้</span></div>
+    </div>
+    <form class="code" id="codeForm" autocomplete="off">
+      <input type="text" id="code" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="200" placeholder="ใส่รหัสทริป หรือวางลิงก์" aria-label="รหัสทริป">
+      <button type="submit" aria-label="ไปหน้าจอง"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </form>
+    <div class="err" id="err" role="alert" hidden></div>
+  </section>
 
   <h2>ทำไมต้องใช้</h2>
   <div class="feat">
@@ -129,10 +132,6 @@ p { margin: 0; color: var(--muted); font-size: 14px; }
     location.href = "/" + id;
   });
   input.addEventListener("input", function () { showErr(""); });
-  $("pickSeat").addEventListener("click", function () {
-    input.scrollIntoView({ block: "center", behavior: "smooth" });
-    input.focus({ preventScroll: true });
-  });
 })();
 </script>
 </body>
