@@ -78,9 +78,10 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .xbtn { z-index: 2; position: absolute; top: 10px; right: 12px; width: 40px; height: 40px; border: 0; background: transparent; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; border-radius: 20px; }
 .modal { position: relative; padding: 0; gap: 0; overflow: hidden; }
 .mband { position: relative; background: #0b5f67; color: #fff; padding: 12px 56px 12px 18px; min-height: 56px; display: flex; align-items: center; }
-.modal { --tint: #e5f2f3; }
-.modal.admin { --tint: #eef1f3; }
-@media (prefers-color-scheme: dark) { .modal, .modal.admin { --tint: #223540; } }
+.modal { --tint: #e5f2f3; --tint2: #d4eaec; --tint2-ink: #0b5f67; }
+.modal.admin { --tint: #eef1f3; --tint2: #dfe4e8; --tint2-ink: var(--ink); }
+@media (prefers-color-scheme: dark) { .modal, .modal.admin { --tint: #223540; --tint2: #2d4350; --tint2-ink: var(--ink); } }
+.two > .btn.plain { background: var(--tint2); border-color: transparent; color: var(--tint2-ink); }
 .tcard { background: var(--tint); border-radius: 14px; padding: 12px 14px; }
 .tcard .mt { color: var(--ink); overflow-wrap: anywhere; font-size: 18px; line-height: 1.25; }
 .trows { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
