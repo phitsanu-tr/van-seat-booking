@@ -1132,7 +1132,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     if (listMode) { initList(); return; }
     $("formMain").hidden = false;
     if (editing) {
-      $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "แก้ไขรายละเอียดทริป ผู้จองเห็นข้อมูลใหม่ทันที";
+      $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตรายละเอียดทริป ผู้จองเห็นข้อมูลใหม่ทันที";
       $("submit").textContent = "บันทึก";
       try {
         var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store", headers: { "x-admin-key": K } });
