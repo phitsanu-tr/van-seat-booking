@@ -177,6 +177,19 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .btn.tealline { background: transparent; color: var(--mine); border-color: var(--mine); }
 .btn.amberline { background: transparent; color: var(--ink); border-color: var(--ink); }
 .openlink { text-align: center; font-size: 14px; color: var(--muted); padding: 2px 0; }
+
+/* create / edit form: matches the home page */
+.hero { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: color-mix(in srgb, var(--mine) 10%, var(--surface)); border-radius: 18px; padding: 16px 18px; }
+.hero > div { min-width: 0; }
+.hero h1 { font-size: 23px; }
+.hero p { font-size: 13px; line-height: 19px; margin-top: 4px; }
+.hero svg { flex: none; width: 40px; height: auto; color: var(--ink); }
+form label { display: block; font-size: 13px; }
+form label small { margin-left: 6px; font-size: 12px; }
+form label input { margin-top: 6px; }
+input[type=text], input[type=date], input[type=time] { background: var(--surface); }
+#addVan { width: 100%; border: 1.5px dashed color-mix(in srgb, var(--mine) 55%, transparent); background: color-mix(in srgb, var(--mine) 7%, transparent); color: var(--mine); }
+#submit { position: sticky; bottom: 12px; z-index: 2; box-shadow: 0 8px 20px color-mix(in srgb, var(--mine) 28%, transparent); }
 </style>
 </head>
 <body>
@@ -200,8 +213,19 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 
 <main id="formMain" hidden>
   <a class="back" href="/a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a>
-  <h1 id="title">สร้างทริป</h1>
-  <p id="lead">กรอกรายละเอียดทริปและจำนวนรถ แล้วส่งลิงก์ให้คนในกลุ่มจองที่นั่งได้เลย ไม่ต้องสมัครสมาชิก</p>
+  <section class="hero">
+    <div>
+      <h1 id="title">สร้างทริป</h1>
+      <p id="lead">ใส่รายละเอียด แล้วรับลิงก์ไปแชร์ให้เพื่อน</p>
+    </div>
+    <svg viewBox="0 0 70 140" fill="none" aria-hidden="true">
+      <rect x="2" y="2" width="66" height="136" rx="22" stroke="currentColor" stroke-width="3" fill="var(--surface)"/>
+      <g stroke="currentColor" stroke-width="1.3">
+        <rect x="8" y="12" width="20" height="22" rx="3" fill="var(--surface)"/><rect x="32" y="12" width="20" height="22" rx="3" fill="var(--mine)" stroke="none"/>
+        <rect x="8" y="40" width="20" height="22" rx="3" fill="var(--mine)" stroke="none"/><rect x="32" y="40" width="20" height="22" rx="3" fill="var(--surface)"/>
+      </g>
+    </svg>
+  </section>
 
   <form id="form" novalidate>
     <label>ชื่อทริป / ทัวร์
