@@ -67,7 +67,8 @@ header.trip { display: block; }
 .vanbar .vrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .vanbar .count { margin-left: auto; }
 .deck { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
-.deck .tabs { flex-wrap: wrap; overflow: visible; padding: 12px 12px 10px; }
+.deck .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; overflow: visible; padding: 12px 12px 10px; }
+.deck .tabs .tab { padding: 0 6px; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
 .deck .sheet { border: 0; border-radius: 0; }
 .deck .list { border: 0; border-radius: 0; }
 .deck .vsw { background: none; border-radius: 0; padding: 0 12px; gap: 0; border-bottom: 1.5px solid var(--line); }
