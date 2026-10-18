@@ -260,9 +260,10 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .vcard { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 8px; }
 .vch { display: flex; justify-content: space-between; align-items: center; min-height: 28px; }
 .vch b { font: 600 14px/20px var(--font-display); }
-.vch .x { width: 36px; height: 36px; margin: -4px -4px -4px 0; border-radius: 10px; }
+.vch .x { width: 36px; height: 36px; margin: -4px -4px -4px 0; border-radius: 10px; border-color: transparent; background: transparent; }
 .vf { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px; }
 .vf > * { min-width: 0; }
+input.vp::placeholder { font-size: 14px; } /* long example text still fits on 360px phones */
 .toast { position: fixed; z-index: 30; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 76px); width: min(calc(100% - 32px), 428px); transform: translateX(-50%); display: flex; gap: 10px; align-items: flex-start; background: #1b1f22; color: #fff; border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 21px; box-shadow: 0 12px 28px rgba(0,0,0,.32); animation: toastIn .2s ease-out; cursor: pointer; }
 .toast svg { flex: none; width: 20px; height: 20px; margin-top: 0.5px; color: #ff8a80; }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } }
@@ -628,7 +629,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       l1.appendChild(inp);
       var l2 = document.createElement("label"); l2.innerHTML = "ทะเบียน <small>(ไม่บังคับ)</small>";
       var pl = document.createElement("input"); pl.type = "text"; pl.className = "vp"; pl.maxLength = 25; pl.value = r.plate || "";
-      pl.placeholder = "เช่น 1กข 1234"; pl.setAttribute("aria-label", "ทะเบียนรถคันที่ " + (i + 1)); pl.autocomplete = "off";
+      pl.placeholder = "เช่น 1 กข 2025 พิษณุโลก"; pl.setAttribute("aria-label", "ทะเบียนรถคันที่ " + (i + 1)); pl.autocomplete = "off";
       pl.addEventListener("input", function () { r.plate = pl.value; });
       l2.appendChild(pl);
       two.appendChild(l1); two.appendChild(l2); d.appendChild(two);
