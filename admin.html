@@ -185,8 +185,12 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .hero h1 { font-size: 23px; }
 .hero p { font-size: 13px; line-height: 19px; margin-top: 4px; }
 .hero svg { flex: none; width: 40px; height: auto; color: var(--ink); }
-form label { display: block; font-size: 13px; }
-form label small { margin-left: 6px; font-size: 12px; }
+form label { display: block; font-size: 14px; }
+form label small, .vh small { margin-left: 6px; font-size: 12px; font-weight: 400; color: var(--muted); }
+/* one look for every field: regular weight, same placeholder colour (inputs sit inside bold labels and used to inherit 600) */
+input[type=text] { font-weight: 400; }
+input::placeholder { color: var(--muted); opacity: .75; }
+.pk.ph span { opacity: .75; }
 form label input { margin-top: 6px; }
 input[type=text], input[type=date], input[type=time] { background: var(--surface); }
 #addVan { width: 100%; border: 1.5px dashed color-mix(in srgb, var(--mine) 55%, transparent); background: color-mix(in srgb, var(--mine) 7%, transparent); color: var(--mine); }
@@ -293,7 +297,7 @@ input[type=text], input[type=date], input[type=time] { background: var(--surface
       <input type="text" id="meetPoint" maxlength="120" placeholder="เช่น หน้าห้างเซ็นทรัล ลาดพร้าว">
     </label>
     <div>
-      <div style="font-weight:600;font-size:14px;margin-bottom:6px">รถตู้ <span style="font-weight:400;color:var(--muted)">(คันละ 10 ที่นั่ง)</span></div>
+      <div class="vh" style="font-weight:600;font-size:14px;margin-bottom:6px">รถตู้ <small>(คันละ 10 ที่นั่ง)</small></div>
       <div class="vans" id="vans"></div>
       <button type="button" class="btn plain small" id="addVan" style="margin-top:8px">+ เพิ่มรถอีกคัน</button>
     </div>
