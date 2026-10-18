@@ -73,9 +73,6 @@ button { font: inherit; cursor: pointer; }
 
 a.btn { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .btn.line { background: #06c755; color: #fff; }
-.adminbox { display: flex; gap: 10px; align-items: flex-start; background: var(--tint); color: var(--ink); border-radius: 12px; padding: 10px 12px; font-size: 12.5px; line-height: 1.45; }
-.adminbox svg { flex: none; margin-top: 2px; }
-@media (prefers-color-scheme: dark) { .adminbox { background: #223540; } }
 .linkbtn { font: inherit; font-weight: 600; text-decoration: underline; background: none; border: 0; padding: 6px 0 0; color: inherit; cursor: pointer; }
 
 .xbtn { z-index: 2; position: absolute; top: 10px; right: 12px; width: 40px; height: 40px; border: 0; background: transparent; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; border-radius: 20px; }
@@ -216,10 +213,6 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
       
         <button class="btn amber ic small" id="saveImg" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg><span class="lb">ดาวน์โหลดบัตร</span></button>
 </div>
-      <div class="adminbox">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/></svg>
-        <div><b>เก็บไว้คนเดียว</b> ใครสแกนหรือมีลิงก์นี้จะแก้ทริปได้ แนะนำให้ดาวน์โหลดรูปไว้ในเครื่อง</div>
-      </div>
       <div class="msg" id="saveMsg" role="status"></div>
       <a class="btn plain ic small foot" id="openShare2" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="lb">เปิดหน้าจอง</span></a>
     </div>
