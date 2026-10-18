@@ -81,7 +81,9 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .xbtn { z-index: 2; position: absolute; top: 10px; right: 12px; width: 40px; height: 40px; border: 0; background: transparent; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; border-radius: 20px; }
 .modal { position: relative; padding: 0; gap: 0; overflow: hidden; }
 .mband { position: relative; background: #0b5f67; color: #fff; padding: 18px 20px 16px; display: flex; flex-direction: column; gap: 4px; }
-.mband .mt { color: #fff; overflow-wrap: anywhere; }
+.mband .mt { color: #fff; overflow-wrap: anywhere; padding-right: 44px; }
+.mclose { position: absolute; right: 16px; top: 36px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255,255,255,.16); color: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; }
+.mclose svg { width: 18px; height: 18px; }
 .mband .ms { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 .mchip { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.14); border-radius: 999px; padding: 4px 11px; font-size: 13px; font-weight: 500; color: #fff; }
 .mchip svg { width: 15px; height: 15px; flex: none; }
@@ -97,6 +99,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .steps > .step { grid-area: 1 / 1; }
 .step[hidden] { display: flex !important; visibility: hidden; pointer-events: none; }
 .step > .foot { margin-top: auto; }
+.step > a.foot { height: 44px; }
 .btn.dark { background: var(--ink); color: #fff; }
 .mband .ms { min-height: 28px; }
 .mh { padding-right: 34px; }
@@ -183,6 +186,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
       <div class="mtop"><span id="mState"></span><span id="mCode"></span></div>
       <div class="mt" id="resultTitle"></div>
       <div class="ms" id="resultSub"></div>
+      <button class="mclose" id="closeX" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="mbar" id="mbar"></div>
     <div class="mbody">
@@ -197,7 +201,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
         <button class="btn primary ic small" id="saveSeat" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg><span class="lb">ดาวน์โหลดบัตร</span></button>
 </div>
       <div class="msg" id="seatMsg" role="status"></div>
-      <div class="two foot"><a class="btn plain ic small" id="openShare" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="lb">เปิดหน้าจอง</span></a><button class="btn dark small" id="doneBtn1" type="button">เสร็จสิ้น</button></div>
+      <a class="btn plain ic small foot" id="openShare" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="lb">เปิดหน้าจอง</span></a>
     </div>
     <!-- step 2: admin -->
     <div class="step" id="step2" hidden>
@@ -212,7 +216,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
         <div><b>เก็บไว้คนเดียว</b> ใครสแกนหรือมีลิงก์นี้จะแก้ทริปได้ แนะนำให้ดาวน์โหลดรูปไว้ในเครื่อง</div>
       </div>
       <div class="msg" id="saveMsg" role="status"></div>
-      <div class="two foot"><a class="btn plain ic small" id="openShare2" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="lb">เปิดหน้าจอง</span></a><button class="btn dark small" id="doneBtn" type="button">เสร็จสิ้น</button></div>
+      <a class="btn plain ic small foot" id="openShare2" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="lb">เปิดหน้าจอง</span></a>
     </div>
     </div>
     </div>
@@ -288,7 +292,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     Array.prototype.forEach.call(document.querySelectorAll(".dots button"), function (b) {
       var on = +b.getAttribute("data-step") === n;
       b.classList.toggle("on", on); b.classList.toggle("amber", on && n === 2); b.setAttribute("aria-selected", on ? "true" : "false");
-    }); (n === 1 ? $("doneBtn1") : $("doneBtn")).focus({ preventScroll: true }); }
+    }); $("closeX").focus({ preventScroll: true }); }
   var adminUrl = "", shareLink = "", tripName = "";
   var SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
   var ICON_SM = {
@@ -322,8 +326,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     setStep(1);
   }
   function closeResult() { $("backdrop").hidden = true; }
-  $("doneBtn").addEventListener("click", closeResult);
-  $("doneBtn1").addEventListener("click", closeResult);
+  $("closeX").addEventListener("click", closeResult);
   Array.prototype.forEach.call(document.querySelectorAll(".dots button"), function (b) { b.addEventListener("click", function () { setStep(+b.getAttribute("data-step")); }); });
   $("backdrop").addEventListener("click", function (e) { if (e.target === $("backdrop")) closeResult(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("backdrop").hidden) closeResult(); });
