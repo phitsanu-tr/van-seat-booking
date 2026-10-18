@@ -273,10 +273,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         <rect class="solid" x="732" y="372" width="13" height="52"/>
         <rect class="solid" x="732" y="784" width="13" height="84"/>
         <!-- front row boxes -->
-        <rect class="ln" x="146" y="185" width="170" height="182" rx="12"/>
-        <rect class="ln" x="344" y="185" width="170" height="182" rx="12"/>
-        <rect class="ln" x="542" y="185" width="170" height="182" rx="12"/>
-        <path class="ln thin" d="M158 318 H304 M356 318 H502"/>
+        <rect class="ln" x="129" y="185" width="170" height="182" rx="12"/>
+        <rect class="ln" x="327" y="185" width="170" height="182" rx="12"/>
+        <rect class="ln" x="525" y="185" width="170" height="182" rx="12"/>
+        <path class="ln thin" d="M141 318 H287 M339 318 H485"/>
         <!-- console -->
         <rect class="ln" x="90" y="372" width="230" height="86" rx="18"/>
         <rect class="ln" x="497" y="372" width="235" height="86" rx="18"/>
@@ -285,19 +285,12 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         <circle class="ln" cx="468" cy="403" r="9"/>
         <circle class="ln" cx="468" cy="433" r="9"/>
         <!-- wheel well -->
-        <path class="ln" d="M92 486 L110 494 Q122 499 122 516 V764 Q122 788 108 794 L92 802"/>
+        <path class="ln" d="M92 486 L102 493 Q112 498 112 514 V766 Q112 788 102 794 L92 802"/>
         <!-- seat boxes -->
         <g class="ln">
-          <rect x="146" y="548" width="170" height="183" rx="12"/><path class="ln thin" d="M158 680 H304"/><rect x="344" y="548" width="170" height="183" rx="12"/><path class="ln thin" d="M356 680 H502"/><rect x="542" y="548" width="170" height="183" rx="12"/><path class="ln thin" d="M554 680 H700"/>
-          <rect x="146" y="821" width="170" height="183" rx="12"/><path class="ln thin" d="M158 953 H304"/><rect x="344" y="821" width="170" height="183" rx="12"/><path class="ln thin" d="M356 953 H502"/><rect x="542" y="821" width="170" height="183" rx="12"/><path class="ln thin" d="M554 953 H700"/>
-          <rect x="146" y="1094" width="170" height="185" rx="12"/><path class="ln thin" d="M158 1228 H304"/><rect x="344" y="1094" width="170" height="185" rx="12"/><path class="ln thin" d="M356 1228 H502"/><rect x="542" y="1094" width="170" height="185" rx="12"/><path class="ln thin" d="M554 1228 H700"/>
-        </g>
-        <!-- armrests -->
-        <g class="ln fillp">
-          <rect x="128" y="239" width="14" height="122" rx="7"/><rect x="323" y="239" width="14" height="122" rx="7"/><rect x="521" y="239" width="14" height="122" rx="7"/>
-          <rect x="128" y="602" width="14" height="123" rx="7"/><rect x="323" y="602" width="14" height="123" rx="7"/><rect x="521" y="602" width="14" height="123" rx="7"/><rect x="716" y="602" width="14" height="123" rx="7"/>
-          <rect x="128" y="875" width="14" height="123" rx="7"/><rect x="323" y="875" width="14" height="123" rx="7"/><rect x="521" y="875" width="14" height="123" rx="7"/><rect x="716" y="875" width="14" height="123" rx="7"/>
-          <rect x="128" y="1148" width="14" height="125" rx="7"/><rect x="323" y="1148" width="14" height="125" rx="7"/><rect x="521" y="1148" width="14" height="125" rx="7"/><rect x="716" y="1148" width="14" height="125" rx="7"/>
+          <rect x="129" y="548" width="170" height="183" rx="12"/><path class="ln thin" d="M141 680 H287"/><rect x="327" y="548" width="170" height="183" rx="12"/><path class="ln thin" d="M339 680 H485"/><rect x="525" y="548" width="170" height="183" rx="12"/><path class="ln thin" d="M537 680 H683"/>
+          <rect x="129" y="821" width="170" height="183" rx="12"/><path class="ln thin" d="M141 953 H287"/><rect x="327" y="821" width="170" height="183" rx="12"/><path class="ln thin" d="M339 953 H485"/><rect x="525" y="821" width="170" height="183" rx="12"/><path class="ln thin" d="M537 953 H683"/>
+          <rect x="129" y="1094" width="170" height="185" rx="12"/><path class="ln thin" d="M141 1228 H287"/><rect x="327" y="1094" width="170" height="185" rx="12"/><path class="ln thin" d="M339 1228 H485"/><rect x="525" y="1094" width="170" height="185" rx="12"/><path class="ln thin" d="M537 1228 H683"/>
         </g>
         <!-- sliding door -->
         <path class="ln" d="M82 430 H56 V770" style="stroke-dasharray:3 5"/>
@@ -348,10 +341,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   var API = "/api/seats";
   // Seat boxes in the plan's own coordinate space (x, y, w, h in a 820 x 1345 drawing).
   var RECT = {
-    1: [146, 185, 170, 182],
-    4: [146, 548, 170, 183], 3: [344, 548, 170, 183], 2: [542, 548, 170, 183],
-    7: [146, 821, 170, 183], 6: [344, 821, 170, 183], 5: [542, 821, 170, 183],
-    10: [146, 1094, 170, 185], 9: [344, 1094, 170, 185], 8: [542, 1094, 170, 185]
+    1: [129, 185, 170, 182],
+    4: [129, 548, 170, 183], 3: [327, 548, 170, 183], 2: [525, 548, 170, 183],
+    7: [129, 821, 170, 183], 6: [327, 821, 170, 183], 5: [525, 821, 170, 183],
+    10: [129, 1094, 170, 185], 9: [327, 1094, 170, 185], 8: [525, 1094, 170, 185]
   };
   var W = 820, H = 1345;
 
@@ -423,7 +416,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 
   function renderGrid() {
     overlayEl.textContent = "";
-    overlayEl.appendChild(frame(el("div", "driver", "คนขับ"), [546, 189, 162, 174]));
+    overlayEl.appendChild(frame(el("div", "driver", "คนขับ"), [529, 189, 162, 174]));
 
     for (var n = 1; n <= TOTAL; n++) {
       (function (n) {
@@ -930,7 +923,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
       lines.forEach(function (ln, i) { ctx.fillText(ln, bx + bw / 2, ty + numSize + 8 + i * (nameSize + 6)); });
     }
-    var dx = PX + 546 * k, dy = PY + 189 * k, dw = 162 * k, dh = 174 * k;
+    var dx = PX + 529 * k, dy = PY + 189 * k, dw = 162 * k, dh = 174 * k;
     var gr = ctx.createLinearGradient(dx, dy, dx, dy + dh); gr.addColorStop(0, "#dbe7ee"); gr.addColorStop(1, "#c5d4de");
     rrect(ctx, dx + 3, dy + 3, dw - 6, dh - 6, 18); ctx.fillStyle = gr; ctx.fill();
     ctx.fillStyle = "#c43d56"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
