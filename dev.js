@@ -24,6 +24,11 @@ function run(cmd) {
     case "INCR": { const n = num(store.get(key)) + 1; store.set(key, String(n)); return n; }
     case "DECR": { const n = num(store.get(key)) - 1; store.set(key, String(n)); return n; }
     case "EXPIRE": return store.has(key) ? 1 : 0;
+    case "MGET": return [key, ...a].map((k) => { const v = store.get(k); return typeof v === "string" ? v : null; });
+    case "SCAN": {
+      const pat = String(a[1] || "*").replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
+      const re = new RegExp("^" + pat + "$"); return ["0", [...store.keys()].filter((k) => re.test(k))];
+    }
     case "DEL": return store.delete(key) ? 1 : 0;
     case "HSETNX": {
       let h = store.get(key); if (!(h instanceof Map)) { h = new Map(); store.set(key, h); }
@@ -51,6 +56,7 @@ const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", "
 function route(pathname, query) {
   if (pathname === "/") return "/index.html";
   if (pathname === "/trips" || pathname === "/trips/new") return "/trips.html";
+  if (pathname === "/owner") return "/owner.html";
   if (/^\/[a-hj-km-np-z2-9]{6,8}$/.test(pathname)) return "/book.html";
   return pathname;
 }
@@ -58,9 +64,9 @@ function route(pathname, query) {
 function startApp() {
   const app = http.createServer((req, res) => {
     const u = new URL(req.url, "http://localhost");
-    const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/trips", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
+    const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/trips", "/owner.html": "/owner", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
     if (RD[u.pathname]) { res.writeHead(302, { Location: RD[u.pathname] }); return res.end(); }
-    if (u.pathname === "/api/trip" || u.pathname === "/api/seats") {
+    if (u.pathname === "/api/trip" || u.pathname === "/api/seats" || u.pathname === "/api/owner") {
       let raw = ""; req.on("data", (c) => (raw += c));
       req.on("end", async () => {
         req.query = Object.fromEntries(u.searchParams);

@@ -29,6 +29,11 @@
       "source": "/README.md",
       "destination": "/",
       "permanent": false
+    },
+    {
+      "source": "/owner.html",
+      "destination": "/owner",
+      "permanent": false
     }
   ],
   "rewrites": [
@@ -41,13 +46,17 @@
       "destination": "/trips.html"
     },
     {
+      "source": "/owner",
+      "destination": "/owner.html"
+    },
+    {
       "source": "/:t([a-hj-km-np-z2-9]{6,8})",
       "destination": "/book.html"
     }
   ],
   "headers": [
     {
-      "source": "/(trips|trips/new)",
+      "source": "/(trips|trips/new|owner)",
       "headers": [
         {
           "key": "X-Robots-Tag",
