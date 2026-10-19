@@ -113,7 +113,8 @@ module.exports = async function handler(req, res) {
       const q = QUOTA_ENABLED ? await takeQuota(req, L.readBody(req).d) : { over: null, keys: [] };
       if (q.over) return L.json(res, 429, { error: q.over, limit: TRIPS_PER_MONTH });
       const id = L.newId(8), secret = L.newId(16);
-      const trip = Object.assign({ id, createdAt: Date.now(), adminHash: sha256(secret) }, c.value);
+      const now = Date.now();
+      const trip = Object.assign({ id, schemaVersion: 1, createdAt: now, updatedAt: now, adminHash: sha256(secret) }, c.value);
       trip.vans = assignVanIds(trip.vans, []);
       const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
       if (ok !== "OK") { await refundQuota(q.keys); return L.json(res, 502, { error: "storage_error" }); }
@@ -158,7 +159,7 @@ module.exports = async function handler(req, res) {
       const next = assignVanIds(c.value.vans.map((v) => ({ id: oldIds.includes(v.id) ? v.id : "", label: v.label, plate: v.plate })), oldIds);
       const kept = new Set(next.map((v) => v.id));
       const removed = oldIds.filter((id) => !kept.has(id));
-      const updated = Object.assign({}, trip, c.value, { vans: next });
+      const updated = Object.assign({}, trip, c.value, { vans: next, schemaVersion: 1, updatedAt: Date.now() });
       const cmds = [["SET", L.tripKey(t), JSON.stringify(updated)]];
       removed.forEach((id) => cmds.push(["DEL", L.seatsKey(t, id)]));
       await L.pipeline(cmds);

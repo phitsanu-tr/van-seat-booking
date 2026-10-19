@@ -43,8 +43,9 @@ module.exports = async function handler(req, res) {
       if (seat === null) return L.json(res, 400, { error: "bad_seat" });
       if (!name) return L.json(res, 400, { error: "bad_name" });
       const at = Date.now();
+      const d = /^[A-Za-z0-9-]{8,64}$/.test(String(body.d || "")) ? String(body.d) : undefined; // random per-browser id, stored for the owner only (never sent back to other visitors)
       // HSETNX only writes when the seat is still empty, so two people can never take the same seat.
-      const created = await L.redis(["HSETNX", key, String(seat), JSON.stringify({ name, at })]);
+      const created = await L.redis(["HSETNX", key, String(seat), JSON.stringify(d ? { name, at, d } : { name, at })]);
       if (created !== 1) return L.json(res, 409, { error: "taken" });
       return L.json(res, 200, { ok: true, at });
     }

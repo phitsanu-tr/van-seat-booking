@@ -92,7 +92,7 @@ button { font:inherit; cursor:pointer; }
       var m = el("div", "meta");
       var a = el("a", "", "/" + t.id); a.href = "/" + t.id; a.target = "_blank"; a.rel = "noopener";
       m.appendChild(a);
-      m.appendChild(document.createTextNode("  ·  ผู้จัด: " + (t.organizer || "-") + "  ·  สร้าง " + fmtDate(t.createdAt)));
+      m.appendChild(document.createTextNode("  ·  ผู้จัด: " + (t.organizer || "-") + "  ·  สร้าง " + fmtDate(t.createdAt) + (t.updatedAt && t.updatedAt !== t.createdAt ? "  ·  แก้ล่าสุด " + fmtDate(t.updatedAt) : "")));
       c.appendChild(m);
       c.appendChild(el("div", "meta", "วันที่: " + (t.startDate || "-") + (t.endDate && t.endDate !== t.startDate ? " – " + t.endDate : "") + (t.departTime ? "  ·  รถออก " + t.departTime : "")));
       var chips = el("div", "chips");

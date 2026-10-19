@@ -60,7 +60,7 @@ module.exports = async function handler(req, res) {
         const vans = t.vans.map((v) => ({ id: v.id, label: v.label, n: Number(counts[ci++]) || 0 }));
         return {
           id: t.id, name: t.name || "", organizer: t.organizer || "", startDate: t.startDate || "", endDate: t.endDate || "",
-          departTime: t.departTime || "", createdAt: t.createdAt || 0, ended: L.tripEnded(t),
+          departTime: t.departTime || "", createdAt: t.createdAt || 0, updatedAt: t.updatedAt || t.createdAt || 0, ended: L.tripEnded(t),
           vans, booked: vans.reduce((a, v) => a + v.n, 0), total: vans.length * L.TOTAL_SEATS,
         };
       }).sort((a, b) => b.createdAt - a.createdAt);

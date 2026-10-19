@@ -389,6 +389,16 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   function saveMine() { try { localStorage.setItem(mineKey(), JSON.stringify(mineMap)); } catch (e) {} }
   function mine(n) { var s = seats[n], m = mineMap[n]; return !!(s && m && m.at === s.at); }
 
+  function deviceId() {
+    try {
+      var d = localStorage.getItem("vsb_device");
+      if (!d || !/^[A-Za-z0-9-]{8,64}$/.test(d)) {
+        d = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 12));
+        localStorage.setItem("vsb_device", d);
+      }
+      return d;
+    } catch (e) { return ""; }
+  }
   async function api(method, body) {
     var url = API + "?t=" + encodeURIComponent(TRIP) + (curVan ? "&v=" + encodeURIComponent(curVan) : "");
     if (body) body = Object.assign({ t: TRIP, v: curVan }, body);
@@ -751,7 +761,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     pending++; renderAll();
     var failMsg = null;
     try {
-      var r = await api("POST", { seat: n, name: name });
+      var r = await api("POST", { seat: n, name: name, d: deviceId() });
       if (r.ok) {
         if (seats[n] === temp) seats[n] = { name: name, at: r.data.at };
         mineMap[n] = { at: r.data.at };
