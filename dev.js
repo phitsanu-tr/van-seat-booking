@@ -49,15 +49,19 @@ const redisServer = http.createServer((req, res) => {
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon" };
 
 function route(pathname, query) {
-  if (pathname === "/") return query.has("t") ? "/guest.html" : "/home.html";
-  if (pathname === "/a") return "/admin.html";
-  if (/^\/[a-hj-km-np-z2-9]{6,8}$/.test(pathname)) return "/guest.html";
+  if (pathname === "/") return "/index.html";
+  if (pathname === "/trips" || pathname === "/trips/new") return "/trips.html";
+  if (/^\/[a-hj-km-np-z2-9]{6,8}$/.test(pathname)) return "/book.html";
   return pathname;
 }
 
 function startApp() {
   const app = http.createServer((req, res) => {
     const u = new URL(req.url, "http://localhost");
+    if (u.pathname === "/a" || u.pathname === "/admin.html") {
+      res.writeHead(302, { Location: (u.pathname === "/a" && u.searchParams.get("new") === "1" ? "/trips/new" : "/trips") + (u.pathname === "/a" && u.searchParams.get("new") === "1" ? "" : u.search) });
+      return res.end();
+    }
     if (u.pathname === "/api/trip" || u.pathname === "/api/seats") {
       let raw = ""; req.on("data", (c) => (raw += c));
       req.on("end", async () => {
@@ -91,7 +95,7 @@ function startApp() {
   app.listen(PORT, () => {
     console.log("\n  Van seat booking (local dev)\n");
     console.log("  Home            http://localhost:" + PORT + "/");
-    console.log("  My trips (/a)   http://localhost:" + PORT + "/a");
+    console.log("  My trips (/trips)   http://localhost:" + PORT + "/trips");
     console.log("\n  Data is kept in memory only; it resets when you stop this server.\n");
   });
 }

@@ -328,7 +328,7 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
   <h1>ทริปของฉัน</h1>
   <div id="listFull" hidden>
     <div style="display:flex;flex-direction:column;gap:16px">
-      <a class="lv-cta" href="/a?new=1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>สร้างทริปใหม่</a>
+      <a class="lv-cta" href="/trips/new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>สร้างทริปใหม่</a>
       <h3 class="lv-h" id="hOpen" hidden>ทริปที่กำลังจะมาถึง</h3><div class="lv-grp" id="gOpen"></div>
       <h3 class="lv-h" id="hPast" hidden>ผ่านไปแล้ว</h3><div class="lv-grp" id="gPast"></div>
     </div>
@@ -337,13 +337,13 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
     <div class="ill"><svg viewBox="0 0 70 140" fill="none" width="46" height="92" aria-hidden="true"><rect x="2" y="2" width="66" height="136" rx="22" stroke="currentColor" stroke-width="3" style="color:var(--mine)" fill="var(--surface)"/><rect x="8" y="12" width="20" height="22" rx="3" stroke="currentColor" stroke-width="1.3" style="color:var(--mine)" fill="var(--surface)"/><rect x="32" y="12" width="20" height="22" rx="3" fill="currentColor" style="color:var(--mine)"/></svg></div>
     <h2>ยังไม่มีทริป</h2>
     <p>สร้างทริปแรกแล้วแชร์ลิงก์ให้เพื่อนเลือกที่นั่งได้เลย</p>
-    <a class="lv-cta" href="/a?new=1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>สร้างทริปแรก</a>
+    <a class="lv-cta" href="/trips/new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>สร้างทริปแรก</a>
   </div>
   <p class="lv-note">ทริปที่แสดงคือที่สร้างจากเครื่องและเบราว์เซอร์นี้ ถ้าล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่อง รายการจะไม่ขึ้น ควรเก็บลิงก์ผู้ดูแลของแต่ละทริปไว้ด้วย<br><a href="/">กลับหน้าแรก</a></p>
 </main>
 
 <main id="formMain" hidden>
-  <a class="back" href="/a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a>
+  <a class="back" href="/trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a>
   <section class="hero">
     <div>
       <h1 id="title">สร้างทริป</h1>
@@ -606,14 +606,14 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 <script>
 (function () {
   "use strict";
-  // edit link: /a#<trip>-<secret> (the part after # is never sent to the server); old ?t=&k= links still work
+  // edit link: /trips#<trip>-<secret> (the part after # is never sent to the server); old ?t=&k= links still work
   var q = new URLSearchParams(location.search);
   var T = q.get("t") || "", K = q.get("k") || "";
   var hm = /^#([a-z0-9]{3,16})-([a-z0-9]{6,64})$/i.exec(location.hash || "");
   if (hm) { T = hm[1].toLowerCase(); K = hm[2].toLowerCase(); }
-  function editPath(id, token) { return "/a#" + id + "-" + token; }
+  function editPath(id, token) { return "/trips#" + id + "-" + token; }
   var editing = !!(T && K);
-  var creating = q.get("new") === "1";
+  var creating = q.get("new") === "1" || /^\/trips\/new\/?$/.test(location.pathname);
   var listMode = !editing && !creating;
   var vansEl = document.getElementById("vans");
   var rows = []; // [{id, label}]
@@ -672,7 +672,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   var dirty = false;
   ["input", "change"].forEach(function (ev) { $("form").addEventListener(ev, function () { dirty = true; }); });
   $("cancelBtn").addEventListener("click", async function () {
-    var dest = editing ? "/a" : "/";
+    var dest = editing ? "/trips" : "/";
     if (dirty && !(await askConfirm(editing ? "ออกโดยไม่บันทึก?" : "ยกเลิกการสร้างทริป?", "ข้อมูลที่กรอกไว้จะไม่ถูกบันทึก", "ออกจากหน้านี้", $("cancelBtn")))) return;
     location.href = dest;
   });
@@ -823,7 +823,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   var goList = false; // right after creating a trip, closing the result sheet leads to the my-trips list
   function closeResult() {
-    if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = "/a"; return; }
+    if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = "/trips"; return; }
     $("backdrop").hidden = true; document.body.style.overflow = "";
   }
   $("closeX").addEventListener("click", closeResult);
@@ -1239,7 +1239,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       if (!r.ok && r.status !== 404) { var d = {}; try { d = await r.json(); } catch (e) {} toast(ERR[d.error] || "ลบไม่สำเร็จ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; return; }
       saveMine(loadMine().filter(function (y) { return y.id !== T; }));
       try { sessionStorage.setItem("van-flash", "ลบทริปแล้ว"); } catch (e) {}
-      location.href = "/a";
+      location.href = "/trips";
     } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
   });
 

@@ -1,37 +1,45 @@
 {
-  "rewrites": [
+  "redirects": [
     {
-      "source": "/",
-      "missing": [
-        {
-          "type": "query",
-          "key": "t"
-        }
-      ],
-      "destination": "/home.html"
-    },
-    {
-      "source": "/",
+      "source": "/a",
       "has": [
         {
           "type": "query",
-          "key": "t"
+          "key": "new",
+          "value": "1"
         }
       ],
-      "destination": "/guest.html"
+      "destination": "/trips/new",
+      "permanent": false
     },
     {
       "source": "/a",
-      "destination": "/admin.html"
+      "destination": "/trips",
+      "permanent": false
+    },
+    {
+      "source": "/admin.html",
+      "destination": "/trips",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/trips",
+      "destination": "/trips.html"
+    },
+    {
+      "source": "/trips/new",
+      "destination": "/trips.html"
     },
     {
       "source": "/:t([a-hj-km-np-z2-9]{6,8})",
-      "destination": "/guest.html"
+      "destination": "/book.html"
     }
   ],
   "headers": [
     {
-      "source": "/(a|admin.html)",
+      "source": "/(trips|trips/new|trips.html)",
       "headers": [
         {
           "key": "X-Robots-Tag",
