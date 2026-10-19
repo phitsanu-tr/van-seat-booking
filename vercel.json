@@ -1,20 +1,33 @@
 {
   "redirects": [
     {
-      "source": "/a",
-      "has": [
-        {
-          "type": "query",
-          "key": "new",
-          "value": "1"
-        }
-      ],
-      "destination": "/trips/new",
+      "source": "/index.html",
+      "destination": "/",
       "permanent": false
     },
     {
-      "source": "/a",
+      "source": "/book.html",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/trips.html",
       "destination": "/trips",
+      "permanent": false
+    },
+    {
+      "source": "/vercel.json",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/dev.js",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/README.md",
+      "destination": "/",
       "permanent": false
     }
   ],
@@ -34,7 +47,7 @@
   ],
   "headers": [
     {
-      "source": "/(trips|trips/new|trips.html)",
+      "source": "/(trips|trips/new)",
       "headers": [
         {
           "key": "X-Robots-Tag",
