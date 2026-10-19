@@ -24,6 +24,10 @@ function run(cmd) {
     case "INCR": { const n = num(store.get(key)) + 1; store.set(key, String(n)); return n; }
     case "DECR": { const n = num(store.get(key)) - 1; store.set(key, String(n)); return n; }
     case "EXPIRE": return store.has(key) ? 1 : 0;
+    case "HGET": { const h = store.get(key); return h instanceof Map && h.has(String(a[0])) ? h.get(String(a[0])) : null; }
+    case "LPUSH": { let l = store.get(key); if (!Array.isArray(l)) { l = []; store.set(key, l); } l.unshift(String(a[0])); return l.length; }
+    case "LTRIM": { const l = store.get(key); if (Array.isArray(l)) store.set(key, l.slice(num(a[0]), num(a[1]) + 1)); return "OK"; }
+    case "LRANGE": { const l = store.get(key); return Array.isArray(l) ? l.slice(num(a[0]), num(a[1]) + 1) : []; }
     case "MGET": return [key, ...a].map((k) => { const v = store.get(k); return typeof v === "string" ? v : null; });
     case "SCAN": {
       const pat = String(a[1] || "*").replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");

@@ -100,6 +100,26 @@ button { font:inherit; cursor:pointer; }
       chips.appendChild(el("span", "chip", "จอง " + t.booked + " / " + t.total));
       t.vans.forEach(function (v) { chips.appendChild(el("span", "chip", v.label + ": " + v.n + "/10")); });
       c.appendChild(chips);
+      var logBtn = el("button", "btn plain", "ดูประวัติจอง/ยกเลิก"); logBtn.type = "button";
+      var logBox = el("div", "meta"); logBox.hidden = true;
+      logBtn.addEventListener("click", function () {
+        if (!logBox.hidden) { logBox.hidden = true; logBtn.textContent = "ดูประวัติจอง/ยกเลิก"; return; }
+        logBtn.disabled = true;
+        api("GET", "?log=" + encodeURIComponent(t.id)).then(function (r) {
+          logBtn.disabled = false;
+          if (r.status !== 200) { say("โหลดประวัติไม่สำเร็จ (" + (r.body.error || r.status) + ")"); return; }
+          logBox.textContent = "";
+          var ev = r.body.events || [];
+          if (!ev.length) logBox.textContent = "ยังไม่มีประวัติ (เก็บเฉพาะหลังเริ่มบันทึก)";
+          ev.forEach(function (x) {
+            var who = x.d ? " · เครื่อง " + String(x.d).slice(0, 6) : "";
+            var other = x.e === "cancel" && x.od && x.d && x.od !== x.d ? " · ยกเลิกโดยเครื่องอื่น" : "";
+            logBox.appendChild(el("div", "", fmtDate(x.at) + "  " + (x.e === "book" ? "จอง" : "ยกเลิก") + " ที่นั่ง " + x.s + " (" + (x.v || "") + ") " + (x.n || "") + who + other));
+          });
+          logBox.hidden = false; logBtn.textContent = "ซ่อนประวัติ";
+        });
+      });
+      c.appendChild(logBtn); c.appendChild(logBox);
       var del = el("button", "btn danger", "ลบทริปนี้"); del.type = "button";
       var armed = 0;
       del.addEventListener("click", function () {

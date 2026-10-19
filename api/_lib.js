@@ -81,6 +81,16 @@ function tripEnded(trip) {
   return today > end;
 }
 
+// Per-trip activity log (newest first, last 200 events, expires 90 days after the latest event). Best effort: never breaks a booking.
+function logKey(t) { return "log:" + t; }
+async function logEvent(t, ev) {
+  try {
+    const clean = {};
+    Object.keys(ev).forEach((k) => { if (ev[k] !== undefined && ev[k] !== "") clean[k] = ev[k]; });
+    await pipeline([["LPUSH", logKey(t), JSON.stringify(clean)], ["LTRIM", logKey(t), "0", "199"], ["EXPIRE", logKey(t), String(90 * 86400)]]);
+  } catch (e) { /* ignore */ }
+}
+
 function parseSeat(value) {
   const n = Number(value);
   return Number.isInteger(n) && n >= 1 && n <= TOTAL_SEATS ? n : null;
@@ -95,5 +105,5 @@ function newId(len) {
 
 module.exports = {
   TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json, DEFAULT_ID,
-  tripId, tripKey, seatsKey, loadTrip, publicTrip, tripEnded, parseSeat, newId, crypto,
+  tripId, tripKey, seatsKey, logKey, logEvent, loadTrip, publicTrip, tripEnded, parseSeat, newId, crypto,
 };

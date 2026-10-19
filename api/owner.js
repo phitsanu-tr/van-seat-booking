@@ -48,6 +48,14 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === "GET") {
+      if (req.query && req.query.log) {
+        const t = L.tripId(req.query.log);
+        if (!t) return L.json(res, 400, { error: "bad_trip" });
+        const rows = (await L.redis(["LRANGE", L.logKey(t), "0", "199"])) || [];
+        const events = [];
+        rows.forEach((r) => { try { events.push(JSON.parse(r)); } catch (e) { /* skip */ } });
+        return L.json(res, 200, { events });
+      }
       const keys = await scanTripKeys();
       const raws = keys.length ? await L.redis(["MGET"].concat(keys)) : [];
       const trips = [];
@@ -72,7 +80,7 @@ module.exports = async function handler(req, res) {
       if (!t || t === L.DEFAULT_ID) return L.json(res, 400, { error: "bad_trip" });
       const trip = await L.loadTrip(t);
       if (!trip) return L.json(res, 404, { error: "no_trip" });
-      const cmds = [["DEL", L.tripKey(t)]];
+      const cmds = [["DEL", L.tripKey(t)], ["DEL", L.logKey(t)]];
       trip.vans.forEach((v) => cmds.push(["DEL", L.seatsKey(t, v.id)]));
       await L.pipeline(cmds);
       return L.json(res, 200, { ok: true });

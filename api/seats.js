@@ -47,13 +47,21 @@ module.exports = async function handler(req, res) {
       // HSETNX only writes when the seat is still empty, so two people can never take the same seat.
       const created = await L.redis(["HSETNX", key, String(seat), JSON.stringify(d ? { name, at, d } : { name, at })]);
       if (created !== 1) return L.json(res, 409, { error: "taken" });
+      await L.logEvent(t, { e: "book", v: van.id, s: seat, n: name, d, at });
       return L.json(res, 200, { ok: true, at });
     }
 
     if (req.method === "DELETE") {
       const seat = L.parseSeat(body.seat);
       if (seat === null) return L.json(res, 400, { error: "bad_seat" });
-      await L.redis(["HDEL", key, String(seat)]);
+      const raw = await L.redis(["HGET", key, String(seat)]);
+      const removed = await L.redis(["HDEL", key, String(seat)]);
+      if (Number(removed) === 1) {
+        let prev = {};
+        try { prev = JSON.parse(raw) || {}; } catch (e) { /* damaged entry */ }
+        const d = /^[A-Za-z0-9-]{8,64}$/.test(String(body.d || "")) ? String(body.d) : undefined;
+        await L.logEvent(t, { e: "cancel", v: van.id, s: seat, n: String(prev.name || ""), d, od: prev.d, at: Date.now() });
+      }
       return L.json(res, 200, { ok: true });
     }
 

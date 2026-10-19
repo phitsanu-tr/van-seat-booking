@@ -140,7 +140,7 @@ module.exports = async function handler(req, res) {
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (await authBlocked(req)) return L.json(res, 429, { error: "too_many" });
       if (!tokenOk(trip, adminKey(req, req.query.k))) { await authFailed(req); return L.json(res, 403, { error: "bad_token" }); }
-      const cmds = [["DEL", L.tripKey(t)]];
+      const cmds = [["DEL", L.tripKey(t)], ["DEL", L.logKey(t)]];
       trip.vans.forEach((v) => cmds.push(["DEL", L.seatsKey(t, v.id)]));
       await L.pipeline(cmds);
       return L.json(res, 200, { ok: true });
