@@ -606,9 +606,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 <script>
 (function () {
   "use strict";
-  // edit link: /trips#<trip>-<secret> (the part after # is never sent to the server); old ?t=&k= links still work
+  // edit link: /trips#<trip>-<secret> (the part after # is never sent to the server)
   var q = new URLSearchParams(location.search);
-  var T = q.get("t") || "", K = q.get("k") || "";
+  var T = "", K = "";
   var hm = /^#([a-z0-9]{3,16})-([a-z0-9]{6,64})$/i.exec(location.hash || "");
   if (hm) { T = hm[1].toLowerCase(); K = hm[2].toLowerCase(); }
   function editPath(id, token) { return "/trips#" + id + "-" + token; }

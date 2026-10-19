@@ -16,11 +16,6 @@
       "source": "/a",
       "destination": "/trips",
       "permanent": false
-    },
-    {
-      "source": "/admin.html",
-      "destination": "/trips",
-      "permanent": false
     }
   ],
   "rewrites": [

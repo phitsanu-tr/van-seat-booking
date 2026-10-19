@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Local dev server — no install, no accounts, no deploy:   node dev.js   then open http://localhost:8765
-// - serves the static pages with the same rewrites as vercel.json (/, /a, /<trip code>)
+// - serves the static pages with the same rewrites as vercel.json (/, /trips, /<trip code>; /a redirects to /trips)
 // - runs the real api/*.js handlers against a tiny in-memory fake of Upstash Redis
 // Data lives only in memory and is gone when you stop the server. Not used on Vercel.
 const http = require("http");
@@ -58,8 +58,8 @@ function route(pathname, query) {
 function startApp() {
   const app = http.createServer((req, res) => {
     const u = new URL(req.url, "http://localhost");
-    if (u.pathname === "/a" || u.pathname === "/admin.html") {
-      res.writeHead(302, { Location: (u.pathname === "/a" && u.searchParams.get("new") === "1" ? "/trips/new" : "/trips") + (u.pathname === "/a" && u.searchParams.get("new") === "1" ? "" : u.search) });
+    if (u.pathname === "/a") {
+      res.writeHead(302, { Location: (u.searchParams.get("new") === "1" ? "/trips/new" : "/trips") });
       return res.end();
     }
     if (u.pathname === "/api/trip" || u.pathname === "/api/seats") {
