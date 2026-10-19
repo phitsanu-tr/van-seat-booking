@@ -49,9 +49,9 @@ const redisServer = http.createServer((req, res) => {
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon" };
 
 function route(pathname, query) {
-  if (pathname === "/") return query.has("t") ? "/index.html" : "/home.html";
+  if (pathname === "/") return query.has("t") ? "/guest.html" : "/home.html";
   if (pathname === "/a") return "/admin.html";
-  if (/^\/[a-hj-km-np-z2-9]{6,8}$/.test(pathname)) return "/index.html";
+  if (/^\/[a-hj-km-np-z2-9]{6,8}$/.test(pathname)) return "/guest.html";
   return pathname;
 }
 

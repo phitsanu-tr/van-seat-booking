@@ -11,12 +11,22 @@
       "destination": "/home.html"
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "query",
+          "key": "t"
+        }
+      ],
+      "destination": "/guest.html"
+    },
+    {
       "source": "/a",
       "destination": "/admin.html"
     },
     {
       "source": "/:t([a-hj-km-np-z2-9]{6,8})",
-      "destination": "/index.html"
+      "destination": "/guest.html"
     }
   ],
   "headers": [
