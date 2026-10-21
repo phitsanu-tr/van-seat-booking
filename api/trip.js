@@ -118,6 +118,7 @@ module.exports = async function handler(req, res) {
       trip.vans = assignVanIds(trip.vans, []);
       const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
       if (ok !== "OK") { await refundQuota(q.keys); return L.json(res, 502, { error: "storage_error" }); }
+      await L.applyExpiry(trip);
       return L.json(res, 200, { id, token: secret, trip: L.publicTrip(trip) });
     }
 
@@ -163,6 +164,7 @@ module.exports = async function handler(req, res) {
       const cmds = [["SET", L.tripKey(t), JSON.stringify(updated)]];
       removed.forEach((id) => cmds.push(["DEL", L.seatsKey(t, id)]));
       await L.pipeline(cmds);
+      await L.applyExpiry(updated); // SET cleared the TTL; dates may have changed
       return L.json(res, 200, { ok: true, trip: L.publicTrip(updated) });
     }
 

@@ -1,5 +1,6 @@
 // Vercel serverless function: /api/owner   (developer/owner console, not for organizers)
 //   GET             list every trip with booking counts
+//   POST ?action=expiry   apply the auto-delete date (60 days after the trip ends) to every trip
 //   DELETE ?t=      delete a trip and its bookings
 // Needs the OWNER_KEY environment variable (>= 16 chars) and the same value in the x-owner-key header.
 // Without OWNER_KEY the endpoint answers 404, as if it did not exist.
@@ -34,6 +35,14 @@ async function scanTripKeys() {
   return keys.slice(0, MAX_KEYS);
 }
 
+async function loadAllTrips() {
+  const keys = await scanTripKeys();
+  const raws = keys.length ? await L.redis(["MGET"].concat(keys)) : [];
+  const trips = [];
+  raws.forEach((raw) => { try { const t = JSON.parse(raw); if (t && t.id && Array.isArray(t.vans)) trips.push(t); } catch (e) { /* skip */ } });
+  return trips;
+}
+
 module.exports = async function handler(req, res) {
   const key = ownerKey();
   if (!key) return L.json(res, 404, { error: "not_found" });
@@ -56,23 +65,36 @@ module.exports = async function handler(req, res) {
         rows.forEach((r) => { try { events.push(JSON.parse(r)); } catch (e) { /* skip */ } });
         return L.json(res, 200, { events });
       }
-      const keys = await scanTripKeys();
-      const raws = keys.length ? await L.redis(["MGET"].concat(keys)) : [];
-      const trips = [];
-      raws.forEach((raw) => { try { const t = JSON.parse(raw); if (t && t.id && Array.isArray(t.vans)) trips.push(t); } catch (e) { /* skip */ } });
+      const trips = await loadAllTrips();
       const cmds = [];
       trips.forEach((t) => t.vans.forEach((v) => cmds.push(["HLEN", L.seatsKey(t.id, v.id)])));
       const counts = cmds.length ? await L.pipeline(cmds) : [];
+      const ttls = trips.length ? await L.pipeline(trips.map((t) => ["PTTL", L.tripKey(t.id)])) : [];
       let ci = 0;
-      const out = trips.map((t) => {
+      const out = trips.map((t, ti) => {
         const vans = t.vans.map((v) => ({ id: v.id, label: v.label, n: Number(counts[ci++]) || 0 }));
         return {
           id: t.id, name: t.name || "", organizer: t.organizer || "", startDate: t.startDate || "", endDate: t.endDate || "",
-          departTime: t.departTime || "", createdAt: t.createdAt || 0, updatedAt: t.updatedAt || t.createdAt || 0, ended: L.tripEnded(t),
+          departTime: t.departTime || "", createdAt: t.createdAt || 0, expiresAt: Number(ttls[ti]) > 0 ? Date.now() + Number(ttls[ti]) : 0, plannedExpiresAt: (L.expireAtFor(t) || 0) * 1000, updatedAt: t.updatedAt || t.createdAt || 0, ended: L.tripEnded(t),
           vans, booked: vans.reduce((a, v) => a + v.n, 0), total: vans.length * L.TOTAL_SEATS,
         };
       }).sort((a, b) => b.createdAt - a.createdAt);
-      return L.json(res, 200, { trips: out, truncated: keys.length >= MAX_KEYS });
+      return L.json(res, 200, { trips: out, retentionDays: L.RETENTION_DAYS });
+    }
+
+    if (req.method === "POST" && req.query && req.query.action === "expiry") {
+      // Applies the auto-delete date to every existing trip. Trips already past retention get a 7-day grace period instead of vanishing at once.
+      const now = Math.floor(Date.now() / 1000);
+      const trips = await loadAllTrips();
+      const cmds = [];
+      let grace = 0, scheduled = 0, none = 0;
+      trips.forEach((t) => {
+        const exp = L.expireAtFor(t);
+        if (exp === null) none++; else if (exp <= now + 7 * 86400) grace++; else scheduled++;
+        L.expiryCommands(t, now + 7 * 86400).forEach((c) => cmds.push(c));
+      });
+      if (cmds.length) await L.pipeline(cmds);
+      return L.json(res, 200, { ok: true, trips: trips.length, scheduled, grace, none, retentionDays: L.RETENTION_DAYS });
     }
 
     if (req.method === "DELETE") {
@@ -86,7 +108,7 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { ok: true });
     }
 
-    res.setHeader("Allow", "GET, DELETE");
+    res.setHeader("Allow", "GET, POST, DELETE");
     return L.json(res, 405, { error: "method_not_allowed" });
   } catch (e) {
     return L.json(res, 502, { error: "storage_error" });

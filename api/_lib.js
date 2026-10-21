@@ -81,13 +81,45 @@ function tripEnded(trip) {
   return today > end;
 }
 
+// Auto-delete: a trip's data (trip, seats, log) expires RETENTION_DAYS after its last day (endDate, else startDate), end of day Bangkok time.
+const RETENTION_DAYS = 60;
+// Unix seconds when the trip's data should vanish, or null (no dates / the default trip: never expires).
+function expireAtFor(trip) {
+  if (!trip || trip.id === DEFAULT_ID) return null;
+  const end = trip.endDate || trip.startDate || "";
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(end);
+  if (!m) return null;
+  const endOfDay = Date.UTC(+m[1], +m[2] - 1, +m[3], 23, 59, 59) - 7 * 3600 * 1000;
+  return Math.floor((endOfDay + RETENTION_DAYS * 86400 * 1000) / 1000);
+}
+function tripKeys(trip) {
+  return [tripKey(trip.id), logKey(trip.id)].concat((trip.vans || []).map((v) => seatsKey(trip.id, v.id)));
+}
+// Commands that (re)apply the expiry to every key of a trip. Dates cleared -> PERSIST. Never expires data immediately unless force=true.
+function expiryCommands(trip, minSec) {
+  let exp = expireAtFor(trip);
+  const cmds = [];
+  if (exp === null) { tripKeys(trip).forEach((k) => cmds.push(["PERSIST", k])); return cmds; }
+  if (minSec && exp < minSec) exp = minSec;
+  tripKeys(trip).forEach((k) => cmds.push(["EXPIREAT", k, String(exp)]));
+  return cmds;
+}
+async function applyExpiry(trip) {
+  try {
+    const now = Math.floor(Date.now() / 1000);
+    const exp = expireAtFor(trip);
+    if (exp !== null && exp <= now) return; // already past retention: leave it to the owner console, never wipe on an ordinary edit
+    await pipeline(expiryCommands(trip, 0));
+  } catch (e) { /* best effort */ }
+}
+
 // Per-trip activity log (newest first, last 200 events, expires 90 days after the latest event). Best effort: never breaks a booking.
 function logKey(t) { return "log:" + t; }
-async function logEvent(t, ev) {
+async function logEvent(t, ev, tripExpSec) {
   try {
     const clean = {};
     Object.keys(ev).forEach((k) => { if (ev[k] !== undefined && ev[k] !== "") clean[k] = ev[k]; });
-    await pipeline([["LPUSH", logKey(t), JSON.stringify(clean)], ["LTRIM", logKey(t), "0", "199"], ["EXPIRE", logKey(t), String(90 * 86400)]]);
+    await pipeline([["LPUSH", logKey(t), JSON.stringify(clean)], ["LTRIM", logKey(t), "0", "199"], tripExpSec && tripExpSec > Math.floor(Date.now() / 1000) && tripExpSec < Math.floor(Date.now() / 1000) + 90 * 86400 ? ["EXPIREAT", logKey(t), String(tripExpSec)] : ["EXPIRE", logKey(t), String(90 * 86400)]]);
   } catch (e) { /* ignore */ }
 }
 
@@ -105,5 +137,5 @@ function newId(len) {
 
 module.exports = {
   TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json, DEFAULT_ID,
-  tripId, tripKey, seatsKey, logKey, logEvent, loadTrip, publicTrip, tripEnded, parseSeat, newId, crypto,
+  tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, newId, crypto,
 };

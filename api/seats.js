@@ -47,7 +47,10 @@ module.exports = async function handler(req, res) {
       // HSETNX only writes when the seat is still empty, so two people can never take the same seat.
       const created = await L.redis(["HSETNX", key, String(seat), JSON.stringify(d ? { name, at, d } : { name, at })]);
       if (created !== 1) return L.json(res, 409, { error: "taken" });
-      await L.logEvent(t, { e: "book", v: van.id, s: seat, n: name, d, at });
+      const exp = L.expireAtFor(trip);
+      const live = exp && exp > Math.floor(Date.now() / 1000);
+      if (live) { try { await L.redis(["EXPIREAT", key, String(exp)]); } catch (e) { /* best effort */ } } // a new van hash has no TTL yet
+      await L.logEvent(t, { e: "book", v: van.id, s: seat, n: name, d, at }, live ? exp : undefined);
       return L.json(res, 200, { ok: true, at });
     }
 

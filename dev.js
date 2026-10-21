@@ -11,19 +11,25 @@ const PORT = Number(process.env.PORT) || 8765;
 const ROOT = __dirname;
 
 // ---- fake Upstash REST (only the commands the app uses) ----
-const store = new Map();   // key -> string | Map (hash)
+const store = new Map();   // key -> string | Map (hash) | Array (list)
+const ttl = new Map();     // key -> epoch ms when it expires
+function purge() { const now = Date.now(); for (const [k, t] of ttl) if (t <= now) { store.delete(k); ttl.delete(k); } }
 function run(cmd) {
+  purge();
   const [op, key, ...a] = cmd; const name = String(op).toUpperCase();
   const num = (v) => (v == null ? 0 : parseInt(v, 10) || 0);
   switch (name) {
     case "GET": { const v = store.get(key); return typeof v === "string" ? v : null; }
     case "SET": {
       if (a.some((x) => String(x).toUpperCase() === "NX") && store.has(key)) return null;
-      store.set(key, String(a[0])); return "OK";
+      store.set(key, String(a[0])); ttl.delete(key); return "OK";
     }
     case "INCR": { const n = num(store.get(key)) + 1; store.set(key, String(n)); return n; }
     case "DECR": { const n = num(store.get(key)) - 1; store.set(key, String(n)); return n; }
-    case "EXPIRE": return store.has(key) ? 1 : 0;
+    case "EXPIRE": if (!store.has(key)) return 0; ttl.set(key, Date.now() + num(a[0]) * 1000); return 1;
+    case "EXPIREAT": if (!store.has(key)) return 0; ttl.set(key, num(a[0]) * 1000); purge(); return 1;
+    case "PERSIST": return ttl.delete(key) ? 1 : 0;
+    case "PTTL": return !store.has(key) ? -2 : ttl.has(key) ? Math.max(1, ttl.get(key) - Date.now()) : -1;
     case "HGET": { const h = store.get(key); return h instanceof Map && h.has(String(a[0])) ? h.get(String(a[0])) : null; }
     case "LPUSH": { let l = store.get(key); if (!Array.isArray(l)) { l = []; store.set(key, l); } l.unshift(String(a[0])); return l.length; }
     case "LTRIM": { const l = store.get(key); if (Array.isArray(l)) store.set(key, l.slice(num(a[0]), num(a[1]) + 1)); return "OK"; }
@@ -33,7 +39,7 @@ function run(cmd) {
       const pat = String(a[1] || "*").replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
       const re = new RegExp("^" + pat + "$"); return ["0", [...store.keys()].filter((k) => re.test(k))];
     }
-    case "DEL": return store.delete(key) ? 1 : 0;
+    case "DEL": ttl.delete(key); return store.delete(key) ? 1 : 0;
     case "HSETNX": {
       let h = store.get(key); if (!(h instanceof Map)) { h = new Map(); store.set(key, h); }
       if (h.has(String(a[0]))) return 0; h.set(String(a[0]), String(a[1])); return 1;
