@@ -1034,21 +1034,21 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var cnt = Object.keys(seats).length, ry = y + 24 + 38;
     var hasLeft = (multi && cur) || (cur && cur.plate);
     // right (or centred when nothing is on the left): "8 / 10" with a muted total
-    ctx.font = '400 34px Prompt, "Noto Sans Thai", sans-serif'; var totW = ctx.measureText("\u2009/\u2009" + TOTAL).width;
-    ctx.font = '600 38px Prompt, "Noto Sans Thai", sans-serif'; var cntW = ctx.measureText(String(cnt)).width;
+    ctx.font = '400 30px Prompt, "Noto Sans Thai", sans-serif'; var totW = ctx.measureText("\u2009/\u2009" + TOTAL).width;
+    ctx.font = '600 30px Prompt, "Noto Sans Thai", sans-serif'; var cntW = ctx.measureText(String(cnt)).width;
     var rx = hasLeft ? MX + MW - 34 - (cntW + totW) : MX + (MW - (cntW + totW)) / 2;
-    ctx.textAlign = "left"; ctx.fillStyle = TEAL; ctx.font = '600 38px Prompt, "Noto Sans Thai", sans-serif'; ctx.fillText(String(cnt), rx, ry);
-    ctx.fillStyle = "#8a969d"; ctx.font = '400 34px Prompt, "Noto Sans Thai", sans-serif'; ctx.fillText("\u2009/\u2009" + TOTAL, rx + cntW, ry);
+    ctx.textAlign = "left"; ctx.fillStyle = TEAL; ctx.font = '600 30px Prompt, "Noto Sans Thai", sans-serif'; ctx.fillText(String(cnt), rx, ry);
+    ctx.fillStyle = "#8a969d"; ctx.font = '400 30px Prompt, "Noto Sans Thai", sans-serif'; ctx.fillText("\u2009/\u2009" + TOTAL, rx + cntW, ry);
     var lx = MX + 34;
     if (multi && cur) { // van code as a teal badge
       ctx.font = '600 30px Prompt, "Noto Sans Thai", sans-serif';
       var bw2 = ctx.measureText(cur.label).width + 36;
-      ctx.fillStyle = TEAL; rrect(ctx, lx, ry - 36, bw2, 48, 12); ctx.fill();
+      ctx.fillStyle = TEAL; rrect(ctx, lx, ry - 30, bw2, 42, 11); ctx.fill();
       ctx.fillStyle = "#ffffff"; ctx.textAlign = "center"; ctx.fillText(cur.label, lx + bw2 / 2, ry - 2); ctx.textAlign = "left";
       lx += bw2 + 16;
     }
     if (cur && cur.plate) {
-      ctx.fillStyle = INK; ctx.font = '400 28px "Noto Sans Thai", sans-serif';
+      ctx.fillStyle = INK; ctx.font = '400 30px "Noto Sans Thai", sans-serif';
       var pl = wrapText(ctx, cur.plate, rx - 20 - lx, 1)[0];
       if (pl) ctx.fillText(pl, lx, ry - 2);
     }
