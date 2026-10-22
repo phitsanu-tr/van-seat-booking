@@ -19,6 +19,10 @@
 <style>html { touch-action: manipulation; }</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <title>จองที่นั่งรถตู้</title>
+<meta name="description" content="เลือกที่นั่งว่าง ใส่ชื่อ แล้วจองได้เลย">
+<meta property="og:type" content="website">
+<meta property="og:title" content="จองที่นั่งรถตู้">
+<meta property="og:description" content="เลือกที่นั่งว่าง ใส่ชื่อ แล้วจองได้เลย">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
 <style>
 * { scrollbar-width: none; -ms-overflow-style: none; }
