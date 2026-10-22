@@ -1149,9 +1149,12 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       lx += bw2 + 16;
     }
     if (cur && cur.plate) {
-      ctx.fillStyle = INK; ctx.font = '400 30px "Noto Sans Thai", sans-serif';
-      var pl = wrapText(ctx, cur.plate, rx - 20 - lx, 1)[0];
-      if (pl) ctx.fillText(pl, lx, ry - 2);
+      ctx.fillStyle = "#8a969d"; ctx.font = '400 30px "Noto Sans Thai", sans-serif';
+      var pre = "ทะเบียน ", preW = ctx.measureText(pre).width; // same wording as the page: muted label + the plate
+      ctx.fillText(pre, lx, ry - 2);
+      ctx.fillStyle = INK; ctx.font = '600 30px "Noto Sans Thai", sans-serif';
+      var pl = wrapText(ctx, cur.plate, rx - 20 - lx - preW, 1)[0];
+      if (pl) ctx.fillText(pl, lx + preW, ry - 2);
     }
     var PX = MX + (MW - PW) / 2, PY = y + 24 + 54 + 14;
     drawPlan(ctx, PX, PY, k);
