@@ -1401,7 +1401,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     L.push("🚐 " + (T.name || "จองที่นั่งรถตู้"), "");
     if (dr) L.push("📅 " + dr);
     var tm = T.departTime ? T.departTime.replace(":", ".") + " น." : "";
-    if (tm && T.meetPoint) L.push("📍 " + tm + " · " + T.meetPoint);
+    if (tm && T.meetPoint) L.push("📍 " + tm + " - " + T.meetPoint);
     else if (tm) L.push("⏰ " + tm);
     else if (T.meetPoint) L.push("📍 " + T.meetPoint);
     L.push("", "จองที่นั่งได้ที่นี่ 👇");
