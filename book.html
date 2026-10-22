@@ -326,6 +326,8 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .seat.pending { opacity: .6; }
 button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 10px 16px; cursor: pointer; background: var(--danger); color: var(--paper); border: 1.5px solid var(--danger); }
 .foot { margin: 16px auto 0; text-align: center; font-size: 12px; line-height: 18px; color: var(--muted); white-space: nowrap; }
+.foot .fmsg { transition: opacity .35s ease; }
+.foot .fmsg.off { opacity: 0; }
 .foot a { color: inherit; text-decoration: none; }
 .foot a:hover { text-decoration: underline; }
 .foot a svg { width: 12px; height: 12px; vertical-align: -1px; margin-right: 4px; fill: currentColor; }
@@ -410,7 +412,19 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 </main>
 
 <div class="foot"><div class="road" aria-hidden="true"><svg class="rd" viewBox="0 0 120 4" fill="none" aria-hidden="true"><path d="M2 2h116" stroke="var(--mine)" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"/></svg><svg class="vn" viewBox="4 12 88 42" fill="none" aria-hidden="true"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><g fill="color-mix(in srgb, var(--mine) 28%, var(--surface))" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g><path d="M85 36h3" stroke="var(--mine)" stroke-width="3" stroke-linecap="round"/><circle cx="26" cy="43" r="9.5" fill="var(--bg)"/><circle cx="26" cy="43" r="6.5" fill="currentColor"/><circle cx="26" cy="43" r="2.4" fill="var(--surface)"/><circle cx="70" cy="43" r="9.5" fill="var(--bg)"/><circle cx="70" cy="43" r="6.5" fill="currentColor"/><circle cx="70" cy="43" r="2.4" fill="var(--surface)"/></svg></div><div class="fmsg" id="fmsg">ขอที่นั่งริมหน้าต่างก่อนนะ</div><div class="fcr">© 2025 · <a href="https://github.com/phitsanu-tr" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>View on GitHub</a></div></div>
-<script>(function(){var m=["ขอที่นั่งริมหน้าต่างก่อนนะ", "ถึงแล้วอย่าลืมบอกเพื่อน", "เดินทางปลอดภัยนะ", "รถตู้ออกตรงเวลา ใจเย็นได้แต่ห้ามสาย", "ที่นั่งหลังสุดไม่มีใครแย่ง… จริงเหรอ", "อย่าลืมเตรียมขนมขึ้นรถ", "ชาร์จมือถือให้เต็มก่อนออกเดินทาง"],e=document.getElementById("fmsg");if(e)e.textContent=m[Math.floor(Math.random()*m.length)];})();</script>
+<script>(function(){
+  var m=["ขอที่นั่งริมหน้าต่างก่อนนะ", "ถึงแล้วอย่าลืมบอกเพื่อน", "เดินทางปลอดภัยนะ", "รถตู้ออกตรงเวลา ใจเย็นได้แต่ห้ามสาย", "อย่าลืมเตรียมขนมขึ้นรถ", "ชาร์จมือถือให้เต็มก่อนออกเดินทาง", "เมารถ? จองแถวหน้าไว้เลย", "แวะห้องน้ำก่อนออกรถนะ", "เพลงเพราะ ๆ ขึ้นรถไปด้วยกัน", "ยิ้มไว้ ทริปนี้สนุกแน่"],e=document.getElementById("fmsg"),v=document.querySelector(".foot .vn"),q=[],last=-1;
+  if(!e)return;
+  function next(){ // shuffled queue: every line once before any repeats, never the same line twice in a row
+    if(!q.length){for(var i=0;i<m.length;i++)q.push(i);for(i=q.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=q[i];q[i]=q[j];q[j]=t;}if(q[q.length-1]===last&&q.length>1){t=q[0];q[0]=q[q.length-1];q[q.length-1]=t;}}
+    last=q.pop();return m[last];
+  }
+  e.textContent=next();
+  if(v)v.addEventListener("animationiteration",function(){ // each time the van starts a new pass
+    e.classList.add("off");
+    setTimeout(function(){e.textContent=next();e.classList.remove("off");},350);
+  });
+})();</script>
 
 <div id="imgOnlyNote"><span class="okc"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><b>บันทึกรูปแล้ว</b>กลับไปที่ LINE เพื่อจองที่นั่งต่อได้<button type="button" id="imgAgain">ดูรูปอีกครั้ง</button></div>
 
