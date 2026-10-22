@@ -203,11 +203,11 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .openlink { text-align: center; font-size: 14px; color: var(--muted); padding: 2px 0; }
 
 /* create / edit form: matches the home page */
-.hero { --hbg: color-mix(in srgb, var(--mine) 10%, var(--surface)); display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--hbg); border-radius: 18px; padding: 16px 18px; }
-.hero > div { min-width: 0; }
+.hero { --hbg: color-mix(in srgb, var(--mine) 10%, var(--surface)); background: var(--hbg); border-radius: 18px; padding: 16px 18px; }
+.hero .hr { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .hero h1 { font-size: 23px; }
-.hero p { font-size: 13px; line-height: 19px; margin-top: 4px; }
-.hero svg { flex: none; width: 96px; height: auto; color: var(--ink); }
+.hero p { font-size: 13px; line-height: 19px; margin-top: 4px; white-space: nowrap; }
+.hero svg { flex: none; width: 46px; height: auto; color: var(--ink); margin-right: -2px; }
 form label { display: block; font-size: 14px; }
 form label small, .vh small { margin-left: 0; font-size: 12px; font-weight: 400; color: var(--muted); }
 /* one look for every field: regular weight, same placeholder colour (inputs sit inside bold labels and used to inherit 600) */
@@ -360,11 +360,9 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
 <main id="formMain" hidden>
   <a class="back" href="/trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a>
   <section class="hero">
-    <div>
+    <div class="hr">
       <h1 id="title">สร้างทริป</h1>
-      <p id="lead">กรอกรายละเอียดทริป แล้วรับลิงก์ไปแชร์ให้เพื่อน</p>
-    </div>
-    <svg viewBox="0 0 96 64" fill="none" aria-hidden="true">
+      <svg viewBox="0 0 96 64" fill="none" aria-hidden="true">
       <path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>
       <g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--surface)"/></g>
       <g transform="translate(-2 3) scale(.82)">
@@ -374,6 +372,8 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
       <circle cx="26" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="26" cy="43" r="6.5" fill="var(--ink)"/><circle cx="26" cy="43" r="2.4" fill="var(--surface)"/><circle cx="70" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="70" cy="43" r="6.5" fill="var(--ink)"/><circle cx="70" cy="43" r="2.4" fill="var(--surface)"/>
           </g>
     </svg>
+    </div>
+    <p id="lead">กรอกรายละเอียด แล้วแชร์ลิงก์ให้เพื่อน</p>
   </section>
 
   <button type="button" class="shrow" id="shareBtn" hidden>
@@ -1268,7 +1268,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     }
     $("formMain").hidden = false;
     if (editing) {
-      $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตรายละเอียดทริป ผู้จองเห็นข้อมูลใหม่ทันที";
+      $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตแล้วผู้จองเห็นข้อมูลใหม่ทันที";
       $("submit").textContent = "แก้ไขทริป";
       try {
         var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store", headers: { "x-admin-key": K } });
