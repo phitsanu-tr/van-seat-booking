@@ -11,7 +11,7 @@
   if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) ok = true;
   try { if (Q.get("dev") === "1") sessionStorage.setItem("vsb_dev", "1"); if (sessionStorage.getItem("vsb_dev") === "1") ok = true; } catch (e) { if (Q.get("dev") === "1") ok = true; }
   if (!ok && Q.get("img") === "1" && !/^\/(trips|owner)/.test(P) && P !== "/") ok = true;
-  if (!ok && Q.get("img") === "1" && Q.get("card") === "guest" && /^\/trips\/?$/.test(P)) ok = true; // public SEAT PASS picture only
+  if (!ok && Q.get("img") === "1" && (Q.get("card") === "guest" || Q.get("card") === "admin") && /^\/trips\/?$/.test(P)) ok = true; // public SEAT PASS picture only
   if (ok) return;
   location.replace("/gate.html?u=" + encodeURIComponent(location.href));
 })();
@@ -643,7 +643,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   function editPath(id, token) { return "/trips#" + id + "-" + token; }
   var UA = navigator.userAgent || "";
   var IN_LINE = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA), IS_IOS = /iPhone|iPad|iPod/i.test(UA);
-  var CARD_ONLY = !IN_LINE && q.get("img") === "1" && q.get("card") === "guest" && /^[a-z0-9]{3,16}$/i.test(q.get("t") || "");
+  var CARD_KIND = q.get("card") === "admin" ? "admin" : "guest";
+  var CARD_ONLY = !IN_LINE && q.get("img") === "1" && (CARD_KIND === "admin" ? /^[a-z0-9]{10}$/i.test(q.get("c") || "") : q.get("card") === "guest" && /^[a-z0-9]{3,16}$/i.test(q.get("t") || ""));
   var editing = !!(T && K);
   var creating = q.get("new") === "1" || /^\/trips\/new\/?$/.test(location.pathname);
   var listMode = !editing && !creating && !CARD_ONLY;
@@ -1084,32 +1085,44 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   // LINE's in-app browser can neither download files nor share them: show the picture (iPhone: long-press to save) or hand off to the system browser
   var cardUrl = "";
-  function closeCard() { $("cardBd").hidden = true; document.body.style.overflow = ""; if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; } }
+  function closeCard() { cardSeq++; $("cardBd").hidden = true; document.body.style.overflow = ""; if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; } }
   function openCard(mode, blob, fileName) {
     var guest = mode === "guest", img = $("cardImg"), ext = $("cardExt"), dl = $("cardDl"), cp = $("cardCopy"), hint = $("cardHint");
     $("cardTtl").textContent = guest ? "SEAT PASS" : "ADMIN PASS";
     if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; }
     img.hidden = !blob; dl.hidden = true; ext.hidden = true; cp.hidden = true; $("cardX").hidden = CARD_ONLY;
     if (blob) { cardUrl = URL.createObjectURL(blob); img.src = cardUrl; }
-    var extLink = location.origin + "/trips?card=guest&img=1&t=" + encodeURIComponent(shown ? shown.id : "") + "&openExternalBrowser=1";
     if (CARD_ONLY) {
-      dl.hidden = false; dl.href = cardUrl; dl.setAttribute("download", fileName || "SEAT PASS.png");
+      dl.hidden = false; dl.href = cardUrl; dl.setAttribute("download", fileName || (guest ? "SEAT PASS.png" : "ADMIN PASS.png"));
       hint.textContent = "กดปุ่มด้านล่างเพื่อบันทึกรูป หรือกดค้างที่รูป";
     } else if (blob) {
       hint.textContent = "กดค้างที่รูป แล้วเลือก “บันทึกรูป”";
     } else {
+      // Android in LINE: hand the picture over to the system browser
       hint.textContent = "LINE บน Android บันทึกรูปโดยตรงไม่ได้ กดปุ่มด้านล่างเพื่อเปิดในเบราว์เซอร์แล้วดาวน์โหลดรูปจากที่นั่น";
-      ext.hidden = false; ext.href = extLink; cp.hidden = false; cp.onclick = function () { copy(extLink, cp); };
+      ext.hidden = false; cp.hidden = false; cp.disabled = true; ext.removeAttribute("href"); ext.style.opacity = ".6"; ext.textContent = "กำลังเตรียมลิงก์…";
+      var mySeq = ++cardSeq;
+      var ready = function (u) {
+        if (mySeq !== cardSeq) return;
+        ext.href = u; ext.style.opacity = ""; ext.textContent = "เปิดในเบราว์เซอร์เพื่อโหลดรูป"; cp.disabled = false; cp.onclick = function () { copy(u, cp); };
+      };
+      if (guest) ready(location.origin + "/trips?card=guest&img=1&t=" + encodeURIComponent(shown ? shown.id : "") + "&openExternalBrowser=1");
+      else {
+        fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": shown ? shown.token : "" }, body: JSON.stringify({ mint: true, t: shown ? shown.id : "" }) })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (x) { if (!x.ok || !x.d.k) throw new Error("mint"); ready(location.origin + "/trips?card=admin&img=1&c=" + x.d.k + "&openExternalBrowser=1"); })
+          .catch(function () { if (mySeq !== cardSeq) return; ext.textContent = "สร้างลิงก์ไม่สำเร็จ"; hint.textContent = "สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง หรือใช้ปุ่ม “ส่งเข้า LINE” ส่งลิงก์ผู้ดูแลแทน"; });
+      }
     }
     $("cardBd").hidden = false; document.body.style.overflow = "hidden";
   }
+  var cardSeq = 0;
   $("cardX").addEventListener("click", closeCard);
   $("cardBd").addEventListener("click", function (e) { if (e.target === $("cardBd") && !CARD_ONLY) closeCard(); });
   function saveCard(mode, fileName, msg) {
     msg.textContent = ""; msg.style.color = "";
     if (IN_LINE && !IS_IOS) {
-      if (mode === "guest") openCard("guest", null, fileName);
-      else { msg.style.color = "var(--muted)"; msg.textContent = "LINE บน Android โหลดบัตรนี้ไม่ได้ ใช้ปุ่ม “ส่งเข้า LINE” ส่งลิงก์ผู้ดูแลแทน"; }
+      openCard(mode, null, fileName);
       return;
     }
     loadFonts().then(function () {
@@ -1306,17 +1319,20 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 
   async function cardOnly() {
     var foot = document.querySelector(".foot"); if (foot) foot.hidden = true;
-    var id = q.get("t").toLowerCase();
+    var admin = CARD_KIND === "admin", id = admin ? "" : q.get("t").toLowerCase(), code = admin ? q.get("c") : "";
+    if (admin) { try { history.replaceState(null, "", location.pathname + "?card=admin&img=1"); } catch (e) {} } // keep the code out of the address bar / history
     try {
-      var res = await fetch("/api/seats?t=" + encodeURIComponent(id), { cache: "no-store" });
+      var res = await fetch(admin ? "/api/trip?code=" + encodeURIComponent(code) : "/api/seats?t=" + encodeURIComponent(id), { cache: "no-store" });
       var data = await res.json();
-      if (!res.ok || !data.trip) { toast("ไม่พบทริปนี้", true); return; }
-      var t = data.trip;
-      $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || ""; $("endDate").value = t.endDate || "";
-      $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
-      rows = (t.vans || []).map(function (v) { return { id: v.id, label: v.label }; }); tripName = t.name || ""; shown = { id: id, token: "" };
+      if (!res.ok || !data.trip) { toast(admin ? "ลิงก์นี้หมดอายุแล้ว กลับไปที่ LINE แล้วกดปุ่มใหม่อีกครั้ง" : "ไม่พบทริปนี้", true); return; }
+      var tr = data.trip;
+      $("organizer").value = tr.organizer || ""; $("startDate").value = tr.startDate || ""; $("endDate").value = tr.endDate || "";
+      $("departTime").value = tr.departTime || ""; $("meetPoint").value = tr.meetPoint || "";
+      rows = (tr.vans || []).map(function (v) { return { id: v.id, label: v.label }; }); tripName = tr.name || "";
+      shown = { id: admin ? data.id : id, token: admin ? data.token : "" };
+      if (admin) adminUrl = link(editPath(data.id, data.token));
       await loadFonts();
-      drawCard("guest").toBlob(function (blob) { if (!blob) { toast("สร้างรูปไม่สำเร็จ ลองใหม่อีกครั้ง", true); return; } openCard("guest", blob, "SEAT PASS.png"); }, "image/png");
+      drawCard(admin ? "admin" : "guest").toBlob(function (blob) { if (!blob) { toast("สร้างรูปไม่สำเร็จ ลองใหม่อีกครั้ง", true); return; } openCard(admin ? "admin" : "guest", blob, admin ? "ADMIN PASS.png" : "SEAT PASS.png"); }, "image/png");
     } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
   }
   async function init() {
@@ -1351,6 +1367,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   window.addEventListener("hashchange", function () { location.reload(); });
   init();
+  setTimeout(function () { loadFonts(); }, 400); // warm the web fonts so the card sheet text shows at once
 })();
 </script>
 </body>

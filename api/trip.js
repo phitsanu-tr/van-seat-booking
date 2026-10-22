@@ -107,6 +107,18 @@ function adminKey(req, fallback) {
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
   try {
+    if (req.method === "POST" && L.readBody(req).mint === true) {
+      // short-lived code that lets the ADMIN PASS picture page open outside LINE without the secret ever appearing in a URL
+      const t = L.tripId(L.readBody(req).t);
+      const trip = t && t !== L.DEFAULT_ID ? await L.loadTrip(t) : null;
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      if (await authBlocked(req)) return L.json(res, 429, { error: "too_many" });
+      const secret = adminKey(req, "");
+      if (!tokenOk(trip, secret)) { await authFailed(req); return L.json(res, 403, { error: "bad_token" }); }
+      const code = L.newId(10);
+      await L.redis(["SET", "pass:" + code, JSON.stringify({ t, k: secret }), "EX", String(15 * 60)]);
+      return L.json(res, 200, { k: code });
+    }
     if (req.method === "POST") {
       const c = clean(L.readBody(req));
       if (c.error) return L.json(res, 400, { error: c.error });
@@ -122,6 +134,15 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { id, token: secret, trip: L.publicTrip(trip) });
     }
 
+    if (req.method === "GET" && req.query && req.query.code !== undefined) {
+      const code = String(req.query.code || "");
+      if (await authBlocked(req)) return L.json(res, 429, { error: "too_many" });
+      let p = null;
+      if (/^[a-z0-9]{10}$/.test(code)) { try { p = JSON.parse(await L.redis(["GET", "pass:" + code])); } catch (e) { p = null; } }
+      const trip = p && p.t ? await L.loadTrip(p.t) : null;
+      if (!trip || !tokenOk(trip, p.k)) { await authFailed(req); return L.json(res, 404, { error: "bad_code" }); }
+      return L.json(res, 200, { id: p.t, token: p.k, trip: L.publicTrip(trip) });
+    }
     if (req.method === "GET") {
       const t = L.tripId(req.query && req.query.t);
       const trip = t && t !== L.DEFAULT_ID ? await L.loadTrip(t) : null;
