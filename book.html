@@ -68,8 +68,9 @@ body {
   padding-block: 20px 40px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh;
 }
-main { max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+main { width: 100%; flex: 1 0 auto; max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
 header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
 h1 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 1.2; margin: 0; text-wrap: balance; }
 header.trip { display: block; }
@@ -325,7 +326,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .toast.error { background: var(--danger); color: var(--paper); }
 .seat.pending { opacity: .6; }
 button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 10px 16px; cursor: pointer; background: var(--danger); color: var(--paper); border: 1.5px solid var(--danger); }
-.foot { margin: 16px auto 0; text-align: center; font-size: 12px; line-height: 18px; color: var(--muted); white-space: nowrap; }
+.foot { margin: auto auto 0; text-align: center; font-size: 12px; line-height: 18px; color: var(--muted); white-space: nowrap; }
 .foot .fmsg { transition: opacity .35s ease; }
 .foot .fmsg.off { opacity: 0; }
 .foot .fcr { margin-top: 10px; }
