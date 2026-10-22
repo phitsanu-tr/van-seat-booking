@@ -146,7 +146,7 @@ header.trip { display: block; }
 .imgm .imgbtn[hidden] { display: none; }
 /* image-save sheets: same size and look as the trips-page pass sheet */
 #imgBackdrop, #lineBackdrop { align-items: center; padding: 16px !important; }
-.modal.imgm { max-width: 358px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); gap: 12px; padding: 20px; border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0, 0, 0, .35); box-sizing: border-box; }
+.modal.imgm { max-width: 358px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); gap: 12px; padding: 20px; border-radius: 24px; border: 0; box-shadow: 0 18px 50px rgba(0, 0, 0, .35); box-sizing: border-box; }
 .modal.imgm::before { display: none; }
 .imgm .imgt h2 { display: flex; align-items: center; gap: 8px; font-size: 17px; }
 .imgm .imgt h2 .tki { display: inline-flex; width: 24px; justify-content: center; color: var(--mine); }
@@ -221,7 +221,7 @@ header.trip { display: block; }
 }
 .backdrop[hidden] { display: none !important; }
 .modal {
-  background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 22px 20px 18px; width: 100%; max-width: 340px;
+  background: var(--surface); border-radius: 24px; padding: 22px 20px 18px; width: 100%; max-width: 340px;
   display: flex; flex-direction: column; gap: 14px; box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
 }
 .backdrop { align-items: flex-end; justify-content: center; padding: 0 !important; }
@@ -229,7 +229,7 @@ header.trip { display: block; }
 .modal::before { content: ""; align-self: center; width: 42px; height: 5px; border-radius: 3px; background: var(--line); }
 /* seat dialog: floating card centred a little above the middle so the keyboard does not cover it (pure CSS, no scripts moving it) */
 #backdrop { align-items: flex-start; padding: 16px 16px max(16px, 20vh) !important; overflow-y: auto; overscroll-behavior: contain; }
-#backdrop .modal { position: relative; margin: auto; max-width: 400px; padding: 22px 20px 20px; border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0, 0, 0, .35); }
+#backdrop .modal { position: relative; margin: auto; max-width: 400px; padding: 22px 20px 20px; border-radius: 24px; border: 0; box-shadow: 0 18px 50px rgba(0, 0, 0, .35); }
 #backdrop .modal::before { display: none; }
 #backdrop .modal .actions button { flex: 1 1 0; min-width: 0; }
 .mx { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
