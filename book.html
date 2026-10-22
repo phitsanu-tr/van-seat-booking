@@ -1348,7 +1348,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     var url = location.origin + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var shortUrl = location.host + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var d = new Date(), pad = function (v) { return (v < 10 ? "0" : "") + v; };
-    var stamp = "สร้างเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + pad(d.getHours()) + "." + pad(d.getMinutes()) + " น.";
+    var stamp = "อัปเดตเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + pad(d.getHours()) + "." + pad(d.getMinutes()) + " น.";
     var withQr = useQr;
     var FH = withQr ? 206 : 142;
     ctx.fillStyle = "#eef1f3"; ctx.fillRect(0, y, CW, FH);
@@ -1359,7 +1359,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     ctx.fillStyle = INK; ctx.font = '400 30px "Noto Sans Thai", sans-serif';
     var su = shortUrl; while (su.length > 8 && ctx.measureText(su).width > fw) su = su.slice(0, -2) + "…";
     ctx.fillText(su, fx0, y + 100);
-    ctx.fillStyle = "#8a969d"; ctx.font = '400 20px "Noto Sans Thai", sans-serif';
+    ctx.fillStyle = "#5f6b73"; ctx.font = '400 28px "Noto Sans Thai", sans-serif'; // same relative size/colour as the admin card (10px on a 358px card)
     ctx.fillText(stamp, fx0, y + FH - 24);
     if (withQr) {
       var qs = 117, tl = qs + 20, tx = X + IW - tl, ty = y + 18;
