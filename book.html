@@ -430,8 +430,6 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     node.style.height = (r[3] / H * 100) + "%";
     return node;
   }
-  function savedName() { try { return localStorage.getItem("van-name") || ""; } catch (e) { return ""; } }
-  function saveName(v) { try { localStorage.setItem("van-name", v); } catch (e) {} }
   // Seats booked from this device are remembered per trip and van (old single-van data lives under "van-mine").
   // organizer of this trip on this device (trip is in the "ทริปของฉัน" list) -> show a way back to the list
   try { var AT = JSON.parse(localStorage.getItem("van-admin-trips") || "[]") || []; if (AT.some(function (x) { return x && x.id === TRIP; })) document.getElementById("myTrips").hidden = false; } catch (e) {}
@@ -555,7 +553,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 
   function renderPanel() {
     var keep = document.getElementById("nameInput");
-    var typedName = keep ? keep.value : savedName();
+    var typedName = keep ? keep.value : ""; // a fresh dialog always starts empty
     var hadFocus = !!keep && document.activeElement === keep;
     var opening = selected != null && !shown;
     shown = selected != null;
@@ -839,7 +837,6 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   async function book(n, rawName) {
     var name = (rawName || "").trim().slice(0, 30);
     if (!name) { message = "ใส่ชื่อก่อนจอง"; renderPanel(); return; }
-    saveName(name);
     // Show the name right away, then confirm with the server in the background.
     var temp = { name: name, at: "pending-" + Date.now(), pending: true };
     seats[n] = temp;

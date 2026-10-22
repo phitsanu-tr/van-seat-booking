@@ -1097,7 +1097,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       hint.textContent = "กดปุ่มด้านล่างเพื่อบันทึกรูป หรือกดค้างที่รูป";
     } else if (blob) {
       hint.textContent = "กดค้างที่รูป แล้วเลือก “บันทึกรูป”";
-      if (guest) { ext.hidden = false; ext.href = extLink; }
     } else {
       hint.textContent = "LINE บน Android บันทึกรูปโดยตรงไม่ได้ กดปุ่มด้านล่างเพื่อเปิดในเบราว์เซอร์แล้วดาวน์โหลดรูปจากที่นั่น";
       ext.hidden = false; ext.href = extLink; cp.hidden = false; cp.onclick = function () { copy(extLink, cp); };
