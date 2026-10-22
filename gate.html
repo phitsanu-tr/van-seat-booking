@@ -9,21 +9,26 @@
 <title>เปิดในแอป LINE</title>
 <style>
 html { height: 100%; overflow: hidden; overscroll-behavior: none; }
-body { margin: 0; position: fixed; inset: 0; height: 100dvh; overflow: hidden; overscroll-behavior: none; touch-action: none; display: flex; align-items: center; justify-content: center; background: #eef1f3; color: #1b1f22; font-family: system-ui, "Noto Sans Thai", sans-serif; text-align: center; }
-.b { max-width: 420px; padding: 32px 24px; }
+body { margin: 0; position: fixed; inset: 0; height: 100dvh; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; display: flex; background: #eef1f3; color: #1b1f22; font-family: system-ui, "Noto Sans Thai", sans-serif; text-align: center; }
+.b { margin: auto; max-width: 420px; width: 100%; box-sizing: border-box; padding: 32px 24px; text-align: center; --mine: #0e7c86; --surface: #fff; --ink: #1b1f22; --hbg: #dde9ec; }
+.ill { width: 120px; height: 120px; border-radius: 50%; background: color-mix(in srgb, var(--mine) 12%, transparent); display: grid; place-items: center; margin: 0 auto 20px; color: var(--ink); }
 h1 { font-size: 22px; margin: 0 0 12px; }
 p { margin: 0 0 20px; color: #5f6b73; line-height: 1.6; font-size: 15px; }
 .st { text-align: left; background: #fff; border: 1px solid #c9d2d8; border-radius: 16px; padding: 6px 16px; margin-bottom: 20px; }
 .s { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; font-size: 15px; line-height: 1.5; }
 .s + .s { border-top: 1px solid #eceff1; }
 .n { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #0e7c86; color: #fff; font: 600 13px system-ui, sans-serif; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
-.s small { display: block; color: #5f6b73; font-size: 13px; }
-button { height: 52px; padding: 0 24px; border-radius: 16px; border: 2px solid #0e7c86; background: #0e7c86; color: #fff; font: 600 16px system-ui, "Noto Sans Thai", sans-serif; cursor: pointer; }
-@media (prefers-color-scheme: dark) { body { background: #0d151a; color: #e6ecef; } p, .s small { color: #93a6b0; } .st { background: #17252e; border-color: #2d4350; } .s + .s { border-top-color: #2d4350; } .n { background: #3cc0cc; color: #07262a; } button { background: #3cc0cc; border-color: #3cc0cc; color: #07262a; } }
+.s small { text-wrap: balance; display: block; color: #5f6b73; font-size: 13px; }
+.line { display: flex; align-items: center; justify-content: center; gap: 8px; height: 52px; border-radius: 16px; background: #06c755; color: #fff; font: 600 16px system-ui, "Noto Sans Thai", sans-serif; text-decoration: none; margin-bottom: 12px; }
+.line svg { width: 20px; height: 20px; flex: none; }
+@media (max-height: 640px) { .b { padding-top: 20px; padding-bottom: 20px; } .ill { width: 88px; height: 88px; margin-bottom: 14px; } .ill svg { width: 66px; height: 44px; } h1 { margin-bottom: 8px; } p { margin-bottom: 14px; } }
+button { width: 100%; height: 52px; padding: 0 24px; border-radius: 16px; border: 2px solid #0e7c86; background: transparent; color: #0e7c86; font: 600 16px system-ui, "Noto Sans Thai", sans-serif; cursor: pointer; }
+@media (prefers-color-scheme: dark) { body { background: #0d151a; color: #e6ecef; } p, .s small { color: #93a6b0; } .st { background: #17252e; border-color: #2d4350; } .s + .s { border-top-color: #2d4350; } .n { background: #3cc0cc; color: #07262a; } button { background: transparent; border-color: #3cc0cc; color: #3cc0cc; } .b { --mine: #3cc0cc; --surface: #17252e; --ink: #e6ecef; --hbg: #162b33; } }
 </style>
 </head>
 <body>
 <div class="b">
+  <div class="ill"><svg viewBox="0 0 96 64" fill="none" width="90" height="60" aria-hidden="true"> <path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/> <g transform="translate(66.5 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--surface)"/></g> <g transform="translate(4.5 3) scale(.82)"> <path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/> <g fill="color-mix(in srgb, var(--mine) 28%, var(--surface))" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g> <path d="M85 36h3" stroke="var(--mine)" stroke-width="3" stroke-linecap="round"/> <circle cx="26" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="26" cy="43" r="6.5" fill="var(--ink)"/><circle cx="26" cy="43" r="2.4" fill="var(--surface)"/><circle cx="70" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="70" cy="43" r="6.5" fill="var(--ink)"/><circle cx="70" cy="43" r="2.4" fill="var(--surface)"/> </g> </svg></div>
   <h1>กรุณาเปิดลิงก์ด้วยแอป LINE</h1>
   <p>หน้านี้ใช้ได้เฉพาะในแอป LINE บนมือถือ</p>
   <div class="st">
@@ -31,6 +36,7 @@ button { height: 52px; padding: 0 24px; border-radius: 16px; border: 2px solid #
     <div class="s"><span class="n">2</span><div>ส่งลิงก์เข้าแชท LINE<small>เช่น Keep Memo หรือแชทกับตัวเอง</small></div></div>
     <div class="s"><span class="n">3</span><div>กดลิงก์ในแชทเพื่อเปิด</div></div>
   </div>
+  <a class="line" id="l" href="https://line.me/R/msg/text/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span>ส่งเข้า LINE</span></a>
   <button type="button" id="c">คัดลอกลิงก์</button>
 </div>
 <script>
@@ -39,6 +45,7 @@ button { height: 52px; padding: 0 24px; border-radius: 16px; border: 2px solid #
   try { var x = new URL(u); if (x.origin !== location.origin) u = ""; } catch (e) { u = ""; }
   if (!u) u = location.origin + "/";
   if (/\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA) && q.get("u")) { location.replace(u); return; } // already in LINE on a phone: go back
+  document.getElementById("l").href = "https://line.me/R/msg/text/?" + encodeURIComponent(u);
   document.getElementById("c").onclick = function () {
     var b = this, d = function () { b.textContent = "คัดลอกแล้ว"; };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(d, function () {});
