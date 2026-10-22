@@ -154,7 +154,8 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 #mState svg { width: 18px; height: 18px; flex: none; }
 #mState > svg { color: var(--mine); }
 .modal.admin #mState > svg { color: #b86e00; }
-@media (prefers-color-scheme: dark) { .modal.admin #mState > svg { color: #f2c879; } }
+.modal.admin .torg, .modal.admin .trow svg { color: #b86e00; }
+@media (prefers-color-scheme: dark) { .modal.admin #mState > svg, .modal.admin .torg, .modal.admin .trow svg { color: #f2c879; } }
 #mState .okdot { flex: none; width: 26px; height: 26px; margin-left: -3px; border-radius: 50%; background: var(--mine); color: var(--mine-ink); display: inline-flex; align-items: center; justify-content: center; }
 .modal.admin #mState .okdot { background: var(--ink); color: var(--surface); }
 #mState .okdot svg { width: 16px; height: 16px; }
