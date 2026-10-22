@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>เปิดในแอป LINE</title>
+<style>
+body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #eef1f3; color: #1b1f22; font-family: system-ui, "Noto Sans Thai", sans-serif; text-align: center; }
+.b { max-width: 420px; padding: 32px 24px; }
+h1 { font-size: 22px; margin: 0 0 12px; }
+p { margin: 0 0 24px; color: #5f6b73; line-height: 1.6; }
+button { height: 52px; padding: 0 24px; border-radius: 16px; border: 2px solid #0e7c86; background: #0e7c86; color: #fff; font: 600 16px system-ui, "Noto Sans Thai", sans-serif; cursor: pointer; }
+@media (prefers-color-scheme: dark) { body { background: #0d151a; color: #e6ecef; } p { color: #93a6b0; } button { background: #3cc0cc; border-color: #3cc0cc; color: #07262a; } }
+</style>
+</head>
+<body>
+<div class="b">
+  <h1>เปิดลิงก์นี้ในแอป LINE บนมือถือ</h1>
+  <p>ระบบจองที่นั่งใช้ได้เฉพาะใน LINE บนมือถือ<br>ส่งลิงก์ไปที่แชท LINE แล้วกดเปิดจากในแอป</p>
+  <button type="button" id="c">คัดลอกลิงก์</button>
+</div>
+<script>
+(function () {
+  var UA = navigator.userAgent || "", q = new URLSearchParams(location.search), u = q.get("u") || "";
+  try { var x = new URL(u); if (x.origin !== location.origin) u = ""; } catch (e) { u = ""; }
+  if (!u) u = location.origin + "/";
+  if (/\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA) && q.get("u")) { location.replace(u); return; } // already in LINE on a phone: go back
+  document.getElementById("c").onclick = function () {
+    var b = this, d = function () { b.textContent = "คัดลอกแล้ว"; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(d, function () {});
+    else { var t = document.createElement("textarea"); t.value = u; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); d(); } catch (e) {} t.remove(); }
+  };
+})();
+</script>
+</body>
+</html>

@@ -2,6 +2,19 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
+<script>
+// The whole app opens inside the LINE app on a phone only (keeps every person's saved data in one browser).
+// Elsewhere the visitor is sent to /gate.html (a short notice). Exceptions: localhost, ?dev=1 (kept for the session) and the picture-only page (?img=1).
+(function () {
+  var UA = navigator.userAgent || "", P = location.pathname, Q = new URLSearchParams(location.search);
+  var ok = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA);
+  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) ok = true;
+  try { if (Q.get("dev") === "1") sessionStorage.setItem("vsb_dev", "1"); if (sessionStorage.getItem("vsb_dev") === "1") ok = true; } catch (e) { if (Q.get("dev") === "1") ok = true; }
+  if (!ok && Q.get("img") === "1" && !/^\/(trips|owner)/.test(P) && P !== "/") ok = true;
+  if (ok) return;
+  location.replace("/gate.html?u=" + encodeURIComponent(location.href));
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>จองที่นั่งรถตู้</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
@@ -359,27 +372,13 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 (function () {
   var TOTAL = 10;
   var API = "/api/seats";
-  // The booking page works inside the LINE app only. Outside LINE it shows a notice, except the picture-only
-  // page (?img=1&mk=...) that LINE sends people to when they want to save the image.
+  // Outside LINE the page is replaced by a notice (see the script in <head>), except the picture-only page
+  // (?img=1&mk=...) that LINE sends people to when they want to save the image.
   var UA = navigator.userAgent || "", IN_LINE = /\bLine\//i.test(UA);
   var Q0 = new URLSearchParams(location.search);
   var MK = Q0.get("mk") || "";
   var IMG_ONLY = !IN_LINE && Q0.get("img") === "1";
   var IS_IOS = /iPhone|iPad|iPod/i.test(UA);
-  var DEV = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
-  try { if (Q0.get("dev") === "1") sessionStorage.setItem("vsb_dev", "1"); if (sessionStorage.getItem("vsb_dev") === "1") DEV = true; } catch (e) { if (Q0.get("dev") === "1") DEV = true; }
-  if (!IN_LINE && !IMG_ONLY && !DEV) {
-    var gd = document.createElement("div");
-    gd.style.cssText = "max-width:420px;margin:0 auto;padding:96px 24px;text-align:center;font-family:var(--font-body);color:var(--ink)";
-    gd.innerHTML = '<div style="font:600 22px var(--font-display);margin-bottom:12px">เปิดลิงก์นี้ในแอป LINE</div><p style="margin:0 0 24px;color:var(--muted);line-height:1.6">หน้าจองที่นั่งใช้ได้เฉพาะใน LINE<br>ส่งลิงก์ไปที่แชท LINE แล้วกดเปิดจากในแอป</p><button type="button" id="gateCopy" style="height:52px;padding:0 24px;border-radius:16px;border:2px solid var(--mine);background:var(--mine);color:var(--mine-ink);font:600 16px var(--font-body);cursor:pointer">คัดลอกลิงก์</button>';
-    document.body.innerHTML = ""; document.body.appendChild(gd);
-    document.getElementById("gateCopy").addEventListener("click", function () {
-      var b = this, u = location.href.split("#")[0], done = function () { b.textContent = "คัดลอกแล้ว"; };
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(done, function () {});
-      else { var ta = document.createElement("textarea"); ta.value = u; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); done(); } catch (e) {} ta.remove(); }
-    });
-    return;
-  }
   if (IMG_ONLY) {
     document.documentElement.classList.add("imgonly");
     try { if (MK) Q0.delete("mk"); history.replaceState(null, "", location.pathname + (Q0.toString() ? "?" + Q0.toString() : "")); } catch (e) {}
