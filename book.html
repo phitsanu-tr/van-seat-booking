@@ -892,7 +892,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         if (seats[n] === temp) seats[n] = { name: name, at: r.data.at };
         mineMap[n] = { at: r.data.at };
         saveMine();
-        showToast("จองที่นั่ง " + n + " ให้ " + name + " แล้ว");
+        showToast("จองที่นั่ง " + n + " แล้ว");
       } else if (r.data && r.data.error === "taken") {
         failMsg = "ที่นั่ง " + n + " ถูกจองไปแล้ว เลือกที่นั่งอื่น";
       } else {
