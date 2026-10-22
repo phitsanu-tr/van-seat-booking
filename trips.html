@@ -98,9 +98,9 @@ button { font: inherit; cursor: pointer; }
 .tc .pw small { display: block; font-size: 11.5px; color: var(--muted); }
 .tc.lk { cursor: pointer; }
 .tc .acts { display: flex; gap: 10px; margin-top: 6px; }
-.tc .ab { flex: 1; min-width: 0; height: 40px; box-sizing: border-box; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 2px; font: 600 14px var(--font-display); text-decoration: none; background: var(--surface); color: var(--mine); border: 1.5px solid var(--mine); }
+.tc .ab { flex: 1; min-width: 0; height: 40px; box-sizing: border-box; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 7px; font: 600 14px var(--font-display); text-decoration: none; background: var(--surface); color: var(--mine); border: 1.5px solid var(--mine); }
 .tc .ab.p { background: var(--mine); color: var(--mine-ink); }
-.tc .ab svg { width: 14px; height: 14px; }
+.tc .ab svg { flex: none; width: 17px; height: 17px; }
 .tc .ab:active { transform: scale(.98); }
 .tc .ab:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 .lv-cta.sec { background: var(--surface); color: var(--mine); border: 1.5px solid var(--mine); }
@@ -1325,7 +1325,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
     clk: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     van: '<path d="M3 16V8a2 2 0 012-2h9l5 5v5a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17" r="1.6"/><circle cx="16" cy="17" r="1.6"/>',
-    go: '<path d="M9 6l6 6-6 6"/>'
+    go: '<path d="M9 6l6 6-6 6"/>',
+    ticket: '<path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/>',
+    sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>'
   };
   function icon(path) { var s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("fill", "none"); s.setAttribute("stroke", "currentColor"); s.setAttribute("stroke-width", "2"); s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round"); s.setAttribute("aria-hidden", "true"); s.innerHTML = path; return s; }
   function node(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
@@ -1353,8 +1355,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     } else pw.appendChild(node("small", "", it.state === "load" ? "กำลังโหลด..." : "โหลดข้อมูลไม่ได้"));
     r3.appendChild(pw);
     a.appendChild(r3);
-    var acts = node("div", "acts"), manage = node("a", "ab p", "จัดการทริป"); manage.href = editPath(x.id, x.token); manage.appendChild(icon(SV.go));
-    if (it.state === "ok" && !past && !full) { var bk = node("a", "ab", "จองที่นั่ง"); bk.href = "/" + x.id; acts.appendChild(bk); } // straight to the booking page (same view the guests get)
+    var acts = node("div", "acts"), manage = node("a", "ab p", "จัดการทริป"); manage.href = editPath(x.id, x.token); manage.insertBefore(icon(SV.sliders), manage.firstChild);
+    if (it.state === "ok" && !past && !full) { var bk = node("a", "ab", "จองที่นั่ง"); bk.href = "/" + x.id; bk.insertBefore(icon(SV.ticket), bk.firstChild); acts.appendChild(bk); } // straight to the booking page (same view the guests get)
     acts.appendChild(manage); a.appendChild(acts);
     a.tabIndex = 0; a.setAttribute("role", "link"); a.setAttribute("aria-label", "จัดการทริป " + ((t && t.name) || x.name || x.id));
     a.addEventListener("click", function (e) { if (!e.target.closest(".ab")) manage.click(); }); // the rest of the card still opens the admin page
