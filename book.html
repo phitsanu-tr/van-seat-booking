@@ -26,8 +26,11 @@ img { max-width: 100%; }
   --mine-ink: #ffffff;
   --sel: #e08a00;
   --danger: #b3261e;
-  --sky-a: #e1edf2;
-  --sky-b: #bdd3de;
+  --tka: #e9edf0;
+  --tkb: #d9e0e5;
+  --bfree: #eef1f3;
+  --btaken: #c3ccd3;
+  --bmine: rgba(255,255,255,.28);
   --driver-ink: #d8344f;
   --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif;
   --font-body: "Noto Sans Thai", system-ui, sans-serif;
@@ -36,13 +39,13 @@ img { max-width: 100%; }
   :root:not([data-theme="light"]) {
     --bg: #0d151a; --paper: #131f26; --surface: #17252e; --ink: #e6ecef; --muted: #93a6b0; --line: #2d4350;
     --taken: #2a3c46; --mine: #3cc0cc; --mine-ink: #07262a; --sel: #f2a62b; --danger: #ff8a80;
-    --sky-a: #2a4452; --sky-b: #1f3541; --driver-ink: #ff8fa0; color-scheme: dark;
+    --tka: #2f414b; --tkb: #2a3c46; --bfree: #1d2d36; --btaken: #3a4f5a; --bmine: rgba(7,38,42,.25); --driver-ink: #ff8fa0; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0d151a; --paper: #131f26; --surface: #17252e; --ink: #e6ecef; --muted: #93a6b0; --line: #2d4350;
   --taken: #2a3c46; --mine: #3cc0cc; --mine-ink: #07262a; --sel: #f2a62b; --danger: #ff8a80;
-  --sky-a: #2a4452; --sky-b: #1f3541; --driver-ink: #ff8fa0; color-scheme: dark;
+  --tka: #2f414b; --tkb: #2a3c46; --bfree: #1d2d36; --btaken: #3a4f5a; --bmine: rgba(7,38,42,.25); --driver-ink: #ff8fa0; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body {
@@ -121,7 +124,7 @@ header.trip { display: block; }
 .count b { color: var(--ink); font-size: 14px; font-weight: 600; }
 
 .sheet { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 10px; }
-.plan { position: relative; width: 100%; aspect-ratio: 820 / 1345; container-type: inline-size; }
+.plan { position: relative; width: 100%; aspect-ratio: 820 / 1384; container-type: inline-size; }
 .plan svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .ln { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
 .ln.bold { stroke-width: 5.5; }
@@ -132,23 +135,27 @@ header.trip { display: block; }
 #overlay { position: absolute; inset: 0; }
 
 .seat {
-  position: absolute; font: inherit; color: var(--ink); background: transparent; border: 0; border-radius: 1.46cqw; padding: 9% 3% 0;
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 3px; cursor: pointer; text-align: center; min-width: 0;
+  position: absolute; font: inherit; color: var(--ink); background: transparent; border: 0; border-radius: 1.46cqw; padding: 0 3%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; min-width: 0;
 }
-.seat .no { font-family: var(--font-display); font-weight: 500; font-size: 26px; font-size: clamp(18px, 6.4cqw, 30px); line-height: 1; }
-.seat .who { font-size: 11.5px; font-size: clamp(10px, 3cqw, 13px); line-height: 1.2; font-weight: 500; overflow-wrap: break-word; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; max-width: 100%; }
-.seat.taken:not(.mine)::before { content: ""; position: absolute; top: 5%; left: 6%; width: clamp(11px, 3.6cqw, 15px); aspect-ratio: 1; border-radius: 50%; background: var(--muted) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 6.3l2 2 4-4.3' fill='none' stroke='%23fff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 100% no-repeat; opacity: .85; }
+.seat::after { content: ""; position: absolute; left: .98cqw; right: .98cqw; bottom: .98cqw; height: 2.93cqw; border-radius: 1.1cqw; background: var(--bfree); pointer-events: none; }
+.seat.taken::after { background: var(--btaken); }
+.seat.mine::after { background: var(--bmine); }
+.seat .no { font-family: var(--font-display); font-weight: 500; font-size: 26px; font-size: clamp(20px, 4.88cqw, 40px); line-height: 1; }
+.seat.taken .no { position: absolute; top: 1.4cqw; right: 1.7cqw; font-size: 16px; font-size: clamp(14px, 3.17cqw, 26px); }
+.seat .who { font-size: 11px; font-size: clamp(10px, 3.17cqw, 26px); line-height: 1.25; font-weight: 500; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; max-width: 100%; }
+.seat .who.s3 { font-size: 9px; font-size: clamp(9px, 2.56cqw, 21px); }
 .seat:hover { background: color-mix(in srgb, var(--mine) 12%, transparent); }
 .seat.taken { background: color-mix(in srgb, var(--taken) 94%, transparent); cursor: default; }
-.seat.taken .no { color: var(--muted); }
+.seat.taken .no { color: var(--ink); }
 .seat.mine { background: var(--mine); color: var(--mine-ink); cursor: pointer; }
 .seat.mine .no { color: var(--mine-ink); }
 .seat.sel { outline: 3px solid var(--sel); outline-offset: -2px; }
 .seat:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--sel); outline-offset: 1px; }
 .driver {
-  position: absolute; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(160deg, var(--sky-a), var(--sky-b)); color: var(--driver-ink);
-  font-family: var(--font-display); font-weight: 500; font-size: 18px; font-size: clamp(14px, 5cqw, 24px);
+  position: absolute; border-radius: 1.22cqw; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(160deg, var(--tka), var(--tkb)); color: var(--driver-ink);
+  font-family: var(--font-display); font-weight: 500; font-size: 14px; font-size: clamp(14px, 3.9cqw, 32px);
 }
 .legend { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin: 4px 0 2px; font-size: 12px; color: var(--muted); }
 .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid var(--ink); vertical-align: -1px; margin-right: 5px; }
@@ -255,50 +262,21 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     <div id="notice"></div>
     <div class="vrow shead"><div class="plate" id="plate" hidden></div><div class="count" id="count">จองแล้ว <b>0</b>&thinsp;/&thinsp;10</div></div>
     <div class="plan">
-      <svg viewBox="0 0 820 1345" aria-hidden="true" focusable="false">
-        <!-- body -->
-        <path class="ln bold" d="M75 1280 V160 Q75 62 205 46 Q410 22 615 46 Q745 62 745 160 V1280 Q745 1325 700 1325 H120 Q75 1325 75 1280 Z"/>
-        <path class="ln thin" d="M92 1293 V165 Q92 98 215 74 Q410 50 605 74 Q728 98 732 165 V1293"/>
-        <path class="ln" d="M95 152 Q410 70 727 152"/>
-        <!-- mirrors -->
-        <path class="ln fillp" d="M20 128 L75 120 L75 142 L24 144 Z"/>
-        <path class="ln fillp" d="M745 120 L800 128 L796 144 L745 142 Z"/>
-        <!-- steering wheel -->
-        <circle class="ln" cx="615" cy="122" r="32" style="stroke-width:4"/>
-        <circle class="solid" cx="615" cy="122" r="8"/>
-        <path class="ln" d="M615 114 V92 M608 128 L588 140 M622 128 L642 140" style="stroke-width:6"/>
-        <!-- wall pillars -->
-        <rect class="solid" x="76" y="372" width="14" height="58"/>
-        <rect class="solid" x="76" y="816" width="14" height="52"/>
-        <rect class="solid" x="732" y="372" width="13" height="52"/>
-        <rect class="solid" x="732" y="784" width="13" height="84"/>
-        <!-- front row boxes -->
-        <rect class="ln" x="115" y="185" width="190" height="182" rx="12"/>
-        <rect class="ln" x="317" y="185" width="190" height="182" rx="12"/>
-        <rect class="ln" x="519" y="185" width="190" height="182" rx="12"/>
-        <path class="ln thin" d="M127 318 H293 M329 318 H495"/>
-        <!-- console -->
-        <rect class="ln" x="92" y="372" width="640" height="86" rx="24"/>
-        <path class="ln thin" d="M292 380 V450 M532 380 V450"/>
-        <rect class="ln" x="356" y="390" width="112" height="50" rx="6"/>
-        <circle class="ln" cx="330" cy="400" r="10"/>
-        <circle class="ln" cx="330" cy="430" r="10"/>
-        <circle class="ln" cx="494" cy="400" r="10"/>
-        <circle class="ln" cx="494" cy="430" r="10"/>
-        <!-- wheel well -->
-        <path class="ln" d="M92 486 L102 493 Q112 498 112 514 V766 Q112 788 102 794 L92 802"/>
-        <!-- seat boxes -->
-        <g class="ln">
-          <rect x="115" y="517" width="190" height="200" rx="12"/><path class="ln thin" d="M127 666 H293"/><rect x="317" y="517" width="190" height="200" rx="12"/><path class="ln thin" d="M329 666 H495"/><rect x="519" y="517" width="190" height="200" rx="12"/><path class="ln thin" d="M531 666 H697"/>
-          <rect x="115" y="776" width="190" height="200" rx="12"/><path class="ln thin" d="M127 925 H293"/><rect x="317" y="776" width="190" height="200" rx="12"/><path class="ln thin" d="M329 925 H495"/><rect x="519" y="776" width="190" height="200" rx="12"/><path class="ln thin" d="M531 925 H697"/>
-          <rect x="115" y="1035" width="190" height="200" rx="12"/><path class="ln thin" d="M127 1184 H293"/><rect x="317" y="1035" width="190" height="200" rx="12"/><path class="ln thin" d="M329 1184 H495"/><rect x="519" y="1035" width="190" height="200" rx="12"/><path class="ln thin" d="M531 1184 H697"/>
-        </g>
-        <!-- sliding door -->
-        <path class="ln" d="M82 430 H56 V770" style="stroke-dasharray:3 5"/>
-        <path class="solid" d="M56 786 L49 766 L63 766 Z"/>
-        <rect class="ln fillp" x="50" y="786" width="16" height="304"/>
-        <text class="lbl" transform="translate(36 938) rotate(-90)" text-anchor="middle">ประตูเลื่อน</text>
-      </svg>
+      <svg viewBox="0 0 820 1384" aria-hidden="true" focusable="false">
+        <path class="ln bold" d="M74 1306 V132 C74.0 123.6 81.5 117.0 86.0 110.0 C89.5 104.6 93.6 99.6 98.0 95.0 C102.3 90.6 107.1 86.7 112.0 83.0 C117.1 79.1 122.2 74.9 128.0 72.0 C133.7 69.2 139.8 67.3 146.0 66.0 C153.9 64.3 162.0 63.8 170.0 63.0 C178.6 62.1 187.4 62.4 196.0 61.0 C205.5 59.4 214.6 56.3 224.0 54.0 C234.0 51.6 243.9 48.8 254.0 47.0 C265.9 44.8 278.0 43.4 290.0 42.0 C303.3 40.4 316.7 39.2 330.0 38.0 C343.3 36.8 356.6 35.5 370.0 35.0 C383.3 34.5 396.7 35.0 410.0 35.0 C423.3 35.0 436.7 34.5 450.0 35.0 C463.4 35.5 476.7 36.8 490.0 38.0 C503.3 39.2 516.7 40.4 530.0 42.0 C542.0 43.4 554.1 44.8 566.0 47.0 C576.1 48.8 586.0 51.6 596.0 54.0 C605.4 56.3 614.5 59.4 624.0 61.0 C632.6 62.4 641.4 62.1 650.0 63.0 C658.0 63.8 666.1 64.3 674.0 66.0 C680.2 67.3 686.3 69.2 692.0 72.0 C697.8 74.9 702.9 79.1 708.0 83.0 C712.9 86.7 717.7 90.6 722.0 95.0 C726.4 99.6 730.5 104.6 734.0 110.0 C738.5 117.0 746.0 123.6 746.0 132.0 V1306 Q746 1350 702 1350 H118 Q74 1350 74 1306 Z"/><path class="ln thin" d="M90 1306 V140 C90.0 123.6 105.7 110.9 117.0 99.0 C124.2 91.4 134.2 86.6 144.0 83.0 C152.9 79.8 162.6 80.0 172.0 79.0 C181.0 78.0 190.1 78.6 199.0 77.0 C209.2 75.2 218.9 71.4 229.0 69.0 C238.3 66.8 247.6 64.8 257.0 63.0 C267.0 61.1 277.0 59.4 287.0 58.0 C296.6 56.7 306.3 56.0 316.0 55.0 C326.0 54.0 336.0 52.7 346.0 52.0 C355.7 51.3 365.3 51.2 375.0 51.0 C384.3 50.8 393.7 51.0 403.0 51.0 C405.3 51.0 407.7 51.0 410.0 51.0 C412.3 51.0 414.7 51.0 417.0 51.0 C426.3 51.0 435.7 50.8 445.0 51.0 C454.7 51.2 464.3 51.3 474.0 52.0 C484.0 52.7 494.0 54.0 504.0 55.0 C513.7 56.0 523.4 56.7 533.0 58.0 C543.0 59.4 553.0 61.1 563.0 63.0 C572.4 64.8 581.7 66.8 591.0 69.0 C601.1 71.4 610.8 75.2 621.0 77.0 C629.9 78.6 639.0 78.0 648.0 79.0 C657.4 80.0 667.1 79.8 676.0 83.0 C685.8 86.6 695.8 91.4 703.0 99.0 C714.3 110.9 730.0 123.6 730.0 140.0 V1306 Q730 1334 702 1334 H118 Q90 1334 90 1306 Z"/><path class="ln" d="M90.5 152 Q410 70 729.5 152" style="stroke-linecap:butt"/>
+        <path class="ln" d="M74 128 H32" style="stroke-width:2.5;stroke-linecap:butt"/><rect class="solid" x="32" y="124.8" width="28" height="8.4"/><path d="M16 139 L58 134" style="fill:none;stroke:var(--ink);stroke-width:11.2;stroke-linecap:round"/>
+        <path class="ln" d="M746 128 H788" style="stroke-width:2.5;stroke-linecap:butt"/><rect class="solid" x="760" y="124.8" width="28" height="8.4"/><path d="M804 139 L762 134" style="fill:none;stroke:var(--ink);stroke-width:11.2;stroke-linecap:round"/>
+        <circle class="ln fillp" cx="612" cy="127" r="32" style="stroke-width:4"/>
+        <path class="ln" d="M612 119 V99 M605.1 131 L587.8 141 M618.9 131 L636.2 141" style="stroke-width:6"/><circle class="solid" cx="612" cy="127" r="8"/>
+        <rect class="solid" x="76" y="410" width="14" height="60"/><rect class="solid" x="76" y="872" width="14" height="60"/><rect class="solid" x="730" y="410" width="14" height="60"/><rect class="solid" x="730" y="872" width="14" height="60"/>
+        <rect class="ln" x="113" y="212" width="190" height="174" rx="12"/><rect class="ln" x="517" y="212" width="190" height="174" rx="12"/>
+        <rect class="ln" x="90" y="398" width="640" height="84" rx="24"/><path class="ln thin" d="M290 406 V474 M530 406 V474"/>
+        <rect class="ln" x="354" y="415.0" width="112" height="50" rx="6"/>
+        <circle class="ln" cx="328" cy="425.0" r="10"/><circle class="ln" cx="328" cy="455.0" r="10"/><circle class="ln" cx="492" cy="425.0" r="10"/><circle class="ln" cx="492" cy="455.0" r="10"/>
+        <path class="ln" d="M90 490 L96.3 498 Q104 502 104 518 V754 Q104 776 96.3 782 L90 790"/>
+        <g class="ln"><rect x="113" y="542" width="190" height="200" rx="12"/><rect x="315" y="542" width="190" height="200" rx="12"/><rect x="517" y="542" width="190" height="200" rx="12"/><rect x="113" y="802" width="190" height="200" rx="12"/><rect x="315" y="802" width="190" height="200" rx="12"/><rect x="517" y="802" width="190" height="200" rx="12"/><rect x="113" y="1062" width="190" height="200" rx="12"/><rect x="315" y="1062" width="190" height="200" rx="12"/><rect x="517" y="1062" width="190" height="200" rx="12"/></g>
+        <path class="ln" d="M82 456 H58 V796" style="stroke-dasharray:3 5"/><path class="solid" d="M58 812 L51 792 L65 792 Z"/><rect class="ln fillp" x="52" y="812" width="16" height="356"/>
+        <text class="lbl" transform="translate(38 990) rotate(-90)" text-anchor="middle">ประตูเลื่อน</text><rect class="ln thin" x="351" y="216" width="118" height="166" rx="14" style="opacity:1"/><rect class="ln" x="374" y="230" width="72" height="106" rx="10"/><circle class="ln" cx="395" cy="357" r="11"/><circle class="ln" cx="425" cy="357" r="11"/><text class="lbl" transform="translate(410 90)" text-anchor="middle">หน้ารถ</text><text class="lbl" transform="translate(410 1306)" text-anchor="middle">ท้ายรถ</text></svg>
       <div id="overlay"></div>
     </div>
     <div class="legend">
@@ -340,14 +318,14 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 (function () {
   var TOTAL = 10;
   var API = "/api/seats";
-  // Seat boxes in the plan's own coordinate space (x, y, w, h in a 820 x 1345 drawing).
+  // Seat boxes in the plan's own coordinate space (x, y, w, h in a 820 x 1384 drawing).
   var RECT = {
-    1: [115, 185, 190, 182],
-    4: [115, 517, 190, 200], 3: [317, 517, 190, 200], 2: [519, 517, 190, 200],
-    7: [115, 776, 190, 200], 6: [317, 776, 190, 200], 5: [519, 776, 190, 200],
-    10: [115, 1035, 190, 200], 9: [317, 1035, 190, 200], 8: [519, 1035, 190, 200]
+    1: [113, 212, 190, 174],
+    4: [113, 542, 190, 200], 3: [315, 542, 190, 200], 2: [517, 542, 190, 200],
+    7: [113, 802, 190, 200], 6: [315, 802, 190, 200], 5: [517, 802, 190, 200],
+    10: [113, 1062, 190, 200], 9: [315, 1062, 190, 200], 8: [517, 1062, 190, 200]
   };
-  var W = 820, H = 1345;
+  var W = 820, H = 1384;
 
   var params = new URLSearchParams(location.search);
   var pathId = /^\/([a-hj-km-np-z2-9]{6,8})\/?$/.exec(location.pathname);
@@ -427,7 +405,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 
   function renderGrid() {
     overlayEl.textContent = "";
-    overlayEl.appendChild(frame(el("div", "driver", "คนขับ"), [523, 189, 182, 174]));
+    overlayEl.appendChild(frame(el("div", "driver", "คนขับ"), [525, 220, 174, 158]));
 
     for (var n = 1; n <= TOTAL; n++) {
       (function (n) {
@@ -449,6 +427,11 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         overlayEl.appendChild(frame(b, RECT[n]));
       })(n);
     }
+    // names that wrap to 3 lines get a slightly smaller size so they stay clear of the seat's bottom band
+    Array.prototype.forEach.call(overlayEl.querySelectorAll(".who"), function (w) {
+      var lh = parseFloat(getComputedStyle(w).lineHeight);
+      if (lh && w.scrollHeight > lh * 2.5) w.classList.add("s3");
+    });
   }
 
   function showToast(text, kind) {
@@ -468,8 +451,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   }
 
   function miniSvg(sel, isTaken) {
-    var out = '<svg viewBox="40 20 740 1335" aria-hidden="true"><path d="M75 1280 V160 Q75 62 205 46 Q410 22 615 46 Q745 62 745 160 V1280 Q745 1325 700 1325 H120 Q75 1325 75 1280 Z" fill="none" stroke="currentColor" stroke-width="22" stroke-linejoin="round" style="color:var(--ink)"/>';
-    out += '<rect x="514" y="185" width="202" height="182" fill="var(--taken)" stroke="var(--line)" stroke-width="12"/>';
+    var out = '<svg viewBox="40 20 740 1345" aria-hidden="true"><path d="M74 1306 V160 Q74 62 205 46 Q410 22 615 46 Q746 62 746 160 V1306 Q746 1350 702 1350 H118 Q74 1350 74 1306 Z" fill="none" stroke="currentColor" stroke-width="22" stroke-linejoin="round" style="color:var(--ink)"/>';
+    out += '<rect x="517" y="212" width="190" height="174" fill="var(--taken)" stroke="var(--line)" stroke-width="12"/>';
     for (var k in RECT) {
       var r = RECT[k], me = Number(k) === sel;
       var fill = me ? (isTaken ? "var(--ink)" : "var(--mine)") : (seats[k] ? "var(--taken)" : "var(--surface)");
@@ -859,7 +842,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       var dash = (n.style && n.style.strokeDasharray) ? n.style.strokeDasharray.split(/[ ,]+/).map(Number).filter(function (x) { return x === x; }) : [];
       ctx.save();
       ctx.translate(ox, oy); ctx.scale(k, k);
-      ctx.lineWidth = w; ctx.lineJoin = "round"; ctx.lineCap = "round"; ctx.setLineDash(dash);
+      ctx.lineWidth = w; ctx.lineJoin = "round"; ctx.lineCap = (n.style && n.style.strokeLinecap === "butt") ? "butt" : "round"; ctx.setLineDash(dash);
       ctx.strokeStyle = INK; ctx.globalAlpha = /\bthin\b/.test(cls) ? .7 : 1;
       var solid = /\bsolid\b/.test(cls), fillp = /\bfillp\b/.test(cls);
       function paint() {
@@ -908,38 +891,40 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       var rc = RECT[n], s = seats[n], bx = PX + rc[0] * k, by = PY + rc[1] * k, bw = rc[2] * k, bh = rc[3] * k;
       var isMine = !!s && mine(n);
       if (s) { ctx.globalAlpha = isMine ? 1 : .94; ctx.fillStyle = isMine ? TEAL : TAKEN; rrect(ctx, bx, by, bw, bh, 12 * k); ctx.fill(); ctx.globalAlpha = 1; }
-      var numSize = PW * 0.064, nameSize = 25, lines = [];
-      if (s && !isMine) { // small check badge on taken seats
-        ctx.fillStyle = MUTED; ctx.beginPath(); ctx.arc(bx + 20, by + 20, 11, 0, 7); ctx.fill();
-        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.6; ctx.lineCap = "round"; ctx.lineJoin = "round";
-        ctx.beginPath(); ctx.moveTo(bx + 15.5, by + 20.5); ctx.lineTo(bx + 19, by + 24); ctx.lineTo(bx + 25.5, by + 16.5); ctx.stroke();
+      // thin band along the bottom of the seat
+      ctx.fillStyle = isMine ? "rgba(255,255,255,.28)" : (s ? "#c3ccd3" : "#eef1f3");
+      rrect(ctx, bx + 8 * k, by + bh - 32 * k, bw - 16 * k, 24 * k, 9 * k); ctx.fill();
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      if (!s) { // free seat: the number, centred
+        ctx.fillStyle = INK; ctx.font = '500 ' + (40 * k) + 'px Prompt, "Noto Sans Thai", sans-serif';
+        ctx.fillText(String(n), bx + bw / 2, by + bh / 2 + 14.3 * k);
+        continue;
       }
-      if (s) { // shrink the name font until its longest word fits the seat (no mid-word breaks)
-        var words = s.name.split(/\s+/);
-        while (nameSize > 17) {
-          ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
-          if (words.every(function (w) { return ctx.measureText(w).width <= bw - 16; })) break;
-          nameSize--;
-        }
-      }
-      ctx.font = '400 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
-      if (s) lines = wrapText(ctx, s.name, bw - 16, 2);
-      var blockH = numSize + (lines.length ? 8 + lines.length * (nameSize + 6) : 0);
-      var ty = by + (bh - blockH) / 2;
-      ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.fillStyle = isMine ? "#ffffff" : (s ? MUTED : INK);
-      ctx.font = '500 ' + numSize + 'px Prompt, "Noto Sans Thai", sans-serif';
-      ctx.fillText(String(n), bx + bw / 2, ty);
+      // taken: number in the top-right corner, name centred (smaller for 3 lines, shrinks until the longest word fits)
       ctx.fillStyle = isMine ? "#ffffff" : INK;
+      ctx.font = '500 ' + (26 * k) + 'px Prompt, "Noto Sans Thai", sans-serif';
+      ctx.textAlign = "right"; ctx.fillText(String(n), bx + bw - 14 * k, by + 32 * k);
+      ctx.textAlign = "center";
+      var maxW = bw - 20 * k, nameSize = 26 * k, lines = [], words = s.name.split(/\s+/);
       ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
-      lines.forEach(function (ln, i) { ctx.fillText(ln, bx + bw / 2, ty + numSize + 8 + i * (nameSize + 6)); });
+      if (wrapText(ctx, s.name, maxW, 4).length >= 3) nameSize = 21 * k;
+      while (nameSize > 14 * k) {
+        ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
+        if (words.every(function (w) { return ctx.measureText(w).width <= maxW; })) break;
+        nameSize -= k;
+      }
+      ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
+      lines = wrapText(ctx, s.name, maxW, 3);
+      for (var li = 0; li < lines.length - 1; li++) if (/[(\[]$/.test(lines[li])) { lines[li + 1] = lines[li].slice(-1) + lines[li + 1]; lines[li] = lines[li].slice(0, -1); } // keep an opening bracket with its word
+      var step = nameSize * 1.25, first = by + bh / 2 - (lines.length - 1) * step / 2 + nameSize * 0.32;
+      lines.forEach(function (ln, i) { ctx.fillText(ln, bx + bw / 2, first + i * step); });
     }
-    var dx = PX + 523 * k, dy = PY + 189 * k, dw = 182 * k, dh = 174 * k;
-    var gr = ctx.createLinearGradient(dx, dy, dx, dy + dh); gr.addColorStop(0, "#dbe7ee"); gr.addColorStop(1, "#c5d4de");
-    rrect(ctx, dx + 3, dy + 3, dw - 6, dh - 6, 18); ctx.fillStyle = gr; ctx.fill();
-    ctx.fillStyle = "#c43d56"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.font = '600 ' + (PW * 0.05) + 'px Prompt, "Noto Sans Thai", sans-serif';
-    ctx.fillText("คนขับ", dx + dw / 2, dy + dh / 2);
+    var dx = PX + 525 * k, dy = PY + 220 * k, dw = 174 * k, dh = 158 * k;
+    var gr = ctx.createLinearGradient(dx, dy, dx + dw * 0.35, dy + dh); gr.addColorStop(0, "#e9edf0"); gr.addColorStop(1, "#d9e0e5");
+    rrect(ctx, dx, dy, dw, dh, 10 * k); ctx.fillStyle = gr; ctx.fill();
+    ctx.fillStyle = "#d8344f"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.font = '500 ' + (32 * k) + 'px Prompt, "Noto Sans Thai", sans-serif';
+    ctx.fillText("คนขับ", dx + dw / 2, dy + dh / 2 + 0.34 * 32 * k);
   }
   // "Seat pass" picture: dark-teal header like the admin pass. With a seat booked on this device it leads with
   // "my seat"; otherwise the details go into the header as chips and a QR code sits at the bottom.
