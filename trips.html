@@ -1045,19 +1045,15 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       if (tl.length > 3) { tl = tl.slice(0, 3); var last = tl[2]; while (last.length > 1 && wm.measureText(last + "…").width > TW) last = last.slice(0, -1); tl[2] = last + "…"; }
       return tl;
     }
-    // the card is always 9:16 (portrait story ratio): width follows the height the content needs
-    var tl, HDR, TOP, H, cwTry = 386, wrapCW;
-    for (var it = 0; it < 5; it++) {
-      wrapCW = cwTry; tl = wrapTitle(cwTry - M * 2);
-      HDR = 52 + 24 * tl.length + (org ? 18 : 0) + 16; TOP = HDR + 4 + ROW * 4; // the amber divider is the 4th row separator: sits on the row's bottom edge
-      H = CY + TOP + (GUEST ? 0 : SECA) + SEC + FOOT + CY;
-      var need = GUEST ? cwTry : Math.ceil(H * 9 / 16); // the admin card is 9:16, the seat card keeps its natural height
-      if (need === cwTry) break;
-      cwTry = need;
-    }
-    CW = W = GUEST ? wrapCW : Math.max(364, wrapCW, Math.ceil(H * 9 / 16)); // min 364 -> 1456 x 2588 at 4x
+    // one fixed card width (386) for the seat pass and the admin pass, so their headers share the same proportions
+    // (and the picture saved from the booking page). The admin card is at least 9:16 (portrait story ratio): short content is padded at the bottom.
+    var tl, HDR, TOP, H;
+    tl = wrapTitle(386 - M * 2);
+    HDR = 52 + 24 * tl.length + (org ? 18 : 0) + 16; TOP = HDR + 4 + ROW * 4; // the amber divider is the 4th row separator: sits on the row's bottom edge
+    H = CY + TOP + (GUEST ? 0 : SECA) + SEC + FOOT + CY;
+    CW = W = 386;
     var TW = CW - M * 2;
-    if (!GUEST) H = Math.max(H, CW * 16 / 9);
+    if (!GUEST) H = Math.max(H, Math.ceil(CW * 16 / 9));
     var c = document.createElement("canvas"); c.width = W * S; c.height = Math.round(H * S);
     var g = c.getContext("2d");
     var disp = '"Prompt","Noto Sans Thai",system-ui,sans-serif', body = '"Noto Sans Thai",system-ui,sans-serif';
