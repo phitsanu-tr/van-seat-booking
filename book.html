@@ -1032,14 +1032,24 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var mh = 24 + 54 + 14 + PH + 30;
     ctx.fillStyle = "#f3f6f7"; rrect(ctx, MX, y, MW, mh, 50); ctx.fill();
     var cnt = Object.keys(seats).length, ry = y + 24 + 38;
-    ctx.textAlign = "right"; ctx.fillStyle = TEAL; ctx.font = '600 38px Prompt, "Noto Sans Thai", sans-serif';
-    var right = "จอง " + cnt + " / " + TOTAL; ctx.fillText(right, MX + MW - 34, ry);
-    var rightW = ctx.measureText(right).width;
-    ctx.textAlign = "left"; var lx = MX + 34;
-    if (multi && cur) { ctx.fillStyle = INK; ctx.font = '600 36px Prompt, "Noto Sans Thai", sans-serif'; var lab = "รถตู้ " + cur.label; ctx.fillText(lab, lx, ry); lx += ctx.measureText(lab).width + 20; }
+    var hasLeft = (multi && cur) || (cur && cur.plate);
+    // right (or centred when nothing is on the left): "8 / 10" with a muted total
+    ctx.font = '400 34px Prompt, "Noto Sans Thai", sans-serif'; var totW = ctx.measureText("\u2009/\u2009" + TOTAL).width;
+    ctx.font = '600 38px Prompt, "Noto Sans Thai", sans-serif'; var cntW = ctx.measureText(String(cnt)).width;
+    var rx = hasLeft ? MX + MW - 34 - (cntW + totW) : MX + (MW - (cntW + totW)) / 2;
+    ctx.textAlign = "left"; ctx.fillStyle = TEAL; ctx.font = '600 38px Prompt, "Noto Sans Thai", sans-serif'; ctx.fillText(String(cnt), rx, ry);
+    ctx.fillStyle = "#8a969d"; ctx.font = '400 34px Prompt, "Noto Sans Thai", sans-serif'; ctx.fillText("\u2009/\u2009" + TOTAL, rx + cntW, ry);
+    var lx = MX + 34;
+    if (multi && cur) { // van code as a teal badge
+      ctx.font = '600 30px Prompt, "Noto Sans Thai", sans-serif';
+      var bw2 = ctx.measureText(cur.label).width + 36;
+      ctx.fillStyle = TEAL; rrect(ctx, lx, ry - 36, bw2, 48, 12); ctx.fill();
+      ctx.fillStyle = "#ffffff"; ctx.textAlign = "center"; ctx.fillText(cur.label, lx + bw2 / 2, ry - 2); ctx.textAlign = "left";
+      lx += bw2 + 16;
+    }
     if (cur && cur.plate) {
-      ctx.fillStyle = MUTED; ctx.font = '400 28px "Noto Sans Thai", sans-serif';
-      var pl = wrapText(ctx, (multi ? "· " : "") + "ทะเบียน " + cur.plate, MX + MW - 34 - rightW - 20 - lx, 1)[0];
+      ctx.fillStyle = INK; ctx.font = '400 28px "Noto Sans Thai", sans-serif';
+      var pl = wrapText(ctx, cur.plate, rx - 20 - lx, 1)[0];
       if (pl) ctx.fillText(pl, lx, ry - 2);
     }
     var PX = MX + (MW - PW) / 2, PY = y + 24 + 54 + 14;
@@ -1052,24 +1062,24 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var d = new Date(), pad = function (v) { return (v < 10 ? "0" : "") + v; };
     var stamp = "สร้างเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + pad(d.getHours()) + "." + pad(d.getMinutes()) + " น.";
     var withQr = useQr;
-    var FH = withQr ? 250 : 190;
+    var FH = withQr ? 206 : 142;
     ctx.fillStyle = "#eef1f3"; ctx.fillRect(0, y, CW, FH);
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
     var fx0 = X, fw = IW - (withQr ? 190 : 0);
     ctx.fillStyle = TEAL; ctx.font = '600 32px Prompt, "Noto Sans Thai", sans-serif';
-    ctx.fillText("จองที่นั่งที่", fx0, y + 62);
+    ctx.fillText("จองที่นั่งที่", fx0, y + 56);
     ctx.fillStyle = INK; ctx.font = '400 30px "Noto Sans Thai", sans-serif';
     var su = shortUrl; while (su.length > 8 && ctx.measureText(su).width > fw) su = su.slice(0, -2) + "…";
-    ctx.fillText(su, fx0, y + 108);
-    ctx.fillStyle = MUTED; ctx.font = '400 26px "Noto Sans Thai", sans-serif';
-    ctx.fillText(stamp + " · van-seat-booking", fx0, y + FH - 34);
+    ctx.fillText(su, fx0, y + 100);
+    ctx.fillStyle = "#8a969d"; ctx.font = '400 20px "Noto Sans Thai", sans-serif';
+    ctx.fillText(stamp, fx0, y + FH - 24);
     if (withQr) {
-      var qs = 130, tl = qs + 24, tx = X + IW - tl, ty = y + 26;
+      var qs = 117, tl = qs + 20, tx = X + IW - tl, ty = y + 18;
       ctx.fillStyle = "#ffffff"; rrect(ctx, tx, ty, tl, tl, 24); ctx.fill();
       ctx.strokeStyle = "#0b5f67"; ctx.lineWidth = 5; rrect(ctx, tx, ty, tl, tl, 24); ctx.stroke();
-      drawQr(ctx, url, tx + 12, ty + 12, qs, "#0b5f67");
+      drawQr(ctx, url, tx + 10, ty + 10, qs, "#0b5f67");
       ctx.fillStyle = TEAL; ctx.font = '600 24px Prompt, "Noto Sans Thai", sans-serif'; ctx.textAlign = "center";
-      ctx.fillText("สแกนเพื่อจอง", tx + tl / 2, y + FH - 34); ctx.textAlign = "left";
+      ctx.fillText("สแกนเพื่อจอง", tx + tl / 2, y + FH - 20); ctx.textAlign = "left";
     }
     var total = y + FH; posterFixed = total - PH;
     // ---- compose onto a light backdrop with rounded corners
