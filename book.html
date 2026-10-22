@@ -1078,6 +1078,11 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       document.fonts.load('400 30px "Noto Sans Thai"', t), document.fonts.load('600 30px "Noto Sans Thai"', t)
     ]).catch(function () {});
   }
+  function fillC(ctx, text, cx, y) { // centred Thai text, positioned by hand: iPhone WebKit mis-centres Thai with textAlign="center"
+    var al = ctx.textAlign; ctx.textAlign = "left";
+    ctx.fillText(text, cx - ctx.measureText(text).width / 2, y);
+    ctx.textAlign = al;
+  }
   function wrapText(ctx, text, maxW, maxLines) {
     var segs;
     try { segs = Array.from(new Intl.Segmenter("th", { granularity: "word" }).segment(text), function (x) { return x.segment; }); }
@@ -1132,7 +1137,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         if (m) ctx.translate(+m[1], +m[2]);
         if (rot) ctx.rotate(+rot[1] * Math.PI / 180);
         ctx.fillStyle = MUTED; ctx.font = '400 24px "Noto Sans Thai", sans-serif'; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-        ctx.fillText(n.textContent, 0, 0);
+        fillC(ctx, n.textContent, 0, 0);
       }
       ctx.restore();
     }
@@ -1197,7 +1202,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       lines = wrapText(ctx, s.name, maxW, 3);
       for (var li = 0; li < lines.length - 1; li++) if (/[(\[]$/.test(lines[li])) { lines[li + 1] = lines[li].slice(-1) + lines[li + 1]; lines[li] = lines[li].slice(0, -1); } // keep an opening bracket with its word
       var step = nameSize * 1.25, first = by + bh / 2 - (lines.length - 1) * step / 2 + nameSize * 0.32;
-      lines.forEach(function (ln, i) { ctx.fillText(ln, bx + bw / 2, first + i * step); });
+      lines.forEach(function (ln, i) { fillC(ctx, ln, bx + bw / 2, first + i * step); });
     }
     var dx = PX + 525 * k, dy = PY + 220 * k, dw = 174 * k, dh = 158 * k;
     var gr = ctx.createLinearGradient(dx, dy, dx + dw * 0.35, dy + dh); gr.addColorStop(0, "#e9edf0"); gr.addColorStop(1, "#d9e0e5");
@@ -1205,7 +1210,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     ctx.fillStyle = "#d8344f"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
     var dz = Math.max(32 * k, PW * 0.05);
     ctx.font = '500 ' + dz + 'px Prompt, "Noto Sans Thai", sans-serif';
-    ctx.fillText("คนขับ", dx + dw / 2, dy + dh / 2 + 0.34 * dz);
+    fillC(ctx, "คนขับ", dx + dw / 2, dy + dh / 2 + 0.34 * dz);
   }
   // "Seat pass" picture: dark-teal header like the admin pass. With a seat booked on this device it leads with
   // "my seat"; the date/time/meeting facts sit under the header and a QR code sits at the bottom.
@@ -1287,7 +1292,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       ctx.font = '600 30px Prompt, "Noto Sans Thai", sans-serif';
       var bw2 = ctx.measureText(cur.label).width + 36;
       ctx.fillStyle = TEAL; rrect(ctx, lx, ry - 30, bw2, 42, 12); ctx.fill();
-      ctx.fillStyle = "#ffffff"; ctx.textAlign = "center"; ctx.fillText(cur.label, lx + bw2 / 2, ry - 2); ctx.textAlign = "left";
+      ctx.fillStyle = "#ffffff"; ctx.textAlign = "center"; fillC(ctx, cur.label, lx + bw2 / 2, ry - 2); ctx.textAlign = "left";
       lx += bw2 + 16;
     }
     if (cur && cur.plate) {
@@ -1325,7 +1330,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       ctx.strokeStyle = "#0b5f67"; ctx.lineWidth = 5; rrect(ctx, tx, ty, tl, tl, 24); ctx.stroke();
       drawQr(ctx, url, tx + 10, ty + 10, qs, "#0b5f67");
       ctx.fillStyle = TEAL; ctx.font = '600 24px Prompt, "Noto Sans Thai", sans-serif'; ctx.textAlign = "center";
-      ctx.fillText("สแกนเพื่อจอง", tx + tl / 2, y + FH - 20); ctx.textAlign = "left";
+      fillC(ctx, "สแกนเพื่อจอง", tx + tl / 2, y + FH - 20); ctx.textAlign = "left";
     }
     var total = y + FH; posterFixed = total - PH;
     // ---- compose onto a light backdrop with rounded corners
