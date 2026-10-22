@@ -1136,9 +1136,11 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var hasLeft = (multi && cur) || (cur && cur.plate);
     // right (or centred when nothing is on the left): "8 / 10" with a muted total
     ctx.font = '400 30px Prompt, "Noto Sans Thai", sans-serif'; var totW = ctx.measureText("\u2009/\u2009" + TOTAL).width;
+    var lblW = ctx.measureText("จองแล้ว ").width; // muted "จองแล้ว" before the count, like the page
     ctx.font = '600 30px Prompt, "Noto Sans Thai", sans-serif'; var cntW = ctx.measureText(String(cnt)).width;
-    var rx = hasLeft ? MX + MW - 34 - (cntW + totW) : MX + (MW - (cntW + totW)) / 2;
-    ctx.textAlign = "left"; ctx.fillStyle = TEAL; ctx.font = '600 30px Prompt, "Noto Sans Thai", sans-serif'; ctx.fillText(String(cnt), rx, ry);
+    var rx = hasLeft ? MX + MW - 34 - (cntW + totW) : MX + (MW - (lblW + cntW + totW)) / 2 + lblW;
+    ctx.textAlign = "left"; ctx.fillStyle = "#8a969d"; ctx.font = '400 30px Prompt, "Noto Sans Thai", sans-serif'; ctx.fillText("จองแล้ว ", rx - lblW, ry);
+    ctx.fillStyle = TEAL; ctx.font = '600 30px Prompt, "Noto Sans Thai", sans-serif'; ctx.fillText(String(cnt), rx, ry);
     ctx.fillStyle = "#8a969d"; ctx.font = '400 30px Prompt, "Noto Sans Thai", sans-serif'; ctx.fillText("\u2009/\u2009" + TOTAL, rx + cntW, ry);
     var lx = MX + 34;
     if (multi && cur) { // van code as a teal badge
@@ -1153,7 +1155,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       var pre = "ทะเบียน ", preW = ctx.measureText(pre).width; // same wording as the page: muted label + the plate
       ctx.fillText(pre, lx, ry - 2);
       ctx.fillStyle = INK; ctx.font = '600 30px "Noto Sans Thai", sans-serif';
-      var pl = wrapText(ctx, cur.plate, rx - 20 - lx - preW, 1)[0];
+      var pl = wrapText(ctx, cur.plate, rx - lblW - 20 - lx - preW, 1)[0];
       if (pl) ctx.fillText(pl, lx + preW, ry - 2);
     }
     var PX = MX + (MW - PW) / 2, PY = y + 24 + 54 + 14;
