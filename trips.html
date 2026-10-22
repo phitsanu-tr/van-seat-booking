@@ -166,6 +166,12 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .step > a.foot { height: 44px; }
 #saveSeat, #saveImg { width: 100%; justify-content: center; }
 .btn.dark { background: var(--ink); color: #fff; }
+.cardrow { display: flex; gap: 10px; }
+.cardrow[hidden] { display: none; }
+.cardrow .btn { flex: 1; min-width: 0; padding: 0 12px; white-space: nowrap; gap: 8px; display: inline-flex; align-items: center; justify-content: center; }
+.cardrow .btn[hidden] { display: none; }
+#step2 .passtag, #result .dots button.on.amber { color: #b86e00; }
+@media (prefers-color-scheme: dark) { #step2 .passtag, #result .dots button.on.amber { color: #f2c879; } }
 .mh { padding-right: 34px; }
 .check.amber { background: #eceef0; color: var(--ink); }
 @media (prefers-color-scheme: dark) { .check.amber { background: #223540; } }
@@ -629,7 +635,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     <p id="cardHint" style="margin:0;text-align:center;font-size:13px;line-height:20px;color:var(--muted)"></p>
     <a class="btn primary" id="cardExt" target="_blank" rel="noopener" hidden>เปิดในเบราว์เซอร์เพื่อโหลดรูป</a>
     <a class="btn primary" id="cardDl" hidden>ดาวน์โหลดรูป</a>
-    <button class="btn plain" id="cardCopy" type="button" hidden>คัดลอกลิงก์</button>
+    <div class="cardrow" id="cardRow" hidden>
+      <button class="btn plain" id="cardCopy" type="button">คัดลอกลิงก์</button>
+      <button class="btn plain" id="cardShare" type="button" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M8 7.5L12 3.5l4 4M6 11H5.5A1.5 1.5 0 004 12.5v6A1.5 1.5 0 005.5 20h13a1.5 1.5 0 001.5-1.5v-6a1.5 1.5 0 00-1.5-1.5H18"/></svg>แชร์รูป</button>
+    </div>
   </div>
 </div>
 <script>
@@ -1101,17 +1110,26 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     $("cardTtl").style.cssText += ";display:flex;align-items:center;gap:8px";
     if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; }
     ext.className = dl.className = "btn " + (guest ? "primary" : "dark");
-    img.hidden = !blob; dl.hidden = true; ext.hidden = true; cp.hidden = true; $("cardX").hidden = CARD_ONLY;
+    var row = $("cardRow"), sh = $("cardShare"), file = null;
+    img.hidden = !blob; dl.hidden = true; ext.hidden = true; row.hidden = true; sh.hidden = true; $("cardX").hidden = CARD_ONLY;
     if (blob) { cardUrl = URL.createObjectURL(blob); img.src = cardUrl; }
     if (CARD_ONLY) {
       dl.hidden = false; dl.href = cardUrl; dl.setAttribute("download", fileName || (guest ? "SEAT PASS.png" : "ADMIN PASS.png"));
       setHint("กดดาวน์โหลด หรือกดค้างที่รูปเพื่อบันทึก", true);
-    } else if (blob) {
-      setHint("กดค้างที่รูปเพื่อบันทึก", true);
     } else {
-      // Android in LINE: hand the picture over to the system browser
-      h0();hint.innerHTML = "LINE บน Android บันทึกรูปโดยตรงไม่ได้<br>เปิดในเบราว์เซอร์เพื่อดาวน์โหลดรูป";
-      ext.hidden = false; cp.hidden = false; cp.disabled = true; ext.removeAttribute("href"); ext.style.opacity = ".6"; ext.textContent = "กำลังเตรียมลิงก์…";
+      if (blob) setHint("กดค้างที่รูปเพื่อบันทึก หรือใช้ปุ่มด้านล่าง", true);
+      else { h0(); hint.innerHTML = "LINE บน Android บันทึกรูปโดยตรงไม่ได้<br>เปิดในเบราว์เซอร์เพื่อดาวน์โหลดรูป"; }
+      // hand the picture over to the system browser (the only way to save it on Android, a backup on iPhone)
+      ext.hidden = false; row.hidden = false; cp.disabled = true; ext.removeAttribute("href"); ext.style.opacity = ".6"; ext.textContent = "กำลังเตรียมลิงก์…";
+      if (blob) {
+        try { file = new File([blob], fileName || (guest ? "SEAT PASS.png" : "ADMIN PASS.png"), { type: "image/png" }); } catch (e) {}
+        if (file && navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+          sh.hidden = false;
+          sh.onclick = function () {
+            navigator.share({ files: [file] }).catch(function (e) { if (!e || e.name !== "AbortError") toast("แชร์ไม่สำเร็จ ลองใหม่อีกครั้ง"); });
+          };
+        }
+      }
       var mySeq = ++cardSeq;
       var ready = function (u) {
         if (mySeq !== cardSeq) return;
@@ -1122,7 +1140,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": shown ? shown.token : "" }, body: JSON.stringify({ mint: true, t: shown ? shown.id : "" }) })
           .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
           .then(function (x) { if (!x.ok || !x.d.k) throw new Error("mint"); ready(location.origin + "/trips?card=admin&img=1&c=" + x.d.k + "&openExternalBrowser=1"); })
-          .catch(function () { if (mySeq !== cardSeq) return; ext.textContent = "สร้างลิงก์ไม่สำเร็จ"; hint.textContent = "สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง หรือใช้ปุ่ม “ส่งเข้า LINE” ส่งลิงก์ผู้ดูแลแทน"; });
+          .catch(function () { if (mySeq !== cardSeq) return; ext.textContent = "สร้างลิงก์ไม่สำเร็จ"; if (blob) toast("สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง"); else hint.textContent = "สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง หรือใช้ปุ่ม “ส่งเข้า LINE” ส่งลิงก์ผู้ดูแลแทน"; });
       }
     }
     $("cardBd").hidden = false; document.body.style.overflow = "hidden";
