@@ -876,7 +876,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
     function flash(ok) {
       var o = btn.innerHTML; btn.classList.toggle("ok", ok);
-      btn.innerHTML = ok ? CHECK : '<span style="font-size:11px">กดค้างที่รหัส</span>'; btn.style.width = ok ? "" : "auto";
+      if (!ok) { toast("คัดลอกไม่สำเร็จ ลองใหม่อีกครั้ง"); return; }
+      btn.innerHTML = CHECK;
       setTimeout(function () { btn.innerHTML = o; btn.classList.remove("ok"); btn.style.width = ""; }, 1600);
     }
     function fallback() {
@@ -1084,6 +1085,12 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     return c;
   }
   // LINE's in-app browser can neither download files nor share them: show the picture (iPhone: long-press to save) or hand off to the system browser
+  var HAND = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a6 6 0 01-6-6V9a1.5 1.5 0 013 0v3M9 11V5.5a1.5 1.5 0 013 0V11M12 10V4.5a1.5 1.5 0 013 0V11M15 11V7.5a1.5 1.5 0 013 0V15a6 6 0 01-6 6z"/></svg>';
+  function setHint(text, hand) {
+    var h = $("cardHint"); h.innerHTML = hand ? HAND + "<span></span>" : ""; if (hand) h.lastChild.textContent = text; else h.textContent = text;
+    h.style.display = hand ? "flex" : ""; h.style.justifyContent = "center"; h.style.alignItems = "center"; h.style.gap = "6px";
+  }
+  function h0() { var h = $("cardHint"); h.style.display = ""; }
   var cardUrl = "";
   function closeCard() { cardSeq++; $("cardBd").hidden = true; document.body.style.overflow = ""; if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; } }
   function openCard(mode, blob, fileName) {
@@ -1097,12 +1104,12 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     if (blob) { cardUrl = URL.createObjectURL(blob); img.src = cardUrl; }
     if (CARD_ONLY) {
       dl.hidden = false; dl.href = cardUrl; dl.setAttribute("download", fileName || (guest ? "SEAT PASS.png" : "ADMIN PASS.png"));
-      hint.textContent = "กดปุ่มด้านล่างเพื่อบันทึกรูป หรือกดค้างที่รูป";
+      setHint("กดดาวน์โหลด หรือกดค้างที่รูปเพื่อบันทึก", true);
     } else if (blob) {
-      hint.textContent = "กดค้างที่รูป แล้วเลือก “บันทึกรูป”";
+      setHint("กดค้างที่รูปเพื่อบันทึก", true);
     } else {
       // Android in LINE: hand the picture over to the system browser
-      hint.innerHTML = "LINE บน Android บันทึกรูปโดยตรงไม่ได้<br>เปิดในเบราว์เซอร์เพื่อดาวน์โหลดรูป";
+      h0();hint.innerHTML = "LINE บน Android บันทึกรูปโดยตรงไม่ได้<br>เปิดในเบราว์เซอร์เพื่อดาวน์โหลดรูป";
       ext.hidden = false; cp.hidden = false; cp.disabled = true; ext.removeAttribute("href"); ext.style.opacity = ".6"; ext.textContent = "กำลังเตรียมลิงก์…";
       var mySeq = ++cardSeq;
       var ready = function (u) {

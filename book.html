@@ -1234,7 +1234,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   });
   document.getElementById("imgCopy").addEventListener("click", function () {
     var u = IMG_ONLY ? location.origin + location.pathname + (curVan ? "?v=" + encodeURIComponent(curVan) : "") : location.href.split("#")[0];
-    copyText(u, function () { showToast("คัดลอกลิงก์แล้ว"); }, function () { showToast("คัดลอกไม่สำเร็จ ลองกดค้างที่ลิงก์แทน", "error"); });
+    copyText(u, function () { showToast("คัดลอกลิงก์แล้ว"); }, function () { showToast("คัดลอกไม่สำเร็จ ลองใหม่อีกครั้ง", "error"); });
   });
   document.getElementById("imgShare").addEventListener("click", async function () {
     if (!imgFile) return;
