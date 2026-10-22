@@ -954,7 +954,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     ctx.fillText("คนขับ", dx + dw / 2, dy + dh / 2 + 0.34 * dz);
   }
   // "Seat pass" picture: dark-teal header like the admin pass. With a seat booked on this device it leads with
-  // "my seat"; otherwise the details go into the header as chips and a QR code sits at the bottom.
+  // "my seat"; the date/time/meeting facts sit under the header and a QR code sits at the bottom.
   var posterFixed = 0;
   function drawPoster(useQr) { // 9:16 output: shrink the van map until the whole card fits
     var c0 = drawPoster0(useQr, 780);
@@ -976,29 +976,13 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var y = 0;
     var titleLines;
     ctx.font = HEAD; titleLines = wrapText(ctx, trip.name || "", IW, 2);
-    var chips = [];
-    if (!hasMine) {
-      var dr0 = dateRange(trip.startDate, trip.endDate);
-      if (dr0) chips.push(dr0);
-      if (trip.departTime) chips.push("รถออก " + trip.departTime.replace(":", ".") + " น.");
-      if (trip.meetPoint) chips.push(trip.meetPoint);
-    }
-    ctx.font = '400 28px "Noto Sans Thai", sans-serif';
-    var chipRows = [], rowW = 0, row = [];
-    chips.forEach(function (t) {
-      if (ctx.measureText(t).width > IW - 40) { var t2 = wrapText(ctx, t, IW - 40, 1)[0]; t = t2; }
-      var w = ctx.measureText(t).width + 40;
-      if (row.length && rowW + w + 14 > IW) { chipRows.push(row); row = []; rowW = 0; }
-      row.push({ t: t, w: w }); rowW += w + 14;
-    });
-    if (row.length) chipRows.push(row);
-    var HH = 47 + 56 + 20 + titleLines.length * 72 + (trip.organizer ? 54 : 6) + (chipRows.length ? 18 + chipRows.length * 62 : 0) + 34;
+    var HH = 47 + 56 + 20 + titleLines.length * 72 + (trip.organizer ? 54 : 6) + 34;
     ctx.fillStyle = "#0b5f67"; ctx.fillRect(0, 0, CW, HH);
     ctx.fillStyle = "#3fbac4"; ctx.fillRect(0, HH, CW, 10);
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = "#bfe9ed"; ctx.font = '500 28px Prompt, "Noto Sans Thai", sans-serif'; ctx.textAlign = "left";
     if ("letterSpacing" in ctx) ctx.letterSpacing = "3px";
-    ctx.fillText("SEAT PASS", X + 44, 72);
+    ctx.fillText("SEAT PASS", X + 52, 72);
     // ticket icon
     ctx.save(); ctx.translate(X, 46); ctx.scale(1.6, 1.6); ctx.strokeStyle = "#bfe9ed"; ctx.lineWidth = 1.9; ctx.lineCap = "round"; ctx.lineJoin = "round";
     ctx.stroke(new Path2D("M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10")); ctx.restore();
@@ -1009,21 +993,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     y = 115 + 20;
     titleLines.forEach(function (ln) { y += 72; ctx.fillText(ln, X, y - 16); });
     if (trip.organizer) { ctx.fillStyle = "rgba(255,255,255,.72)"; ctx.font = '400 32px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, trip.organizer, IW, 1)[0], X, y + 36); y += 54; } else y += 6;
-    if (chipRows.length) {
-      y += 18;
-      chipRows.forEach(function (r) {
-        var cx = X;
-        r.forEach(function (c) {
-          ctx.fillStyle = "rgba(255,255,255,.14)"; rrect(ctx, cx, y, c.w, 50, 25); ctx.fill();
-          ctx.fillStyle = "#ffffff"; ctx.font = '400 28px "Noto Sans Thai", sans-serif'; ctx.textBaseline = "middle"; ctx.fillText(c.t, cx + 20, y + 26); ctx.textBaseline = "alphabetic";
-          cx += c.w + 14;
-        });
-        y += 62;
-      });
-    }
     y = HH + 10;
-    // ---- my seat + facts (only when this device holds a seat)
-    if (hasMine) {
+    // ---- facts: date + departure on one row, meeting point below (no icons, no lines)
+    {
       y += 40;
 
       // facts
@@ -1039,7 +1011,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
         y += 112; any = true;
       }
       if (trip.meetPoint) { fact("นัดพบ", trip.meetPoint, X, y, IW); y += 112; any = true; }
-      if (any) { ctx.strokeStyle = "#c9d2d8"; ctx.lineWidth = 4; ctx.setLineDash([16, 12]); ctx.beginPath(); ctx.moveTo(X, y + 4); ctx.lineTo(X + IW, y + 4); ctx.stroke(); ctx.setLineDash([]); y += 8; }
+      if (any) y -= 8;
     }
     // ---- map card
     y += 34;
