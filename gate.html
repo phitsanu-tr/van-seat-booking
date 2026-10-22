@@ -45,7 +45,15 @@ button { width: 100%; height: 52px; padding: 0 24px; border-radius: 16px; border
   try { var x = new URL(u); if (x.origin !== location.origin) u = ""; } catch (e) { u = ""; }
   if (!u) u = location.origin + "/";
   if (/\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA) && q.get("u")) { location.replace(u); return; } // already in LINE on a phone: go back
-  document.getElementById("l").href = "https://line.me/R/msg/text/?" + encodeURIComponent(u);
+  // Short lead line (with an icon) above the link, chosen by the kind of link; one blank line in between.
+  var lead = "\uD83D\uDE90 เปิดทริปในแอป LINE"; // van (default)
+  try {
+    var x2 = new URL(u), path = x2.pathname.replace(/\/+$/, "");
+    if (path === "/owner" || path.indexOf("/owner/") === 0) lead = "\uD83D\uDD10 ลิงก์ผู้ดูแลระบบ (ห้ามส่งต่อ)";
+    else if (path === "/trips" && (/^#[A-Za-z0-9]+-[A-Za-z0-9_-]+$/.test(x2.hash) || x2.searchParams.get("card") === "admin")) lead = "\uD83D\uDD10 ลิงก์ผู้ดูแลทริป (ห้ามส่งต่อ)";
+    else if (/^\/[A-Za-z0-9_-]+$/.test(path) && ["/trips", "/owner", "/gate.html", "/index.html"].indexOf(path) < 0) lead = "\uD83D\uDE90 จองที่นั่งรถตู้ได้ที่นี่";
+  } catch (e) {}
+  document.getElementById("l").href = "https://line.me/R/msg/text/?" + encodeURIComponent(lead + "\n\n" + u);
   document.getElementById("c").onclick = function () {
     var b = this, d = function () { b.textContent = "คัดลอกแล้ว"; };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(d, function () {});
