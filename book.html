@@ -979,19 +979,21 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       row.push({ t: t, w: w }); rowW += w + 14;
     });
     if (row.length) chipRows.push(row);
-    var HH = 40 + 56 + 20 + titleLines.length * 72 + (trip.organizer ? 54 : 6) + (chipRows.length ? 18 + chipRows.length * 62 : 0) + 34;
-    ctx.fillStyle = "#0b4f56"; ctx.fillRect(0, 0, CW, HH);
-    ctx.fillStyle = "#5cc7d0"; ctx.fillRect(0, HH, CW, 10);
+    var HH = 47 + 56 + 20 + titleLines.length * 72 + (trip.organizer ? 54 : 6) + (chipRows.length ? 18 + chipRows.length * 62 : 0) + 34;
+    ctx.fillStyle = "#0b5f67"; ctx.fillRect(0, 0, CW, HH);
+    ctx.fillStyle = "#3fbac4"; ctx.fillRect(0, HH, CW, 10);
     ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = "#7fd6dd"; ctx.font = '600 28px Prompt, "Noto Sans Thai", sans-serif'; ctx.textAlign = "left";
-    ctx.fillText("SEAT PASS", X + 44, 82);
+    ctx.fillStyle = "#bfe9ed"; ctx.font = '500 28px Prompt, "Noto Sans Thai", sans-serif'; ctx.textAlign = "left";
+    if ("letterSpacing" in ctx) ctx.letterSpacing = "3px";
+    ctx.fillText("SEAT PASS", X + 44, 72);
     // ticket icon
-    ctx.save(); ctx.translate(X, 56); ctx.scale(1.6, 1.6); ctx.strokeStyle = "#7fd6dd"; ctx.lineWidth = 1.9; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.save(); ctx.translate(X, 46); ctx.scale(1.6, 1.6); ctx.strokeStyle = "#bfe9ed"; ctx.lineWidth = 1.9; ctx.lineCap = "round"; ctx.lineJoin = "round";
     ctx.stroke(new Path2D("M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10")); ctx.restore();
-    ctx.textAlign = "right"; ctx.fillText("#" + TRIP.toUpperCase(), X + IW, 82);
-    ctx.fillStyle = "rgba(255,255,255,.17)"; ctx.fillRect(X, 106, IW, 2);
+    ctx.textAlign = "right"; ctx.fillText("#" + TRIP.toUpperCase(), X + IW, 72);
+    if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
+    ctx.fillStyle = "rgba(255,255,255,.17)"; ctx.fillRect(X, 113, IW, 2);
     ctx.textAlign = "left"; ctx.fillStyle = "#ffffff"; ctx.font = HEAD;
-    y = 108 + 20;
+    y = 115 + 20;
     titleLines.forEach(function (ln) { y += 72; ctx.fillText(ln, X, y - 16); });
     if (trip.organizer) { ctx.fillStyle = "rgba(255,255,255,.72)"; ctx.font = '400 32px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, trip.organizer, IW, 1)[0], X, y + 36); y += 54; } else y += 6;
     if (chipRows.length) {
