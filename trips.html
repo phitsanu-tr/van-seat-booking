@@ -11,6 +11,7 @@
   if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) ok = true;
   try { if (Q.get("dev") === "1") sessionStorage.setItem("vsb_dev", "1"); if (sessionStorage.getItem("vsb_dev") === "1") ok = true; } catch (e) { if (Q.get("dev") === "1") ok = true; }
   if (!ok && Q.get("img") === "1" && !/^\/(trips|owner)/.test(P) && P !== "/") ok = true;
+  if (!ok && Q.get("img") === "1" && Q.get("card") === "guest" && /^\/trips\/?$/.test(P)) ok = true; // public SEAT PASS picture only
   if (ok) return;
   location.replace("/gate.html?u=" + encodeURIComponent(location.href));
 })();
@@ -621,6 +622,16 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
 })();
 </script>
+<div class="backdrop" id="cardBd" style="z-index:30" hidden>
+  <div class="modal" id="cardM" role="dialog" aria-modal="true" aria-labelledby="cardTtl" style="padding:20px;gap:12px">
+    <div style="display:flex;align-items:center;gap:12px"><b id="cardTtl" style="flex:1;font:600 17px var(--font-display)"></b><button class="btn plain small" id="cardX" type="button">ปิด</button></div>
+    <img id="cardImg" alt="" style="align-self:center;max-width:100%;max-height:min(440px,calc(100vh - 300px));object-fit:contain;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.2);background:#fff" hidden>
+    <p id="cardHint" style="margin:0;text-align:center;font-size:13px;line-height:20px;color:var(--muted)"></p>
+    <a class="btn primary" id="cardExt" target="_blank" rel="noopener" hidden>เปิดในเบราว์เซอร์เพื่อโหลดรูป</a>
+    <a class="btn primary" id="cardDl" hidden>ดาวน์โหลดรูป</a>
+    <button class="btn plain" id="cardCopy" type="button" hidden>คัดลอกลิงก์</button>
+  </div>
+</div>
 <script>
 (function () {
   "use strict";
@@ -630,9 +641,12 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   var hm = /^#([a-z0-9]{3,16})-([a-z0-9]{6,64})$/i.exec(location.hash || "");
   if (hm) { T = hm[1].toLowerCase(); K = hm[2].toLowerCase(); }
   function editPath(id, token) { return "/trips#" + id + "-" + token; }
+  var UA = navigator.userAgent || "";
+  var IN_LINE = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA), IS_IOS = /iPhone|iPad|iPod/i.test(UA);
+  var CARD_ONLY = !IN_LINE && q.get("img") === "1" && q.get("card") === "guest" && /^[a-z0-9]{3,16}$/i.test(q.get("t") || "");
   var editing = !!(T && K);
   var creating = q.get("new") === "1" || /^\/trips\/new\/?$/.test(location.pathname);
-  var listMode = !editing && !creating;
+  var listMode = !editing && !creating && !CARD_ONLY;
   var vansEl = document.getElementById("vans");
   var rows = []; // [{id, label}]
   var busy = false;
@@ -1068,13 +1082,43 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     g.restore();
     return c;
   }
+  // LINE's in-app browser can neither download files nor share them: show the picture (iPhone: long-press to save) or hand off to the system browser
+  var cardUrl = "";
+  function closeCard() { $("cardBd").hidden = true; document.body.style.overflow = ""; if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; } }
+  function openCard(mode, blob, fileName) {
+    var guest = mode === "guest", img = $("cardImg"), ext = $("cardExt"), dl = $("cardDl"), cp = $("cardCopy"), hint = $("cardHint");
+    $("cardTtl").textContent = guest ? "SEAT PASS" : "ADMIN PASS";
+    if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; }
+    img.hidden = !blob; dl.hidden = true; ext.hidden = true; cp.hidden = true; $("cardX").hidden = CARD_ONLY;
+    if (blob) { cardUrl = URL.createObjectURL(blob); img.src = cardUrl; }
+    var extLink = location.origin + "/trips?card=guest&img=1&t=" + encodeURIComponent(shown ? shown.id : "") + "&openExternalBrowser=1";
+    if (CARD_ONLY) {
+      dl.hidden = false; dl.href = cardUrl; dl.setAttribute("download", fileName || "SEAT PASS.png");
+      hint.textContent = "กดปุ่มด้านล่างเพื่อบันทึกรูป หรือกดค้างที่รูป";
+    } else if (blob) {
+      hint.textContent = "กดค้างที่รูป แล้วเลือก “บันทึกรูป”";
+      if (guest) { ext.hidden = false; ext.href = extLink; }
+    } else {
+      hint.textContent = "LINE บน Android บันทึกรูปโดยตรงไม่ได้ กดปุ่มด้านล่างเพื่อเปิดในเบราว์เซอร์แล้วดาวน์โหลดรูปจากที่นั่น";
+      ext.hidden = false; ext.href = extLink; cp.hidden = false; cp.onclick = function () { copy(extLink, cp); };
+    }
+    $("cardBd").hidden = false; document.body.style.overflow = "hidden";
+  }
+  $("cardX").addEventListener("click", closeCard);
+  $("cardBd").addEventListener("click", function (e) { if (e.target === $("cardBd") && !CARD_ONLY) closeCard(); });
   function saveCard(mode, fileName, msg) {
     msg.textContent = ""; msg.style.color = "";
+    if (IN_LINE && !IS_IOS) {
+      if (mode === "guest") openCard("guest", null, fileName);
+      else { msg.style.color = "var(--muted)"; msg.textContent = "LINE บน Android โหลดบัตรนี้ไม่ได้ ใช้ปุ่ม “ส่งเข้า LINE” ส่งลิงก์ผู้ดูแลแทน"; }
+      return;
+    }
     loadFonts().then(function () {
     var c;
     try { c = drawCard(mode); } catch (e) { msg.textContent = "สร้างรูปไม่สำเร็จ ลองคัดลอกลิงก์แทน"; return; }
     c.toBlob(function (blob) {
       if (!blob) { msg.textContent = "สร้างรูปไม่สำเร็จ ลองคัดลอกลิงก์แทน"; return; }
+      if (IN_LINE) { openCard(mode, blob, fileName); return; }
       var file; try { file = new File([blob], fileName, { type: "image/png" }); } catch (e) { file = null; }
       if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
         navigator.share({ files: [file] }).catch(function () {});
@@ -1261,7 +1305,23 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
   });
 
+  async function cardOnly() {
+    var foot = document.querySelector(".foot"); if (foot) foot.hidden = true;
+    var id = q.get("t").toLowerCase();
+    try {
+      var res = await fetch("/api/seats?t=" + encodeURIComponent(id), { cache: "no-store" });
+      var data = await res.json();
+      if (!res.ok || !data.trip) { toast("ไม่พบทริปนี้", true); return; }
+      var t = data.trip;
+      $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || ""; $("endDate").value = t.endDate || "";
+      $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
+      rows = (t.vans || []).map(function (v) { return { id: v.id, label: v.label }; }); tripName = t.name || ""; shown = { id: id, token: "" };
+      await loadFonts();
+      drawCard("guest").toBlob(function (blob) { if (!blob) { toast("สร้างรูปไม่สำเร็จ ลองใหม่อีกครั้ง", true); return; } openCard("guest", blob, "SEAT PASS.png"); }, "image/png");
+    } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
+  }
   async function init() {
+    if (CARD_ONLY) { cardOnly(); return; }
     if (listMode) {
       var fl = "";
       try { fl = sessionStorage.getItem("van-flash") || ""; newId = sessionStorage.getItem("van-new") || ""; sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); } catch (e) {}
