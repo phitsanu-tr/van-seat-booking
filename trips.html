@@ -156,6 +156,9 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .mbar { display: none; }
 .mbody { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
 .modal.admin .mband { background: #1b1f22; }
+/* the modal's own background under the band matches the band, so the anti-aliased rounded corners show no light fringe */
+#result { background: linear-gradient(#0b5f67, #0b5f67) 0 0 / 100% 56px no-repeat, var(--surface); }
+#result.admin { background: linear-gradient(#1b1f22, #1b1f22) 0 0 / 100% 56px no-repeat, var(--surface); }
 .modal.admin .mbar { background: #5f6b73; }
 .xbtn { color: #fff; }
 .step { display: flex; flex-direction: column; gap: 14px; }
