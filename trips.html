@@ -81,10 +81,10 @@ button { font: inherit; cursor: pointer; }
 .lv-grp { display: flex; flex-direction: column; gap: 10px; }
 .tc { display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; color: inherit; text-decoration: none; }
 .tc.past { opacity: .8; }
-a.tc { transition: background-color .12s, border-color .12s, transform .12s; -webkit-tap-highlight-color: transparent; }
-a.tc:active { background: color-mix(in srgb, var(--mine) 8%, var(--surface)); border-color: var(--mine); transform: scale(.99); }
-@media (hover: hover) { a.tc:hover { border-color: var(--mine); } }
-a.tc:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
+.tc.lk { transition: background-color .12s, border-color .12s, transform .12s; -webkit-tap-highlight-color: transparent; }
+.tc.lk:active { background: color-mix(in srgb, var(--mine) 8%, var(--surface)); border-color: var(--mine); transform: scale(.99); }
+@media (hover: hover) { .tc.lk:hover { border-color: var(--mine); } }
+.tc.lk:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 .tc.new { border-color: var(--mine); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mine) 14%, transparent); }
 .tc .r1 { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .tc .r1 b { font: 600 15px/22px var(--font-display); min-width: 0; overflow-wrap: anywhere; }
@@ -96,6 +96,14 @@ a.tc:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 .tc .r3 { display: flex; align-items: center; gap: 10px; min-height: 20px; }
 .tc .pw { flex: 1; min-width: 0; }
 .tc .pw small { display: block; font-size: 11.5px; color: var(--muted); }
+.tc.lk { cursor: pointer; }
+.tc .acts { display: flex; gap: 10px; margin-top: 6px; }
+.tc .ab { flex: 1; min-width: 0; height: 40px; box-sizing: border-box; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 2px; font: 600 14px var(--font-display); text-decoration: none; background: var(--surface); color: var(--mine); border: 1.5px solid var(--mine); }
+.tc .ab.p { background: var(--mine); color: var(--mine-ink); }
+.tc .ab svg { width: 14px; height: 14px; }
+.tc .ab:active { transform: scale(.98); }
+.tc .ab:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
+.lv-cta.sec { background: var(--surface); color: var(--mine); border: 1.5px solid var(--mine); }
 .tc .go { flex: none; display: flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600; color: var(--mine); }
 .tc .go svg { width: 14px; height: 14px; }
 .tc .rm { align-self: flex-start; margin-top: 2px; background: none; border: 0; padding: 4px 0; color: var(--danger); font-size: 13px; text-decoration: underline; }
@@ -361,7 +369,7 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
   <h1>ทริปของฉัน</h1>
   <div id="listFull" hidden>
     <div style="display:flex;flex-direction:column;gap:16px">
-      <a class="lv-cta" href="/trips/new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>สร้างทริปใหม่</a>
+      <a class="lv-cta sec" href="/trips/new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>สร้างทริปใหม่</a>
       <h3 class="lv-h" id="hOpen" hidden>ทริปที่กำลังจะมาถึง</h3><div class="lv-grp" id="gOpen"></div>
       <h3 class="lv-h" id="hPast" hidden>ผ่านไปแล้ว</h3><div class="lv-grp" id="gPast"></div>
     </div>
@@ -1333,9 +1341,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       rm.addEventListener("click", function () { saveMine(loadMine().filter(function (y) { return y.id !== x.id; })); initList(); });
       g.appendChild(rm); return g;
     }
-    var a = node("a", "tc" + (past ? " past" : "") + (x.id === newId ? " new" : "")); a.href = editPath(x.id, x.token);
+    var a = node("div", "tc lk" + (past ? " past" : "") + (x.id === newId ? " new" : ""));
     var r1 = node("div", "r1"); r1.appendChild(node("b", "", (t && t.name) || x.name || x.id));
-    if (it.state === "ok") r1.appendChild(node("em", "chip" + (past ? " g" : ""), past ? "ผ่านไปแล้ว" : full ? "เต็มแล้ว" : "ยังมีที่ว่าง"));
+    if (it.state === "ok") r1.appendChild(node("em", "chip" + (past ? " g" : ""), past ? "ผ่านไปแล้ว" : full ? "เต็มแล้ว" : "เปิดจอง"));
     a.appendChild(r1);
     if (t && (t.startDate || t.endDate)) { var m = node("div", "meta"); m.appendChild(icon(SV.cal)); m.appendChild(node("span", "", dateRange(t.startDate, t.endDate) + (t.departTime ? " · " + t.departTime + " น." : ""))); a.appendChild(m); }
     if (t && t.meetPoint) { var m2 = node("div", "meta"); m2.appendChild(icon(SV.pin)); m2.appendChild(node("span", "", t.meetPoint)); a.appendChild(m2); }
@@ -1344,8 +1352,14 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var mv = node("div", "meta"); mv.appendChild(icon(SV.van)); mv.appendChild(node("span", "", t.vans.length + " คัน · จองแล้ว " + it.booked + "/" + it.total + " ที่นั่ง")); pw.appendChild(mv);
     } else pw.appendChild(node("small", "", it.state === "load" ? "กำลังโหลด..." : "โหลดข้อมูลไม่ได้"));
     r3.appendChild(pw);
-    var go = node("span", "go", "จัดการทริป"); go.appendChild(icon(SV.go)); r3.appendChild(go);
-    a.appendChild(r3); return a;
+    a.appendChild(r3);
+    var acts = node("div", "acts"), manage = node("a", "ab p", "จัดการทริป"); manage.href = editPath(x.id, x.token); manage.appendChild(icon(SV.go));
+    if (it.state === "ok" && !past && !full) { var bk = node("a", "ab", "จองที่นั่ง"); bk.href = "/" + x.id; acts.appendChild(bk); } // straight to the booking page (same view the guests get)
+    acts.appendChild(manage); a.appendChild(acts);
+    a.tabIndex = 0; a.setAttribute("role", "link"); a.setAttribute("aria-label", "จัดการทริป " + ((t && t.name) || x.name || x.id));
+    a.addEventListener("click", function (e) { if (!e.target.closest(".ab")) manage.click(); }); // the rest of the card still opens the admin page
+    a.addEventListener("keydown", function (e) { if ((e.key === "Enter" || e.key === " ") && e.target === a) { e.preventDefault(); manage.click(); } });
+    return a;
   }
   function renderList(items) {
     var open = [], past = [];
