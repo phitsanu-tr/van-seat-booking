@@ -1374,7 +1374,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     var OW = 1456, k = OW / CW;
     var out = document.createElement("canvas"); out.width = OW; out.height = Math.max(Math.round(total * k), Math.round(OW * 16 / 9));
     var oc = out.getContext("2d");
-    oc.save(); rrect(oc, 0, 0, OW, out.height, 56 * k); oc.clip();
+    oc.save(); rrect(oc, 0, 0, OW, out.height, 0); oc.clip(); // square corners: nothing transparent at the corners
     oc.fillStyle = "#eef1f3"; oc.fillRect(0, 0, OW, out.height);
     oc.drawImage(tc, 0, 0, CW, total, 0, 0, OW, Math.round(total * k));
     oc.restore();
