@@ -560,7 +560,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     } else {
       input = el("input");
       input.type = "text"; input.id = "nameInput"; input.maxLength = 30;
-      input.placeholder = "ชื่อเล่น เช่น ต้น"; input.value = typedName;
+      input.placeholder = "ระบุชื่อเล่น"; input.value = typedName;
       input.autocomplete = "off";
       input.setAttribute("aria-label", "ชื่อผู้จอง");
       input.addEventListener("keydown", function (e) { if (e.key === "Enter") book(n, input.value); });
