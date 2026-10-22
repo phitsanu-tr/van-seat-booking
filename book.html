@@ -126,6 +126,19 @@ header.trip { display: block; }
 .fullbar .go svg { width: 16px; height: 16px; }
 .shbtn { display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - 12px); margin: 12px 6px 4px; height: 46px; border-radius: 999px; border: 1.5px solid var(--mine); background: transparent; color: var(--mine); font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 15px; cursor: pointer; }
 .shbtn svg { width: 18px; height: 18px; }
+.shrow { display: flex; gap: 10px; margin: 12px 6px 4px; }
+.shrow .shbtn { flex: 1 1 0; min-width: 0; width: auto; margin: 0; white-space: nowrap; }
+.shbtn.fill { background: var(--mine); color: var(--mine-ink); }
+.invite { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 10px 10px 10px 14px; border: 1.5px solid var(--mine); border-radius: 16px; background: color-mix(in srgb, var(--mine) 9%, var(--surface)); }
+.invite[hidden] { display: none; }
+.invite .ok { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--mine); color: var(--mine-ink); display: grid; place-items: center; }
+.invite .tx { flex: 1; min-width: 0; }
+.invite .tx b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-display); font-weight: 600; font-size: 14px; line-height: 20px; color: var(--mine); }
+.invite .tx small { display: block; font-size: 12.5px; line-height: 18px; color: var(--muted); }
+.invite .go { flex: none; height: 36px; padding: 0 14px; border-radius: 999px; border: 0; background: var(--mine); color: var(--mine-ink); font: 600 13px var(--font-display); display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.invite .go svg { width: 15px; height: 15px; }
+.invite .x { flex: none; width: 28px; height: 28px; border: 0; background: transparent; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; }
+@media (max-width: 340px) { .invite .tx small { display: none; } .shrow { gap: 8px; } }
 .shbtn:disabled { opacity: .6; cursor: default; }
 .imgm { max-height: 96vh; overflow-y: auto; gap: 12px; }
 .imgm .imghd { display: flex; align-items: center; gap: 12px; height: 24px; }
@@ -348,6 +361,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     <div class="org"><span>เลือกที่นั่งว่าง</span> <span>ใส่ชื่อ</span> <span>แล้วจองได้เลย</span></div></div><svg class="hv" viewBox="0 0 96 64" fill="none" aria-hidden="true"><path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--hbg)"/></g><g transform="translate(-2 3) scale(.82)"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/><g fill="color-mix(in srgb,var(--mine) 25%,var(--surface))" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g><g fill="var(--ink)"><circle cx="26" cy="43" r="6.5"/><circle cx="70" cy="43" r="6.5"/></g><g fill="var(--surface)"><circle cx="26" cy="43" r="2.4"/><circle cx="70" cy="43" r="2.4"/></g></g></svg></div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
     <dl class="facts" id="tripFacts" hidden></dl>
+    <div class="invite" id="invite" hidden><span class="ok"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><span class="tx"><b id="invT">จองที่นั่งแล้ว</b><small>ชวนเพื่อนมาจองด้วยกันไหม</small></span><button type="button" class="go" id="invGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>ส่งให้เพื่อน</button><button type="button" class="x" id="invX" aria-label="ปิด">×</button></div>
   </header>
 
   <section class="deck" id="deck">
@@ -385,7 +399,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       <span><i class="l-taken"></i>ที่นั่งจองแล้ว</span>
       <span><i class="l-mine"></i>ที่นั่งของคุณ</span>
     </div>
-    <button type="button" class="shbtn" id="shareImg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.7"/><path d="M21 16l-5-5-8 8"/></svg>บันทึกผังเป็นรูป</button>
+    <div class="shrow"><button type="button" class="shbtn" id="shareImg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.7"/><path d="M21 16l-5-5-8 8"/></svg>บันทึกผังเป็นรูป</button><button type="button" class="shbtn fill" id="shareFriend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>ส่งให้เพื่อน</span></button></div>
   </section>
 
   <div class="backdrop" id="backdrop" hidden>
@@ -1010,6 +1024,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         mineMap[n] = { at: r.data.at };
         saveMine();
         showToast("จองที่นั่ง " + n + " แล้ว");
+        showInvite(n);
       } else if (r.data && r.data.error === "taken") {
         failMsg = "ที่นั่ง " + n + " ถูกจองไปแล้ว เลือกที่นั่งอื่น";
       } else {
@@ -1380,6 +1395,18 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     lineUrl = location.origin + location.pathname + "?" + qs.join("&");
     return lineUrl;
   }
+  function inviteLink() { return location.origin + "/" + TRIP; }
+  async function shareFriend() {
+    var u = inviteLink(), lead = "จองที่นั่งรถตู้ได้ที่นี่" + (trip && trip.name ? " · " + trip.name : "");
+    if (!IN_LINE && navigator.share) { try { await navigator.share({ title: lead, text: lead, url: u }); } catch (e) {} return; }
+    if (IN_LINE || /Android|iPhone|iPad/i.test(UA)) { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(lead + "\n" + u); return; }
+    copyText(u, function () { showToast("คัดลอกลิงก์แล้ว"); }, function () { showToast("คัดลอกไม่สำเร็จ ลองใหม่อีกครั้ง", "error"); });
+  }
+  var inviteEl = document.getElementById("invite");
+  function showInvite(n) { document.getElementById("invT").textContent = "จองที่นั่ง " + n + " แล้ว"; inviteEl.hidden = false; }
+  document.getElementById("shareFriend").addEventListener("click", shareFriend);
+  document.getElementById("invGo").addEventListener("click", shareFriend);
+  document.getElementById("invX").addEventListener("click", function () { inviteEl.hidden = true; });
   shareBtn.addEventListener("click", openImg);
   document.getElementById("imgClose").addEventListener("click", closeImg);
   imgBackdrop.addEventListener("click", function (e) { if (e.target === imgBackdrop) closeImg(); });
