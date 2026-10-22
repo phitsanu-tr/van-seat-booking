@@ -896,22 +896,24 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       rrect(ctx, bx + 8 * k, by + bh - 32 * k, bw - 16 * k, 24 * k, 9 * k); ctx.fill();
       ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
       if (!s) { // free seat: the number, centred
-        ctx.fillStyle = INK; ctx.font = '500 ' + (40 * k) + 'px Prompt, "Noto Sans Thai", sans-serif';
-        ctx.fillText(String(n), bx + bw / 2, by + bh / 2 + 14.3 * k);
+        var fz = PW * 0.064;
+        ctx.fillStyle = INK; ctx.font = '500 ' + fz + 'px Prompt, "Noto Sans Thai", sans-serif';
+        ctx.fillText(String(n), bx + bw / 2, by + bh / 2 + 0.357 * fz);
         continue;
       }
       // taken: number in the top-right corner, name centred (smaller for 3 lines, shrinks until the longest word fits)
       ctx.fillStyle = isMine ? "#ffffff" : INK;
-      ctx.font = '500 ' + (26 * k) + 'px Prompt, "Noto Sans Thai", sans-serif';
-      ctx.textAlign = "right"; ctx.fillText(String(n), bx + bw - 14 * k, by + 32 * k);
+      var nz = Math.max(26 * k, 21);
+      ctx.font = '500 ' + nz + 'px Prompt, "Noto Sans Thai", sans-serif';
+      ctx.textAlign = "right"; ctx.fillText(String(n), bx + bw - 12 * k, by + 9 * k + 0.74 * nz);
       ctx.textAlign = "center";
-      var maxW = bw - 20 * k, nameSize = 26 * k, lines = [], words = s.name.split(/\s+/);
+      var maxW = bw - 16 * k, nameSize = Math.max(26 * k, 24), lines = [], words = s.name.split(/\s+/);
       ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
-      if (wrapText(ctx, s.name, maxW, 4).length >= 3) nameSize = 21 * k;
-      while (nameSize > 14 * k) {
+      if (wrapText(ctx, s.name, maxW, 4).length >= 3) nameSize = Math.max(21 * k, 19);
+      while (nameSize > 15) {
         ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
         if (words.every(function (w) { return ctx.measureText(w).width <= maxW; })) break;
-        nameSize -= k;
+        nameSize -= 0.5;
       }
       ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
       lines = wrapText(ctx, s.name, maxW, 3);
@@ -923,8 +925,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var gr = ctx.createLinearGradient(dx, dy, dx + dw * 0.35, dy + dh); gr.addColorStop(0, "#e9edf0"); gr.addColorStop(1, "#d9e0e5");
     rrect(ctx, dx, dy, dw, dh, 10 * k); ctx.fillStyle = gr; ctx.fill();
     ctx.fillStyle = "#d8344f"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-    ctx.font = '500 ' + (32 * k) + 'px Prompt, "Noto Sans Thai", sans-serif';
-    ctx.fillText("คนขับ", dx + dw / 2, dy + dh / 2 + 0.34 * 32 * k);
+    var dz = Math.max(32 * k, PW * 0.05);
+    ctx.font = '500 ' + dz + 'px Prompt, "Noto Sans Thai", sans-serif';
+    ctx.fillText("คนขับ", dx + dw / 2, dy + dh / 2 + 0.34 * dz);
   }
   // "Seat pass" picture: dark-teal header like the admin pass. With a seat booked on this device it leads with
   // "my seat"; otherwise the details go into the header as chips and a QR code sits at the bottom.
