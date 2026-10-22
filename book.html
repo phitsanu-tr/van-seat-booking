@@ -1398,10 +1398,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   function inviteLink() { return location.origin + "/" + TRIP; }
   async function shareFriend() {
     var u = inviteLink(), L = [], T = trip || {}, dr = dateRange(T.startDate, T.endDate);
-    L.push("🚐 " + (T.name || "จองที่นั่งรถตู้"));
+    L.push("🚐 " + (T.name || "จองที่นั่งรถตู้"), "");
     if (dr || T.departTime) L.push("📅 " + dr + (dr && T.departTime ? " · " : "") + (T.departTime ? T.departTime.replace(":", ".") + " น." : ""));
     if (T.meetPoint) L.push("📍 " + T.meetPoint);
-    L.push("จองที่นั่งได้ที่นี่ 👇");
+    L.push("", "จองที่นั่งได้ที่นี่ 👇");
     var lead = L.join("\n");
     if (!IN_LINE && navigator.share) { try { await navigator.share({ title: lead, text: lead, url: u }); } catch (e) {} return; }
     if (IN_LINE || /Android|iPhone|iPad/i.test(UA)) { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(lead + "\n" + u); return; }
