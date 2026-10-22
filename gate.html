@@ -9,15 +9,25 @@
 body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #eef1f3; color: #1b1f22; font-family: system-ui, "Noto Sans Thai", sans-serif; text-align: center; }
 .b { max-width: 420px; padding: 32px 24px; }
 h1 { font-size: 22px; margin: 0 0 12px; }
-p { margin: 0 0 24px; color: #5f6b73; line-height: 1.6; }
+p { margin: 0 0 20px; color: #5f6b73; line-height: 1.6; font-size: 15px; }
+.st { text-align: left; background: #fff; border: 1px solid #c9d2d8; border-radius: 16px; padding: 6px 16px; margin-bottom: 20px; }
+.s { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; font-size: 15px; line-height: 1.5; }
+.s + .s { border-top: 1px solid #eceff1; }
+.n { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #0e7c86; color: #fff; font: 600 13px system-ui, sans-serif; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.s small { display: block; color: #5f6b73; font-size: 13px; }
 button { height: 52px; padding: 0 24px; border-radius: 16px; border: 2px solid #0e7c86; background: #0e7c86; color: #fff; font: 600 16px system-ui, "Noto Sans Thai", sans-serif; cursor: pointer; }
-@media (prefers-color-scheme: dark) { body { background: #0d151a; color: #e6ecef; } p { color: #93a6b0; } button { background: #3cc0cc; border-color: #3cc0cc; color: #07262a; } }
+@media (prefers-color-scheme: dark) { body { background: #0d151a; color: #e6ecef; } p, .s small { color: #93a6b0; } .st { background: #17252e; border-color: #2d4350; } .s + .s { border-top-color: #2d4350; } .n { background: #3cc0cc; color: #07262a; } button { background: #3cc0cc; border-color: #3cc0cc; color: #07262a; } }
 </style>
 </head>
 <body>
 <div class="b">
-  <h1>เปิดลิงก์นี้ในแอป LINE บนมือถือ</h1>
-  <p>ระบบจองที่นั่งใช้ได้เฉพาะใน LINE บนมือถือ<br>ส่งลิงก์ไปที่แชท LINE แล้วกดเปิดจากในแอป</p>
+  <h1>กรุณาเปิดลิงก์ด้วยแอป LINE</h1>
+  <p>หน้านี้ใช้ได้เฉพาะในแอป LINE บนมือถือ</p>
+  <div class="st">
+    <div class="s"><span class="n">1</span><div>กดปุ่มด้านล่างเพื่อคัดลอกลิงก์</div></div>
+    <div class="s"><span class="n">2</span><div>ส่งลิงก์เข้าแชท LINE<small>เช่น Keep Memo หรือแชทกับตัวเอง</small></div></div>
+    <div class="s"><span class="n">3</span><div>กดลิงก์ในแชทเพื่อเปิด</div></div>
+  </div>
   <button type="button" id="c">คัดลอกลิงก์</button>
 </div>
 <script>
