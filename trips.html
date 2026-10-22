@@ -92,6 +92,9 @@ button { font: inherit; cursor: pointer; }
 @keyframes skm { to { transform: translateX(100%); } }
 @media (prefers-reduced-motion: reduce) { .sk::after { animation: none; } }
 .tc.skl .acts .sk { flex: 1; height: 40px; border-radius: 16px; }
+.tc.cin { animation: tcin .3s ease backwards; }
+@keyframes tcin { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .tc.cin { animation: none; } }
 .tc.past { opacity: .8; }
 .tc.new { border-color: var(--mine); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mine) 14%, transparent); }
 .tc .r1 { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
@@ -1416,7 +1419,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     acts.appendChild(manage); a.appendChild(acts);
     return a;
   }
-  function renderList(items) {
+  function renderList(items, stagger) {
     var open = [], past = [];
     items.forEach(function (it) { (it.state === "gone" || (it.state === "ok" && isPast(it.trip)) ? past : open).push(it); });
     var key = function (it) { return (it.trip && (it.trip.startDate || it.trip.endDate)) || "9999"; };
@@ -1425,7 +1428,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     past.sort(function (a, b) { return pkey(a) < pkey(b) ? 1 : pkey(a) > pkey(b) ? -1 : 0; });
     [["gOpen", "hOpen", open], ["gPast", "hPast", past]].forEach(function (g) {
       var box = $(g[0]); box.textContent = ""; $(g[1]).hidden = g[2].length === 0; $(g[1]).querySelector(".n").textContent = g[2].length + " ทริป";
-      g[2].forEach(function (it) { box.appendChild(card(it)); });
+      g[2].forEach(function (it, i) { var c = card(it); if (stagger) { c.classList.add("cin"); c.style.animationDelay = Math.min(i, 8) * 70 + "ms"; } box.appendChild(c); });
     });
   }
   async function initList() {
@@ -1438,7 +1441,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     renderList(items);
     await Promise.all(items.map(async function (it) {
       try {
-        var res = await fetch("/api/seats?t=" + encodeURIComponent(it.x.id), { cache: "no-store" });
+        var res = await fetch("/api/seats?t=" + encodeURIComponent(it.x.id), { cache: "no-store", signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(8000) : undefined });
         var d = {}; try { d = await res.json(); } catch (e) {}
         if (res.status === 404) it.state = "gone";
         else if (!res.ok || !d.trip) it.state = "err";
@@ -1447,8 +1450,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
           it.booked = Object.keys(d.counts || {}).reduce(function (n, k) { return n + (Number(d.counts[k]) || 0); }, 0);
         }
       } catch (e) { it.state = "err"; }
-      renderList(items);
     }));
+    renderList(items, true); // every card is ready: show them together, fading in from the top down
     var nw = document.querySelector(".tc.new"); if (nw && nw.scrollIntoView) nw.scrollIntoView({ block: "center", behavior: "smooth" });
   }
 
