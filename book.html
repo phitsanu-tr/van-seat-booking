@@ -116,6 +116,14 @@ header.trip { display: block; }
 .imgm .imgbtn.primary { flex: none; width: 100%; background: var(--mine); border-color: var(--mine); color: var(--mine-ink); font-size: 18px; }
 .imgm .imgbtn.primary svg { width: 22px; height: 22px; }
 .imgm .imgbtn.primary[hidden] { display: none; }
+.imgm a.imgbtn { text-decoration: none; }
+.imgm .lt { margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); }
+.imgm .lt b { color: var(--ink); font-weight: 600; }
+.imgonly #tripHdr, .imgonly #deck > :not(#imgBackdrop), .imgonly .foot { display: none !important; }
+#imgOnlyNote { display: none; text-align: center; padding: 64px 24px; color: var(--muted); }
+.imgonly #imgOnlyNote { display: block; }
+#imgOnlyNote b { display: block; font: 600 20px var(--font-display); color: var(--ink); margin-bottom: 8px; }
+#imgOnlyNote button { margin-top: 20px; height: 52px; padding: 0 24px; border-radius: 16px; border: 2px solid var(--mine); background: var(--mine); color: var(--mine-ink); font: 600 16px var(--font-body); cursor: pointer; }
 .imgm .imgrow { display: flex; gap: 10px; }
 .imgm .imgrow .imgbtn { flex: 1; }
 .imgm .imgrow.solo .imgbtn#imgSave { background: var(--mine); border-color: var(--mine); color: var(--mine-ink); }
@@ -261,7 +269,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 </head>
 <body>
 <main>
-  <header class="trip">
+  <header class="trip" id="tripHdr">
     <div class="hero"><div class="ht"><h1 id="tripName">จองที่นั่งรถตู้</h1>
     <div class="org" id="tripOrg" hidden></div></div><svg class="hv" viewBox="0 0 96 64" fill="none" aria-hidden="true"><path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--hbg)"/></g><g transform="translate(-2 3) scale(.82)"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/><g fill="color-mix(in srgb,var(--mine) 25%,var(--surface))" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g><g fill="var(--ink)"><circle cx="26" cy="43" r="6.5"/><circle cx="70" cy="43" r="6.5"/></g><g fill="var(--surface)"><circle cx="26" cy="43" r="2.4"/><circle cx="70" cy="43" r="2.4"/></g></g></svg></div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
@@ -323,6 +331,15 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     </div>
   </div>
 
+  <div class="backdrop" id="lineBackdrop" hidden>
+    <div class="modal imgm" role="dialog" aria-modal="true" aria-label="บันทึกรูปผัง">
+      <div class="imghd"><div class="imgt"><h2>บันทึกรูปผัง</h2><small>LINE บันทึกรูปจากหน้านี้ไม่ได้</small></div><button type="button" class="imgx" id="lineClose" aria-label="ปิด"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <p class="lt">กด <b>เปิดในเบราว์เซอร์</b> เพื่อไปหน้ารูป แล้วกดดาวน์โหลดหรือแชร์ได้เลย ถ้าเบราว์เซอร์ไม่เปิดเอง ให้กด <b>คัดลอกลิงก์</b> แล้วนำไปวางในเบราว์เซอร์</p>
+      <a class="imgbtn primary" id="lineOpen" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 014 18.5v-11A1.5 1.5 0 015.5 6H10"/></svg><span>เปิดในเบราว์เซอร์</span></a>
+      <button type="button" class="imgbtn" id="lineCopy"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>คัดลอกลิงก์</span></button>
+    </div>
+  </div>
+
   <section class="list" id="listView" hidden>
     <h2>รายชื่อผู้จอง<small id="listSub"></small></h2>
     <ul id="list"></ul>
@@ -332,12 +349,38 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 
 <div class="foot">© 2025 PHITSANU_ · <a href="https://github.com/phitsanu-tr" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>View on GitHub</a></div>
 
+<div id="imgOnlyNote"><b>รูปผังที่นั่ง</b>บันทึกรูปเสร็จแล้ว กลับไปที่ LINE เพื่อจองที่นั่งต่อได้<br><button type="button" id="imgAgain">สร้างรูปอีกครั้ง</button></div>
+
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script>
 (function () {
   var TOTAL = 10;
   var API = "/api/seats";
+  // The booking page works inside the LINE app only. Outside LINE it shows a notice, except the picture-only
+  // page (?img=1&mk=...) that LINE sends people to when they want to save the image.
+  var UA = navigator.userAgent || "", IN_LINE = /\bLine\//i.test(UA);
+  var Q0 = new URLSearchParams(location.search);
+  var MK = Q0.get("mk") || "";
+  var IMG_ONLY = !IN_LINE && Q0.get("img") === "1" && !!MK;
+  var DEV = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  try { if (Q0.get("dev") === "1") sessionStorage.setItem("vsb_dev", "1"); if (sessionStorage.getItem("vsb_dev") === "1") DEV = true; } catch (e) { if (Q0.get("dev") === "1") DEV = true; }
+  if (!IN_LINE && !IMG_ONLY && !DEV) {
+    var gd = document.createElement("div");
+    gd.style.cssText = "max-width:420px;margin:0 auto;padding:96px 24px;text-align:center;font-family:var(--font-body);color:var(--ink)";
+    gd.innerHTML = '<div style="font:600 22px var(--font-display);margin-bottom:12px">เปิดลิงก์นี้ในแอป LINE</div><p style="margin:0 0 24px;color:var(--muted);line-height:1.6">หน้าจองที่นั่งใช้ได้เฉพาะใน LINE<br>ส่งลิงก์ไปที่แชท LINE แล้วกดเปิดจากในแอป</p><button type="button" id="gateCopy" style="height:52px;padding:0 24px;border-radius:16px;border:2px solid var(--mine);background:var(--mine);color:var(--mine-ink);font:600 16px var(--font-body);cursor:pointer">คัดลอกลิงก์</button>';
+    document.body.innerHTML = ""; document.body.appendChild(gd);
+    document.getElementById("gateCopy").addEventListener("click", function () {
+      var b = this, u = location.href.split("#")[0], done = function () { b.textContent = "คัดลอกแล้ว"; };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(done, function () {});
+      else { var ta = document.createElement("textarea"); ta.value = u; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); done(); } catch (e) {} ta.remove(); }
+    });
+    return;
+  }
+  if (IMG_ONLY) {
+    document.documentElement.classList.add("imgonly");
+    try { Q0.delete("mk"); history.replaceState(null, "", location.pathname + (Q0.toString() ? "?" + Q0.toString() : "")); } catch (e) {}
+  }
   // Seat boxes in the plan's own coordinate space (x, y, w, h in a 820 x 1384 drawing).
   var RECT = {
     1: [113, 212, 190, 174],
@@ -386,7 +429,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   function mineKey() { return TRIP === "default" && curVan === "A" ? "van-mine" : "van-mine:" + TRIP + ":" + curVan; }
   function readMine() { try { return JSON.parse(localStorage.getItem(mineKey()) || "{}") || {}; } catch (e) { return {}; } }
   function saveMine() { try { localStorage.setItem(mineKey(), JSON.stringify(mineMap)); } catch (e) {} }
-  function mine(n) { var s = seats[n], m = mineMap[n]; return !!(s && m && m.at === s.at); }
+  var extMine = {}; // seats to tint on the picture-only page (verified by the server, never stored, grants nothing)
+  function mine(n) { var s = seats[n], m = mineMap[n]; return !!(s && ((m && m.at === s.at) || (extMine[n] !== undefined && extMine[n] === s.at))); }
 
   function deviceId() {
     try {
@@ -471,7 +515,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   // while a dialog is open the page behind is frozen
   var lockY = null;
   function syncLock() {
-    var ib = document.getElementById("imgBackdrop"), on = !backdropEl.hidden || (ib && !ib.hidden), b = document.body;
+    var on = !!document.querySelector(".backdrop:not([hidden])"), b = document.body;
     if (on && lockY === null) {
       lockY = window.pageYOffset || 0;
       b.style.position = "fixed"; b.style.top = -lockY + "px"; b.style.left = "0"; b.style.right = "0"; b.style.width = "100%";
@@ -1136,7 +1180,39 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     }
     shareBtn.disabled = false; shareBtn.lastChild.textContent = label;
   }
-  shareBtn.addEventListener("click", openImg);
+  function copyText(u, done, fail) {
+    function legacy() {
+      try { var ta = document.createElement("textarea"); ta.value = u; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;top:0;left:0;opacity:0"; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, u.length); var ok = document.execCommand("copy"); ta.remove(); ok ? done() : fail(); } catch (e) { fail(); }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(done, legacy); else legacy();
+  }
+  var lineBackdrop = document.getElementById("lineBackdrop"), lineUrl = "";
+  async function openLineSheet() { // LINE cannot save pictures: send the person to the browser's picture-only page
+    shareBtn.disabled = true;
+    var arr = [], k = "";
+    for (var n in mineMap) if (mine(Number(n))) arr.push({ seat: Number(n), at: mineMap[n].at });
+    if (arr.length) {
+      try {
+        var rr = await fetch("/api/mark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: TRIP, v: curVan, seats: arr }) });
+        if (rr.ok) k = (await rr.json()).k || "";
+      } catch (e) { /* no highlight, the picture still works */ }
+    }
+    var qs = [];
+    if (!pathId) qs.push("t=" + encodeURIComponent(TRIP));
+    if (curVan) qs.push("v=" + encodeURIComponent(curVan));
+    qs.push("img=1"); if (k) qs.push("mk=" + encodeURIComponent(k)); qs.push("openExternalBrowser=1");
+    lineUrl = location.origin + location.pathname + "?" + qs.join("&");
+    document.getElementById("lineOpen").href = lineUrl;
+    lineBackdrop.hidden = false; syncLock();
+    shareBtn.disabled = false;
+  }
+  function closeLine() { lineBackdrop.hidden = true; syncLock(); }
+  document.getElementById("lineClose").addEventListener("click", closeLine);
+  lineBackdrop.addEventListener("click", function (e) { if (e.target === lineBackdrop) closeLine(); });
+  document.getElementById("lineCopy").addEventListener("click", function () {
+    copyText(lineUrl, function () { showToast("คัดลอกลิงก์แล้ว"); }, function () { showToast("คัดลอกไม่สำเร็จ", "error"); });
+  });
+  shareBtn.addEventListener("click", IN_LINE ? openLineSheet : openImg);
   document.getElementById("imgClose").addEventListener("click", closeImg);
   imgBackdrop.addEventListener("click", function (e) { if (e.target === imgBackdrop) closeImg(); });
   document.getElementById("imgSave").addEventListener("click", function () {
@@ -1144,13 +1220,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var a = document.createElement("a"); a.href = imgUrl; a.download = "van-seats.png";
     document.body.appendChild(a); a.click(); a.remove();
   });
-  document.getElementById("imgCopy").addEventListener("click", async function () {
-    var u = location.href.split("#")[0], ok = false;
-    try { await navigator.clipboard.writeText(u); ok = true; } catch (e) {}
-    if (!ok) {
-      try { var ta = document.createElement("textarea"); ta.value = u; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;top:0;left:0;opacity:0"; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, u.length); ok = document.execCommand("copy"); ta.remove(); } catch (e) {}
-    }
-    showToast(ok ? "คัดลอกลิงก์แล้ว" : "คัดลอกไม่สำเร็จ ลองกดค้างที่ลิงก์แทน", ok ? "" : "error");
+  document.getElementById("imgCopy").addEventListener("click", function () {
+    var u = IMG_ONLY ? location.origin + location.pathname + (curVan ? "?v=" + encodeURIComponent(curVan) : "") : location.href.split("#")[0];
+    copyText(u, function () { showToast("คัดลอกลิงก์แล้ว"); }, function () { showToast("คัดลอกไม่สำเร็จ ลองกดค้างที่ลิงก์แทน", "error"); });
   });
   document.getElementById("imgShare").addEventListener("click", async function () {
     if (!imgFile) return;
@@ -1158,12 +1230,24 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   });
 
   backdropEl.addEventListener("click", function (e) { if (e.target === backdropEl) closeModal(); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if (!imgBackdrop.hidden) closeImg(); else if (selected != null) closeModal(); } });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if (!lineBackdrop.hidden) closeLine(); else if (!imgBackdrop.hidden) closeImg(); else if (selected != null) closeModal(); } });
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") refresh(false); });
   setInterval(function () { if (document.visibilityState === "visible") refresh(false); }, 8000);
 
   renderAll();
   refresh(false);
+  if (IMG_ONLY) {
+    var tries = 0, tmr = setInterval(async function () {
+      if (!loaded) { if (++tries > 75) clearInterval(tmr); return; }
+      clearInterval(tmr);
+      try {
+        var mr = await fetch("/api/mark?k=" + encodeURIComponent(MK));
+        if (mr.ok) { var md = await mr.json(); if (md.t === TRIP && (!curVan || md.v === curVan)) (md.seats || []).forEach(function (n) { if (seats[n]) extMine[n] = seats[n].at; }); }
+      } catch (e) { /* no highlight */ }
+      openImg();
+    }, 200);
+    document.getElementById("imgAgain").addEventListener("click", openImg);
+  }
 })();
 </script>
 </body>

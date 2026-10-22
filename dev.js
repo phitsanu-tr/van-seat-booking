@@ -76,7 +76,7 @@ function startApp() {
     const u = new URL(req.url, "http://localhost");
     const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/trips", "/owner.html": "/owner", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
     if (RD[u.pathname]) { res.writeHead(302, { Location: RD[u.pathname] }); return res.end(); }
-    if (u.pathname === "/api/trip" || u.pathname === "/api/seats" || u.pathname === "/api/owner") {
+    if (u.pathname === "/api/trip" || u.pathname === "/api/seats" || u.pathname === "/api/owner" || u.pathname === "/api/mark") {
       let raw = ""; req.on("data", (c) => (raw += c));
       req.on("end", async () => {
         req.query = Object.fromEntries(u.searchParams);
