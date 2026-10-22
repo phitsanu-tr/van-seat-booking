@@ -329,7 +329,7 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .vf { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px; }
 .vf > * { min-width: 0; }
 input.vp::placeholder { font-size: 14px; } /* long example text still fits on 360px phones */
-.toast { position: fixed; z-index: 30; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); width: min(calc(100% - 32px), 428px); transform: translateX(-50%); display: flex; gap: 10px; align-items: flex-start; background: #1b1f22; color: #fff; border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 21px; box-shadow: 0 12px 28px rgba(0,0,0,.32); animation: toastIn .2s ease-out; cursor: pointer; }
+.toast { position: fixed; z-index: 40; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); width: min(calc(100% - 32px), 428px); transform: translateX(-50%); display: flex; gap: 10px; align-items: flex-start; background: #1b1f22; color: #fff; border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 21px; box-shadow: 0 12px 28px rgba(0,0,0,.32); animation: toastIn .2s ease-out; cursor: pointer; }
 .toast svg { flex: none; width: 20px; height: 20px; margin-top: 0.5px; color: #ff8a80; }
 .toast.ok svg { color: #6fe0c0; }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } }
@@ -1107,7 +1107,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var mySeq = ++cardSeq;
       var ready = function (u) {
         if (mySeq !== cardSeq) return;
-        ext.href = u; ext.style.opacity = ""; ext.textContent = "เปิดในเบราว์เซอร์เพื่อโหลดรูป"; cp.disabled = false; cp.onclick = function () { copy(u, cp); };
+        ext.href = u; ext.style.opacity = ""; ext.textContent = "เปิดในเบราว์เซอร์เพื่อโหลดรูป"; cp.disabled = false; cp.onclick = function () { copyPlain(u); };
       };
       if (guest) ready(location.origin + "/trips?card=guest&img=1&t=" + encodeURIComponent(shown ? shown.id : "") + "&openExternalBrowser=1");
       else {
@@ -1118,6 +1118,18 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       }
     }
     $("cardBd").hidden = false; document.body.style.overflow = "hidden";
+  }
+  // plain "copy link" with a toast (no button icon swap)
+  function copyPlain(text) {
+    function ok() { toast("คัดลอกลิงก์แล้ว", false, true); }
+    function bad() { toast("คัดลอกไม่สำเร็จ ลองใหม่อีกครั้ง"); }
+    function fallback() {
+      var ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var done = false; try { done = document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta); if (done) ok(); else bad();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback); else fallback();
   }
   var cardSeq = 0;
   $("cardX").addEventListener("click", closeCard);
