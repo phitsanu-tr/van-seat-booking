@@ -143,7 +143,8 @@ header.trip { display: block; }
 .seat.mine::after { background: var(--bmine); }
 .seat .no { font-family: var(--font-display); font-weight: 500; font-size: 26px; font-size: clamp(20px, 4.88cqw, 40px); line-height: 1; }
 .seat.taken .no { position: absolute; top: 1.4cqw; right: 1.7cqw; font-size: 16px; font-size: clamp(14px, 3.4cqw, 28px); }
-.seat .who { font-size: 11px; font-size: clamp(11px, 3.9cqw, 32px); line-height: 1.25; font-weight: 500; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; max-width: 100%; }
+.seat .who { font-size: 11px; font-size: clamp(13px, 4.9cqw, 40px); line-height: 1.25; font-weight: 500; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; max-width: 100%; }
+.seat .who.s2 { font-size: 11px; font-size: clamp(11px, 3.9cqw, 32px); }
 .seat .who.s3 { font-size: 10px; font-size: clamp(10px, 3.3cqw, 27px); }
 .seat:hover { background: color-mix(in srgb, var(--mine) 12%, transparent); }
 .seat.taken { background: color-mix(in srgb, var(--taken) 94%, transparent); cursor: default; }
@@ -430,7 +431,13 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     // names that wrap to 3 lines get a slightly smaller size so they stay clear of the seat's bottom band
     Array.prototype.forEach.call(overlayEl.querySelectorAll(".who"), function (w) {
       var lh = parseFloat(getComputedStyle(w).lineHeight);
-      if (lh && w.scrollHeight > lh * 2.5) w.classList.add("s3");
+      // nicknames are short, so names start big; long ones step down until they fit in 2 lines (3 at the smallest)
+      if (!lh) return;
+      if (w.scrollHeight > lh * 2.5) {
+        w.classList.add("s2");
+        var lh2 = parseFloat(getComputedStyle(w).lineHeight);
+        if (lh2 && w.scrollHeight > lh2 * 2.5) { w.classList.remove("s2"); w.classList.add("s3"); }
+      }
     });
   }
 
@@ -907,9 +914,13 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       ctx.font = '500 ' + nz + 'px Prompt, "Noto Sans Thai", sans-serif';
       ctx.textAlign = "right"; ctx.fillText(String(n), bx + bw - 12 * k, by + 9 * k + 0.74 * nz);
       ctx.textAlign = "center";
-      var maxW = bw - 16 * k, nameSize = Math.max(26 * k, 24), lines = [], words = s.name.split(/\s+/);
-      ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
-      if (wrapText(ctx, s.name, maxW, 4).length >= 3) nameSize = Math.max(21 * k, 19);
+      var maxW = bw - 16 * k, nameSize = 0, lines = [], words = s.name.split(/\s+/);
+      var tiers = [Math.max(40 * k, 32), Math.max(32 * k, 26), Math.max(26 * k, 22), Math.max(21 * k, 19)];
+      for (var ti = 0; ti < tiers.length; ti++) {
+        nameSize = tiers[ti];
+        ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
+        if (words.every(function (w) { return ctx.measureText(w).width <= maxW; }) && wrapText(ctx, s.name, maxW, 4).length <= (ti < 3 ? 2 : 3)) break;
+      }
       while (nameSize > 15) {
         ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
         if (words.every(function (w) { return ctx.measureText(w).width <= maxW; })) break;
