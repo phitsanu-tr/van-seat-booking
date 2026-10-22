@@ -248,7 +248,8 @@ header.trip { display: block; }
 .mini { flex: none; width: 64px; height: 96px; border-radius: 12px; background: var(--bg); padding: 5px; box-sizing: border-box; display: flex; justify-content: center; align-items: center; }
 .mini svg { height: 100%; width: auto; display: block; }
 .mtxt { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1; }
-#backdrop .modal { gap: 14px; }
+#backdrop .modal { gap: 14px; min-height: 348px; }
+#backdrop .modal .actions { margin-top: auto; }
 .mtxt h2 { font-size: 28px !important; line-height: 1.1; }
 .pill { align-self: flex-start; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: color-mix(in srgb, var(--mine) 18%, transparent); color: var(--mine); }
 .pill.taken { background: var(--taken); color: var(--ink); }
@@ -271,6 +272,15 @@ button.ghost { background: transparent; color: var(--danger); border-color: var(
 button:disabled { opacity: .5; cursor: not-allowed; }
 .msg { font-size: 13px; color: var(--danger); }
 .msg:empty { display: none; }
+.nmwrap { position: relative; display: flex; flex: none; }
+.modal .nmwrap input[type=text] { padding-right: 64px; }
+.nmcnt { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; pointer-events: none; }
+.nmcnt.full { color: var(--danger); }
+.modal input[type=text].bad { border-color: var(--danger); box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 16%, transparent); }
+.msg.nmmsg { display: flex; align-items: center; gap: 6px; height: 18px; margin-top: -6px; line-height: 18px; white-space: nowrap; }
+.msg.nmmsg:empty { display: block; }
+.msg.nmmsg svg { flex: none; }
+.msg.nmmsg.info { color: var(--muted); }
 
 .list { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
 .vsw { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 16px; background: color-mix(in srgb, var(--ink) 9%, var(--bg)); }
@@ -449,6 +459,45 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     if (text != null) e.textContent = text;
     return e;
   }
+  // Same rules as api/_lib.js cleanName (the server re-checks).
+  var NAME_MAX = 16;
+  function cleanName(input) {
+    var src = Array.from(String(input == null ? "" : input).normalize("NFC"));
+    var out = "", prev = "", marks = 0, removed = false, truncated = false, markRemoved = false;
+    for (var i = 0; i < src.length; i++) {
+      var ch = src[i], c = ch.charCodeAt(0);
+      var cons = c >= 0x0E01 && c <= 0x0E2E;
+      var lead = c >= 0x0E40 && c <= 0x0E45;
+      var mark = (c >= 0x0E30 && c <= 0x0E39) || (c >= 0x0E47 && c <= 0x0E4C);
+      var ok = cons || lead || /^[A-Za-z]$/.test(ch);
+      if (mark) {
+        var pc = prev ? prev.charCodeAt(0) : 0;
+        var afterBase = (pc >= 0x0E01 && pc <= 0x0E2E) || (pc >= 0x0E30 && pc <= 0x0E39) || (pc >= 0x0E47 && pc <= 0x0E4C);
+        ok = afterBase && marks < 2 && ch !== prev;
+        if (!ok) markRemoved = true;
+      }
+      if (!ok) { removed = true; continue; }
+      if (out.length >= NAME_MAX) { truncated = true; continue; }
+      out += ch; prev = ch; marks = mark ? marks + 1 : 0;
+    }
+    return { text: out, removed: removed, truncated: truncated, markRemoved: markRemoved };
+  }
+  function hasBaseLetter(s) { return /[\u0E01-\u0E2EA-Za-z]/.test(s); }
+  var ICON_ERR = '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/>';
+  var ICON_INFO = '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>';
+  function noteInto(box, kind, text) {
+    box.className = "msg nmmsg" + (kind === "info" ? " info" : "");
+    box.textContent = "";
+    if (!text) return;
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("width", "16"); svg.setAttribute("height", "16");
+    svg.setAttribute("fill", "none"); svg.setAttribute("stroke", "currentColor"); svg.setAttribute("stroke-width", "2.2");
+    svg.setAttribute("stroke-linecap", "round"); svg.setAttribute("stroke-linejoin", "round"); svg.setAttribute("aria-hidden", "true");
+    svg.innerHTML = kind === "info" ? ICON_INFO : ICON_ERR;
+    box.appendChild(svg);
+    box.appendChild(el("span", null, text));
+  }
+
   function frame(node, r) {
     node.style.left = (r[0] / W * 100) + "%";
     node.style.top = (r[1] / H * 100) + "%";
@@ -493,6 +542,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     var code = r && r.data && r.data.error;
     if (code === "taken") return "ที่นั่งนี้ถูกจองไปแล้ว เลือกที่นั่งอื่น";
     if (code === "bad_name") return "ใส่ชื่อก่อนจอง";
+    if (code === "name_chars") return "ใช้ได้เฉพาะภาษาไทยและอังกฤษ";
     if (code === "ended") return "ทริปนี้สิ้นสุดแล้ว ปิดรับจอง";
     if (code === "no_trip") return "ไม่พบทริปนี้ ตรวจสอบลิงก์อีกครั้ง";
     if (code === "no_van") return "ไม่พบรถคันนี้ รีเฟรชหน้าแล้วลองใหม่";
@@ -585,7 +635,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 
   function renderPanel() {
     var keep = document.getElementById("nameInput");
-    var typedName = keep ? keep.value : ""; // a fresh dialog always starts empty
+    var typedName = keep ? cleanName(keep.value).text : ""; // a fresh dialog always starts empty
     var hadFocus = !!keep && document.activeElement === keep;
     var opening = selected != null && !shown;
     shown = selected != null;
@@ -616,7 +666,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     xb.addEventListener("click", closeModal);
     panelEl.appendChild(xb);
     var actions = el("div", "actions");
-    var input = null;
+    var input = null, noteBox = null;
 
     function plainBtn(label, onClick) {
       var c = el("button", "plain", label);
@@ -653,19 +703,51 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       actions.appendChild(cancel);
     } else {
       input = el("input");
-      input.type = "text"; input.id = "nameInput"; input.maxLength = 30;
+      input.type = "text"; input.id = "nameInput";
       input.placeholder = "ระบุชื่อ เช่น ชื่อเล่น"; input.value = typedName;
-      input.autocomplete = "off";
+      input.autocomplete = "off"; input.autocapitalize = "off"; input.spellcheck = false;
+      input.setAttribute("autocorrect", "off");
       input.setAttribute("aria-label", "ชื่อผู้จอง");
-      input.addEventListener("keydown", function (e) { if (e.key === "Enter") book(n, input.value); });
-      panelEl.appendChild(input);
+      var wrap = el("div", "nmwrap");
+      var cnt = el("span", "nmcnt"); cnt.setAttribute("aria-hidden", "true");
+      noteBox = el("div", "msg nmmsg"); noteBox.setAttribute("role", "status");
+      var composing = false;
+      var showCount = function () {
+        var len = input.value.length;
+        cnt.textContent = len ? len + "/" + NAME_MAX : "";
+        cnt.className = "nmcnt" + (len >= NAME_MAX ? " full" : "");
+      };
+      var note = function (kind, text) { noteInto(noteBox, kind, text); input.classList.toggle("bad", kind === "err" && !!text); };
+      var sanitize = function () {
+        var raw = input.value;
+        var sel = input.selectionStart == null ? raw.length : input.selectionStart;
+        var c = cleanName(raw);
+        if (c.text !== raw) {
+          var caret = Math.min(cleanName(raw.slice(0, sel)).text.length, c.text.length);
+          input.value = c.text;
+          try { input.setSelectionRange(caret, caret); } catch (e) {}
+        }
+        if (c.removed) note("err", c.markRemoved && !/[\u0E01-\u0E2E]/.test(raw) ? "สระ/วรรณยุกต์ต้องตามหลังพยัญชนะ" : "ใช้ได้เฉพาะภาษาไทยและอังกฤษ");
+        else if (c.truncated) note("info", "ครบ " + NAME_MAX + " ตัวอักษรแล้ว");
+        else note("", "");
+        showCount();
+      };
+      input.addEventListener("compositionstart", function () { composing = true; });
+      input.addEventListener("compositionend", function () { composing = false; sanitize(); });
+      input.addEventListener("input", function () { if (!composing) sanitize(); });
+      input.addEventListener("keydown", function (e) { if (e.key === "Enter" && !composing) book(n, input.value); });
+      wrap.appendChild(input); wrap.appendChild(cnt);
+      panelEl.appendChild(wrap);
+      panelEl.appendChild(noteBox);
+      showCount();
+      if (message) note("err", message);
       var ok = el("button", "primary", "จองที่นั่ง");
       ok.type = "button";
       ok.addEventListener("click", function () { book(n, input.value); });
       actions.appendChild(plainBtn("ยกเลิก", closeModal));
       actions.appendChild(ok);
     }
-    if (message) panelEl.appendChild(el("div", "msg", message));
+    if (message && !input) panelEl.appendChild(el("div", "msg", message));
     panelEl.appendChild(actions);
     if (input && hadFocus) input.focus();
   }
@@ -878,8 +960,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   }
 
   async function book(n, rawName) {
-    var name = (rawName || "").trim().slice(0, 30);
+    var name = cleanName(rawName).text;
     if (!name) { message = "ใส่ชื่อก่อนจอง"; renderPanel(); return; }
+    if (!hasBaseLetter(name)) { message = "ต้องมีตัวอักษรอย่างน้อย 1 ตัว"; renderPanel(); return; }
     // Show the name right away, then confirm with the server in the background.
     var temp = { name: name, at: "pending-" + Date.now(), pending: true };
     seats[n] = temp;

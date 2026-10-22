@@ -123,6 +123,32 @@ async function logEvent(t, ev, tripExpSec) {
   } catch (e) { /* ignore */ }
 }
 
+// Booking names: Thai + English letters only, up to 16, no spaces/digits/symbols.
+// Thai vowel/tone marks must follow a consonant (or another mark); leading vowels (เ แ โ ใ ไ) may start a name.
+const NAME_MAX = 16;
+function cleanName(input) {
+  const src = Array.from(String(input == null ? "" : input).normalize("NFC"));
+  let out = "", prev = "", marks = 0, removed = false, truncated = false;
+  for (const ch of src) {
+    const c = ch.charCodeAt(0);
+    const cons = c >= 0x0E01 && c <= 0x0E2E;
+    const lead = (c >= 0x0E40 && c <= 0x0E45);
+    const mark = (c >= 0x0E30 && c <= 0x0E39) || (c >= 0x0E47 && c <= 0x0E4C);
+    const latin = /^[A-Za-z]$/.test(ch);
+    let ok = cons || lead || latin;
+    if (mark) {
+      const pc = prev ? prev.charCodeAt(0) : 0;
+      const afterBase = (pc >= 0x0E01 && pc <= 0x0E2E) || ((pc >= 0x0E30 && pc <= 0x0E39) || (pc >= 0x0E47 && pc <= 0x0E4C));
+      ok = afterBase && marks < 2 && ch !== prev;
+    }
+    if (!ok) { removed = true; continue; }
+    if (out.length >= NAME_MAX) { truncated = true; continue; }
+    out += ch; prev = ch; marks = mark ? marks + 1 : 0;
+  }
+  return { text: out, removed, truncated };
+}
+function hasBaseLetter(s) { return /[\u0E01-\u0E2EA-Za-z]/.test(String(s)); }
+
 function parseSeat(value) {
   const n = Number(value);
   return Number.isInteger(n) && n >= 1 && n <= TOTAL_SEATS ? n : null;
@@ -137,5 +163,5 @@ function newId(len) {
 
 module.exports = {
   TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json, DEFAULT_ID,
-  tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, newId, crypto,
+  tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, NAME_MAX, newId, crypto,
 };

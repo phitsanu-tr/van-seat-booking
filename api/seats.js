@@ -39,9 +39,11 @@ module.exports = async function handler(req, res) {
 
     if (req.method === "POST") {
       const seat = L.parseSeat(body.seat);
-      const name = String(body.name || "").trim().slice(0, 30);
+      const rawName = String(body.name || "");
       if (seat === null) return L.json(res, 400, { error: "bad_seat" });
-      if (!name) return L.json(res, 400, { error: "bad_name" });
+      if (!rawName.trim()) return L.json(res, 400, { error: "bad_name" });
+      const name = L.cleanName(rawName).text;
+      if (name !== rawName || !L.hasBaseLetter(name)) return L.json(res, 400, { error: "name_chars" });
       const at = Date.now();
       const d = /^[A-Za-z0-9-]{8,64}$/.test(String(body.d || "")) ? String(body.d) : undefined; // random per-browser id, stored for the owner only (never sent back to other visitors)
       // HSETNX only writes when the seat is still empty, so two people can never take the same seat.
