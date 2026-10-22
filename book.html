@@ -152,7 +152,7 @@ header.trip { display: block; }
 .imgm .imgrow .imgbtn { flex: 1; }
 .imgm .imgbtn[hidden] { display: none; }
 /* image-save sheets: same size and look as the trips-page pass sheet */
-#imgBackdrop, #lineBackdrop { align-items: center; padding: 16px !important; }
+#imgBackdrop { align-items: center; padding: 16px !important; }
 .modal.imgm { max-width: 358px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); gap: 12px; padding: 20px; border-radius: 24px; border: 0; box-shadow: 0 18px 50px rgba(0, 0, 0, .35); box-sizing: border-box; }
 .modal.imgm::before { display: none; }
 .imgm .imgt h2 { display: flex; align-items: center; gap: 8px; font-size: 17px; }
@@ -391,15 +391,6 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         <button type="button" class="imgbtn" id="imgCopy"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>คัดลอกลิงก์</span></button>
         <button type="button" class="imgbtn" id="imgShare" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4"/><path d="M8 7.5L12 3.5 16 7.5"/><path d="M6 11H5.5A1.5 1.5 0 004 12.5v6A1.5 1.5 0 005.5 20h13a1.5 1.5 0 001.5-1.5v-6a1.5 1.5 0 00-1.5-1.5H18"/></svg><span>แชร์รูป</span></button>
       </div>
-    </div>
-  </div>
-
-  <div class="backdrop" id="lineBackdrop" hidden>
-    <div class="modal imgm" role="dialog" aria-modal="true" aria-label="SEAT PASS">
-      <div class="imghd"><div class="imgt"><h2><span class="tki"><svg viewBox="2.5 5.5 19 13" width="24" height="16.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg></span>SEAT PASS</h2></div><button type="button" class="imgx" id="lineClose" aria-label="ปิด"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-      <p class="imgh lt">LINE บน Android บันทึกรูปโดยตรงไม่ได้<br>เปิดในเบราว์เซอร์เพื่อดาวน์โหลดรูป</p>
-      <a class="imgbtn primary" id="lineOpen" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 014 18.5v-11A1.5 1.5 0 015.5 6H10"/></svg>เปิดในเบราว์เซอร์เพื่อโหลดรูป</a>
-      <button type="button" class="imgbtn" id="lineCopy"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>คัดลอกลิงก์</span></button>
     </div>
   </div>
 
@@ -1337,7 +1328,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(done, legacy); else legacy();
   }
-  var lineBackdrop = document.getElementById("lineBackdrop"), lineUrl = "";
+  var lineUrl = "";
   async function buildLineUrl() { // link to the picture-only page, carrying a server-issued token for "my seats" when there are any
     var arr = [], k = "";
     for (var n in mineMap) if (mine(Number(n))) arr.push({ seat: Number(n), at: mineMap[n].at });
@@ -1354,18 +1345,6 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     lineUrl = location.origin + location.pathname + "?" + qs.join("&");
     return lineUrl;
   }
-  async function openLineSheet() { // LINE on Android cannot save pictures: send the person to the browser's picture-only page
-    shareBtn.disabled = true;
-    document.getElementById("lineOpen").href = await buildLineUrl();
-    lineBackdrop.hidden = false; syncLock();
-    shareBtn.disabled = false;
-  }
-  function closeLine() { lineBackdrop.hidden = true; syncLock(); }
-  document.getElementById("lineClose").addEventListener("click", closeLine);
-  lineBackdrop.addEventListener("click", function (e) { if (e.target === lineBackdrop) closeLine(); });
-  document.getElementById("lineCopy").addEventListener("click", function () {
-    copyText(lineUrl, function () { showToast("คัดลอกลิงก์แล้ว"); }, function () { showToast("คัดลอกไม่สำเร็จ", "error"); });
-  });
   shareBtn.addEventListener("click", openImg);
   document.getElementById("imgClose").addEventListener("click", closeImg);
   imgBackdrop.addEventListener("click", function (e) { if (e.target === imgBackdrop) closeImg(); });
@@ -1384,7 +1363,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   });
 
   backdropEl.addEventListener("click", function (e) { if (e.target === backdropEl) closeModal(); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if (!lineBackdrop.hidden) closeLine(); else if (!imgBackdrop.hidden) closeImg(); else if (selected != null) closeModal(); } });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if (!imgBackdrop.hidden) closeImg(); else if (selected != null) closeModal(); } });
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") refresh(false); });
   setInterval(function () { if (document.visibilityState === "visible") refresh(false); }, 8000);
 
