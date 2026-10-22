@@ -137,9 +137,10 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .two > .btn.plain { background: var(--tint2); border-color: transparent; color: var(--tint2-ink); }
 .tcard { background: var(--tint); border-radius: 16px; padding: 12px 14px; }
 .tcard .mt { color: var(--ink); overflow-wrap: anywhere; font-size: 18px; line-height: 1.25; }
-.trows { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+.trows { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.torg { font-size: 13px; font-weight: 600; color: var(--mine); margin-top: 2px; overflow-wrap: anywhere; }
 .trow { display: flex; gap: 9px; align-items: flex-start; font-size: 14px; line-height: 1.4; color: var(--ink); }
-.trow svg { width: 16px; height: 16px; flex: none; margin-top: 1px; color: var(--muted); }
+.trow svg { width: 16px; height: 16px; flex: none; margin-top: 1px; color: var(--mine); }
 .trow.ti-cal svg { transform: translateY(.4px); }
 .trow.ti-pin svg { transform: translateY(.5px); }
 .trow.ti-van svg { transform: translateY(-.9px); }
@@ -447,7 +448,7 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
     </div>
     <div class="mbar" id="mbar"></div>
     <div class="mbody">
-      <div class="tcard"><div class="mt" id="resultTitle"></div><div class="trows" id="resultSub"></div></div>
+      <div class="tcard"><div class="mt" id="resultTitle"></div><div class="torg" id="resultOrg" hidden></div><div class="trows" id="resultSub"></div></div>
       <div class="dots" role="tablist"><button type="button" role="tab" data-step="1" class="on" aria-selected="true"><svg class="tk" viewBox="2.5 5.5 19 13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg>ผู้จองทริป</button><button type="button" role="tab" data-step="2" aria-selected="false"><svg class="sh" viewBox="3 1.5 18 21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg>ผู้ดูแลทริป</button></div>
     <div class="steps">
     <!-- step 1: guests -->
@@ -849,6 +850,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var SHARE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
     $("mState").innerHTML = (created ? '<span class="okdot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span>' : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปสำเร็จแล้ว" : created ? "สร้างทริปสำเร็จแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
     $("resultTitle").textContent = name || "ทริป";
+    $("resultOrg").textContent = organizer || ""; $("resultOrg").hidden = !organizer;
     var rowsEl = $("resultSub"); rowsEl.textContent = "";
     function trow(icon, text) {
       var r = document.createElement("div"); r.className = "trow ti-" + icon; r.innerHTML = ICON_SM[icon]; var t = document.createElement("span"); t.textContent = text; r.appendChild(t); rowsEl.appendChild(r);
