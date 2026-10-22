@@ -134,8 +134,8 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .modal { --tint: #e5f2f3; --tint2: #d4eaec; --tint2-ink: #0b5f67; }
 .modal.admin { --tint: #eef1f3; --tint2: #dfe4e8; --tint2-ink: var(--ink); }
 @media (prefers-color-scheme: dark) { .modal, .modal.admin { --tint: #223540; --tint2: #2d4350; --tint2-ink: var(--ink); } }
-.two > .btn.plain { background: var(--tint2); border-color: transparent; color: var(--tint2-ink); }
-.tcard { background: var(--tint); border-radius: 16px; padding: 12px 14px; }
+.two > .btn.plain { background: var(--bg); border-color: var(--line); color: var(--ink); }
+.tcard { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 11px 13px; }
 .tcard .mt { color: var(--ink); overflow-wrap: anywhere; font-size: 18px; line-height: 1.25; }
 .trows { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
 .torg { font-size: 13px; font-weight: 600; color: var(--mine); margin-top: 2px; overflow-wrap: anywhere; }
@@ -182,7 +182,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .mh { padding-right: 34px; }
 .check.amber { background: #eceef0; color: var(--ink); }
 @media (prefers-color-scheme: dark) { .check.amber { background: #223540; } }
-.dots { display: flex; background: var(--tint); border-radius: 16px; padding: 4px; margin: 0; }
+.dots { display: flex; background: var(--bg); border-radius: 16px; padding: 4px; margin: 0; }
 .dots button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 8px; border: 0; border-radius: 12px; background: transparent; color: var(--muted); font: 600 14px var(--font-body); cursor: pointer; }
 .dots button svg { flex: none; }
 .dots button svg.tk { width: 17px; height: 11.6px; }
@@ -197,7 +197,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .passtag.dark { color: var(--ink); }
 .passtag .ic-t { transform: translateY(1.25px); }
 .passtag .ic-s { transform: translateY(1.375px); }
-.panel { background: var(--tint); border-radius: 16px; padding: 8.25px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 7.25px 11px 11px; display: flex; flex-direction: column; gap: 10px; }
 .panel .share { align-items: flex-start; }
 .panel .qr { width: 112.5px; height: auto; align-self: stretch; margin-top: 3.75px; }
 .panel .link { gap: 0; }
@@ -210,6 +210,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .panel .btn.ghost { background: #fff; border: 1.5px solid var(--mine); color: var(--mine); height: 38px; }
 .panel.dark .btn.ghost { border-color: var(--ink); color: var(--ink); }
 .panel .btn.ghost.ok { background: var(--mine); color: #fff; }
+@media (prefers-color-scheme: dark) { .panel .btn.ghost, .panel .chip { background: var(--bg); } .panel .btn.ghost.ok { background: var(--mine); color: var(--mine-ink); } }
 .panel.dark .btn.ghost.ok { background: var(--ink); }
 .qr.seat { border: 3px solid #0b5f67; }
 .qr.amber { border: 3px solid var(--ink); }
