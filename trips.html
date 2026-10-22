@@ -1117,7 +1117,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       dl.hidden = false; dl.href = cardUrl; dl.setAttribute("download", fileName || (guest ? "SEAT PASS.png" : "ADMIN PASS.png"));
       setHint("กดดาวน์โหลด หรือกดค้างที่รูปเพื่อบันทึก", true);
     } else {
-      if (blob) setHint("กดค้างที่รูปเพื่อบันทึก หรือใช้ปุ่มด้านล่าง", true);
+      if (blob && IS_IOS) setHint("กดค้างที่รูปเพื่อบันทึก หรือใช้ปุ่มด้านล่าง", true);
       else { h0(); hint.innerHTML = "LINE บน Android บันทึกรูปโดยตรงไม่ได้<br>เปิดในเบราว์เซอร์เพื่อดาวน์โหลดรูป"; }
       // hand the picture over to the system browser (the only way to save it on Android, a backup on iPhone)
       ext.hidden = false; row.hidden = false; cp.disabled = true; ext.removeAttribute("href"); ext.style.opacity = ".6"; ext.textContent = "กำลังเตรียมลิงก์…";
@@ -1162,10 +1162,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   $("cardBd").addEventListener("click", function (e) { if (e.target === $("cardBd") && !CARD_ONLY) closeCard(); });
   function saveCard(mode, fileName, msg) {
     msg.textContent = ""; msg.style.color = "";
-    if (IN_LINE && !IS_IOS) {
-      openCard(mode, null, fileName);
-      return;
-    }
     loadFonts().then(function () {
     var c;
     try { c = drawCard(mode); } catch (e) { msg.textContent = "สร้างรูปไม่สำเร็จ ลองคัดลอกลิงก์แทน"; return; }
