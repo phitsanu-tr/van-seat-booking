@@ -203,11 +203,11 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .openlink { text-align: center; font-size: 14px; color: var(--muted); padding: 2px 0; }
 
 /* create / edit form: matches the home page */
-.hero { --hbg: color-mix(in srgb, var(--mine) 10%, var(--surface)); background: var(--hbg); border-radius: 18px; padding: 16px 18px; }
-.hero .hr { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.hero { position: relative; --hbg: color-mix(in srgb, var(--mine) 10%, var(--surface)); background: var(--hbg); border-radius: 18px; padding: 16px 18px; }
 .hero h1 { font-size: 23px; }
 .hero p { font-size: 13px; line-height: 19px; margin-top: 4px; white-space: nowrap; }
-.hero svg { flex: none; width: 46px; height: auto; color: var(--ink); margin-right: -2px; }
+.hero svg { position: absolute; top: 17.2px; right: 15.8px; width: 68px; height: auto; color: var(--ink); }
+@media (max-width: 350px) { .hero svg { width: 56px; top: 18px; right: 15px; } }
 form label { display: block; font-size: 14px; }
 form label small, .vh small { margin-left: 0; font-size: 12px; font-weight: 400; color: var(--muted); }
 /* one look for every field: regular weight, same placeholder colour (inputs sit inside bold labels and used to inherit 600) */
@@ -362,7 +362,10 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
   <section class="hero">
     <div class="hr">
       <h1 id="title">สร้างทริป</h1>
-      <svg viewBox="0 0 96 64" fill="none" aria-hidden="true">
+      
+    </div>
+    <p id="lead">กรอกรายละเอียด แล้วแชร์ลิงก์ให้เพื่อน</p>
+    <svg viewBox="1 0 92 60" fill="none" aria-hidden="true">
       <path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>
       <g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--surface)"/></g>
       <g transform="translate(-2 3) scale(.82)">
@@ -372,8 +375,6 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
       <circle cx="26" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="26" cy="43" r="6.5" fill="var(--ink)"/><circle cx="26" cy="43" r="2.4" fill="var(--surface)"/><circle cx="70" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="70" cy="43" r="6.5" fill="var(--ink)"/><circle cx="70" cy="43" r="2.4" fill="var(--surface)"/>
           </g>
     </svg>
-    </div>
-    <p id="lead">กรอกรายละเอียด แล้วแชร์ลิงก์ให้เพื่อน</p>
   </section>
 
   <button type="button" class="shrow" id="shareBtn" hidden>
