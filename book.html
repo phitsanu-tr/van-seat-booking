@@ -54,7 +54,7 @@ img { max-width: 100%; }
   --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif;
   --font-body: "Noto Sans Thai", system-ui, sans-serif;
 }
-@media (prefers-color-scheme: dark) {
+@media not all /* dark theme off: re-enable by restoring (prefers-color-scheme: dark) */ {
   :root:not([data-theme="light"]) {
     --bg: #0d151a; --paper: #131f26; --surface: #17252e; --ink: #e6ecef; --muted: #93a6b0; --line: #2d4350;
     --taken: #2a3c46; --mine: #3cc0cc; --mine-ink: #07262a; --sel: #f2a62b; --danger: #ff8a80;
