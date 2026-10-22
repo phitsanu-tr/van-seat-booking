@@ -329,9 +329,9 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .vf { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px; }
 .vf > * { min-width: 0; }
 input.vp::placeholder { font-size: 14px; } /* long example text still fits on 360px phones */
-.toast { position: fixed; z-index: 40; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); width: min(calc(100% - 32px), 428px); transform: translateX(-50%); display: flex; gap: 10px; align-items: flex-start; background: #1b1f22; color: #fff; border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 21px; box-shadow: 0 12px 28px rgba(0,0,0,.32); animation: toastIn .2s ease-out; cursor: pointer; }
-.toast svg { flex: none; width: 20px; height: 20px; margin-top: 0.5px; color: #ff8a80; }
-.toast.ok svg { color: #6fe0c0; }
+.toast { position: fixed; z-index: 40; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); width: max-content; max-width: min(92vw, 360px); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 12px; font-size: 14px; line-height: 21px; text-align: center; box-shadow: 0 8px 28px rgba(0, 0, 0, .3); animation: toastIn .2s ease-out; cursor: pointer; }
+.toast:not(.ok) { background: #b3261e; color: #fff; }
+.toast svg { display: none; }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } }
 @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
 .foot { margin: 16px auto 0; text-align: center; font-size: 10px; line-height: 14px; color: var(--muted); white-space: nowrap; }
