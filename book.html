@@ -866,7 +866,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       var c = counts[v.id];
       b.appendChild(el("span", "tn", v.label));
       b.setAttribute("aria-label", "รถตู้ " + v.label + (c != null ? " " + (c >= TOTAL ? "เต็ม" : "ว่าง " + (TOTAL - c) + " ที่นั่ง") : ""));
-      if (c != null) b.appendChild(el("small", null, c >= TOTAL ? "เต็ม" : "ว่าง " + (TOTAL - c)));
+      if (c != null) b.appendChild(el("small", null, c >= TOTAL ? "เต็ม" : "ที่นั่งว่าง " + (TOTAL - c)));
       b.addEventListener("click", function () { switchVan(v.id); });
       tabsEl.appendChild(b);
     });

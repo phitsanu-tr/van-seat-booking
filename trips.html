@@ -205,8 +205,9 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .panel .passtag { height: 17px; }
 .panel .ptitle { font-size: 15px; line-height: 1.25; display: block; margin-top: 4px; }
 .panel .chip { background: #fff; }
-.panel .url .code { font-size: 18px; }
+.panel .url .code { font-size: 18px; letter-spacing: .5px; }
 @media (max-width: 380px) { .panel .url .code { font-size: 15px; letter-spacing: .5px; } .panel .qr { width: 100px; } }
+@media (max-width: 340px) { .panel .share { gap: 10px; } .panel .qr { width: 84px; } .panel .ptitle { font-size: 14px; } .panel .hint { font-size: 11.5px; .panel .url .code { letter-spacing: 0; } }
 .panel .btn.ghost { background: #fff; border: 1.5px solid var(--mine); color: var(--mine); height: 38px; }
 .panel.dark .btn.ghost { border-color: var(--ink); color: var(--ink); }
 .panel .btn.ghost.ok { background: var(--mine); color: #fff; }
@@ -918,6 +919,14 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var c = document.createElement("span"); c.className = "code"; c.textContent = String(code).toUpperCase();
     var p = document.createElement("span"); p.className = "sub"; p.textContent = sub;
     el.appendChild(c); el.appendChild(p);
+    // 8-char codes can be wider than the box on narrow phones: shrink the font until it fits (re-runs when the box is shown or resized)
+    function fit() {
+      c.style.fontSize = "";
+      if (!c.clientWidth) return;
+      var f = parseFloat(getComputedStyle(c).fontSize);
+      while (c.scrollWidth > c.clientWidth && f > 9) { f -= 0.5; c.style.fontSize = f + "px"; }
+    }
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(c); else fit();
   }
   function copy(text, btn) {
     var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
