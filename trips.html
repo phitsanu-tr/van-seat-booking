@@ -1102,7 +1102,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       hint.textContent = "กดค้างที่รูป แล้วเลือก “บันทึกรูป”";
     } else {
       // Android in LINE: hand the picture over to the system browser
-      hint.innerHTML = "LINE บน Android บันทึกรูปโดยตรงไม่ได้<br>กดปุ่มด้านล่างเพื่อเปิดในเบราว์เซอร์แล้วดาวน์โหลดรูปจากที่นั่น";
+      hint.innerHTML = "LINE บน Android บันทึกรูปโดยตรงไม่ได้<br>เปิดในเบราว์เซอร์เพื่อดาวน์โหลดรูป";
       ext.hidden = false; cp.hidden = false; cp.disabled = true; ext.removeAttribute("href"); ext.style.opacity = ".6"; ext.textContent = "กำลังเตรียมลิงก์…";
       var mySeq = ++cardSeq;
       var ready = function (u) {
