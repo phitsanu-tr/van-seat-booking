@@ -96,6 +96,7 @@ a.tc:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 .tc .go { flex: none; display: flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600; color: var(--mine); }
 .tc .go svg { width: 14px; height: 14px; }
 .tc .rm { align-self: flex-start; margin-top: 2px; background: none; border: 0; padding: 4px 0; color: var(--danger); font-size: 13px; text-decoration: underline; }
+.lv-back { display: inline-flex; align-items: center; gap: 2px; align-self: flex-start; margin-bottom: -10px; color: var(--mine); font: 600 14px var(--font-body); text-decoration: none; }
 .lv-note { text-align: center; font-size: 12px; line-height: 18px; color: var(--muted); }
 .lv-note a { color: inherit; }
 .lv-empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding-top: 40px; }
@@ -338,6 +339,7 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
 </head>
 <body>
 <main id="listMain" hidden>
+  <a class="lv-back" href="/"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>หน้าแรก</a>
   <h1>ทริปของฉัน</h1>
   <div id="listFull" hidden>
     <div style="display:flex;flex-direction:column;gap:16px">
@@ -349,10 +351,10 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
   <div class="lv-empty" id="listEmpty" hidden>
     <div class="ill">    <svg viewBox="0 0 96 64" fill="none" width="108" height="72" aria-hidden="true">      <path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>      <g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--surface)"/></g>      <g transform="translate(-2 3) scale(.82)">      <path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>      <g fill="color-mix(in srgb, var(--mine) 28%, var(--surface))" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g>      <path d="M85 36h3" stroke="var(--mine)" stroke-width="3" stroke-linecap="round"/>      <circle cx="26" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="26" cy="43" r="6.5" fill="var(--ink)"/><circle cx="26" cy="43" r="2.4" fill="var(--surface)"/><circle cx="70" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="70" cy="43" r="6.5" fill="var(--ink)"/><circle cx="70" cy="43" r="2.4" fill="var(--surface)"/>          </g>    </svg></div>
     <h2>ยังไม่มีทริป</h2>
-    <p>สร้างทริปแรกแล้วแชร์ลิงก์ให้เพื่อนเลือกที่นั่งได้เลย</p>
+    <p>สร้างทริปแล้วแชร์ลิงก์ให้เพื่อนเลือกที่นั่ง</p>
     <a class="lv-cta" href="/trips/new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>สร้างทริปแรก</a>
   </div>
-  <p class="lv-note">ทริปที่แสดงคือที่สร้างจากเครื่องและเบราว์เซอร์นี้ ถ้าล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่อง รายการจะไม่ขึ้น ควรเก็บลิงก์ผู้ดูแลของแต่ละทริปไว้ด้วย<br><a href="/">กลับหน้าแรก</a></p>
+  <p class="lv-note">ทริปแสดงเฉพาะในเครื่องนี้ · เก็บลิงก์ผู้ดูแลไว้เผื่อเปลี่ยนเครื่อง</p>
 </main>
 
 <main id="formMain" hidden>
