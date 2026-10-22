@@ -22,7 +22,9 @@ function run(cmd) {
     case "GET": { const v = store.get(key); return typeof v === "string" ? v : null; }
     case "SET": {
       if (a.some((x) => String(x).toUpperCase() === "NX") && store.has(key)) return null;
-      store.set(key, String(a[0])); ttl.delete(key); return "OK";
+      store.set(key, String(a[0])); ttl.delete(key);
+      const exi = a.findIndex((x) => String(x).toUpperCase() === "EX"); if (exi > 0) ttl.set(key, Date.now() + num(a[exi + 1]) * 1000);
+      return "OK";
     }
     case "INCR": { const n = num(store.get(key)) + 1; store.set(key, String(n)); return n; }
     case "DECR": { const n = num(store.get(key)) - 1; store.set(key, String(n)); return n; }
