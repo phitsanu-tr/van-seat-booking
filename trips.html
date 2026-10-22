@@ -1053,7 +1053,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     H = CY + TOP + (GUEST ? 0 : SECA) + SEC + FOOT + CY;
     CW = W = 386;
     var TW = CW - M * 2;
-    if (!GUEST) H = Math.max(H, Math.ceil(CW * 16 / 9));
+    if (!GUEST) H = Math.max(H, CW * 16 / 9);
     var c = document.createElement("canvas"); c.width = W * S; c.height = Math.round(H * S);
     var g = c.getContext("2d");
     var disp = '"Prompt","Noto Sans Thai",system-ui,sans-serif', body = '"Noto Sans Thai",system-ui,sans-serif';
