@@ -238,11 +238,13 @@ header.trip { display: block; }
 .modal .actions button.danger { padding: 0 8px; white-space: nowrap; }
 @media (max-width: 350px) { .modal .actions button.danger { font-size: 15px; } }
 .minfo span { font-size: 14px; color: var(--muted); }
+.mtt { margin: -12px 0 0; height: 40px; padding-right: 44px; display: flex; align-items: center; font: 600 17px var(--font-display); color: var(--ink); min-width: 0; }
+.mtt span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mhead { display: flex; gap: 16px; align-items: center; }
-.mini { flex: none; width: 70px; border-radius: 12px; background: var(--bg); padding: 6px; box-sizing: border-box; display: flex; justify-content: center; }
-.mini svg { width: 56px; height: 108px; display: block; }
-.mtxt { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
-.mtxt small { font-size: 13px; color: var(--muted); }
+.mini { flex: none; width: 64px; height: 96px; border-radius: 12px; background: var(--bg); padding: 5px; box-sizing: border-box; display: flex; justify-content: center; align-items: center; }
+.mini svg { height: 100%; width: auto; display: block; }
+.mtxt { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1; }
+#backdrop .modal { gap: 14px; }
 .mtxt h2 { font-size: 28px !important; line-height: 1.1; }
 .pill { align-self: flex-start; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: color-mix(in srgb, var(--mine) 18%, transparent); color: var(--mine); }
 .pill.taken { background: var(--taken); color: var(--ink); }
@@ -590,12 +592,14 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
 
     var n = selected, s = seats[n];
     if (!s) confirming = false;
+    var mtt = el("div", "mtt");
+    mtt.appendChild(el("span", null, (vanLabelNow() ? vanLabelNow() + " · " : "") + (s ? (confirming ? "คุณกำลังยกเลิก" : "คุณกำลังแก้ไข") : "คุณกำลังจอง")));
+    panelEl.appendChild(mtt);
     var head = el("div", "mhead");
     var mini = el("div", "mini");
     mini.innerHTML = miniSvg(n, !!s);
     head.appendChild(mini);
     var txt = el("div", "mtxt");
-    txt.appendChild(el("small", null, (vanLabelNow() ? vanLabelNow() + " · " : "") + (s ? (confirming ? "คุณกำลังยกเลิก" : "คุณกำลังแก้ไข") : "คุณกำลังจอง")));
     var title = el("h2", null, "ที่นั่ง " + n);
     title.id = "mTitle";
     txt.appendChild(title);
