@@ -1113,7 +1113,19 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var row = $("cardRow"), sh = $("cardShare"), file = null;
     img.hidden = !blob; dl.hidden = true; ext.hidden = true; row.hidden = true; sh.hidden = true; $("cardX").hidden = CARD_ONLY;
     if (blob) { cardUrl = URL.createObjectURL(blob); img.src = cardUrl; }
+    if (blob) { // share the picture where the device supports sharing files (shown only then)
+      try { file = new File([blob], fileName || (guest ? "SEAT PASS.png" : "ADMIN PASS.png"), { type: "image/png" }); } catch (e) {}
+      if (file && navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+        sh.hidden = false;
+        sh.onclick = function () {
+          navigator.share({ files: [file] }).catch(function (e) { if (!e || e.name !== "AbortError") toast("แชร์ไม่สำเร็จ ลองใหม่อีกครั้ง"); });
+        };
+      }
+    }
     if (CARD_ONLY) {
+      row.hidden = false; cp.disabled = false;
+      var selfUrl = location.origin + "/trips?card=" + (guest ? "guest&img=1&t=" + encodeURIComponent(q.get("t") || "") : "admin&img=1&c=" + encodeURIComponent(q.get("c") || "")) + "&openExternalBrowser=1";
+      cp.onclick = function () { copyPlain(selfUrl); };
       dl.hidden = false; dl.href = cardUrl; dl.setAttribute("download", fileName || (guest ? "SEAT PASS.png" : "ADMIN PASS.png"));
       setHint("กดดาวน์โหลด หรือกดค้างที่รูปเพื่อบันทึก", true);
     } else {
@@ -1121,15 +1133,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       else { h0(); hint.style.fontSize = "12px"; hint.style.lineHeight = "18px"; hint.innerHTML = "LINE บน Android บันทึกรูปโดยตรงไม่ได้<br>เปิดในเบราว์เซอร์เพื่อดาวน์โหลดรูป"; }
       // hand the picture over to the system browser (the only way to save it on Android, a backup on iPhone)
       ext.hidden = false; row.hidden = false; cp.disabled = true; ext.removeAttribute("href"); ext.style.opacity = ".6"; ext.textContent = "กำลังเตรียมลิงก์…";
-      if (blob) {
-        try { file = new File([blob], fileName || (guest ? "SEAT PASS.png" : "ADMIN PASS.png"), { type: "image/png" }); } catch (e) {}
-        if (file && navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
-          sh.hidden = false;
-          sh.onclick = function () {
-            navigator.share({ files: [file] }).catch(function (e) { if (!e || e.name !== "AbortError") toast("แชร์ไม่สำเร็จ ลองใหม่อีกครั้ง"); });
-          };
-        }
-      }
       var mySeq = ++cardSeq;
       var ready = function (u) {
         if (mySeq !== cardSeq) return;
