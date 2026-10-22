@@ -342,14 +342,18 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .dz b { display: block; font: 600 15px/22px var(--font-display); color: var(--danger); }
 .dz span { display: block; font-size: 12.5px; line-height: 18px; color: var(--muted); margin-top: 2px; }
 .dz button { flex: none; height: 40px; padding: 0 18px; border-radius: 12px; border: 1.5px solid var(--danger); background: transparent; color: var(--danger); font: 600 15px var(--font-display); cursor: pointer; }
-.shrow { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; color: var(--ink); font-family: inherit; cursor: pointer; margin: 0; }
+.shrow { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: color-mix(in srgb, var(--mine) 9%, var(--surface)); border: 1.5px solid var(--mine); border-radius: 16px; padding: 11.5px 13.5px; color: var(--ink); font-family: inherit; cursor: pointer; margin: 0; }
 .shrow[hidden] { display: none; }
-.shrow .ric { flex: none; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--mine) 12%, var(--surface)); color: var(--mine); }
+.shrow .ric { flex: none; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--mine); color: var(--mine-ink); }
 .shrow .ric svg { width: 18px; height: 18px; }
 .shrow .stx { flex: 1; min-width: 0; }
-.shrow b { display: block; font: 600 15px/22px var(--font-display); }
+.shrow b { display: block; font: 600 15px/22px var(--font-display); color: var(--mine); }
 .shrow small { display: block; font-size: 12.5px; line-height: 18px; color: var(--muted); }
-.shrow .chev { flex: none; width: 16px; height: 16px; color: var(--muted); }
+@media (max-width: 340px) { .shrow { gap: 10px; } .shrow::after { padding: 4px 11px; } .shrow small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } }
+.shrow .chev { display: none; }
+.shrow::after { content: "แชร์"; flex: none; background: var(--mine); color: var(--mine-ink); font: 600 13px/20px var(--font-display); border-radius: 999px; padding: 4px 14px; }
+.shrow:active { transform: scale(.99); }
+.shrow:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 .btn.danger { background: var(--danger); color: #fff; font-family: var(--font-display); height: 48px; }
 @media (prefers-color-scheme: dark) { .btn.danger { color: #3a0d09; } }
 .vf { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px; }
@@ -432,7 +436,7 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
 
   <button type="button" class="shrow" id="shareBtn" hidden>
     <span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></span>
-    <span class="stx"><b>ลิงก์ของทริปนี้</b><small>แชร์ลิงก์ / แสดงคิวอาร์ให้ผู้จอง</small></span>
+    <span class="stx"><b>ลิงก์ของทริปนี้</b><small>แชร์ลิงก์ / คิวอาร์ให้ผู้จอง</small></span>
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
   </button>
 
