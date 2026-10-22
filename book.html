@@ -573,11 +573,11 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   setView(view);
 
   var SHORT_M = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-  function bookedAt(ts) { // "22 ต.ค. 10.41 น." (year added when it is not the current year); "-" when unknown
+  function bookedAt(ts) { // "22 ต.ค. 10.41 น." (Buddhist-era year always shown); "-" when unknown
     var t = Number(ts), d = t > 0 ? new Date(t) : null;
     if (!d || isNaN(d.getTime())) return "-";
     var hh = ("0" + d.getHours()).slice(-2), mm = ("0" + d.getMinutes()).slice(-2);
-    var yr = d.getFullYear() !== new Date().getFullYear() ? " " + (d.getFullYear() + 543) : "";
+    var yr = " " + (d.getFullYear() + 543);
     return d.getDate() + " " + SHORT_M[d.getMonth()] + yr + " " + hh + "." + mm + " น.";
   }
   function renderList() {
