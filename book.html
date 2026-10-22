@@ -243,6 +243,9 @@ header.trip { display: block; }
 .mx { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
 .minfo { flex: none; height: 58px; box-sizing: border-box; padding: 0 16px; border-radius: 16px; background: var(--bg); display: flex; flex-direction: column; justify-content: center; line-height: 1.35; color: var(--ink); }
 .minfo b { font-weight: 600; }
+.minfo.warn { background: color-mix(in srgb, var(--sel) 18%, var(--surface)); border: 1px solid color-mix(in srgb, var(--sel) 55%, var(--line)); padding: 0 15px; }
+.minfo.warn .who { font-weight: 600; color: var(--ink); }
+.minfo.warn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .minfo.one { flex-direction: row; justify-content: flex-start; align-items: center; white-space: pre; }
 .minfo.one b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .minfo .who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -441,7 +444,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   var seats = {};            // n -> {name, at} for the van on screen
   var mineMap = {};          // n -> {at}: seats booked from this device (only used to tint them)
   var loaded = false, loadError = "";
-  var selected = null, message = "", shown = false, confirming = false, lastSnapshot = "";
+  var selected = null, message = "", shown = false, confirming = false, lastSnapshot = "", wasFree = false; // wasFree: the seat was free when this dialog opened
   var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false;
 
   var overlayEl = document.getElementById("overlay");
@@ -568,7 +571,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
           b.setAttribute("aria-label", "ที่นั่ง " + n + " ว่าง");
         }
         if (selected === n) { b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
-        b.addEventListener("click", function () { if (ended) return; selected = n; message = ""; confirming = false; renderAll(); });
+        b.addEventListener("click", function () { if (ended) return; selected = n; wasFree = !seats[n]; message = ""; confirming = false; renderAll(); });
         overlayEl.appendChild(frame(b, RECT[n]));
       })(n);
     }
@@ -645,7 +648,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     var n = selected, s = seats[n];
     if (!s) confirming = false;
     var mtt = el("div", "mtt");
-    mtt.appendChild(el("span", null, (vanLabelNow() ? vanLabelNow() + " · " : "") + (s ? (confirming ? "คุณกำลังยกเลิก" : "คุณกำลังแก้ไข") : "คุณกำลังจอง")));
+    mtt.appendChild(el("span", null, (vanLabelNow() ? vanLabelNow() + " · " : "") + (s ? (confirming ? "คุณกำลังยกเลิก" : (wasFree && !mine(n) ? "ที่นั่งถูกจองแล้ว" : "คุณกำลังแก้ไข")) : "คุณกำลังจอง")));
     panelEl.appendChild(mtt);
     var head = el("div", "mhead");
     var mini = el("div", "mini");
@@ -687,6 +690,16 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       sure.type = "button";
       sure.addEventListener("click", function () { cancelSeat(n); });
       actions.appendChild(sure);
+    } else if (s && wasFree && !mine(n)) { // someone else took it while this dialog was open: say so, and do not offer a cancel button
+      var warn = el("div", "minfo warn");
+      warn.setAttribute("role", "alert");
+      warn.appendChild(el("div", "who", "มีคนจองที่นั่ง " + n + " ไปแล้ว"));
+      var wb = el("span", null, "จองโดย ");
+      wb.appendChild(el("b", null, s.name));
+      wb.appendChild(document.createTextNode(" · เลือกที่นั่งอื่นได้เลย"));
+      warn.appendChild(wb);
+      panelEl.appendChild(warn);
+      actions.appendChild(plainBtn("ปิด", closeModal));
     } else if (s) {
       var info = el("div", "minfo");
       var who = el("div", "who", "จองโดย ");
