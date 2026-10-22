@@ -1258,7 +1258,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     return pw < 780 ? drawPoster0(useQr, pw) : c0;
   }
   function drawPoster0(useQr, pwOv) {
-    var OUT = 1080, PADO = 36, CW = OUT - 2 * PADO, X = 44, IW = CW - 2 * X;
+    var OUT = 1080, PADO = 36, CW = OUT - 2 * PADO, X = 62, IW = CW - 2 * X;
     var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0] || trip.vans[0];
     var multi = trip.vans.length > 1;
     var myNums = [], myNames = [];
@@ -1272,23 +1272,23 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     var y = 0;
     var titleLines;
     ctx.font = HEAD; titleLines = wrapText(ctx, trip.name || "", IW, 2);
-    var HH = 47 + 56 + 20 + titleLines.length * 62 + (trip.organizer ? 46 : 6) + 34; // title/label/organizer sizes match the admin & seat pass cards (18px title on a ~386px card)
+    var HH = (trip.organizer ? 287 : 198) + (titleLines.length - 1) * 62; // header geometry = the seat pass card scaled to this width // title/label/organizer sizes match the admin & seat pass cards (18px title on a ~386px card)
     ctx.fillStyle = "#0b5f67"; ctx.fillRect(0, 0, CW, HH);
     ctx.fillStyle = "#3fbac4"; ctx.fillRect(0, HH, CW, 10);
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = "#bfe9ed"; ctx.font = '500 24.5px Prompt, "Noto Sans Thai", sans-serif'; ctx.textAlign = "left";
     if ("letterSpacing" in ctx) ctx.letterSpacing = "2.5px";
-    ctx.fillText("SEAT PASS", X + 46, 72);
+    ctx.fillText("SEAT PASS", X + 46, 57);
     // ticket icon
-    ctx.save(); ctx.translate(X, 49.6); ctx.scale(1.3, 1.3); ctx.strokeStyle = "#bfe9ed"; ctx.lineWidth = 1.9; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.save(); ctx.translate(X, 37.5); ctx.scale(1.3, 1.3); ctx.strokeStyle = "#bfe9ed"; ctx.lineWidth = 1.9; ctx.lineCap = "round"; ctx.lineJoin = "round";
     ctx.stroke(new Path2D("M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10")); ctx.restore();
-    ctx.textAlign = "right"; ctx.fillText("#" + TRIP.toUpperCase(), X + IW, 72);
+    ctx.textAlign = "right"; ctx.fillText("#" + TRIP.toUpperCase(), X + IW, 57);
     if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
-    ctx.fillStyle = "rgba(255,255,255,.17)"; ctx.fillRect(X, 113, IW, 2);
+    ctx.fillStyle = "rgba(255,255,255,.17)"; ctx.fillRect(X, 105, IW, 2);
     ctx.textAlign = "left"; ctx.fillStyle = "#ffffff"; ctx.font = HEAD;
-    y = 115 + 20;
-    titleLines.forEach(function (ln) { y += 62; ctx.fillText(ln, X, y - 13); });
-    if (trip.organizer) { ctx.fillStyle = "rgba(255,255,255,.72)"; ctx.font = '400 26px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, trip.organizer, IW, 1)[0], X, y + 30); y += 46; } else y += 6;
+    var tb = 167;
+    titleLines.forEach(function (ln, i) { ctx.fillText(ln, X, tb + i * 62); });
+    if (trip.organizer) { ctx.fillStyle = "rgba(255,255,255,.72)"; ctx.font = '400 26px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, trip.organizer, IW, 1)[0], X, tb + (titleLines.length - 1) * 62 + 60); }
     y = HH + 10;
     // ---- facts: date + departure on one row, meeting point below (no icons, no lines)
     {
