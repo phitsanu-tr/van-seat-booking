@@ -226,6 +226,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .list li.bk { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
 .list li.bk .sn { flex: none; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font: 600 14px var(--font-display); background: color-mix(in srgb, var(--ink) 7%, var(--surface)); font-variant-numeric: tabular-nums; }
 .list li.bk .w { flex: 1; min-width: 0; font-weight: 600; font-size: 15px; }
+.list li.bk .w .at { display: block; margin-top: 1px; font-size: 11px; font-weight: 400; line-height: 15px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .list li.bk .me { flex: none; font-size: 11.5px; font-weight: 600; color: var(--mine); background: color-mix(in srgb, var(--mine) 14%, transparent); border-radius: 999px; padding: 2px 9px; }
 .list li.mine-row { background: color-mix(in srgb, var(--mine) 8%, var(--surface)); }
 .list li.mine-row .sn { background: var(--mine); color: var(--mine-ink); }
@@ -571,6 +572,14 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   document.getElementById("swList").addEventListener("click", function () { setView("list"); });
   setView(view);
 
+  var SHORT_M = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  function bookedAt(ts) { // "22 ต.ค. 10.41 น." (year added when it is not the current year); "-" when unknown
+    var t = Number(ts), d = t > 0 ? new Date(t) : null;
+    if (!d || isNaN(d.getTime())) return "-";
+    var hh = ("0" + d.getHours()).slice(-2), mm = ("0" + d.getMinutes()).slice(-2);
+    var yr = d.getFullYear() !== new Date().getFullYear() ? " " + (d.getFullYear() + 543) : "";
+    return d.getDate() + " " + SHORT_M[d.getMonth()] + yr + " " + hh + "." + mm + " น.";
+  }
   function renderList() {
     listEl.textContent = "";
     var booked = [], free = [];
@@ -580,7 +589,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       var m = mine(n);
       var li = el("li", "bk" + (m ? " mine-row" : ""));
       li.appendChild(el("span", "sn", String(n)));
-      li.appendChild(el("span", "w", seats[n].name));
+      var w = el("span", "w", seats[n].name);
+      w.appendChild(el("span", "at", "จองเมื่อ " + bookedAt(seats[n].at)));
+      li.appendChild(w);
       if (m) li.appendChild(el("span", "me", "ที่นั่งของคุณ"));
       listEl.appendChild(li);
     });
