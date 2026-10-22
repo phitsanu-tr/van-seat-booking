@@ -188,8 +188,8 @@ header.trip { display: block; }
 .modal { gap: 18px; padding: 12px 20px calc(24px + env(safe-area-inset-bottom, 0px)); border-radius: 26px 26px 0 0; max-width: 480px; border-bottom: 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, .25); }
 .modal::before { content: ""; align-self: center; width: 42px; height: 5px; border-radius: 3px; background: var(--line); }
 /* seat dialog: floating card near the top so the keyboard never covers it */
-#backdrop { align-items: flex-start; padding: clamp(40px, 9vh, 96px) 16px 16px !important; overflow-y: auto; }
-#backdrop .modal { margin: 0 auto; max-width: 400px; padding: 22px 20px 20px; border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0, 0, 0, .35); }
+#backdrop { align-items: flex-start; padding: 16px !important; overflow-y: auto; overscroll-behavior: contain; }
+#backdrop .modal { margin: auto; max-width: 400px; padding: 22px 20px 20px; border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0, 0, 0, .35); }
 #backdrop .modal::before { display: none; }
 #backdrop .modal .actions button { flex: 1 1 0; min-width: 0; }
 .mhead { display: flex; gap: 16px; align-items: center; }
@@ -468,6 +468,25 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     toastTimer = setTimeout(function () { toastEl.hidden = true; }, kind === "error" ? 5000 : 3000);
   }
 
+  // while a dialog is open the page behind is frozen, and the seat dialog is centred in the part of the screen the keyboard leaves free
+  var lockY = null;
+  function fitVV() {
+    var v = window.visualViewport;
+    if (backdropEl.hidden || !v) { backdropEl.style.top = backdropEl.style.height = backdropEl.style.bottom = ""; return; }
+    backdropEl.style.top = v.offsetTop + "px"; backdropEl.style.bottom = "auto"; backdropEl.style.height = v.height + "px";
+  }
+  function syncLock() {
+    var ib = document.getElementById("imgBackdrop"), on = !backdropEl.hidden || (ib && !ib.hidden), b = document.body;
+    if (on && lockY === null) {
+      lockY = window.pageYOffset || 0;
+      b.style.position = "fixed"; b.style.top = -lockY + "px"; b.style.left = "0"; b.style.right = "0"; b.style.width = "100%";
+    } else if (!on && lockY !== null) {
+      b.style.position = b.style.top = b.style.left = b.style.right = b.style.width = "";
+      window.scrollTo(0, lockY); lockY = null;
+    }
+    fitVV();
+  }
+  if (window.visualViewport) { window.visualViewport.addEventListener("resize", fitVV); window.visualViewport.addEventListener("scroll", fitVV); }
   function closeModal() { selected = null; message = ""; confirming = false; renderAll(); }
 
   function vanLabelNow() {
@@ -495,6 +514,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     var opening = selected != null && !shown;
     shown = selected != null;
     backdropEl.hidden = selected == null;
+    syncLock();
     panelEl.textContent = "";
     if (selected == null) return;
 
@@ -1096,7 +1116,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     return out;
   }
   function closeImg() {
-    imgBackdrop.hidden = true;
+    imgBackdrop.hidden = true; syncLock();
     if (imgUrl) { try { URL.revokeObjectURL(imgUrl); } catch (e) {} imgUrl = ""; }
     imgPrev.removeAttribute("src"); imgFile = null;
   }
@@ -1117,7 +1137,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       var canShare = !!(imgFile && navigator.canShare && navigator.share && navigator.canShare({ files: [imgFile] }));
       document.getElementById("imgShare").hidden = !canShare;
       document.getElementById("imgSave").parentNode.classList.toggle("solo", !canShare);
-      imgBackdrop.hidden = false;
+      imgBackdrop.hidden = false; syncLock();
     } catch (e) {
       showToast("สร้างรูปไม่สำเร็จ ลองอีกครั้ง", "error");
     }
