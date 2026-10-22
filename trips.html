@@ -130,7 +130,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 
 .xbtn { z-index: 2; position: absolute; top: 10px; right: 12px; width: 40px; height: 40px; border: 0; background: transparent; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; border-radius: 20px; }
 .modal { position: relative; padding: 0; gap: 0; overflow: hidden; }
-.mband { position: relative; background: #0b5f67; color: #fff; padding: 12px 56px 12px 18px; min-height: 56px; display: flex; align-items: center; }
+.mband { position: relative; background: transparent; color: var(--ink); padding: 20px 56px 0 20px; display: flex; align-items: center; }
 .modal { --tint: #e5f2f3; --tint2: #d4eaec; --tint2-ink: #0b5f67; }
 .modal.admin { --tint: #eef1f3; --tint2: #dfe4e8; --tint2-ink: var(--ink); }
 @media (prefers-color-scheme: dark) { .modal, .modal.admin { --tint: #223540; --tint2: #2d4350; --tint2-ink: var(--ink); } }
@@ -144,21 +144,21 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .trow.ti-pin svg { transform: translateY(.5px); }
 .trow.ti-van svg { transform: translateY(-.9px); }
 .trow span { min-width: 0; overflow-wrap: anywhere; }
-.mclose { position: absolute; right: 7px; top: 6px; width: 44px; height: 44px; border-radius: 0; border: 0; background: transparent; color: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; }
+.mclose { position: absolute; right: 10px; top: 10px; width: 40px; height: 40px; border-radius: 0; border: 0; background: transparent; color: var(--ink); display: grid; place-items: center; cursor: pointer; padding: 0; }
 .mclose svg { width: 22px; height: 22px; }
 .mclose { -webkit-tap-highlight-color: transparent; outline: none; }
 .mclose:active, .mclose:focus, .mclose:focus-visible { background: transparent; outline: none; box-shadow: none; }
-.mtop { display: flex; font-family: var(--font-display); font-weight: 600; font-size: 16px; color: #fff; }
+.mtop { display: flex; font-family: var(--font-display); font-weight: 600; font-size: 17px; color: var(--ink); }
 #mState { display: inline-flex; align-items: center; gap: 9px; }
 #mState svg { width: 18px; height: 18px; flex: none; }
-#mState .okdot { flex: none; width: 26px; height: 26px; margin-left: -3px; border-radius: 50%; background: #fff; color: #0b5f67; display: inline-flex; align-items: center; justify-content: center; }
+#mState > svg { color: var(--mine); }
+.modal.admin #mState > svg { color: #b86e00; }
+@media (prefers-color-scheme: dark) { .modal.admin #mState > svg { color: #f2c879; } }
+#mState .okdot { flex: none; width: 26px; height: 26px; margin-left: -3px; border-radius: 50%; background: var(--mine); color: var(--mine-ink); display: inline-flex; align-items: center; justify-content: center; }
+.modal.admin #mState .okdot { background: var(--ink); color: var(--surface); }
 #mState .okdot svg { width: 16px; height: 16px; }
 .mbar { display: none; }
-.mbody { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
-.modal.admin .mband { background: #1b1f22; }
-/* the modal's own background under the band matches the band, so the anti-aliased rounded corners show no light fringe */
-#result { background: linear-gradient(#0b5f67, #0b5f67) 0 0 / 100% 56px no-repeat, var(--surface); }
-#result.admin { background: linear-gradient(#1b1f22, #1b1f22) 0 0 / 100% 56px no-repeat, var(--surface); }
+.mbody { padding: 14px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
 .modal.admin .mbar { background: #5f6b73; }
 .xbtn { color: #fff; }
 .step { display: flex; flex-direction: column; gap: 14px; }
