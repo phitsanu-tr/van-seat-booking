@@ -215,9 +215,18 @@ header.trip { display: block; }
 .modal::before { content: ""; align-self: center; width: 42px; height: 5px; border-radius: 3px; background: var(--line); }
 /* seat dialog: floating card centred a little above the middle so the keyboard does not cover it (pure CSS, no scripts moving it) */
 #backdrop { align-items: flex-start; padding: 16px 16px max(16px, 20vh) !important; overflow-y: auto; overscroll-behavior: contain; }
-#backdrop .modal { margin: auto; max-width: 400px; padding: 22px 20px 20px; border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0, 0, 0, .35); }
+#backdrop .modal { position: relative; margin: auto; max-width: 400px; padding: 22px 20px 20px; border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0, 0, 0, .35); }
 #backdrop .modal::before { display: none; }
 #backdrop .modal .actions button { flex: 1 1 0; min-width: 0; }
+.mx { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
+.minfo { flex: none; height: 58px; box-sizing: border-box; padding: 0 16px; border-radius: 16px; background: var(--bg); display: flex; flex-direction: column; justify-content: center; line-height: 1.35; color: var(--ink); }
+.minfo b { font-weight: 600; }
+.minfo.one { flex-direction: row; justify-content: flex-start; align-items: center; white-space: pre; }
+.minfo.one b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.minfo .who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.modal .actions button.danger { padding: 0 8px; white-space: nowrap; }
+@media (max-width: 350px) { .modal .actions button.danger { font-size: 15px; } }
+.minfo span { font-size: 14px; color: var(--muted); }
 .mhead { display: flex; gap: 16px; align-items: center; }
 .mini { flex: none; width: 70px; border-radius: 12px; background: var(--bg); padding: 6px; box-sizing: border-box; display: flex; justify-content: center; }
 .mini svg { width: 56px; height: 108px; display: block; }
@@ -533,6 +542,12 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
   }
   function closeModal() { selected = null; message = ""; confirming = false; renderAll(); }
 
+  var TH_MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  function fmtAt(at) {
+    var d = new Date(Number(at)); if (!isFinite(d.getTime())) return "";
+    return d.getDate() + " " + TH_MON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + " น.";
+  }
+
   function vanLabelNow() {
     if (!trip || trip.vans.length < 2) return "";
     var v = trip.vans.filter(function (x) { return x.id === curVan; })[0];
@@ -569,13 +584,18 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
     mini.innerHTML = miniSvg(n, !!s);
     head.appendChild(mini);
     var txt = el("div", "mtxt");
-    txt.appendChild(el("small", null, (vanLabelNow() ? vanLabelNow() + " · " : "") + (s ? "ที่นั่งนี้" : "คุณกำลังจอง")));
+    txt.appendChild(el("small", null, (vanLabelNow() ? vanLabelNow() + " · " : "") + (s ? (confirming ? "คุณกำลังยกเลิก" : "คุณกำลังแก้ไข") : "คุณกำลังจอง")));
     var title = el("h2", null, "ที่นั่ง " + n);
     title.id = "mTitle";
     txt.appendChild(title);
     txt.appendChild(el("span", s ? "pill taken" : "pill", s ? "จองแล้ว" : "ว่าง"));
     head.appendChild(txt);
     panelEl.appendChild(head);
+    var xb = el("button", "mx");
+    xb.type = "button"; xb.setAttribute("aria-label", "ปิด");
+    xb.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    xb.addEventListener("click", closeModal);
+    panelEl.appendChild(xb);
     var actions = el("div", "actions");
     var input = null;
 
@@ -590,24 +610,28 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       panelEl.appendChild(el("p", null, loadError || "กำลังโหลดข้อมูลการจอง..."));
       actions.appendChild(plainBtn("ปิด", closeModal));
     } else if (s && confirming) {
-      var ask = el("p", null, "ยกเลิกการจองของ ");
+      var ask = el("div", "minfo one");
+      ask.appendChild(document.createTextNode("ยกเลิกการจองของ "));
       ask.appendChild(el("b", null, s.name));
-      ask.appendChild(document.createTextNode(" ที่ที่นั่ง " + n + " ใช่ไหม"));
+      ask.appendChild(document.createTextNode(" ใช่ไหม"));
       panelEl.appendChild(ask);
-      actions.appendChild(plainBtn("ไม่ยกเลิก", function () { confirming = false; message = ""; renderPanel(); }));
-      var sure = el("button", "danger", "ยืนยันยกเลิก");
+      actions.appendChild(plainBtn("ย้อนกลับ", function () { confirming = false; message = ""; renderPanel(); }));
+      var sure = el("button", "danger", "ยกเลิกการจอง");
       sure.type = "button";
       sure.addEventListener("click", function () { cancelSeat(n); });
       actions.appendChild(sure);
     } else if (s) {
-      var info = el("p", null, "จองโดย ");
-      info.appendChild(el("b", null, s.name));
+      var info = el("div", "minfo");
+      var who = el("div", "who", "จองโดย ");
+      who.appendChild(el("b", null, s.name));
+      info.appendChild(who);
+      var when = s.at ? fmtAt(s.at) : "";
+      if (when) info.appendChild(el("span", null, when));
       panelEl.appendChild(info);
       var cancel = el("button", "ghost", "ยกเลิกการจอง");
       cancel.type = "button";
       cancel.addEventListener("click", function () { confirming = true; message = ""; renderPanel(); });
       actions.appendChild(cancel);
-      actions.appendChild(plainBtn("ปิด", closeModal));
     } else {
       input = el("input");
       input.type = "text"; input.id = "nameInput"; input.maxLength = 30;
@@ -616,7 +640,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 10px; padding: 1
       input.setAttribute("aria-label", "ชื่อผู้จอง");
       input.addEventListener("keydown", function (e) { if (e.key === "Enter") book(n, input.value); });
       panelEl.appendChild(input);
-      var ok = el("button", "primary", "OK");
+      var ok = el("button", "primary", "จองที่นั่ง");
       ok.type = "button";
       ok.addEventListener("click", function () { book(n, input.value); });
       actions.appendChild(plainBtn("ยกเลิก", closeModal));

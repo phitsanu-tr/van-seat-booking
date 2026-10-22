@@ -164,7 +164,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .step[hidden] { display: flex !important; visibility: hidden; pointer-events: none; }
 .step > .foot { margin-top: auto; }
 .step > a.foot { height: 44px; }
-#saveSeat, #saveImg { width: 300px; max-width: 100%; justify-content: center; }
+#saveSeat, #saveImg { width: 100%; justify-content: center; }
 .btn.dark { background: var(--ink); color: #fff; }
 .mh { padding-right: 34px; }
 .check.amber { background: #eceef0; color: var(--ink); }
@@ -1100,6 +1100,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     $("cardTtl").innerHTML = '<span style="display:inline-flex;width:24px;justify-content:center;color:' + (guest ? "var(--mine)" : "#b86e00") + '">' + (guest ? TK : SH) + "</span>" + (guest ? "SEAT PASS" : "ADMIN PASS");
     $("cardTtl").style.cssText += ";display:flex;align-items:center;gap:8px";
     if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; }
+    ext.className = dl.className = "btn " + (guest ? "primary" : "dark");
     img.hidden = !blob; dl.hidden = true; ext.hidden = true; cp.hidden = true; $("cardX").hidden = CARD_ONLY;
     if (blob) { cardUrl = URL.createObjectURL(blob); img.src = cardUrl; }
     if (CARD_ONLY) {
