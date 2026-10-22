@@ -624,7 +624,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 </script>
 <div class="backdrop" id="cardBd" style="z-index:30" hidden>
   <div class="modal" id="cardM" role="dialog" aria-modal="true" aria-labelledby="cardTtl" style="padding:20px;gap:12px">
-    <div style="display:flex;align-items:center;gap:12px"><b id="cardTtl" style="flex:1;font:600 17px var(--font-display)"></b><button class="btn plain small" id="cardX" type="button">ปิด</button></div>
+    <div style="display:flex;align-items:center;gap:12px"><b id="cardTtl" style="flex:1;font:600 17px var(--font-display)"></b><button id="cardX" type="button" aria-label="ปิด" style="flex:none;width:36px;height:36px;margin:-6px -6px -6px 0;border:0;background:none;color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <img id="cardImg" alt="" style="align-self:center;max-width:100%;max-height:min(440px,calc(100vh - 300px));object-fit:contain;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.2);background:#fff" hidden>
     <p id="cardHint" style="margin:0;text-align:center;font-size:13px;line-height:20px;color:var(--muted)"></p>
     <a class="btn primary" id="cardExt" target="_blank" rel="noopener" hidden>เปิดในเบราว์เซอร์เพื่อโหลดรูป</a>
@@ -1088,7 +1088,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   function closeCard() { cardSeq++; $("cardBd").hidden = true; document.body.style.overflow = ""; if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; } }
   function openCard(mode, blob, fileName) {
     var guest = mode === "guest", img = $("cardImg"), ext = $("cardExt"), dl = $("cardDl"), cp = $("cardCopy"), hint = $("cardHint");
-    $("cardTtl").textContent = guest ? "SEAT PASS" : "ADMIN PASS";
+    var TK = '<svg viewBox="2.5 5.5 19 13" width="24" height="16.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg>';
+    var SH = '<svg viewBox="3 1.5 18 21" width="18" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg>';
+    $("cardTtl").innerHTML = '<span style="display:inline-flex;width:24px;justify-content:center;color:' + (guest ? "var(--mine)" : "#b86e00") + '">' + (guest ? TK : SH) + "</span>" + (guest ? "SEAT PASS" : "ADMIN PASS");
+    $("cardTtl").style.cssText += ";display:flex;align-items:center;gap:8px";
     if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; }
     img.hidden = !blob; dl.hidden = true; ext.hidden = true; cp.hidden = true; $("cardX").hidden = CARD_ONLY;
     if (blob) { cardUrl = URL.createObjectURL(blob); img.src = cardUrl; }
@@ -1099,7 +1102,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       hint.textContent = "กดค้างที่รูป แล้วเลือก “บันทึกรูป”";
     } else {
       // Android in LINE: hand the picture over to the system browser
-      hint.textContent = "LINE บน Android บันทึกรูปโดยตรงไม่ได้ กดปุ่มด้านล่างเพื่อเปิดในเบราว์เซอร์แล้วดาวน์โหลดรูปจากที่นั่น";
+      hint.innerHTML = "LINE บน Android บันทึกรูปโดยตรงไม่ได้<br>กดปุ่มด้านล่างเพื่อเปิดในเบราว์เซอร์แล้วดาวน์โหลดรูปจากที่นั่น";
       ext.hidden = false; cp.hidden = false; cp.disabled = true; ext.removeAttribute("href"); ext.style.opacity = ".6"; ext.textContent = "กำลังเตรียมลิงก์…";
       var mySeq = ++cardSeq;
       var ready = function (u) {
