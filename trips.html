@@ -77,7 +77,10 @@ button { font: inherit; cursor: pointer; }
 .back svg { width: 16px; height: 16px; }
 .lv-cta { display: flex; align-items: center; justify-content: center; gap: 8px; height: 50px; border-radius: 16px; background: var(--mine); color: var(--mine-ink); font: 600 16px var(--font-display); text-decoration: none; }
 .lv-cta svg { width: 18px; height: 18px; }
-.lv-h { margin: 6px 0 -4px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.lv-h { display: flex; align-items: center; gap: 10px; margin: 6px 0 -4px; }
+.lv-h[hidden] { display: none; }
+.lv-h b { font: 600 15px/22px var(--font-display); }
+.lv-h .n { margin-left: auto; font-size: 12px; color: var(--muted); }
 .lv-grp { display: flex; flex-direction: column; gap: 10px; }
 .tc { display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; color: inherit; text-decoration: none; }
 .tc.past { opacity: .8; }
@@ -366,12 +369,28 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
 <body>
 <main id="listMain" hidden>
   <a class="lv-back" href="/"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>หน้าแรก</a>
-  <h1>ทริปของฉัน</h1>
+  <h1 id="lvH1">ทริปของฉัน</h1>
   <div id="listFull" hidden>
     <div style="display:flex;flex-direction:column;gap:16px">
+      <section class="hero">
+    <div class="hr">
+      <h1>ทริปของฉัน</h1>
+    </div>
+    <p>ทริปที่สร้างไว้ในเครื่องนี้</p>
+    <svg viewBox="1 0 92 60" fill="none" aria-hidden="true">
+      <path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>
+      <g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--surface)"/></g>
+      <g transform="translate(-2 3) scale(.82)">
+      <path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+      <g fill="color-mix(in srgb, var(--mine) 28%, var(--surface))" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g>
+      <path d="M85 36h3" stroke="var(--mine)" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="26" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="26" cy="43" r="6.5" fill="var(--ink)"/><circle cx="26" cy="43" r="2.4" fill="var(--surface)"/><circle cx="70" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="70" cy="43" r="6.5" fill="var(--ink)"/><circle cx="70" cy="43" r="2.4" fill="var(--surface)"/>
+          </g>
+    </svg>
+  </section>
       <a class="lv-cta sec" href="/trips/new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>สร้างทริปใหม่</a>
-      <h3 class="lv-h" id="hOpen" hidden>ทริปที่กำลังจะมาถึง</h3><div class="lv-grp" id="gOpen"></div>
-      <h3 class="lv-h" id="hPast" hidden>ผ่านไปแล้ว</h3><div class="lv-grp" id="gPast"></div>
+      <div class="lv-h" id="hOpen" hidden><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><b>ทริปที่กำลังจะมาถึง</b><span class="n"></span></div><div class="lv-grp" id="gOpen"></div>
+      <div class="lv-h" id="hPast" hidden><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><b>ผ่านไปแล้ว</b><span class="n"></span></div><div class="lv-grp" id="gPast"></div>
     </div>
   </div>
   <div class="lv-empty" id="listEmpty" hidden>
@@ -1371,7 +1390,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     var pkey = function (it) { return (it.trip && (it.trip.endDate || it.trip.startDate)) || ""; };
     past.sort(function (a, b) { return pkey(a) < pkey(b) ? 1 : pkey(a) > pkey(b) ? -1 : 0; });
     [["gOpen", "hOpen", open], ["gPast", "hPast", past]].forEach(function (g) {
-      var box = $(g[0]); box.textContent = ""; $(g[1]).hidden = g[2].length === 0;
+      var box = $(g[0]); box.textContent = ""; $(g[1]).hidden = g[2].length === 0; $(g[1]).querySelector(".n").textContent = g[2].length + " ทริป";
       g[2].forEach(function (it) { box.appendChild(card(it)); });
     });
   }
@@ -1379,7 +1398,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     document.title = "ทริปของฉัน · จองที่นั่งรถตู้";
     $("listMain").hidden = false;
     var mine = loadMine();
-    $("listEmpty").hidden = mine.length > 0; $("listFull").hidden = mine.length === 0;
+    $("listEmpty").hidden = mine.length > 0; $("listFull").hidden = mine.length === 0; $("lvH1").hidden = mine.length > 0; // the banner replaces the plain title when there are trips
     if (!mine.length) return;
     var items = mine.map(function (x) { return { x: x, state: "load", trip: null, booked: 0, total: 0 }; });
     renderList(items);
