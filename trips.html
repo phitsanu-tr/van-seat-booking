@@ -87,6 +87,11 @@ button { font: inherit; cursor: pointer; }
 .tc { transition: transform .12s ease, background-color .12s ease; -webkit-user-select: none; user-select: none; }
 .tc:active:not(:has(.ab:active)) { transform: scale(.975); background: color-mix(in srgb, var(--ink) 4%, var(--surface)); }
 @media (prefers-reduced-motion: reduce) { .tc { transition: none; } .tc:active:not(:has(.ab:active)) { transform: none; } }
+.sk { position: relative; overflow: hidden; border-radius: 8px; background: color-mix(in srgb, var(--ink) 9%, var(--surface)); }
+.sk::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--surface) 70%, transparent), transparent); transform: translateX(-100%); animation: skm 1.4s ease-in-out infinite; }
+@keyframes skm { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .sk::after { animation: none; } }
+.tc.skl .acts .sk { flex: 1; height: 40px; border-radius: 16px; }
 .tc.past { opacity: .8; }
 .tc.new { border-color: var(--mine); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mine) 14%, transparent); }
 .tc .r1 { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
@@ -1385,6 +1390,14 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       var rm = node("button", "rm", "ลบออกจากรายการ"); rm.type = "button";
       rm.addEventListener("click", function () { saveMine(loadMine().filter(function (y) { return y.id !== x.id; })); initList(); });
       g.appendChild(rm); return g;
+    }
+    if (it.state === "load") { // skeleton with the same rows as the real card, so nothing jumps when the data arrives
+      var k = node("div", "tc skl" + (x.id === newId ? " new" : "")); k.setAttribute("aria-busy", "true");
+      var kr = node("div", "r1"); kr.appendChild(node("b", "", x.name || "")); if (!x.name) { var kb = node("div", "sk"); kb.style.cssText = "width:55%;height:20px"; kr.appendChild(kb); }
+      var kc = node("em", "sk"); kc.style.cssText = "width:56px;height:20px;border-radius:999px"; kr.appendChild(kc); k.appendChild(kr);
+      [70, 55, 48].forEach(function (w) { var m = node("div", "sk"); m.style.cssText = "width:" + w + "%;height:14px;margin:2px 0"; k.appendChild(m); });
+      var ka = node("div", "acts"); ka.appendChild(node("div", "sk")); ka.appendChild(node("div", "sk")); k.appendChild(ka);
+      return k;
     }
     var a = node("div", "tc" + (past ? " past" : "") + (x.id === newId ? " new" : ""));
     var r1 = node("div", "r1"); r1.appendChild(node("b", "", (t && t.name) || x.name || x.id));
