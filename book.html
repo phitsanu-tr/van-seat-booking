@@ -635,7 +635,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       ask.appendChild(document.createTextNode(" ใช่ไหม"));
       panelEl.appendChild(ask);
       actions.appendChild(plainBtn("ย้อนกลับ", function () { confirming = false; message = ""; renderPanel(); }));
-      var sure = el("button", "danger", "ยกเลิกการจอง");
+      var sure = el("button", "danger", "ยืนยันยกเลิก");
       sure.type = "button";
       sure.addEventListener("click", function () { cancelSeat(n); });
       actions.appendChild(sure);
