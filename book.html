@@ -126,7 +126,7 @@ header.trip { display: block; }
 .imgm .imgt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .imgm .imgt small { font-size: 13px; color: var(--muted); }
 .imgm .imgx { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--bg); color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
-.imgm img { align-self: center; max-width: 100%; max-height: min(470px, calc(100vh - 345px)); object-fit: contain; border-radius: 14px; box-shadow: 0 4px 16px rgba(0, 0, 0, .2); background: #fff; }
+.imgm img { align-self: center; max-width: 100%; max-height: min(470px, calc(100vh - 345px)); object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .2)); }
 .imgm .imgh { display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: 13px; }
 .imgm .imgbtn { font: inherit; font-weight: 600; font-size: 16px; height: 54px; border-radius: 16px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 12px; cursor: pointer; min-width: 0; }
 .imgm .imgbtn svg { flex: none; width: 20px; height: 20px; }
@@ -151,7 +151,7 @@ header.trip { display: block; }
 .imgm .imgt h2 { display: flex; align-items: center; gap: 8px; font-size: 17px; }
 .imgm .imgt h2 .tki { display: inline-flex; width: 24px; justify-content: center; color: var(--mine); }
 .imgm .imgx { width: 36px; height: 36px; margin: -6px -6px -6px 0; border-radius: 0; background: none; }
-.imgm img { -webkit-user-select: none; user-select: none; border-radius: 12px; max-height: min(440px, calc(100vh - 300px)); }
+.imgm img { -webkit-user-select: none; user-select: none; max-height: min(440px, calc(100vh - 300px)); }
 .imgm .imgbtn { height: 50px; border-radius: 12px; }
 .imgm .imgbtn.primary { font-size: 16px; }
 .imgm .imgbtn:not(#imgShare) svg { display: none; }
