@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
       }
       const counts = {};
       trip.vans.forEach((x, i) => { counts[x.id] = Number(out[i + 1]) || 0; });
-      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, needLogin: L.REQUIRE_LOGIN });
+      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, needLogin: L.REQUIRE_LOGIN, limit: L.maxPerPerson(trip) });
     }
 
     if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
@@ -72,6 +72,13 @@ module.exports = async function handler(req, res) {
       if (!rawName.trim()) return L.json(res, 400, { error: "bad_name" });
       const name = L.cleanName(rawName).text;
       if (name !== rawName || !L.hasBaseLetter(name)) return L.json(res, 400, { error: "name_chars" });
+      const limit = L.maxPerPerson(trip);
+      if (user && !isOwner && limit > 0) { // count this account's seats in every van of the trip
+        const all = await L.pipeline(trip.vans.map((x) => ["HGETALL", L.seatsKey(t, x.id)]));
+        let mineN = 0;
+        all.forEach((flat) => { for (let i = 1; i < (flat || []).length; i += 2) { try { if (JSON.parse(flat[i]).u === user.id) mineN++; } catch (e) { /* skip */ } } });
+        if (mineN >= limit) return L.json(res, 403, { error: "seat_limit", limit });
+      }
       const at = Date.now();
       const d = /^[A-Za-z0-9-]{8,64}$/.test(String(body.d || "")) ? String(body.d) : undefined; // random per-browser id, stored for the owner only (never sent back to other visitors)
       // HSETNX only writes when the seat is still empty, so two people can never take the same seat.

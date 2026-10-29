@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>นโยบายความเป็นส่วนตัว · จองที่นั่งรถตู้</title>
+<meta name="description" content="ข้อมูลที่แอปจองที่นั่งรถตู้เก็บ ใช้ทำอะไร เก็บนานแค่ไหน และวิธีลบ">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
+<style>
+* { box-sizing: border-box; }
+:root {
+  --bg: #eef1f3; --surface: #ffffff; --ink: #1b1f22; --muted: #5f6b73; --line: #c9d2d8; --edge: #dde3e7; --mine: #0e7c86; --deep: #0b5f67; --tint: #e3f3f4;
+  --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif; --font-body: "Noto Sans Thai", system-ui, sans-serif; color-scheme: light;
+}
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.65; -webkit-tap-highlight-color: transparent; }
+.top { background: var(--surface); border-bottom: 1px solid var(--edge); }
+.top div { max-width: 640px; margin: 0 auto; height: 52px; padding: 0 max(18px, env(safe-area-inset-left)); display: flex; align-items: center; }
+.top a { font: 600 15px var(--font-display); color: var(--deep); text-decoration: none; }
+main { max-width: 640px; margin: 0 auto; padding: 22px max(18px, env(safe-area-inset-left)) calc(28px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; }
+h1 { font: 600 24px/1.25 var(--font-display); margin: 0; }
+.upd { color: var(--muted); font-size: 13px; margin-top: -6px; }
+.sum { background: var(--tint); border-radius: 16px; padding: 14px 16px; }
+.sum b { font-family: var(--font-display); font-weight: 600; }
+.sum ul { margin: 6px 0 0; padding-left: 20px; }
+section { background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 16px; }
+h2 { font: 600 17px var(--font-display); margin: 0 0 6px; }
+p { margin: 6px 0; }
+ul { margin: 6px 0; padding-left: 20px; }
+li { margin: 3px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 6px; border-bottom: 1px solid var(--edge); }
+th { font-weight: 600; color: var(--muted); font-size: 13px; }
+tr:last-child td { border-bottom: 0; }
+a { color: var(--mine); }
+.muted { color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="top"><div><a href="/">จองที่นั่งรถตู้</a></div></div>
+<main>
+  <h1>นโยบายความเป็นส่วนตัว</h1>
+  <div class="upd">ปรับปรุงล่าสุด 29 ตุลาคม 2569</div>
+
+  <div class="sum"><b>สรุปสั้น ๆ</b>
+    <ul>
+      <li>เราใช้บัญชี LINE เพื่อให้คุณเข้าสู่ระบบ โดยขอแค่ <b>ชื่อที่แสดง รูปโปรไฟล์ และรหัสผู้ใช้</b></li>
+      <li>เรา <b>ไม่เก็บ</b> อีเมล เบอร์โทร แชท หรือรายชื่อเพื่อนใน LINE ของคุณ</li>
+      <li>ข้อมูลทริปและที่นั่งลบตัวเองหลังทริปจบ 60 วัน และคุณลบข้อมูลของตัวเองได้ทุกเมื่อที่หน้า <a href="/my">ของฉัน</a></li>
+    </ul>
+  </div>
+
+  <section>
+    <h2>1. ข้อมูลที่เราเก็บ</h2>
+    <table>
+      <tr><th>ข้อมูล</th><th>มาจาก</th><th>ใช้ทำอะไร</th></tr>
+      <tr><td>รหัสผู้ใช้ LINE (ตัวระบุภายใน)</td><td>LINE เมื่อคุณกด "อนุญาต"</td><td>รู้ว่าทริปและที่นั่งไหนเป็นของคุณ ใช้ได้ทุกเครื่อง</td></tr>
+      <tr><td>ชื่อที่แสดงและรูปโปรไฟล์ LINE</td><td>LINE เมื่อคุณกด "อนุญาต"</td><td>แสดงในหน้า "ของฉัน" และใส่ชื่อให้ก่อนตอนจอง (แก้ได้)</td></tr>
+      <tr><td>ชื่อบนผังที่นั่ง และเวลาที่จอง</td><td>คุณพิมพ์เอง</td><td>แสดงบนผังให้คนในทริปเห็นว่าใครนั่งตรงไหน</td></tr>
+      <tr><td>รายละเอียดทริป (ชื่อทริป วันที่ เวลา จุดนัดพบ รถ)</td><td>คนจัดทริปกรอกเอง</td><td>แสดงในหน้าจองและรูปที่แชร์</td></tr>
+      <tr><td>ประวัติการจองและยกเลิก</td><td>ระบบบันทึกอัตโนมัติ</td><td>ตรวจสอบย้อนหลังเมื่อมีปัญหา เช่น ใครยกเลิกที่นั่ง</td></tr>
+      <tr><td>รหัสสุ่มของเบราว์เซอร์ และหมายเลข IP</td><td>เบราว์เซอร์ของคุณ</td><td>ย้ายที่นั่งที่เคยจองจากเครื่องนี้เข้าบัญชี และกันการกดรัว ๆ หรือการแกล้งระบบ</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>2. ใครเห็นข้อมูลของคุณ</h2>
+    <ul>
+      <li><b>ทุกคนที่มีลิงก์ทริป</b> เห็นชื่อบนผังที่นั่งและรายละเอียดทริป</li>
+      <li><b>คนจัดทริป</b> เห็นชื่อบนผัง เวลาที่จอง และประวัติการจองหรือยกเลิกในทริปของตัวเอง</li>
+      <li><b>รหัสผู้ใช้ LINE ของคุณไม่แสดงให้ใครเห็น</b> รวมถึงคนจัดทริปและคนอื่นในทริป</li>
+      <li>ผู้พัฒนาแอปเข้าถึงข้อมูลได้เพื่อดูแลระบบและแก้ปัญหาเท่านั้น</li>
+      <li>เราไม่ขาย ไม่ให้เช่า และไม่ส่งข้อมูลของคุณให้ใครเพื่อการโฆษณา</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>3. เก็บไว้ที่ไหน นานแค่ไหน</h2>
+    <p>ข้อมูลเก็บบนบริการคลาวด์ ได้แก่ Vercel (เว็บไซต์) และ Upstash (ฐานข้อมูล) ซึ่งอาจตั้งอยู่นอกประเทศไทย</p>
+    <table>
+      <tr><th>ข้อมูล</th><th>ลบอัตโนมัติเมื่อ</th></tr>
+      <tr><td>ทริป ที่นั่ง และประวัติของทริป</td><td>60 วันหลังวันสุดท้ายของทริป หรือเมื่อคนจัดทริปลบทริป</td></tr>
+      <tr><td>การเข้าสู่ระบบ (คุกกี้ในเครื่อง)</td><td>30 วันหลังเข้าสู่ระบบ หรือเมื่อกดออกจากระบบ</td></tr>
+      <tr><td>รายการ "ทริปของฉัน / ที่นั่งของฉัน"</td><td>400 วันหลังใช้งานครั้งล่าสุด</td></tr>
+      <tr><td>ตัวนับกันการกดรัว (มีหมายเลข IP)</td><td>ไม่เกิน 2 ชั่วโมง</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>4. สิทธิ์ของคุณ และวิธีลบข้อมูล</h2>
+    <ul>
+      <li><b>ลบข้อมูลของฉัน:</b> ไปที่หน้า <a href="/my">ของฉัน</a> แล้วกด "ลบข้อมูลของฉัน" ด้านล่าง ระบบจะยกเลิกที่นั่งในทริปที่ยังไม่ถึง ตัดการเชื่อมบัญชีออกจากทริปที่จบแล้ว ลบรหัสผู้ใช้ LINE และออกจากระบบทุกเครื่อง เลือกลบทริปที่คุณสร้างไปพร้อมกันได้</li>
+      <li><b>ยกเลิกสิทธิ์ที่ให้กับแอป:</b> ทำได้ในแอป LINE ที่การตั้งค่า → บัญชี → แอปที่เชื่อมต่อ (ชื่อเมนูอาจต่างกันตามเวอร์ชัน)</li>
+      <li><b>ขอดูหรือแก้ข้อมูล:</b> ดูและแก้ทริปหรือที่นั่งของคุณได้เองในหน้า "ของฉัน" หรือติดต่อผู้พัฒนาตามข้อ 6</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>5. คุกกี้และข้อมูลในเบราว์เซอร์</h2>
+    <ul>
+      <li><code>vsb_s</code> คุกกี้การเข้าสู่ระบบ (อ่านได้เฉพาะเซิร์ฟเวอร์ อยู่ 30 วัน)</li>
+      <li><code>vsb_st</code> คุกกี้ชั่วคราวระหว่างไปหน้าเข้าสู่ระบบของ LINE (อยู่ 10 นาที)</li>
+      <li>ข้อมูลในเบราว์เซอร์ (localStorage) เช่น รหัสสุ่มของเบราว์เซอร์ และหน้าที่เปิดล่าสุด ลบได้โดยล้างข้อมูลเว็บไซต์ในเบราว์เซอร์</li>
+      <li>เราไม่ใช้คุกกี้โฆษณาหรือคุกกี้ติดตามจากบริษัทอื่น</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>6. ติดต่อ</h2>
+    <p>แอปนี้พัฒนาโดยบุคคล ไม่ใช่บริษัท หากมีคำถามหรือต้องการใช้สิทธิ์เกี่ยวกับข้อมูลส่วนบุคคล ติดต่อผู้พัฒนาได้ที่ <a href="https://github.com/phitsanu-tr/van-seat-booking/issues" target="_blank" rel="noopener">GitHub (van-seat-booking)</a></p>
+    <p class="muted">ถ้านโยบายนี้เปลี่ยน เราจะแก้วันที่ "ปรับปรุงล่าสุด" ด้านบน และแจ้งในแอปหากเป็นการเปลี่ยนแปลงสำคัญ</p>
+  </section>
+  <p class="muted" style="text-align:center">© 2026 · <a href="/">กลับหน้าแรก</a></p>
+</main>
+</body>
+</html>

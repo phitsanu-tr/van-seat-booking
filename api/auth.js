@@ -42,7 +42,8 @@ function withFlag(path, flag) {
 async function startSession(req, res, profile, back) {
   const sid = L.newId(32); // ~157 bits of randomness
   const sess = { u: profile.sub, n: String(profile.name || "").slice(0, 60), p: /^https:\/\//.test(profile.picture || "") ? String(profile.picture).slice(0, 300) : "", at: Date.now() };
-  await L.pipeline([["SET", "sess:" + sid, JSON.stringify(sess), "EX", String(L.SESSION_DAYS * 86400)]]);
+  await L.pipeline([["SET", "sess:" + sid, JSON.stringify(sess), "EX", String(L.SESSION_DAYS * 86400)],
+    ["SADD", "usess:" + profile.sub, sid], ["EXPIRE", "usess:" + profile.sub, String(L.SESSION_DAYS * 86400)]]); // every device's session, so "delete my data" can end them all
   go(res, withFlag(back, "li=1"), [L.cookieStr(req, "vsb_s", sid, L.SESSION_DAYS * 86400), L.cookieStr(req, "vsb_st", "", 0)]);
 }
 

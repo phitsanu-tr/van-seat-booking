@@ -203,9 +203,12 @@ function myTripsKey(uid) { return "mytrips:" + uid; }
 function mySeatsKey(uid) { return "myseats:" + uid; }
 // Booking, cancelling and creating a trip need a LINE account (set VSB_REQUIRE_LOGIN=0 to allow guests again).
 const REQUIRE_LOGIN = process.env.VSB_REQUIRE_LOGIN !== "0";
+// Seats one account may hold in one trip (all vans together). The organizer is not limited. 0 = no limit.
+const DEFAULT_MAX_PER_PERSON = 4;
+function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); return Number.isInteger(n) && n >= 0 && n <= 50 ? n : DEFAULT_MAX_PER_PERSON; }
 
 module.exports = {
   TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json, DEFAULT_ID,
   tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, NAME_MAX, newId, crypto,
-  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, REQUIRE_LOGIN,
+  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, REQUIRE_LOGIN, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };

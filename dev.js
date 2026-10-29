@@ -30,6 +30,8 @@ function run(cmd) {
     case "DECR": { const n = num(store.get(key)) - 1; store.set(key, String(n)); return n; }
     case "EXPIRE": if (!store.has(key)) return 0; ttl.set(key, Date.now() + num(a[0]) * 1000); return 1;
     case "EXPIREAT": if (!store.has(key)) return 0; ttl.set(key, num(a[0]) * 1000); purge(); return 1;
+    case "PEXPIRE": if (!store.has(key)) return 0; ttl.set(key, Date.now() + num(a[0])); return 1;
+    case "RPUSH": { let l = store.get(key); if (!Array.isArray(l)) { l = []; store.set(key, l); } a.forEach((x) => l.push(String(x))); return l.length; }
     case "PERSIST": return ttl.delete(key) ? 1 : 0;
     case "PTTL": return !store.has(key) ? -2 : ttl.has(key) ? Math.max(1, ttl.get(key) - Date.now()) : -1;
     case "HGET": { const h = store.get(key); return h instanceof Map && h.has(String(a[0])) ? h.get(String(a[0])) : null; }
@@ -74,6 +76,7 @@ function route(pathname, query) {
   if (pathname === "/trips" || pathname === "/trips/new") return "/trips.html";
   if (pathname === "/owner") return "/owner.html";
   if (pathname === "/my") return "/my.html";
+  if (pathname === "/privacy") return "/privacy.html";
   if (/^\/[a-hj-km-np-z2-9]{6,8}$/.test(pathname)) return "/book.html";
   return pathname;
 }
@@ -81,7 +84,7 @@ function route(pathname, query) {
 function startApp() {
   const app = http.createServer((req, res) => {
     const u = new URL(req.url, "http://localhost");
-    const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/trips", "/owner.html": "/owner", "/my.html": "/my", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
+    const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/trips", "/owner.html": "/owner", "/my.html": "/my", "/privacy.html": "/privacy", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
     if (RD[u.pathname]) { res.writeHead(302, { Location: RD[u.pathname] }); return res.end(); }
     if (u.pathname === "/api/trip" || u.pathname === "/api/seats" || u.pathname === "/api/owner" || u.pathname === "/api/mark" || u.pathname === "/api/auth" || u.pathname === "/api/me") {
       let raw = ""; req.on("data", (c) => (raw += c));

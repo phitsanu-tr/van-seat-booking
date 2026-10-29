@@ -1,5 +1,8 @@
 // Vercel serverless function: GET /api/me — the signed-in person's own trips (as organizer) and seats (as passenger).
 // Index sets: mytrips:<uid> = trip ids, myseats:<uid> = "trip|van|seat". Entries that no longer match are dropped here.
+// DELETE /api/me { trips: "delete" | "keep" } — "delete my data": upcoming seats are cancelled, seats on finished trips
+// lose the link to the account (the name stays on the organizer's list), my trips are deleted or kept without an owner,
+// the account id is removed from those trips' logs, and every session of the account ends.
 const L = require("./_lib");
 const MAX = 60;
 
@@ -12,12 +15,81 @@ function summary(trip, perVan) {
   };
 }
 
+async function deleteAll(req, res, user, dropTrips) {
+  const uid = user.id;
+  const [tripIds, seatRefs, sids] = await L.pipeline([["SMEMBERS", L.myTripsKey(uid)], ["SMEMBERS", L.mySeatsKey(uid)], ["SMEMBERS", "usess:" + uid]]);
+  const refs = (seatRefs || []).map((r) => String(r).split("|")).filter((p) => p.length === 3 && L.tripId(p[0]) && L.parseSeat(p[2]) !== null);
+  const ids = Array.from(new Set((tripIds || []).map(String).filter((x) => L.tripId(x)).concat(refs.map((p) => p[0]))));
+  const raws = ids.length ? await L.pipeline(ids.map((id) => ["GET", L.tripKey(id)])) : [];
+  const trips = {};
+  ids.forEach((id, i) => { try { if (raws[i]) trips[id] = JSON.parse(raws[i]); } catch (e) { /* skip */ } });
+  let cancelled = 0, kept = 0, tripsDeleted = 0, tripsReleased = 0;
+  const touched = new Set();
+
+  // seats
+  const live = refs.filter((p) => trips[p[0]]);
+  const recs = live.length ? await L.pipeline(live.map((p) => ["HGET", L.seatsKey(p[0], p[1]), p[2]])) : [];
+  const cmds = [], gone = [];
+  live.forEach((p, i) => {
+    let rec = null;
+    try { rec = JSON.parse(recs[i]); } catch (e) { rec = null; }
+    if (!rec || rec.u !== uid) return;
+    const key = L.seatsKey(p[0], p[1]);
+    if (L.tripEnded(trips[p[0]])) { delete rec.u; cmds.push(["HSET", key, p[2], JSON.stringify(rec)]); kept++; }
+    else { cmds.push(["HDEL", key, p[2]]); cancelled++; gone.push([p[0], p[1], Number(p[2]), String(rec.name || "")]); }
+    touched.add(p[0]);
+  });
+  if (cmds.length) await L.pipeline(cmds);
+  for (const g of gone) await L.logEvent(g[0], { e: "cancel", v: g[1], s: g[2], n: g[3], by: "account_deleted", at: Date.now() }); // no account id: the organizer sees only the name
+
+  // trips I own
+  for (const id of (tripIds || []).map(String)) {
+    const t = trips[id];
+    if (!t || t.owner !== uid) continue;
+    if (dropTrips) {
+      const del = [["DEL", L.tripKey(id)], ["DEL", L.logKey(id)]];
+      t.vans.forEach((v) => del.push(["DEL", L.seatsKey(id, v.id)]));
+      await L.pipeline(del); tripsDeleted++; touched.delete(id);
+    } else {
+      const next = Object.assign({}, t); delete next.owner; delete next.ownerName;
+      await L.redis(["SET", L.tripKey(id), JSON.stringify(next)]); await L.applyExpiry(next); tripsReleased++; touched.add(id);
+    }
+  }
+
+  // remove the account id from the logs of the trips it touched (names and times stay for the organizer)
+  for (const id of touched) {
+    try {
+      const k = L.logKey(id);
+      const [list, pttl] = await L.pipeline([["LRANGE", k, "0", "199"], ["PTTL", k]]);
+      if (!list || !list.length) continue;
+      let changed = false;
+      const out = list.map((s) => {
+        let ev = null; try { ev = JSON.parse(s); } catch (e) { return s; }
+        if (ev && (ev.u === uid || ev.ou === uid)) { if (ev.u === uid) delete ev.u; if (ev.ou === uid) delete ev.ou; changed = true; return JSON.stringify(ev); }
+        return s;
+      });
+      if (!changed) continue;
+      const w = [["DEL", k], ["RPUSH", k].concat(out)];
+      if (Number(pttl) > 0) w.push(["PEXPIRE", k, String(pttl)]);
+      await L.pipeline(w);
+    } catch (e) { /* best effort */ }
+  }
+
+  // the account itself: indexes and every session
+  const end = [["DEL", L.myTripsKey(uid)], ["DEL", L.mySeatsKey(uid)], ["DEL", "usess:" + uid], ["DEL", "sess:" + user.sid]];
+  (sids || []).forEach((sid) => { if (/^[a-z0-9]{32}$/.test(String(sid))) end.push(["DEL", "sess:" + sid]); });
+  await L.pipeline(end);
+  res.setHeader("Set-Cookie", [L.cookieStr(req, "vsb_s", "", 0)]);
+  return L.json(res, 200, { ok: true, cancelled, kept, tripsDeleted, tripsReleased });
+}
+
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
-  if (req.method !== "GET") { res.setHeader("Allow", "GET"); return L.json(res, 405, { error: "method_not_allowed" }); }
+  if (req.method !== "GET" && req.method !== "DELETE") { res.setHeader("Allow", "GET, DELETE"); return L.json(res, 405, { error: "method_not_allowed" }); }
   try {
     const user = await L.currentUser(req);
     if (!user) return L.json(res, 401, { error: "login_required" });
+    if (req.method === "DELETE") return deleteAll(req, res, user, L.readBody(req).trips === "delete");
     const [tripIds, seatRefs] = await L.pipeline([["SMEMBERS", L.myTripsKey(user.id)], ["SMEMBERS", L.mySeatsKey(user.id)]]);
     const refs = (seatRefs || []).map((r) => String(r).split("|")).filter((p) => p.length === 3 && L.tripId(p[0]) && L.parseSeat(p[2]) !== null).slice(0, MAX);
     const ids = Array.from(new Set((tripIds || []).map(String).filter((x) => L.tripId(x)).slice(0, MAX).concat(refs.map((p) => p[0]))));

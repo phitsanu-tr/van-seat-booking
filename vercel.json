@@ -39,6 +39,11 @@
       "source": "/my.html",
       "destination": "/my",
       "permanent": false
+    },
+    {
+      "source": "/privacy.html",
+      "destination": "/privacy",
+      "permanent": false
     }
   ],
   "rewrites": [
@@ -57,6 +62,10 @@
     {
       "source": "/my",
       "destination": "/my.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html"
     },
     {
       "source": "/:t([a-hj-km-np-z2-9]{6,8})",

@@ -102,6 +102,12 @@ a { color: inherit; }
 .b-danger { background: var(--danger); border: 1.5px solid var(--danger); color: #fff; }
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 14px; padding: 10px 16px; border-radius: 12px; z-index: 30; max-width: calc(100% - 32px); text-align: center; }
 .toast.bad { background: var(--danger); }
+.data { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+.data a { color: var(--muted); }
+.data button { border: 0; background: none; padding: 6px 2px; color: var(--danger); font-size: 13px; text-decoration: underline; }
+.chk { display: flex; gap: 10px; align-items: flex-start; background: var(--bg); border-radius: 12px; padding: 12px; font-size: 14px; }
+.chk input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--danger); flex: none; }
+.sheet ul { margin: 0; padding-left: 20px; color: var(--ink); font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
 .foot { margin-top: auto; padding-top: 14px; text-align: center; font-size: 12px; color: var(--muted); }
 </style>
 </head>
@@ -115,7 +121,7 @@ a { color: inherit; }
     <div class="pts"><div><b>1</b>ดูทริปที่สร้างไว้ได้ทั้งมือถือและคอม</div><div><b>2</b>ยกเลิกได้เฉพาะที่นั่งของตัวเอง</div><div><b>3</b>ไม่ต้องพิมพ์ชื่อทุกครั้ง</div></div>
     <a class="lg" id="loginBtn" href="/api/auth?start=1&amp;r=%2Fmy"><i>LINE</i>เข้าสู่ระบบด้วย LINE</a>
     <div class="err" id="loginErr" hidden></div>
-    <div class="note">เราใช้แค่ชื่อและรูปโปรไฟล์ LINE<br>ไม่เก็บเบอร์โทร อีเมล หรือแชทของคุณ</div>
+    <div class="note">เราใช้แค่ชื่อและรูปโปรไฟล์ LINE<br>ไม่เก็บเบอร์โทร อีเมล หรือแชทของคุณ · <a href="/privacy">นโยบายความเป็นส่วนตัว</a></div>
     <a class="alt" href="/">กลับหน้าแรก →</a>
   </section>
 
@@ -125,6 +131,7 @@ a { color: inherit; }
       <div class="seg" role="tablist"><button id="tabTrips" role="tab" aria-selected="false" type="button">ทริปของฉัน <span class="n" id="nTrips">0</span></button><button id="tabSeats" role="tab" aria-selected="false" type="button">ที่นั่งของฉัน <span class="n" id="nSeats">0</span></button></div>
       <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px"></div>
       <div id="paneSeats" style="display:flex;flex-direction:column;gap:12px" hidden></div>
+      <div class="data"><a href="/privacy">นโยบายความเป็นส่วนตัว</a><span>·</span><button type="button" id="wipe">ลบข้อมูลของฉัน</button></div>
     </div>
   </section>
   <div class="foot">© 2026</div>
@@ -330,12 +337,54 @@ a { color: inherit; }
       for (var i = 0; i < 2; i++) { var c = node("div", "card"); c.appendChild(node("div", "sk")).style.height = "20px"; var b = c.appendChild(node("div", "sk")); b.style.height = "14px"; b.style.width = "60%"; c.appendChild(node("div", "sk")).style.height = "40px"; pane.appendChild(c); }
     });
   }
+  var D = null; // last /api/me answer
+  function askWipe() {
+    var up = D ? D.seats.filter(function (x) { return !x.ended; }).reduce(function (n, x) { return n + x.seats.length; }, 0) : 0;
+    var nt = D ? D.trips.length : 0;
+    var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
+    sh.appendChild(node("div", "grab")); sh.appendChild(node("h3", null, "ลบข้อมูลของฉัน?"));
+    var ul = node("ul");
+    ul.appendChild(node("li", null, up ? "ยกเลิกที่นั่งที่จองไว้ " + up + " ที่นั่ง (ทริปที่ยังไม่ถึง)" : "ไม่มีที่นั่งที่ต้องยกเลิก"));
+    ul.appendChild(node("li", null, "ทริปที่จบแล้ว ชื่อบนผังยังอยู่ให้คนจัดทริปดู แต่ไม่ผูกกับบัญชี LINE ของคุณแล้ว"));
+    ul.appendChild(node("li", null, "ออกจากระบบทุกเครื่อง และลบรหัสผู้ใช้ LINE ออกจากระบบ"));
+    sh.appendChild(ul);
+    var chk = null;
+    if (nt) {
+      var lab = node("label", "chk"); chk = node("input"); chk.type = "checkbox";
+      var tx = node("span"); tx.appendChild(node("b", null, "ลบทริปที่ฉันสร้างด้วย (" + nt + " ทริป)")); tx.appendChild(node("br"));
+      tx.appendChild(document.createTextNode("ถ้าไม่ติ๊ก ทริปยังเปิดให้จองต่อ แก้ไขได้ด้วยลิงก์ Admin Pass เท่านั้น"));
+      lab.appendChild(chk); lab.appendChild(tx); sh.appendChild(lab);
+    }
+    sh.appendChild(node("p", null, "ลบแล้วกู้คืนไม่ได้"));
+    var acts = node("div", "acts"), back = node("button", "b-plain", "ย้อนกลับ"), go = node("button", "b-danger", "ลบข้อมูลถาวร");
+    back.type = go.type = "button";
+    var close = function () { bd.remove(); };
+    back.addEventListener("click", close); bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
+    go.addEventListener("click", async function () {
+      go.disabled = true; go.textContent = "กำลังลบ...";
+      try {
+        var r = await fetch("/api/me", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trips: chk && chk.checked ? "delete" : "keep" }) });
+        if (!r.ok) throw new Error();
+        try { // trips kept: keep their secret links in this browser (the only way left to edit them); owner-only links are useless now
+          sessionStorage.removeItem("vsb_claimed");
+          var keepList = chk && chk.checked ? [] : (JSON.parse(localStorage.getItem("van-admin-trips") || "[]") || []).filter(function (x) { return x && x.token && x.token !== "o"; });
+          localStorage.setItem("van-admin-trips", JSON.stringify(keepList));
+        } catch (e) {}
+        close(); showLogin(); toast("ลบข้อมูลของคุณแล้ว");
+      } catch (e) { toast("ลบไม่สำเร็จ ลองอีกครั้ง", true); go.disabled = false; go.textContent = "ลบข้อมูลถาวร"; }
+    });
+    acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
+    document.body.appendChild(bd);
+  }
+  $("wipe").addEventListener("click", askWipe);
+
   async function load() {
     try {
       var r = await fetch("/api/me", { cache: "no-store" });
       if (r.status === 401) { showLogin(); return; }
       var d = await r.json();
       if (!r.ok) throw new Error();
+      D = d;
       $("meName").textContent = d.user.name || "ผู้ใช้ LINE";
       var av = $("av"); av.textContent = "";
       if (d.user.pic) { var im = node("img"); im.alt = ""; im.src = d.user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1); }; av.appendChild(im); }

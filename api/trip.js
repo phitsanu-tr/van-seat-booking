@@ -56,9 +56,13 @@ function clean(body, vanCap) {
     const plate = s(v && v.plate, 25);
     outVans.push(plate ? { id, label, plate } : { id, label });
   }
-  return {
-    value: { name, organizer: s(body.organizer, 80), startDate, endDate, departTime, meetPoint: s(body.meetPoint, 120), vans: outVans },
-  };
+  const value = { name, organizer: s(body.organizer, 80), startDate, endDate, departTime, meetPoint: s(body.meetPoint, 120), vans: outVans };
+  if (body.maxPerPerson !== undefined && body.maxPerPerson !== null && body.maxPerPerson !== "") {
+    const m = Number(body.maxPerPerson);
+    if (!Number.isInteger(m) || m < 0 || m > 50) return { error: "bad_max" };
+    value.maxPerPerson = m; // 0 = no limit
+  }
+  return { value };
 }
 
 // Gives each new van an id that is unused so far (v1, v2, ...).
