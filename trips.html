@@ -4,19 +4,6 @@
 <meta charset="utf-8">
 <script>
   document.addEventListener("touchstart", function () {}, { passive: true }); // lets iOS apply :active (card press effect)
-// The whole app opens inside the LINE app on a phone only (keeps every person's saved data in one browser).
-// Elsewhere the visitor is sent to /gate.html (a short notice). Exceptions: localhost, ?dev=1 (kept for the session) and the picture-only page (?img=1).
-(function () {
-  var UA = navigator.userAgent || "", P = location.pathname, Q = new URLSearchParams(location.search);
-  var ok = true; // accounts (sign in with LINE) keep each person's trips and seats, so any browser may open the app (the LINE-only gate is kept below, switched off)
-  if (false) ok = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA);
-  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) ok = true;
-  try { if (Q.get("dev") === "1") sessionStorage.setItem("vsb_dev", "1"); if (sessionStorage.getItem("vsb_dev") === "1") ok = true; } catch (e) { if (Q.get("dev") === "1") ok = true; }
-  if (!ok && Q.get("img") === "1" && !/^\/(trips|owner)/.test(P) && P !== "/") ok = true;
-  if (!ok && Q.get("img") === "1" && (Q.get("card") === "guest" || Q.get("card") === "admin") && /^\/trips\/?$/.test(P)) ok = true; // public SEAT PASS picture only
-  if (ok) return;
-  location.replace("/gate.html?u=" + encodeURIComponent(location.href));
-})();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>html { touch-action: manipulation; }</style>
@@ -79,52 +66,10 @@ button { font: inherit; cursor: pointer; }
 
 .back { display: inline-flex; align-items: center; gap: 2px; align-self: flex-start; color: var(--muted); text-decoration: none; font-size: 14px; margin-bottom: -6px; }
 .back svg { width: 16px; height: 16px; }
-.lv-cta { display: flex; align-items: center; justify-content: center; gap: 8px; height: 50px; border-radius: 16px; background: var(--mine); color: var(--mine-ink); font: 600 16px var(--font-display); text-decoration: none; }
-.lv-cta svg { width: 18px; height: 18px; }
-.lv-h { display: flex; align-items: center; gap: 10px; margin: 6px 0 -4px; }
-.lv-h[hidden] { display: none; }
-.lv-h b { font: 600 15px/22px var(--font-display); }
-.lv-h .n { margin-left: auto; font-size: 12px; color: var(--muted); }
-.lv-grp { display: flex; flex-direction: column; gap: 10px; }
-.tc { display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; color: inherit; text-decoration: none; }
-.tc { transition: transform .12s ease, background-color .12s ease; -webkit-user-select: none; user-select: none; }
-.tc:active:not(:has(.ab:active)) { transform: scale(.975); background: color-mix(in srgb, var(--ink) 4%, var(--surface)); }
-@media (prefers-reduced-motion: reduce) { .tc { transition: none; } .tc:active:not(:has(.ab:active)) { transform: none; } }
 .sk { position: relative; overflow: hidden; border-radius: 8px; background: color-mix(in srgb, var(--ink) 9%, var(--surface)); }
 .sk::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--surface) 70%, transparent), transparent); transform: translateX(-100%); animation: skm 1.4s ease-in-out infinite; }
 @keyframes skm { to { transform: translateX(100%); } }
 @media (prefers-reduced-motion: reduce) { .sk::after { animation: none; } }
-.tc.skl .acts .sk { flex: 1; height: 40px; border-radius: 16px; }
-.tc.past { opacity: .8; }
-.tc.new { border-color: var(--mine); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mine) 14%, transparent); }
-.tc .r1 { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-.tc .r1 b { font: 600 15px/22px var(--font-display); min-width: 0; overflow-wrap: anywhere; }
-.tc .chip { flex: none; font-style: normal; font-size: 11px; font-weight: 600; line-height: 18px; padding: 2px 9px; border-radius: 999px; background: color-mix(in srgb, var(--mine) 14%, transparent); color: var(--mine); }
-.tc .chip.g { background: color-mix(in srgb, var(--muted) 16%, transparent); color: var(--muted); }
-.tc .meta { display: flex; gap: 7px; align-items: center; font-size: 12px; line-height: 18px; color: var(--muted); }
-.tc .meta svg { flex: none; width: 14px; height: 14px; color: var(--mine); }
-.tc .meta span { min-width: 0; overflow-wrap: anywhere; }
-.tc .r3 { display: flex; align-items: center; gap: 10px; min-height: 20px; }
-.tc .pw { flex: 1; min-width: 0; }
-.tc .pw small { display: block; font-size: 11.5px; color: var(--muted); }
-.tc .acts { display: flex; gap: 10px; margin-top: 6px; }
-.tc .ab { flex: 1; min-width: 0; height: 40px; box-sizing: border-box; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 7px; font: 600 14px var(--font-display); text-decoration: none; background: var(--surface); color: var(--mine); border: 1.5px solid var(--mine); }
-.tc .ab.p { background: var(--mine); color: var(--mine-ink); }
-.tc .ab svg { flex: none; width: 17px; height: 17px; }
-.tc .ab:active { transform: scale(.98); }
-.tc .ab:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
-.lv-cta.sec { background: var(--surface); color: var(--mine); border: 1.5px solid var(--mine); }
-.tc .go { flex: none; display: flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600; color: var(--mine); }
-.tc .go svg { width: 14px; height: 14px; }
-.tc .rm { align-self: flex-start; margin-top: 2px; background: none; border: 0; padding: 4px 0; color: var(--danger); font-size: 13px; text-decoration: underline; }
-.lv-back { display: inline-flex; align-items: center; gap: 2px; align-self: flex-start; margin-bottom: -10px; color: var(--mine); font: 600 14px var(--font-body); text-decoration: none; }
-.lv-note { text-align: center; font-size: 12px; line-height: 18px; color: var(--muted); }
-.lv-note a { color: inherit; }
-.lv-empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding-top: 40px; }
-.lv-empty .ill { width: 140px; height: 140px; border-radius: 50%; background: color-mix(in srgb, var(--mine) 12%, transparent); display: grid; place-items: center; margin-bottom: 8px; }
-.lv-empty h2 { margin: 0; font: 600 18px var(--font-display); }
-.lv-empty p { max-width: 260px; font-size: 13px; line-height: 20px; margin-bottom: 8px; }
-.lv-empty .lv-cta { padding: 0 28px; }
 
 .backdrop { overscroll-behavior: contain; position: fixed; inset: 0; z-index: 20; background: rgba(8, 14, 18, .6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
 .modal { width: 100%; max-width: 400px; background: var(--surface); border-radius: 24px; padding: 22px 20px 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 18px 50px rgba(0,0,0,.35); margin: auto; }
@@ -387,43 +332,8 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
 </style>
 </head>
 <body>
-<main id="listMain" hidden>
-  <a class="lv-back" href="/"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>หน้าแรก</a>
-  <h1 id="lvH1">ทริปของฉัน</h1>
-  <div id="listFull" hidden>
-    <div style="display:flex;flex-direction:column;gap:16px">
-      <section class="hero">
-    <div class="hr">
-      <h1>ทริปของฉัน</h1>
-    </div>
-    <p>ทริปที่สร้างไว้ในเครื่องนี้</p>
-    <svg viewBox="1 0 92 60" fill="none" aria-hidden="true">
-      <path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>
-      <g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--surface)"/></g>
-      <g transform="translate(-2 3) scale(.82)">
-      <path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
-      <g fill="color-mix(in srgb, var(--mine) 28%, var(--surface))" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g>
-      <path d="M85 36h3" stroke="var(--mine)" stroke-width="3" stroke-linecap="round"/>
-      <circle cx="26" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="26" cy="43" r="6.5" fill="var(--ink)"/><circle cx="26" cy="43" r="2.4" fill="var(--surface)"/><circle cx="70" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="70" cy="43" r="6.5" fill="var(--ink)"/><circle cx="70" cy="43" r="2.4" fill="var(--surface)"/>
-          </g>
-    </svg>
-  </section>
-      <a class="lv-cta sec" href="/trips/new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>สร้างทริปใหม่</a>
-      <div class="lv-h" id="hOpen" hidden><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><b>ทริปที่กำลังจะมาถึง</b><span class="n"></span></div><div class="lv-grp" id="gOpen"></div>
-      <div class="lv-h" id="hPast" hidden><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><b>ผ่านไปแล้ว</b><span class="n"></span></div><div class="lv-grp" id="gPast"></div>
-    </div>
-  </div>
-  <div class="lv-empty" id="listEmpty" hidden>
-    <div class="ill">    <svg viewBox="0 0 96 64" fill="none" width="108" height="72" aria-hidden="true">      <path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>      <g transform="translate(66.5 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--surface)"/></g>      <g transform="translate(4.5 3) scale(.82)">      <path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>      <g fill="color-mix(in srgb, var(--mine) 28%, var(--surface))" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g>      <path d="M85 36h3" stroke="var(--mine)" stroke-width="3" stroke-linecap="round"/>      <circle cx="26" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="26" cy="43" r="6.5" fill="var(--ink)"/><circle cx="26" cy="43" r="2.4" fill="var(--surface)"/><circle cx="70" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="70" cy="43" r="6.5" fill="var(--ink)"/><circle cx="70" cy="43" r="2.4" fill="var(--surface)"/>          </g>    </svg></div>
-    <h2>ยังไม่มีทริป</h2>
-    <p>สร้างทริปแล้วแชร์ลิงก์ให้เพื่อนเลือกที่นั่ง</p>
-    <a class="lv-cta" href="/trips/new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>สร้างทริปแรก</a>
-  </div>
-  <p class="lv-note">ทริปแสดงเฉพาะในเครื่องนี้ · เก็บลิงก์ผู้ดูแลไว้เผื่อเปลี่ยนเครื่อง</p>
-</main>
-
 <main id="formMain" hidden>
-  <a class="back" href="/trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a>
+  <a class="back" href="/mytrips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a>
   <section class="hero">
     <div class="hr">
       <h1 id="title">สร้างทริป</h1>
@@ -940,7 +850,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   var goList = false; // right after creating a trip, closing the result sheet leads to the my-trips list
   function closeResult() {
-    if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = SIGNED ? "/my" : "/trips"; return; }
+    if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = SIGNED ? "/mytrips" : "/trips"; return; }
     $("backdrop").hidden = true; document.body.style.overflow = "";
   }
   $("closeX").addEventListener("click", closeResult);
@@ -1297,8 +1207,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     bad_name: "ระบุชื่อทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง",
     bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", login_required: "เข้าด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
-    quota_device: "เดือนนี้สร้างทริปครบ 5 ทริปแล้ว ลองใหม่เดือนหน้านะ",
-    quota_ip: "เครือข่ายนี้สร้างทริปเยอะเกินกำหนดของเดือนนี้ ลองใหม่เดือนหน้านะ",
+    quota_month: "เดือนนี้คุณสร้างทริปครบ 30 ทริปแล้ว ลองใหม่เดือนหน้านะ",
     too_many: "ใส่รหัสผิดหลายครั้งเกินไป รอสักครู่แล้วลองใหม่"
   };
 
@@ -1387,81 +1296,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   function node(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   function todayIso() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
   function isPast(t) { var last = t && (t.endDate || t.startDate); return !!last && last < todayIso(); }
-  function card(it) {
-    var x = it.x, t = it.trip, past = it.state === "ok" && isPast(t), full = it.state === "ok" && it.booked >= it.total;
-    if (it.state === "gone") {
-      var g = node("div", "tc past");
-      var r = node("div", "r1"); r.appendChild(node("b", "", x.name || x.id)); r.appendChild(node("em", "chip g", "ไม่พบทริป")); g.appendChild(r);
-      g.appendChild(node("div", "meta")).appendChild(node("span", "", "ทริปนี้ถูกลบหรือหมดอายุแล้ว"));
-      var rm = node("button", "rm", "ลบออกจากรายการ"); rm.type = "button";
-      rm.addEventListener("click", function () { saveMine(loadMine().filter(function (y) { return y.id !== x.id; })); initList(); });
-      g.appendChild(rm); return g;
-    }
-    if (it.state === "load") { // skeleton with the same rows as the real card, so nothing jumps when the data arrives
-      var k = node("div", "tc skl" + (x.id === newId ? " new" : "")); k.setAttribute("aria-busy", "true");
-      var kr = node("div", "r1"); kr.appendChild(node("b", "", x.name || "")); if (!x.name) { var kb = node("div", "sk"); kb.style.cssText = "width:55%;height:20px"; kr.appendChild(kb); }
-      var kc = node("em", "sk"); kc.style.cssText = "width:56px;height:20px;border-radius:999px"; kr.appendChild(kc); k.appendChild(kr);
-      [70, 55, 48].forEach(function (w) { var m = node("div", "sk"); m.style.cssText = "width:" + w + "%;height:14px;margin:2px 0"; k.appendChild(m); });
-      var ka = node("div", "acts"); ka.appendChild(node("div", "sk")); ka.appendChild(node("div", "sk")); k.appendChild(ka);
-      return k;
-    }
-    var a = node("div", "tc" + (past ? " past" : "") + (x.id === newId ? " new" : ""));
-    var r1 = node("div", "r1"); r1.appendChild(node("b", "", (t && t.name) || x.name || x.id));
-    if (it.state === "ok") r1.appendChild(node("em", "chip" + (past ? " g" : ""), past ? "ผ่านไปแล้ว" : full ? "เต็มแล้ว" : "เปิดจอง"));
-    a.appendChild(r1);
-    if (t && (t.startDate || t.endDate)) { var m = node("div", "meta"); m.appendChild(icon(SV.cal)); m.appendChild(node("span", "", dateRange(t.startDate, t.endDate) + (t.departTime ? " · " + t.departTime + " น." : ""))); a.appendChild(m); }
-    if (t && t.meetPoint) { var m2 = node("div", "meta"); m2.appendChild(icon(SV.pin)); m2.appendChild(node("span", "", t.meetPoint)); a.appendChild(m2); }
-    var r3 = node("div", "r3"), pw = node("div", "pw");
-    if (it.state === "ok") {
-      var mv = node("div", "meta"); mv.appendChild(icon(SV.van)); mv.appendChild(node("span", "", t.vans.length + " คัน · จองแล้ว " + it.booked + "/" + it.total + " ที่นั่ง")); pw.appendChild(mv);
-    } else pw.appendChild(node("small", "", it.state === "load" ? "กำลังโหลด..." : "โหลดข้อมูลไม่ได้"));
-    r3.appendChild(pw);
-    a.appendChild(r3);
-    var acts = node("div", "acts"), manage = node("a", "ab p", "จัดการทริป"); manage.href = editPath(x.id, x.token); manage.insertBefore(icon(SV.sliders), manage.firstChild);
-    if (it.state === "ok" && !past && !full) { var bk = node("a", "ab", "จองที่นั่ง"); bk.href = "/" + x.id; bk.insertBefore(icon(SV.ticket), bk.firstChild); acts.appendChild(bk); } // straight to the booking page (same view the guests get)
-    acts.appendChild(manage); a.appendChild(acts);
-    return a;
-  }
-  function renderList(items) {
-    var open = [], past = [];
-    items.forEach(function (it) { (it.state === "gone" || (it.state === "ok" && isPast(it.trip)) ? past : open).push(it); });
-    var key = function (it) { return (it.trip && (it.trip.startDate || it.trip.endDate)) || "9999"; };
-    open.sort(function (a, b) { return key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0; });
-    var pkey = function (it) { return (it.trip && (it.trip.endDate || it.trip.startDate)) || ""; };
-    past.sort(function (a, b) { return pkey(a) < pkey(b) ? 1 : pkey(a) > pkey(b) ? -1 : 0; });
-    [["gOpen", "hOpen", open], ["gPast", "hPast", past]].forEach(function (g) {
-      var box = $(g[0]); box.textContent = ""; $(g[1]).hidden = g[2].length === 0; $(g[1]).querySelector(".n").textContent = g[2].length + " ทริป";
-      g[2].forEach(function (it) { box.appendChild(card(it)); });
-    });
-  }
-  async function initList() {
-    document.title = "ทริปของฉัน · จองที่นั่งรถตู้";
-    try { // signed in with LINE: the account page lists every trip (it also takes over the ones saved in this browser)
-      var who = await (await fetch("/api/auth?me=1", { cache: "no-store" })).json();
-      if (who && who.user) { location.replace("/my"); return; }
-    } catch (e) {}
-    $("listMain").hidden = false;
-    var mine = loadMine();
-    $("listEmpty").hidden = mine.length > 0; $("listFull").hidden = mine.length === 0; $("lvH1").hidden = mine.length > 0; // the banner replaces the plain title when there are trips
-    if (!mine.length) return;
-    var items = mine.map(function (x) { return { x: x, state: "load", trip: null, booked: 0, total: 0 }; });
-    renderList(items);
-    await Promise.all(items.map(async function (it) {
-      try {
-        var res = await fetch("/api/seats?t=" + encodeURIComponent(it.x.id), { cache: "no-store", signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(8000) : undefined });
-        var d = {}; try { d = await res.json(); } catch (e) {}
-        if (res.status === 404) it.state = "gone";
-        else if (!res.ok || !d.trip) it.state = "err";
-        else {
-          it.state = "ok"; it.trip = d.trip; it.total = d.trip.vans.length * SEATS;
-          it.booked = Object.keys(d.counts || {}).reduce(function (n, k) { return n + (Number(d.counts[k]) || 0); }, 0);
-        }
-      } catch (e) { it.state = "err"; }
-    }));
-    renderList(items); // every card is ready: swap all skeletons for the real cards at once
-    var nw = document.querySelector(".tc.new"); if (nw && nw.scrollIntoView) nw.scrollIntoView({ block: "center", behavior: "smooth" });
-  }
-
   var booked = 0, loaded = null, perVan = {};
   var newId = ""; // id of the trip just created (highlighted once on the list)
   $("delBtn").addEventListener("click", async function () {
@@ -1479,7 +1313,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       if (!r.ok && r.status !== 404) { var d = {}; try { d = await r.json(); } catch (e) {} toast(ERR[d.error] || "ลบไม่สำเร็จ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; return; }
       saveMine(loadMine().filter(function (y) { return y.id !== T; }));
       try { sessionStorage.setItem("van-flash", "ลบทริปแล้ว"); } catch (e) {}
-      location.href = SIGNED ? "/my" : "/trips";
+      location.href = SIGNED ? "/mytrips" : "/trips";
     } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
   });
 
@@ -1507,13 +1341,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   var signedReady = fetch("/api/auth?me=1", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) { SIGNED = !!(d && d.user); if (SIGNED) document.documentElement.classList.add("signed"); }).catch(function () {});
   async function init() {
     if (CARD_ONLY) { cardOnly(); return; }
-    if (listMode) {
-      var fl = "";
-      try { fl = sessionStorage.getItem("van-flash") || ""; newId = sessionStorage.getItem("van-new") || ""; sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); } catch (e) {}
-      initList();
-      if (fl) toast(fl, false, true);
-      return;
-    }
+    if (listMode) { location.replace("/mytrips"); return; } // the trip list lives on the account page now
     $("formMain").hidden = false;
     if (editing) {
       $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตแล้วผู้จองเห็นข้อมูลใหม่ทันที";

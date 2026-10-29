@@ -75,7 +75,7 @@ function route(pathname, query) {
   if (pathname === "/") return "/index.html";
   if (pathname === "/trips" || pathname === "/trips/new") return "/trips.html";
   if (pathname === "/owner") return "/owner.html";
-  if (pathname === "/my") return "/my.html";
+  if (pathname === "/mytrips") return "/mytrips.html";
   if (pathname === "/privacy") return "/privacy.html";
   if (/^\/[a-hj-km-np-z2-9]{6,8}$/.test(pathname)) return "/book.html";
   return pathname;
@@ -84,7 +84,7 @@ function route(pathname, query) {
 function startApp() {
   const app = http.createServer((req, res) => {
     const u = new URL(req.url, "http://localhost");
-    const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/trips", "/owner.html": "/owner", "/my.html": "/my", "/privacy.html": "/privacy", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
+    const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/trips", "/owner.html": "/owner", "/mytrips.html": "/mytrips", "/my": "/mytrips", "/privacy.html": "/privacy", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
     if (RD[u.pathname]) { res.writeHead(302, { Location: RD[u.pathname] }); return res.end(); }
     if (u.pathname === "/api/trip" || u.pathname === "/api/seats" || u.pathname === "/api/owner" || u.pathname === "/api/mark" || u.pathname === "/api/auth" || u.pathname === "/api/me") {
       let raw = ""; req.on("data", (c) => (raw += c));

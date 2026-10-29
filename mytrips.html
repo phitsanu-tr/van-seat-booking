@@ -144,7 +144,7 @@ a { color: inherit; }
     <h1>จองที่นั่งรถตู้</h1>
     <p>เข้าสู่ระบบครั้งเดียว<br>ทริปและที่นั่งของคุณจะอยู่ทุกเครื่อง</p>
     <div class="pts"><div><b>1</b>ดูทริปที่สร้างไว้ได้ทั้งมือถือและคอม</div><div><b>2</b>ยกเลิกได้เฉพาะที่นั่งของตัวเอง</div><div><b>3</b>ไม่ต้องพิมพ์ชื่อทุกครั้ง</div></div>
-    <a class="lg" id="loginBtn" href="/api/auth?start=1&amp;r=%2Fmy"><i>LINE</i>เข้าสู่ระบบด้วย LINE</a>
+    <a class="lg" id="loginBtn" href="/api/auth?start=1&amp;r=%2Fmytrips"><i>LINE</i>เข้าสู่ระบบด้วย LINE</a>
     <div class="err" id="loginErr" hidden></div>
     <div class="note">เราใช้แค่ชื่อและรูปโปรไฟล์ LINE<br>ไม่เก็บเบอร์โทร อีเมล หรือแชทของคุณ · <a href="/privacy">นโยบายความเป็นส่วนตัว</a></div>
     <a class="alt" href="/">กลับหน้าแรก →</a>
@@ -192,7 +192,7 @@ a { color: inherit; }
     var t = $("toast"); t.textContent = msg; t.className = "toast" + (bad ? " bad" : ""); t.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 2800);
   }
-  function loginHref(back) { return "/api/auth?start=1&r=" + encodeURIComponent(back || "/my"); }
+  function loginHref(back) { return "/api/auth?start=1&r=" + encodeURIComponent(back || "/mytrips"); }
   function meta(x, withVans) {
     var m = node("div", "meta"), add = function (svg, text) { if (!text) return; var s = node("span"); s.innerHTML = svg || ""; var i = node("i", null, text); s.appendChild(i); m.appendChild(s); };
     add(SV.cal, dateRange(x.startDate, x.endDate));
@@ -459,7 +459,7 @@ a { color: inherit; }
     $("tabTrips").setAttribute("aria-selected", t === "trips" ? "true" : "false");
     $("tabSeats").setAttribute("aria-selected", t === "seats" ? "true" : "false");
     $("paneTrips").hidden = t !== "trips"; $("paneSeats").hidden = t !== "seats";
-    try { history.replaceState(null, "", "/my" + (t === "seats" ? "#seats" : "")); } catch (e) {}
+    try { history.replaceState(null, "", "/mytrips" + (t === "seats" ? "#seats" : "")); } catch (e) {}
   }
   $("tabTrips").addEventListener("click", function () { setTab("trips"); });
   $("tabSeats").addEventListener("click", function () { setTab("seats"); });
@@ -554,7 +554,7 @@ a { color: inherit; }
     var le = new URLSearchParams(location.search).get("le");
     var msg = { cancel: "ยกเลิกการเข้าสู่ระบบแล้ว", setup: "ระบบเข้าสู่ระบบยังไม่ได้ตั้งค่า (ติดต่อเจ้าของแอป)", busy: "ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่" }[le] || (le ? "เข้าสู่ระบบไม่สำเร็จ ลองอีกครั้ง" : "");
     if (msg) { $("loginErr").textContent = msg; $("loginErr").hidden = false; }
-    $("loginBtn").href = loginHref("/my" + (location.hash || ""));
+    $("loginBtn").href = loginHref("/mytrips" + (location.hash || ""));
   }
   $("logout").addEventListener("click", async function () {
     try { await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ logout: true }) }); } catch (e) {}
@@ -564,7 +564,7 @@ a { color: inherit; }
 
   (async function init() {
     var q = new URLSearchParams(location.search);
-    if (q.has("li") || q.has("le")) { try { history.replaceState(null, "", "/my" + (location.hash || "")); } catch (e) {} }
+    if (q.has("li") || q.has("le")) { try { history.replaceState(null, "", "/mytrips" + (location.hash || "")); } catch (e) {} }
     if (q.has("le")) { showLogin(); var le = q.get("le"); $("loginErr").textContent = { cancel: "ยกเลิกการเข้าสู่ระบบแล้ว", setup: "ระบบเข้าสู่ระบบยังไม่ได้ตั้งค่า (ติดต่อเจ้าของแอป)", busy: "ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่" }[le] || "เข้าสู่ระบบไม่สำเร็จ ลองอีกครั้ง"; $("loginErr").hidden = false; return; }
     var me = null;
     try { me = (await (await fetch("/api/auth?me=1", { cache: "no-store" })).json()).user; } catch (e) {}

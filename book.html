@@ -2,20 +2,6 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<script>
-// The whole app opens inside the LINE app on a phone only (keeps every person's saved data in one browser).
-// Elsewhere the visitor is sent to /gate.html (a short notice). Exceptions: localhost, ?dev=1 (kept for the session) and the picture-only page (?img=1).
-(function () {
-  var UA = navigator.userAgent || "", P = location.pathname, Q = new URLSearchParams(location.search);
-  var ok = true; // accounts (sign in with LINE) keep each person's trips and seats, so any browser may open the app (the LINE-only gate is kept below, switched off)
-  if (false) ok = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA);
-  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) ok = true;
-  try { if (Q.get("dev") === "1") sessionStorage.setItem("vsb_dev", "1"); if (sessionStorage.getItem("vsb_dev") === "1") ok = true; } catch (e) { if (Q.get("dev") === "1") ok = true; }
-  if (!ok && Q.get("img") === "1" && !/^\/(trips|owner)/.test(P) && P !== "/") ok = true;
-  if (ok) return;
-  location.replace("/gate.html?u=" + encodeURIComponent(location.href));
-})();
-</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>html { touch-action: manipulation; }</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
@@ -401,7 +387,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 <body class="sk">
 <main>
   <header class="trip" id="tripHdr">
-    <div class="hbar"><a class="mytrips" id="myTrips" href="/trips" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a><a class="acct" id="acct" href="/my" hidden></a></div>
+    <div class="hbar"><a class="mytrips" id="myTrips" href="/mytrips" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a><a class="acct" id="acct" href="/mytrips" hidden></a></div>
     <div class="hero"><div class="ht"><h1>จองที่นั่งรถตู้</h1>
     <div class="org"><span>เลือกที่นั่งว่าง</span> <span>ใส่ชื่อ</span> <span>แล้วจองได้เลย</span></div></div><svg class="hv" viewBox="0 0 96 64" fill="none" aria-hidden="true"><path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--hbg)"/></g><g transform="translate(-2 3) scale(.82)"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/><g fill="color-mix(in srgb,var(--mine) 25%,var(--surface))" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g><g fill="var(--ink)"><circle cx="26" cy="43" r="6.5"/><circle cx="70" cy="43" r="6.5"/></g><g fill="var(--surface)"><circle cx="26" cy="43" r="2.4"/><circle cx="70" cy="43" r="2.4"/></g></g></svg></div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
@@ -540,11 +526,11 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     var a = document.getElementById("acct"); if (!a || IMG_ONLY) return;
     a.textContent = ""; a.hidden = false;
     if (me) {
-      a.className = "acct in"; a.href = "/my#seats";
+      a.className = "acct in"; a.href = "/mytrips#seats";
       var av = el("span", "aav");
       if (me.pic) { var im = document.createElement("img"); im.alt = ""; im.src = me.pic; im.referrerPolicy = "no-referrer"; av.appendChild(im); } else av.textContent = (me.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
       a.appendChild(av); a.appendChild(el("span", null, "ของฉัน"));
-      var mt = document.getElementById("myTrips"); if (isOwner && mt) { mt.hidden = false; mt.href = "/my"; }
+      var mt = document.getElementById("myTrips"); if (isOwner && mt) { mt.hidden = false; mt.href = "/mytrips"; }
     } else { a.className = "acct out"; a.href = loginHref(0); a.appendChild(el("span", null, "เข้าด้วย LINE")); }
   }
   var loaded = false, loadError = "";

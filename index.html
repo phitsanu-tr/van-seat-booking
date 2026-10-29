@@ -2,20 +2,6 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<script>
-// The whole app opens inside the LINE app on a phone only (keeps every person's saved data in one browser).
-// Elsewhere the visitor is sent to /gate.html (a short notice). Exceptions: localhost, ?dev=1 (kept for the session) and the picture-only page (?img=1).
-(function () {
-  var UA = navigator.userAgent || "", P = location.pathname, Q = new URLSearchParams(location.search);
-  var ok = true; // accounts (sign in with LINE) keep each person's trips and seats, so any browser may open the app (the LINE-only gate is kept below, switched off)
-  if (false) ok = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA);
-  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) ok = true;
-  try { if (Q.get("dev") === "1") sessionStorage.setItem("vsb_dev", "1"); if (sessionStorage.getItem("vsb_dev") === "1") ok = true; } catch (e) { if (Q.get("dev") === "1") ok = true; }
-  if (!ok && Q.get("img") === "1" && !/^\/(trips|owner)/.test(P) && P !== "/") ok = true;
-  if (ok) return;
-  location.replace("/gate.html?u=" + encodeURIComponent(location.href));
-})();
-</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>html { touch-action: manipulation; }</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
@@ -96,7 +82,7 @@ a.path:active { background: var(--tint); }
 </style>
 </head>
 <body>
-<div class="top"><div><span>จองที่นั่งรถตู้</span><a class="acct" id="acct" href="/my" hidden></a></div></div>
+<div class="top"><div><span>จองที่นั่งรถตู้</span><a class="acct" id="acct" href="/mytrips" hidden></a></div></div>
 <main>
   <section class="hero">
     <div class="hr">
@@ -194,8 +180,8 @@ a.path:active { background: var(--tint); }
   var a=document.getElementById("acct"); if(!a)return;
   fetch("/api/auth?me=1",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
     var u=d&&d.user; a.textContent="";
-    if(u){a.className="acct in";a.href="/my";var av=document.createElement("span");av.className="aav";if(u.pic){var im=document.createElement("img");im.alt="";im.src=u.pic;im.referrerPolicy="no-referrer";av.appendChild(im);}else av.textContent=(u.name||"?").replace(/^[เแโใไ]/,"").slice(0,1);a.appendChild(av);a.appendChild(document.createTextNode("ของฉัน"));}
-    else{a.className="acct out";a.href="/api/auth?start=1&r=%2Fmy";a.textContent="เข้าด้วย LINE";}
+    if(u){a.className="acct in";a.href="/mytrips";var av=document.createElement("span");av.className="aav";if(u.pic){var im=document.createElement("img");im.alt="";im.src=u.pic;im.referrerPolicy="no-referrer";av.appendChild(im);}else av.textContent=(u.name||"?").replace(/^[เแโใไ]/,"").slice(0,1);a.appendChild(av);a.appendChild(document.createTextNode("ของฉัน"));}
+    else{a.className="acct out";a.href="/api/auth?start=1&r=%2Fmytrips";a.textContent="เข้าด้วย LINE";}
     a.hidden=false;
   }).catch(function(){});
 })();</script>

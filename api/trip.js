@@ -11,28 +11,20 @@ const L = require("./_lib");
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
 const MAX_VANS = 5;           // vans per trip (a trip created earlier with more keeps its count when edited)
-const QUOTA_ENABLED = false;    // monthly creation limit is switched off for now; set to true to bring it back
-const TRIPS_PER_MONTH = 5;      // per creator (browser/device id)
-const TRIPS_PER_MONTH_IP = 15;  // backstop per network, so clearing browser data is not a free reset
+const TRIPS_PER_MONTH = 30; // per LINE account, calendar month in Thai time (UTC+7)
 
-// Counts a creation against this month's quota. Returns null when allowed, else an error code.
-// Month boundary follows Thai time (UTC+7). Counters expire on their own.
-async function takeQuota(req, deviceId) {
+// Counts a creation against this month's quota for the account. Returns the error code when over the limit.
+async function takeQuota(user) {
   const month = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 7);
-  const fwd = String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim() || "unknown";
-  const keys = [];
-  if (/^[A-Za-z0-9-]{8,64}$/.test(deviceId || "")) keys.push(["quota:" + month + ":d:" + deviceId, TRIPS_PER_MONTH, "quota_device"]);
-  keys.push(["quota:" + month + ":ip:" + fwd.slice(0, 64), TRIPS_PER_MONTH_IP, "quota_ip"]);
-  const cmds = [];
-  keys.forEach((k) => { cmds.push(["INCR", k[0]]); cmds.push(["EXPIRE", k[0], String(40 * 86400)]); });
-  const res = await L.pipeline(cmds);
-  let over = null;
-  keys.forEach((k, i) => { if (!over && Number(res[i * 2]) > k[1]) over = k[2]; });
-  if (over) await refundQuota(keys);
-  return { over, keys };
+  const key = "quota:" + month + ":u:" + user.id;
+  const out = await L.pipeline([["INCR", key], ["EXPIRE", key, String(40 * 86400)]]);
+  if (Number(out[0]) > TRIPS_PER_MONTH) { try { await L.redis(["DECR", key]); } catch (e) { /* best effort */ } return "quota_month"; }
+  return null;
 }
-async function refundQuota(keys) {
-  try { await L.pipeline(keys.map((k) => ["DECR", k[0]])); } catch (e) { /* best effort */ }
+async function refundQuota(user) {
+  if (!user) return;
+  const month = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 7);
+  try { await L.redis(["DECR", "quota:" + month + ":u:" + user.id]); } catch (e) { /* best effort */ }
 }
 
 function clean(body, vanCap) {
@@ -153,15 +145,14 @@ module.exports = async function handler(req, res) {
       if (L.REQUIRE_LOGIN && !user) return L.json(res, 401, { error: "login_required" });
       const c = clean(L.readBody(req));
       if (c.error) return L.json(res, 400, { error: c.error });
-      const q = QUOTA_ENABLED ? await takeQuota(req, L.readBody(req).d) : { over: null, keys: [] };
-      if (q.over) return L.json(res, 429, { error: q.over, limit: TRIPS_PER_MONTH });
+      const over = user ? await takeQuota(user) : null;
+      if (over) return L.json(res, 429, { error: over, limit: TRIPS_PER_MONTH });
       const id = L.newId(8), secret = L.newId(16);
       const now = Date.now();
-      if (await L.rateLimited(req, user, "create", 20, 3600)) return L.json(res, 429, { error: "too_many" });
       const trip = Object.assign({ id, schemaVersion: 1, createdAt: now, updatedAt: now, adminHash: sha256(secret) }, user ? { owner: user.id, ownerName: user.name } : {}, c.value);
       trip.vans = assignVanIds(trip.vans, []);
       const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
-      if (ok !== "OK") { await refundQuota(q.keys); return L.json(res, 502, { error: "storage_error" }); }
+      if (ok !== "OK") { await refundQuota(user); return L.json(res, 502, { error: "storage_error" }); }
       await L.applyExpiry(trip);
       if (user) { try { await L.pipeline([["SADD", L.myTripsKey(user.id), id], ["EXPIRE", L.myTripsKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* best effort */ } }
       return L.json(res, 200, { id, token: secret, trip: tripSummary(trip, user) });
