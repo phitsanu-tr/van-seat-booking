@@ -2,7 +2,8 @@
 // Query / body: t = trip code (default "default"), v = van id (default: the trip's first van).
 // Storage: one Redis hash per van (field = seat number, value = JSON {name, at, u}).
 // Seat hold: POST {hold: seat} (no sign-in needed) keeps a free seat for HOLD_SEC while the visitor signs in with LINE;
-// others see it as "being booked"; the booking that carries the hold id gets it. One hold per network per trip.
+// others see it as "being booked"; the booking that carries the hold id gets it. One hold per browser (hc) per trip;
+// the network only limits how many holds can be made (many phones share one IP on mobile networks).
 const L = require("./_lib");
 const HOLD_SEC = 5 * 60;
 const holdKey = (t, v, s) => "hold:" + t + ":" + v + ":" + s;
@@ -52,9 +53,11 @@ module.exports = async function handler(req, res) {
     if (req.method === "POST" && body.hold !== undefined && body.seat === undefined) {
       const seat = L.parseSeat(body.hold);
       if (seat === null) return L.json(res, 400, { error: "bad_seat" });
-      if (await L.rateLimited(req, null, "hold:" + t, 10, 600)) return L.json(res, 429, { error: "too_many" });
+      const hc = /^[a-z0-9]{16}$/.test(String(body.hc || "")) ? String(body.hc) : "";
+      if (await L.rateLimited(req, null, "hold:" + t, hc ? 40 : 10, 600)) return L.json(res, 429, { error: "too_many" }); // per network
+      if (hc && await L.rateLimited(req, { id: "hc:" + hc }, "hold:" + t, 10, 600)) return L.json(res, 429, { error: "too_many" }); // per browser
       if (await L.redis(["HGET", key, String(seat)])) return L.json(res, 409, { error: "taken" });
-      const hk = holdKey(t, van.id, seat), id = L.newId(16), mineKey = "holdip:" + t + ":" + L.clientIp(req);
+      const hk = holdKey(t, van.id, seat), id = L.newId(16), mineKey = hc ? "holdc:" + t + ":" + hc : "holdip:" + t + ":" + L.clientIp(req);
       const prev = await L.redis(["GET", mineKey]);
       if (prev && prev !== hk) { try { await L.redis(["DEL", prev]); } catch (e) { /* best effort */ } } // one hold per network: the new one replaces the old
       if (prev === hk) await L.redis(["DEL", hk]); // same seat again: renew

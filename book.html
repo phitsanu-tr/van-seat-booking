@@ -527,10 +527,13 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   function readHold() { try { var h = JSON.parse(sessionStorage.getItem("vsb_hold") || "null"); return h && h.t === TRIP && h.exp > Date.now() ? h : null; } catch (e) { return null; } }
   function myHold(n) { var h = readHold(); return !!(h && h.v === curVan && h.s === n); }
   function heldByOther(n) { return !seats[n] && held[n] && !myHold(n); }
+  function holdClient() { // random id of this browser, only used so two people on the same mobile network do not cancel each other's hold
+    try { var c = localStorage.getItem("vsb_hc"); if (!c || !/^[a-z0-9]{16}$/.test(c)) { c = Array.from(crypto.getRandomValues(new Uint8Array(16)), function (x) { return "abcdefghijklmnopqrstuvwxyz0123456789"[x % 36]; }).join(""); localStorage.setItem("vsb_hc", c); } return c; } catch (e) { return ""; }
+  }
   async function holdAndLogin(n, a) { // keep the seat while the visitor signs in with LINE, then go to LINE
     a.style.opacity = ".7";
     try {
-      var r = await api("POST", { hold: n });
+      var r = await api("POST", { hold: n, hc: holdClient() });
       if (r.ok && r.data && r.data.hold) { try { sessionStorage.setItem("vsb_hold", JSON.stringify({ t: TRIP, v: curVan, s: n, id: r.data.hold, exp: r.data.exp })); } catch (e) {} }
       else if (r.data && (r.data.error === "held" || r.data.error === "taken")) { a.style.opacity = ""; showToast(r.data.error === "held" ? "มีคนกำลังจองที่นั่งนี้อยู่ เลือกที่นั่งอื่นได้เลย" : "ที่นั่งนี้ถูกจองไปแล้ว", "error"); refresh(true); return; }
     } catch (e) { /* no hold: sign in anyway */ }
@@ -563,7 +566,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     VSBBell.mount(document.getElementById("bellHost"));
     VSBBell.onChange(onBell);
     VSBBell.load();
-    document.addEventListener("visibilitychange", function () { if (!document.hidden) VSBBell.load(); });
+    var bellAt = Date.now();
+    document.addEventListener("visibilitychange", function () { if (!document.hidden && Date.now() - bellAt > 60000) { bellAt = Date.now(); VSBBell.load(); } }); // at most once a minute
   }
   function onBell() {
     var its = VSBBell.forTrip(TRIP).filter(function (x) { return BAN_KINDS[x.k]; });
@@ -1610,7 +1614,18 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   backdropEl.addEventListener("click", function (e) { if (e.target === backdropEl) closeModal(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if (!imgBackdrop.hidden) closeImg(); else if (selected != null) closeModal(); } });
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") refresh(false); });
-  setInterval(function () { if (document.visibilityState === "visible") refresh(false); }, 8000);
+  // Polling: every 8 s while someone is using the page, every 30 s after 2 idle minutes, every 60 s after 10;
+  // nothing while the tab/app is in the background. Any touch, key or scroll brings it back to 8 s at once.
+  var lastAct = Date.now(), lastPoll = Date.now();
+  ["pointerdown", "keydown", "scroll", "touchstart"].forEach(function (ev) {
+    window.addEventListener(ev, function () { var idle = Date.now() - lastAct; lastAct = Date.now(); if (idle > 120000 && document.visibilityState === "visible") { lastPoll = Date.now(); refresh(false); } }, { passive: true });
+  });
+  setInterval(function () {
+    if (document.visibilityState !== "visible") return;
+    var idle = Date.now() - lastAct, every = idle < 120000 ? 8000 : idle < 600000 ? 30000 : 60000;
+    if (Date.now() - lastPoll < every - 500) return;
+    lastPoll = Date.now(); refresh(false);
+  }, 8000);
 
   renderAll();
   refresh(false);
