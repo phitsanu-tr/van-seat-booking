@@ -1,6 +1,5 @@
 // Vercel serverless function: /api/owner   (developer/owner console, not for organizers)
 //   GET             list every trip with booking counts
-//   POST ?action=expiry   apply the auto-delete date (60 days after the trip ends) to every trip
 //   DELETE ?t=      delete a trip and its bookings
 // Needs the OWNER_KEY environment variable (>= 16 chars) and the same value in the x-owner-key header.
 // Without OWNER_KEY the endpoint answers 404, as if it did not exist.
@@ -82,24 +81,9 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { trips: out, retentionDays: L.RETENTION_DAYS });
     }
 
-    if (req.method === "POST" && req.query && req.query.action === "expiry") {
-      // Applies the auto-delete date to every existing trip. Trips already past retention get a 7-day grace period instead of vanishing at once.
-      const now = Math.floor(Date.now() / 1000);
-      const trips = await loadAllTrips();
-      const cmds = [];
-      let grace = 0, scheduled = 0, none = 0;
-      trips.forEach((t) => {
-        const exp = L.expireAtFor(t);
-        if (exp === null) none++; else if (exp <= now + 7 * 86400) grace++; else scheduled++;
-        L.expiryCommands(t, now + 7 * 86400).forEach((c) => cmds.push(c));
-      });
-      if (cmds.length) await L.pipeline(cmds);
-      return L.json(res, 200, { ok: true, trips: trips.length, scheduled, grace, none, retentionDays: L.RETENTION_DAYS });
-    }
-
     if (req.method === "DELETE") {
       const t = L.tripId(req.query && req.query.t);
-      if (!t || t === L.DEFAULT_ID) return L.json(res, 400, { error: "bad_trip" });
+      if (!t) return L.json(res, 400, { error: "bad_trip" });
       const trip = await L.loadTrip(t);
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       const cmds = [["DEL", L.tripKey(t)], ["DEL", L.logKey(t)]];

@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
       }
       const counts = {};
       trip.vans.forEach((x, i) => { counts[x.id] = Number(out[i + 1]) || 0; });
-      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, needLogin: L.REQUIRE_LOGIN, limit: L.maxPerPerson(trip) });
+      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, limit: L.maxPerPerson(trip) });
     }
 
     if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
@@ -94,7 +94,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === "POST") {
-      if (L.REQUIRE_LOGIN && !user) return L.json(res, 401, { error: "login_required" });
+      if (!user) return L.json(res, 401, { error: "login_required" });
       const seat = L.parseSeat(body.seat);
       const rawName = String(body.name || "");
       if (seat === null) return L.json(res, 400, { error: "bad_seat" });
@@ -110,32 +110,31 @@ module.exports = async function handler(req, res) {
       }
       const at = Date.now();
       // HSETNX only writes when the seat is still empty, so two people can never take the same seat.
-      const rec = { name, at };
-      if (user) rec.u = user.id;
+      const rec = { name, at, u: user.id };
       const created = await L.redis(["HSETNX", key, String(seat), JSON.stringify(rec)]);
       if (created !== 1) return L.json(res, 409, { error: "taken" });
-      if (user) { try { await L.pipeline([["SADD", L.mySeatsKey(user.id), t + "|" + van.id + "|" + seat], ["EXPIRE", L.mySeatsKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* the seat is booked; the index is best effort */ } }
+      { try { await L.pipeline([["SADD", L.mySeatsKey(user.id), t + "|" + van.id + "|" + seat], ["EXPIRE", L.mySeatsKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* the seat is booked; the index is best effort */ } }
       const exp = L.expireAtFor(trip);
       const live = exp && exp > Math.floor(Date.now() / 1000);
       if (live) { try { await L.redis(["EXPIREAT", key, String(exp)]); } catch (e) { /* best effort */ } } // a new van hash has no TTL yet
-      await L.logEvent(t, { e: "book", v: van.id, s: seat, n: name, u: user ? user.id : undefined, at }, live ? exp : undefined);
+      await L.logEvent(t, { e: "book", v: van.id, s: seat, n: name, u: user.id, at }, live ? exp : undefined);
       return L.json(res, 200, { ok: true, at });
     }
 
     if (req.method === "DELETE") {
       const seat = L.parseSeat(body.seat);
       if (seat === null) return L.json(res, 400, { error: "bad_seat" });
-      if (L.REQUIRE_LOGIN && !user) return L.json(res, 401, { error: "login_required" });
+      if (!user) return L.json(res, 401, { error: "login_required" });
       const raw = await L.redis(["HGET", key, String(seat)]);
       if (raw === null) return L.json(res, 200, { ok: true });
       let prev = {};
       try { prev = JSON.parse(raw) || {}; } catch (e) { /* damaged entry */ }
       // Only the person who booked the seat, or the trip's organizer, can cancel it.
-      if (!(user && ((prev.u && user.id === prev.u) || isOwner))) return L.json(res, user ? 403 : 401, { error: user ? "not_yours" : "login_required" });
+      if (!((prev.u && user.id === prev.u) || isOwner)) return L.json(res, 403, { error: "not_yours" });
       const removed = await L.redis(["HDEL", key, String(seat)]);
       if (Number(removed) === 1) {
         if (prev.u) { try { await L.redis(["SREM", L.mySeatsKey(prev.u), t + "|" + van.id + "|" + seat]); } catch (e) { /* best effort */ } }
-        await L.logEvent(t, { e: "cancel", v: van.id, s: seat, n: String(prev.name || ""), u: user ? user.id : undefined, ou: prev.u, by: isOwner && user && user.id !== prev.u ? "owner" : undefined, at: Date.now() });
+        await L.logEvent(t, { e: "cancel", v: van.id, s: seat, n: String(prev.name || ""), u: user.id, ou: prev.u, by: isOwner && user.id !== prev.u ? "owner" : undefined, at: Date.now() });
       }
       return L.json(res, 200, { ok: true });
     }

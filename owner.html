@@ -62,7 +62,6 @@ button { font:inherit; cursor:pointer; }
       <div class="stat"><b id="sBooked">0</b><span>ที่นั่งที่จอง</span></div>
     </div>
     <div class="row"><p id="note"></p><button class="btn plain" id="reload">รีเฟรช</button></div>
-    <button class="btn plain" id="expiryBtn" type="button">ตั้งวันลบอัตโนมัติให้ทุกทริป</button>
     <div id="list" style="display:flex;flex-direction:column;gap:14px"></div>
   </div>
   <div class="msg" id="msg" role="alert"></div>
@@ -153,17 +152,6 @@ button { font:inherit; cursor:pointer; }
   }
   $("keyForm").addEventListener("submit", function (e) { e.preventDefault(); KEY = $("key").value.trim(); if (!KEY) return; try { sessionStorage.setItem("van-owner", KEY); } catch (x) {} $("key").value = ""; load(); });
   $("reload").addEventListener("click", load);
-  var exArmed = 0, exLabel = "ตั้งวันลบอัตโนมัติให้ทุกทริป";
-  $("expiryBtn").addEventListener("click", function () {
-    var b = $("expiryBtn");
-    if (!exArmed) { exArmed = 1; b.textContent = "กดอีกครั้งเพื่อยืนยัน (ลบข้อมูล 60 วันหลังทริปจบ)"; setTimeout(function () { exArmed = 0; b.textContent = exLabel; }, 5000); return; }
-    exArmed = 0; b.disabled = true; b.textContent = exLabel;
-    api("POST", "?action=expiry").then(function (r) {
-      b.disabled = false;
-      if (r.status === 200) { say(""); $("note").textContent = "ตั้งแล้ว " + r.body.trips + " ทริป · ตามกำหนด " + r.body.scheduled + " · เลยกำหนดแล้ว (ให้เวลา 7 วัน) " + r.body.grace + " · ไม่มีวันที่ " + r.body.none; load2(); }
-      else say("ตั้งไม่สำเร็จ (" + (r.body.error || r.status) + ")");
-    });
-  });
   function load2() { api("GET").then(function (r) { if (r.status === 200) { var n = $("note").textContent; render(r.body); $("note").textContent = n; } }); }
   $("out").addEventListener("click", function () { try { sessionStorage.removeItem("van-owner"); } catch (e) {} KEY = ""; showKey(); say(""); });
   window.addEventListener("hashchange", function () { location.reload(); });

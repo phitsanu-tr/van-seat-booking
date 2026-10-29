@@ -95,7 +95,7 @@ module.exports = async function handler(req, res) {
 
     if (req.method === "GET") {
       const t = L.tripId(req.query && req.query.t);
-      const trip = t && t !== L.DEFAULT_ID ? await L.loadTrip(t) : null;
+      const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (!isOwner(trip, user)) return deny(res, user);
       const counts = await L.pipeline(trip.vans.map((v) => ["HLEN", L.seatsKey(t, v.id)]));
@@ -120,7 +120,7 @@ module.exports = async function handler(req, res) {
 
     if (req.method === "DELETE") {
       const t = L.tripId(req.query && req.query.t);
-      const trip = t && t !== L.DEFAULT_ID ? await L.loadTrip(t) : null;
+      const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (!isOwner(trip, user)) return deny(res, user);
       const cmds = [["DEL", L.tripKey(t)], ["DEL", L.logKey(t)]];
@@ -133,7 +133,7 @@ module.exports = async function handler(req, res) {
     if (req.method === "PUT") {
       const body = L.readBody(req);
       const t = L.tripId(body.t);
-      const trip = t && t !== L.DEFAULT_ID ? await L.loadTrip(t) : null;
+      const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (!isOwner(trip, user)) return deny(res, user);
       const c = clean(body, trip.vans.length);

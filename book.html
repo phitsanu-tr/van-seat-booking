@@ -79,8 +79,6 @@ header.trip { display: block; }
 .lgin { display: flex; flex-direction: column; gap: 8px; margin: 2px 0 4px; }
 .lgbtn { height: 50px; border-radius: 16px; background: #06c755; color: #fff; font: 600 15px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; }
 .lgbtn i { width: 24px; height: 24px; border-radius: 7px; background: #fff; color: #06c755; font: 800 7px/24px sans-serif; font-style: normal; text-align: center; }
-.lgor { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
-.lgor::before, .lgor::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 .lgnote { font-size: 12px; color: var(--muted); text-align: center; }
 .lock { font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
 .org { font-size: 13px; color: var(--mine); font-weight: 600; margin-bottom: 2px; }
@@ -508,13 +506,13 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 
   var params = new URLSearchParams(location.search);
   var pathId = /^\/([a-hj-km-np-z2-9]{6,8})\/?$/.exec(location.pathname);
-  var TRIP = (params.get("t") || (pathId && pathId[1]) || "default").toLowerCase();
+  var TRIP = (params.get("t") || (pathId && pathId[1]) || "").toLowerCase(); // no trip code -> the "trip not found" page
   var trip = null;           // trip details from the server
   var curVan = params.get("v") || "";
   var vanCache = {};         // van id -> last seats seen
   var counts = {};
   var seats = {};            // n -> {name, at} for the van on screen
-  var me = null, isOwner = false, needLogin = false, seatLimit = 0; // signed-in LINE account (from the seats API)
+  var me = null, isOwner = false, seatLimit = 0; // signed-in LINE account (from the seats API)
   var wantSeat = Number(params.get("seat")) || 0; // back from LINE sign-in: reopen the seat that was chosen
   if (params.has("li") || params.has("le") || params.has("seat")) { try { params.delete("li"); params.delete("le"); params.delete("seat"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params.toString() : "")); } catch (e) {} }
   function loginHref(seatN) {
@@ -818,7 +816,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       var when = s.at ? fmtAt(s.at) : "";
       if (when) info.appendChild(el("span", null, when));
       panelEl.appendChild(info);
-      if (!me && needLogin) { // signed out: managing a seat needs the account first
+      if (!me) { // signed out: managing a seat needs the account first
         var lg2 = el("div", "lgin"), lb2 = el("a", "lgbtn");
         lb2.href = loginHref(n);
         lb2.appendChild(el("i", null, "LINE")); lb2.appendChild(document.createTextNode("เข้าด้วย LINE เพื่อจัดการที่นั่ง"));
@@ -843,10 +841,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         lb.href = loginHref(n);
         lb.appendChild(el("i", null, "LINE")); lb.appendChild(document.createTextNode("เข้าด้วย LINE แล้วจองเลย"));
         lg.appendChild(lb);
-        if (needLogin) { var ln = el("div", "lgnote", "เข้าด้วย LINE ครั้งเดียว ที่นั่งเป็นของคุณทุกเครื่อง · "); var pl = el("a", null, "ความเป็นส่วนตัว"); pl.href = "/privacy"; pl.style.color = "inherit"; ln.appendChild(pl); lg.appendChild(ln); }
-        else lg.appendChild(el("div", "lgor", "หรือใส่ชื่อ จองโดยไม่เข้าสู่ระบบ"));
+        var ln = el("div", "lgnote", "เข้าด้วย LINE ครั้งเดียว ที่นั่งเป็นของคุณทุกเครื่อง · "); var pl = el("a", null, "ความเป็นส่วนตัว"); pl.href = "/privacy"; pl.style.color = "inherit"; ln.appendChild(pl); lg.appendChild(ln);
         panelEl.appendChild(lg);
-        if (needLogin) { actions.appendChild(plainBtn("ปิด", closeModal)); panelEl.appendChild(actions); return; }
+        actions.appendChild(plainBtn("ปิด", closeModal)); panelEl.appendChild(actions); return;
       }
       if (me && opening && !typedName) typedName = cleanName(me.name || "").text; // the LINE name as a starting point (editable)
       input = el("input");
@@ -1090,7 +1087,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       }
       counts = (r.data && r.data.counts) || counts;
       ended = !!(r.data && r.data.ended);
-      var meWas = JSON.stringify(me); me = (r.data && r.data.me) || null; isOwner = !!(r.data && r.data.owner); needLogin = !!(r.data && r.data.needLogin); seatLimit = Number(r.data && r.data.limit) || 0;
+      var meWas = JSON.stringify(me); me = (r.data && r.data.me) || null; isOwner = !!(r.data && r.data.owner); seatLimit = Number(r.data && r.data.limit) || 0;
       if (JSON.stringify(me) !== meWas || !loaded) renderAcct();
       var next = {};
       var src = (r.data && r.data.seats) || {};

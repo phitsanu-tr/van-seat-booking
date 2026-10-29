@@ -45,27 +45,21 @@ function json(res, status, payload) {
   res.status(status).json(payload);
 }
 
-const DEFAULT_ID = "default";
 const TRIP_ID_RE = /^[a-z0-9]{3,16}$/;
 
 function tripId(value) {
-  const t = String(value || DEFAULT_ID).toLowerCase();
+  const t = String(value || "").toLowerCase();
   return TRIP_ID_RE.test(t) ? t : null;
 }
 function tripKey(t) { return "trip:" + t; }
-// The very first van keeps its original key so bookings made before trips existed stay visible.
-function seatsKey(t, v) { return t === DEFAULT_ID && v === "A" ? "van:seats" : "seats:" + t + ":" + v; }
-
-function defaultTrip() {
-  return { id: DEFAULT_ID, name: "จองที่นั่งรถตู้", organizer: "", startDate: "", endDate: "", departTime: "", meetPoint: "", vans: [{ id: "A", label: "A" }] };
-}
+function seatsKey(t, v) { return "seats:" + t + ":" + v; }
 
 async function loadTrip(t) {
   const raw = await redis(["GET", tripKey(t)]);
   if (raw) {
     try { return JSON.parse(raw); } catch (e) { return null; }
   }
-  return t === DEFAULT_ID ? defaultTrip() : null;
+  return null;
 }
 
 function publicTrip(trip) {
@@ -83,9 +77,9 @@ function tripEnded(trip) {
 
 // Auto-delete: a trip's data (trip, seats, log) expires RETENTION_DAYS after its last day (endDate, else startDate), end of day Bangkok time.
 const RETENTION_DAYS = 60;
-// Unix seconds when the trip's data should vanish, or null (no dates / the default trip: never expires).
+// Unix seconds when the trip's data should vanish, or null (no dates: never expires).
 function expireAtFor(trip) {
-  if (!trip || trip.id === DEFAULT_ID) return null;
+  if (!trip) return null;
   const end = trip.endDate || trip.startDate || "";
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(end);
   if (!m) return null;
@@ -201,14 +195,12 @@ async function rateLimited(req, user, scope, max, windowSec) {
 }
 function myTripsKey(uid) { return "mytrips:" + uid; }
 function mySeatsKey(uid) { return "myseats:" + uid; }
-// Booking, cancelling and creating a trip need a LINE account (set VSB_REQUIRE_LOGIN=0 to allow guests again).
-const REQUIRE_LOGIN = process.env.VSB_REQUIRE_LOGIN !== "0";
 // Seats one account may hold in one trip (all vans together). The organizer is not limited. 0 = no limit.
 const DEFAULT_MAX_PER_PERSON = 4;
 function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); return Number.isInteger(n) && n >= 0 && n <= 50 ? n : DEFAULT_MAX_PER_PERSON; }
 
 module.exports = {
-  TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json, DEFAULT_ID,
+  TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json,
   tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, NAME_MAX, newId, crypto,
-  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, REQUIRE_LOGIN, DEFAULT_MAX_PER_PERSON, maxPerPerson,
+  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };
