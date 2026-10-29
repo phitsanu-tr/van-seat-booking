@@ -1,0 +1,3 @@
+before {"rows":9,"scrollable":true,"lastVisible":false,"closeOnScreen":true,"sheetFits":true}
+after swipe {"rows":9,"scrollable":true,"lastVisible":true,"closeOnScreen":true,"sheetFits":true}
+ERR []

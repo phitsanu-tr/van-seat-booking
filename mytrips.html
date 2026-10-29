@@ -98,7 +98,8 @@ a { color: inherit; }
 .sheet { width: 100%; max-width: 460px; background: var(--surface); border-radius: 24px 24px 0 0; padding: 10px 20px calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; }
 .grab { width: 40px; height: 5px; border-radius: 9px; background: #d5dce0; margin: 0 auto 2px; }
 .sheet h3 { font: 600 19px var(--font-display); margin: 0; }
-.sheet { max-height: 88vh; max-height: 88dvh; overflow-y: auto; }
+.sheet { max-height: 88vh; max-height: 88dvh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.sheet > * { flex-shrink: 0; } /* a tall sheet scrolls; its parts never get squashed and clipped */
 .rolep { margin-top: -6px; font-size: 12px; font-weight: 600; color: var(--amber); }
 .tmb { align-self: flex-start; border: 0; background: none; padding: 2px 0; font-size: 13px; font-weight: 600; color: var(--amber); text-decoration: underline; text-underline-offset: 3px; }
 .ilink { display: flex; flex-direction: column; gap: 8px; background: var(--amber-tint); border: 1px solid var(--amber-edge); border-radius: 16px; padding: 12px; }
@@ -124,6 +125,7 @@ a { color: inherit; }
 .vchips button { height: 34px; padding: 0 12px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--muted); }
 .vchips button.on { border-color: var(--amber); background: var(--amber-tint); color: var(--amber); }
 .rlist { display: flex; flex-direction: column; border: 1px solid var(--edge); border-radius: 16px; overflow: hidden; }
+.sheet > .rlist { flex-shrink: 1; min-height: 120px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; } /* a long roster scrolls inside the sheet; title and Close stay put */
 .rrow { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--edge); }
 .rrow:last-child { border-bottom: 0; }
 .rrow .no { flex: none; width: 32px; height: 32px; border-radius: 10px; background: var(--tint); color: var(--deep); font: 600 15px/32px var(--font-display); text-align: center; }

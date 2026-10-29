@@ -17,6 +17,7 @@
     ".vb-bell .vb-n[hidden]{display:none}",
     ".vb-bd{position:fixed;inset:0;z-index:60;background:rgba(27,31,34,.4);display:flex;align-items:flex-end;justify-content:center}",
     ".vb-sh{width:100%;max-width:460px;max-height:86vh;max-height:86dvh;overflow-y:auto;background:#fff;border-radius:24px 24px 0 0;padding:10px 16px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;font-family:'Noto Sans Thai',system-ui,sans-serif;color:#1b1f22;box-sizing:border-box}",
+    ".vb-sh{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.vb-sh>*{flex-shrink:0}",
     ".vb-grab{width:40px;height:5px;border-radius:9px;background:#d5dce0;margin:0 auto 4px}",
     ".vb-hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px}",
     ".vb-hd b{font:600 19px 'Prompt','Noto Sans Thai',sans-serif}",
