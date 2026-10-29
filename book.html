@@ -1112,7 +1112,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     var t = "ผังที่นั่งรถตู้ ABC 0123456789 กขค";
     return Promise.all([
       document.fonts.load('600 40px Prompt', t), document.fonts.load('500 30px Prompt', t),
-      document.fonts.load('400 30px "Noto Sans Thai"', t), document.fonts.load('600 30px "Noto Sans Thai"', t)
+      document.fonts.load('400 30px "Noto Sans Thai"', t), document.fonts.load('500 30px "Noto Sans Thai"', t), document.fonts.load('600 30px "Noto Sans Thai"', t)
     ]).catch(function () {});
   }
   function fillC(ctx, text, cx, y) { // centred Thai text, positioned by hand: iPhone WebKit mis-centres Thai with textAlign="center"
@@ -1280,7 +1280,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = "#bfe9ed"; ctx.font = '500 ' + (10 * CU) + 'px "Noto Sans Thai", sans-serif'; ctx.textAlign = "left"; // same font/size/spacing as the Admin Pass label (10px x4 on the 1544px card)
     if ("letterSpacing" in ctx) ctx.letterSpacing = CU + "px";
-    var LBY = 22 * CU + (ctx.measureText("H").actualBoundingBoxAscent || 19) / 2 + CU / 4; // +1px: the card measures its cap height at 10px and scales it x4 (rounding) // label centred on y=88 (card units) by real cap height
+    ctx.font = '500 10px "Noto Sans Thai", sans-serif'; var LBY = (22 + (ctx.measureText("H").actualBoundingBoxAscent || 6) / 2) * CU; // exactly the card's capTxt: cap height measured at 10px, then scaled
+    ctx.font = '500 ' + (10 * CU) + 'px "Noto Sans Thai", sans-serif'; // label centred on y=88 (card units) by real cap height
     ctx.fillText("SEAT PASS", 38 * CU, LBY);
     // ticket icon: 48px box at x=88,y=64 on the 1544px card
     ctx.save(); ctx.translate(22 * CU, 16 * CU); ctx.scale(0.5 * CU, 0.5 * CU); ctx.strokeStyle = "#bfe9ed"; ctx.lineWidth = 1.9; ctx.lineCap = "round"; ctx.lineJoin = "round";
@@ -1289,9 +1290,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
     ctx.fillStyle = "rgba(255,255,255,.17)"; ctx.fillRect(X, 104.5, IW, 2.6);
     ctx.textAlign = "left"; ctx.fillStyle = "#ffffff"; ctx.font = HEAD;
-    var tb = 178.65;
-    titleLines.forEach(function (ln, i) { ctx.fillText(ln, X, tb + i * 24 * CU); });
-    if (trip.organizer) { ctx.fillStyle = "rgba(255,255,255,.75)"; ctx.font = '400 ' + (10 * CU) + 'px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, trip.organizer, IW, 1)[0], X, tb + (titleLines.length - 1) * 24 * CU + 53.9); }
+    ctx.textBaseline = "middle"; // same baseline mode and centres as the card (title 64 + 24i, organizer 52 + 24n + 11)
+    titleLines.forEach(function (ln, i) { ctx.fillText(ln, X, (64 + i * 24) * CU); });
+    if (trip.organizer) { ctx.fillStyle = "rgba(255,255,255,.75)"; ctx.font = '400 ' + (10 * CU) + 'px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, trip.organizer, IW, 1)[0], X, (52 + 24 * titleLines.length + 11) * CU); }
+    ctx.textBaseline = "alphabetic";
     y = HH + 4 * CU;
     // ---- facts: date + departure on one row, meeting point below (no icons, no lines)
     {
