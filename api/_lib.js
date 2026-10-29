@@ -75,6 +75,15 @@ function tripEnded(trip) {
   return today > end;
 }
 
+// Booking is closed when an organizer closed it (trip.closed), or once trip.closeAt ("YYYY-MM-DDTHH:MM", Bangkok time) has passed.
+// While closed, passengers can't book, hold or cancel; organizers still manage every seat.
+const CLOSE_AT_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+function bookingClosed(trip) {
+  if (!trip) return false;
+  if (trip.closed === true) return true;
+  return CLOSE_AT_RE.test(trip.closeAt || "") && Date.now() >= Date.parse(trip.closeAt + ":00+07:00");
+}
+
 // Auto-delete: a trip's data (trip, seats, log) expires RETENTION_DAYS after its last day (endDate, else startDate), end of day Bangkok time.
 const RETENTION_DAYS = 60;
 // Unix seconds when the trip's data should vanish, or null (no dates: never expires).
@@ -246,7 +255,7 @@ const DEFAULT_MAX_PER_PERSON = 4;
 function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); return Number.isInteger(n) && n >= 0 && n <= 50 ? n : DEFAULT_MAX_PER_PERSON; }
 
 module.exports = {
-  TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json,
+  TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, readBody, json,
   tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, NAME_MAX, newId, crypto,
   SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };

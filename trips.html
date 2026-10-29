@@ -209,6 +209,15 @@ form#form { background: none; border: 0; padding: 0; gap: 12px; }
 .tile svg { width: 16px; height: 16px; }
 /* error handling: red field + message under it; form-level errors as a floating toast */
 label.bad { color: var(--danger); }
+.hint { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+.swl { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
+.swt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.swt small { font-size: 12px; line-height: 1.45; }
+.sw { flex: none; -webkit-appearance: none; appearance: none; width: 50px; height: 30px; border-radius: 99px; background: var(--line); position: relative; margin: 0; cursor: pointer; transition: background .15s; }
+.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .15s; }
+.sw:checked { background: var(--danger); }
+.sw:checked::after { transform: translateX(20px); }
+.sw:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 14%, transparent); }
 .fe { display: flex; gap: 6px; align-items: center; color: var(--danger); font: 400 12.5px/18px var(--font-body); margin-top: 6px; }
 .fe svg { flex: none; width: 14px; height: 14px; }
@@ -334,6 +343,17 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
     <label>จองได้สูงสุดต่อคน <small>(รวมทุกคัน · คนจัดทริปไม่จำกัด)</small>
       <select id="maxPer" class="sel"><option value="1">1 ที่นั่ง</option><option value="2">2 ที่นั่ง</option><option value="3">3 ที่นั่ง</option><option value="4" selected>4 ที่นั่ง</option><option value="5">5 ที่นั่ง</option><option value="6">6 ที่นั่ง</option><option value="8">8 ที่นั่ง</option><option value="10">10 ที่นั่ง</option><option value="0">ไม่จำกัด</option></select>
     </label>
+   </section>
+   <section class="card fg"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b>การรับจอง</b></div>
+    <label class="swl" id="closedRow" hidden><span class="swt"><b>ปิดรับจองตอนนี้</b><small>ผู้จองจองหรือยกเลิกเองไม่ได้ · คนจัดทริปยังจัดการที่นั่งได้</small></span><input type="checkbox" id="closedNow" class="sw" role="switch"></label>
+    <div>
+      <div style="font-weight:600;font-size:14px;margin-bottom:6px">ปิดรับจองอัตโนมัติ <small style="font-weight:400;color:var(--muted)">(ไม่บังคับ)</small></div>
+      <div class="row one">
+        <label><small>วันที่</small><input type="date" id="closeDate"></label>
+        <label><small>เวลา</small><input type="time" id="closeTime"></label>
+      </div>
+      <div class="hint" id="closeHint">ถึงเวลานี้ระบบปิดรับจองเอง เช่น ก่อนเดินทาง 1 วัน · เว้นว่างไว้ = เปิดรับจองจนถึงวันเดินทาง</div>
+    </div>
    </section>
     <div class="actions">
       <button type="button" class="btn plain" id="cancelBtn">ยกเลิก</button>
@@ -544,6 +564,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     dateField(e, "วันเดินทางกลับ", function () { return s.value || todayIso(); });
     timeField(t, "เวลาออกเดินทาง");
   }
+  var cd = document.getElementById("closeDate"), ct = document.getElementById("closeTime");
+  if (cd && ct) { dateField(cd, "ปิดรับจองวันที่", todayIso); timeField(ct, "ปิดรับจองเวลา"); }
 })();
 </script>
 <div class="backdrop" id="cardBd" style="z-index:30" hidden>
@@ -578,6 +600,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   var vansEl = document.getElementById("vans");
   var rows = []; // [{id, label}]
   var busy = false;
+  var loadedCloseAt = ""; // the trip's closing time when the form opened (a past time is fine if it was not changed)
+  var COPY = /^[a-z0-9]{3,16}$/i.test(q.get("copy") || "") ? q.get("copy").toLowerCase() : ""; // /trips/new?copy=<trip>: start from an existing trip
 
   function $(id) { return document.getElementById(id); }
   function letter(i) { return String.fromCharCode(65 + (i % 26)); }
@@ -1067,7 +1091,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 
   var ERR = {
     bad_name: "ระบุชื่อทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง",
-    bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
+    bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
     quota_month: "เดือนนี้คุณสร้างทริปครบ 30 ทริปแล้ว ลองใหม่เดือนหน้านะ",
     too_many: "ใส่รหัสผิดหลายครั้งเกินไป รอสักครู่แล้วลองใหม่"
@@ -1092,20 +1116,27 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     if (dupBad) {
       [].forEach.call(vansEl.querySelectorAll("input.vn.bad"), function (inp) { fieldErr(inp, ERR.bad_vans, inp.closest(".vf")); first = first || inp; });
     }
+    if (!first && $("closeTime").value && !$("closeDate").value) first = fieldErr($("closeDate"), "เลือกวันที่ปิดรับจองด้วย");
+    if (!first && $("closeDate").value) {
+      var ca = $("closeDate").value + "T" + ($("closeTime").value || "23:59");
+      if (ca !== loadedCloseAt && Date.parse(ca + ":00+07:00") <= Date.now()) first = fieldErr($("closeDate"), "เวลานี้ผ่านไปแล้ว เลือกเวลาข้างหน้า หรือใช้สวิตช์ปิดรับจองตอนนี้");
+    }
     if (first) { focusFirst(first); return; }
     var body = {
       name: $("name").value, organizer: $("organizer").value, startDate: $("startDate").value, endDate: $("endDate").value,
       departTime: $("departTime").value, meetPoint: $("meetPoint").value,
       vans: rows.map(function (r) { return { id: r.id, label: r.label.trim(), plate: (r.plate || "").trim() }; }),
-      maxPerPerson: Number($("maxPer").value)
+      maxPerPerson: Number($("maxPer").value),
+      closeAt: $("closeDate").value ? $("closeDate").value + "T" + ($("closeTime").value || "23:59") : ""
     };
+    if (editing) body.closed = $("closedNow").checked;
     if (editing) body.t = T;
     busy = true; $("submit").disabled = true; $("cancelBtn").disabled = true; $("submit").textContent = (editing ? "กำลังแก้ไข..." : "กำลังสร้าง...");
     try {
       var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       var data = {}; try { data = await res.json(); } catch (x) {}
       if (!res.ok) {
-        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime" };
+        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime", bad_close: "closeDate" };
         if (map[data.error]) { focusFirst(fieldErr($(map[data.error]), ERR[data.error])); }
         else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input.vn"); if (v0) { fieldErr(v0, ERR.bad_vans, v0.closest(".vf")); focusFirst(v0); } else toast(ERR.bad_vans); }
         else if (data.error === "login_required") location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new");
@@ -1184,6 +1215,24 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   // signed-in state (every trip belongs to a LINE account)
   var SIGNED = false;
   var signedReady = fetch("/api/auth?me=1", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) { SIGNED = !!(d && d.user); if (SIGNED) document.documentElement.classList.add("signed"); }).catch(function () {});
+  function fillClose(t) {
+    var m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})$/.exec(t.closeAt || "");
+    $("closeDate").value = m ? m[1] : ""; $("closeTime").value = m ? m[2] : ""; loadedCloseAt = m ? t.closeAt : "";
+  }
+  // duplicate: same details and vans as an earlier trip (yours or one you help run); dates start empty
+  async function copyFrom(id) {
+    try {
+      var res = await fetch("/api/trip?t=" + encodeURIComponent(id), { cache: "no-store", headers: { "x-admin-key": "o" } });
+      var data = await res.json();
+      if (!res.ok || !data.trip) { if (res.status !== 401) toast("คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย", true); return; }
+      var t = data.trip;
+      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
+      (function (m) { var sel = $("maxPer"), v = String(m == null ? 4 : m); if (![].some.call(sel.options, function (o) { return o.value === v; })) { var o = document.createElement("option"); o.value = v; o.textContent = v + " ที่นั่ง"; sel.appendChild(o); } sel.value = v; })(t.maxPerPerson);
+      rows = t.vans.map(function (v) { return { id: "", label: v.label, plate: v.plate || "" }; });
+      $("lead").textContent = "คัดลอกจาก \u201c" + (t.name || "ทริปเดิม") + "\u201d แล้ว · เลือกวันเดินทางใหม่ แก้ส่วนอื่นได้ตามต้องการ";
+      setTimeout(function () { try { $("startDate").focus({ preventScroll: true }); } catch (e) {} }, 0);
+    } catch (e) { toast("คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย", true); }
+  }
   async function init() {
     if (CARD_ONLY) { cardOnly(); return; }
     if (listMode) { location.replace("/mytrips"); return; } // the trip list lives on the account page now
@@ -1205,19 +1254,21 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
         (function (m) { var sel = $("maxPer"), v = String(m == null ? 4 : m); if (![].some.call(sel.options, function (o) { return o.value === v; })) { var o = document.createElement("option"); o.value = v; o.textContent = v + " ที่นั่ง"; sel.appendChild(o); } sel.value = v; })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
+        fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = t.closed === true;
         shown = { id: T, token: K }; $("shareBtn").hidden = false; $("dz").hidden = t.role === "helper"; // helpers edit, only the owner deletes
         booked = data.booked || 0; perVan = data.perVan || {}; loaded = t;
       } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
     } else {
       rows = [{ id: "", label: "A" }];
+      if (COPY) await copyFrom(COPY);
       // creating a trip needs a LINE account (the trip then belongs to it on every device)
       try {
         var who3 = await (await fetch("/api/auth?me=1", { cache: "no-store" })).json();
         if (!who3 || !who3.user) {
-          if (!q.has("le") && !sessionStorage.getItem("vsb_login_try")) { sessionStorage.setItem("vsb_login_try", "1"); location.replace("/api/auth?start=1&r=" + encodeURIComponent("/trips/new")); return; }
+          if (!q.has("le") && !sessionStorage.getItem("vsb_login_try")) { sessionStorage.setItem("vsb_login_try", "1"); location.replace("/api/auth?start=1&r=" + encodeURIComponent("/trips/new" + location.search)); return; }
           toast("เข้าด้วย LINE ก่อนสร้างทริป", true);
           $("submit").textContent = "เข้าด้วย LINE ก่อนสร้างทริป";
-          $("submit").addEventListener("click", function (e) { e.preventDefault(); e.stopImmediatePropagation(); location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new"); }, true);
+          $("submit").addEventListener("click", function (e) { e.preventDefault(); e.stopImmediatePropagation(); location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new" + location.search); }, true);
         } else { try { sessionStorage.removeItem("vsb_login_try"); } catch (e) {} }
       } catch (e) {}
     }

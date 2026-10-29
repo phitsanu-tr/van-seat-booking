@@ -56,7 +56,7 @@ a { color: inherit; }
 .meta i { font-style: normal; color: var(--ink); font-weight: 500; }
 .meta svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 3px; }
 .pill { flex: none; font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 99px; white-space: nowrap; }
-.p-soon { background: var(--tint); color: var(--mine); } .p-full { background: var(--amber-tint); color: var(--amber); } .p-end { background: #eceff1; color: var(--muted); }
+.p-soon { background: var(--tint); color: var(--mine); } .p-closed { background: #fdecea; color: var(--danger); } .p-full { background: var(--amber-tint); color: var(--amber); } .p-end { background: #eceff1; color: var(--muted); }
 .bar { height: 6px; border-radius: 99px; background: #e7ecef; overflow: hidden; }
 .bar i { display: block; height: 100%; background: var(--mine); border-radius: 99px; }
 .bar.full i { background: var(--amber); }
@@ -136,6 +136,16 @@ a { color: inherit; }
 .rrow .ra button { height: 32px; padding: 0 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); font-size: 12px; font-weight: 600; color: var(--ink); }
 .rrow .ra button.dg { border-color: #efcfcc; color: var(--danger); }
 .rfree { font-size: 13px; color: var(--muted); }
+.rtools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rtools button { height: 42px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font: 600 13px var(--font-body); color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 6px; }
+.rtools button svg { width: 16px; height: 16px; flex: none; }
+.rtools button.lk { color: var(--danger); border-color: #f0c9c5; }
+.rtools button.op { color: var(--mine); border-color: color-mix(in srgb, var(--mine) 40%, var(--surface)); background: var(--tint); }
+.cnote { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.5; color: var(--danger); background: #fdf1ef; border-radius: 12px; padding: 9px 12px; }
+.cnote svg { width: 16px; height: 16px; flex: none; margin-top: 2px; }
+.cat { font-size: 12px; color: var(--muted); margin-top: -4px; }
+.cpy { align-self: flex-start; border: 0; background: none; padding: 2px 0; font-size: 13px; font-weight: 600; color: var(--mine); text-decoration: underline; text-underline-offset: 3px; }
+.dfoot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .sgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
 .sgrid button { height: 52px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font: 600 16px var(--font-display); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; padding: 2px; }
 .sgrid button small { font: 500 10px var(--font-body); color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -228,6 +238,7 @@ a { color: inherit; }
   }
   function statusPill(x) {
     if (x.ended) return node("span", "pill p-end", "จบแล้ว");
+    if (x.closed) return node("span", "pill p-closed", "ปิดรับจอง");
     if (x.total && x.booked >= x.total) return node("span", "pill p-full", "เต็มแล้ว");
     var d = daysTo(x.startDate);
     if (d === 0) return node("span", "pill p-soon", "วันนี้");
@@ -236,6 +247,50 @@ a { color: inherit; }
     return null;
   }
   function section(pane, title, sub) { var h = node("div", "h2"); h.appendChild(node("b", null, title)); h.appendChild(node("span", null, sub || "")); pane.appendChild(h); }
+
+  var LOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  var OPEN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>';
+  var COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>';
+  function closeText(c) { var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(c || ""); return m ? Number(m[3]) + " " + MON[Number(m[2]) - 1] + " " + m[4] + "." + m[5] + " น." : ""; }
+  // copy text: Clipboard API, then the old way, then show it so it can be copied by hand
+  function copyText(text, okMsg) {
+    function manual() {
+      var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
+      sh.appendChild(node("div", "grab")); sh.appendChild(node("h3", null, "คัดลอกข้อความ"));
+      sh.appendChild(node("p", null, "กดค้างที่ข้อความ แล้วเลือก \u201cคัดลอก\u201d"));
+      var ta = node("textarea", "nin"); ta.value = text; ta.readOnly = true; ta.rows = 10; ta.style.height = "auto"; ta.style.padding = "12px"; ta.style.lineHeight = "1.5"; sh.appendChild(ta);
+      var cl = node("button", "b-plain", "ปิด"); cl.type = "button"; cl.style.height = "48px"; cl.style.borderRadius = "16px"; cl.addEventListener("click", function () { bd.remove(); }); sh.appendChild(cl);
+      bd.addEventListener("click", function (e) { if (e.target === bd) bd.remove(); });
+      document.body.appendChild(bd); setTimeout(function () { ta.focus(); ta.select(); }, 50);
+    }
+    function legacy() {
+      var ta = document.createElement("textarea"); ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;font-size:16px";
+      document.body.appendChild(ta); ta.select(); try { ta.setSelectionRange(0, text.length); } catch (e) {}
+      var ok = false; try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      ta.remove(); if (ok) toast(okMsg); else manual();
+    }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, legacy);
+    else legacy();
+  }
+  // passenger list as plain text for a LINE group: trip facts, then each van's seats and the free ones
+  function rosterText(trip, roster, open) {
+    var L = ["🚐 " + (trip.name || "จองที่นั่งรถตู้")], dr = dateRange(trip.startDate, trip.endDate), tm = trip.departTime ? "ออก " + trip.departTime.replace(":", ".") + " น." : "";
+    if (dr || tm) L.push("📅 " + [dr, tm].filter(Boolean).join(" · "));
+    if (trip.meetPoint) L.push("📍 " + trip.meetPoint);
+    var all = 0;
+    trip.vans.forEach(function (v) {
+      var seats = roster[v.id] || {}, nums = Object.keys(seats).map(Number).sort(function (a, b) { return a - b; }), free = [];
+      for (var n = 1; n <= 10; n++) if (!seats[n]) free.push(n);
+      all += nums.length;
+      L.push("", "รถคัน " + v.label + (v.plate ? " (" + v.plate + ")" : "") + " · " + nums.length + "/10");
+      if (!nums.length) L.push("ยังไม่มีผู้จอง");
+      nums.forEach(function (n) { L.push(n + ". " + seats[n].name); });
+      if (nums.length && free.length) L.push("ว่าง: " + free.join(", "));
+    });
+    if (trip.vans.length > 1) L.push("", "รวม " + all + "/" + trip.vans.length * 10 + " ที่นั่ง");
+    L.push("", open ? "จองที่นั่งได้ที่ 👇" : "ดูผังที่นั่ง 👇", location.origin + "/" + trip.id);
+    return L.join("\n");
+  }
 
   // ---- share the booking link (same as the booking page's "ส่งให้เพื่อน") ----
   function shareTrip(x) {
@@ -264,8 +319,11 @@ a { color: inherit; }
       c.appendChild(meta(x, true));
       var full = x.total && x.booked >= x.total, bar = node("div", "bar" + (full ? " full" : "")), bi = node("i"); bi.style.width = (x.total ? Math.min(100, Math.round(x.booked / x.total * 100)) : 0) + "%"; bar.appendChild(bi); c.appendChild(bar);
       var bt = node("div", "bt"); bt.appendChild(document.createTextNode("จองแล้ว ")); bt.appendChild(node("b", null, String(x.booked))); bt.appendChild(document.createTextNode("/" + x.total + " ที่นั่ง")); c.appendChild(bt);
+      if (!x.closed && closeText(x.closeAt)) c.appendChild(node("div", "cat", "ปิดรับจองอัตโนมัติ " + closeText(x.closeAt)));
       var ros = node("button", "ros", "รายชื่อผู้จอง · จัดการที่นั่ง"); ros.type = "button"; ros.addEventListener("click", function () { openRoster(x); }); c.appendChild(ros);
-      var tm = node("button", "tmb", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป · " + (x.helpers || 0) + "/3"); tm.type = "button"; tm.addEventListener("click", function () { openTeam(x); }); c.appendChild(tm);
+      var tm = node("button", "tmb", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป · " + (x.helpers || 0) + "/3"); tm.type = "button"; tm.addEventListener("click", function () { openTeam(x); });
+      var df = node("div", "dfoot"), cp = node("a", "cpy", "สร้างทริปซ้ำ"); cp.href = "/trips/new?copy=" + encodeURIComponent(x.id);
+      df.appendChild(tm); df.appendChild(cp); c.appendChild(df);
       var acts = node("div", "acts"), ed = node("a", "ab am", "แก้ไขทริป"); ed.href = "/trips#" + x.id + "-o";
       var sh = node("button", "ab tl", "แชร์ลิงก์จอง"); sh.type = "button"; sh.addEventListener("click", function () { shareTrip(x); });
       acts.appendChild(ed); acts.appendChild(sh); c.appendChild(acts);
@@ -274,10 +332,11 @@ a { color: inherit; }
     if (done.length) {
       section(pane, "จบแล้ว", "ลบอัตโนมัติหลังเดินทาง 60 วัน");
       done.forEach(function (x) {
-        var c = node("a", "card dim"); c.href = "/" + x.id; c.style.textDecoration = "none";
+        var c = node("div", "card dim"); c.style.cursor = "pointer"; c.addEventListener("click", function () { location.href = "/" + x.id; });
         var r1 = node("div", "row1"); r1.appendChild(node("div", "t", x.name)); r1.appendChild(node("span", "pill p-end", "จบแล้ว")); c.appendChild(r1);
         var m = node("div", "meta"); var s1 = node("span"); s1.appendChild(node("i", null, dateRange(x.startDate, x.endDate) || "ไม่ระบุวัน")); m.appendChild(s1);
         var s2 = node("span", null, "จอง "); s2.appendChild(node("i", null, x.booked + "/" + x.total)); m.appendChild(s2); c.appendChild(m);
+        var cp2 = node("a", "cpy", "สร้างทริปซ้ำ"); cp2.href = "/trips/new?copy=" + encodeURIComponent(x.id); cp2.addEventListener("click", function (e) { e.stopPropagation(); }); c.appendChild(cp2);
         pane.appendChild(c);
       });
     }
@@ -309,6 +368,7 @@ a { color: inherit; }
     var nm = node("div", "nm", "ชื่อบนผัง "); nm.appendChild(node("b", null, names.join(", ")));
     if (x.organizer) nm.appendChild(document.createTextNode(" · จัดโดย " + x.organizer));
     if (!past) l.appendChild(nm);
+    if (!past && x.closed) { var cn = node("div", "cnote"); cn.innerHTML = LOCK_SVG; cn.appendChild(node("span", null, "ปิดรับจองแล้ว · ยกเลิกเองไม่ได้ ติดต่อผู้จัดทริปถ้าต้องการเปลี่ยน")); l.appendChild(cn); }
     var vans = []; x.seats.forEach(function (s) { if (vans.indexOf(s.vanLabel) < 0) vans.push(s.vanLabel); });
     if (!past) {
       var acts = node("div", "acts"), view = node("a", "ab tl", "ดูผังที่นั่ง"); view.href = "/" + x.id + "?v=" + encodeURIComponent(x.seats[0].van);
@@ -316,7 +376,7 @@ a { color: inherit; }
       var more = node("button", "ab more", "⋯"); more.type = "button"; more.setAttribute("aria-label", "เมนูเพิ่มเติม"); more.setAttribute("aria-haspopup", "menu");
       more.addEventListener("click", function (e) { e.stopPropagation(); openMenu(more, [
         ["แก้ชื่อบนผัง", "pen", "", function () { openRename(x); }],
-        ["ยกเลิกที่นั่ง", "trash", "dgr", function () { askCancel(x); }]
+        ["ยกเลิกที่นั่ง", "trash", "dgr", function () { if (x.closed) toast("ปิดรับจองแล้ว ยกเลิกเองไม่ได้ ติดต่อผู้จัดทริป", true); else askCancel(x); }]
       ]); });
       acts.appendChild(view); acts.appendChild(more); l.appendChild(acts);
     }
@@ -446,7 +506,7 @@ a { color: inherit; }
     return out;
   }
   function when(ts) { if (!ts) return ""; var d = new Date(Number(ts) + 7 * 3600 * 1000); return d.getUTCDate() + " " + MON[d.getUTCMonth()] + " " + String(d.getUTCHours()).padStart(2, "0") + "." + String(d.getUTCMinutes()).padStart(2, "0") + " น."; }
-  function apiErr(d) { var e = d && d.error; return e === "taken" ? "ที่นั่งนั้นมีคนจองแล้ว" : e === "ended" ? "ทริปนี้สิ้นสุดแล้ว" : e === "too_many" ? "ทำรายการถี่เกินไป รอสักครู่" : e === "name_chars" ? "ชื่อใช้ได้เฉพาะภาษาไทยและอังกฤษ" : e === "not_owner" || e === "not_yours" ? "ไม่มีสิทธิ์ทำรายการนี้" : "ทำรายการไม่สำเร็จ ลองอีกครั้ง"; }
+  function apiErr(d) { var e = d && d.error; return e === "taken" ? "ที่นั่งนั้นมีคนจองแล้ว" : e === "ended" ? "ทริปนี้สิ้นสุดแล้ว" : e === "closed" ? "ปิดรับจองแล้ว ติดต่อผู้จัดทริป" : e === "too_many" ? "ทำรายการถี่เกินไป รอสักครู่" : e === "name_chars" ? "ชื่อใช้ได้เฉพาะภาษาไทยและอังกฤษ" : e === "not_owner" || e === "not_yours" ? "ไม่มีสิทธิ์ทำรายการนี้" : "ทำรายการไม่สำเร็จ ลองอีกครั้ง"; }
   async function seatApi(method, id, v, body) {
     var r = await fetch("/api/seats?t=" + encodeURIComponent(id) + "&v=" + encodeURIComponent(v), { method: method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ t: id, v: v }, body)) });
     var d = {}; try { d = await r.json(); } catch (e) {}
@@ -462,7 +522,7 @@ a { color: inherit; }
       try {
         var r = await fetch("/api/trip?t=" + encodeURIComponent(x.id) + "&roster=1", { cache: "no-store", headers: { "x-admin-key": "o" } });
         var d = await r.json(); if (!r.ok) throw new Error();
-        st.trip = d.trip; st.roster = d.roster || {}; st.ended = !!d.ended; if (!st.van) st.van = d.trip.vans[0].id;
+        st.trip = d.trip; st.roster = d.roster || {}; st.ended = !!d.ended; st.closed = !!d.trip.closedNow; if (!st.van) st.van = d.trip.vans[0].id;
       } catch (e) { toast("โหลดรายชื่อไม่สำเร็จ", true); }
       draw();
     }
@@ -483,6 +543,19 @@ a { color: inherit; }
     function drawList() {
       sh.appendChild(node("h3", null, "รายชื่อผู้จอง"));
       sh.appendChild(node("p", null, st.trip.name + (st.ended ? " · ทริปจบแล้ว ดูได้อย่างเดียว" : "")));
+      var tools = node("div", "rtools"), cpb = node("button", null); cpb.type = "button"; cpb.innerHTML = COPY_SVG; cpb.appendChild(document.createTextNode("คัดลอกรายชื่อ"));
+      cpb.addEventListener("click", function () { copyText(rosterText(st.trip, st.roster, !st.closed && !st.ended), "คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย"); });
+      tools.appendChild(cpb);
+      if (!st.ended) {
+        var lk = node("button", st.closed ? "op" : "lk"); lk.type = "button"; lk.innerHTML = st.closed ? OPEN_SVG : LOCK_SVG; lk.appendChild(document.createTextNode(st.closed ? "เปิดรับจอง" : "ปิดรับจอง"));
+        lk.addEventListener("click", function () {
+          if (!st.closed && lk.dataset.sure !== "1") { lk.dataset.sure = "1"; lk.lastChild.textContent = "ยืนยันปิด?"; setTimeout(function () { if (lk.isConnected) { lk.dataset.sure = ""; lk.lastChild.textContent = "ปิดรับจอง"; } }, 3500); return; }
+          setClosed(!st.closed, lk);
+        });
+        tools.appendChild(lk);
+      } else tools.style.gridTemplateColumns = "1fr";
+      sh.appendChild(tools);
+      if (st.closed && !st.ended) { var cn = node("div", "cnote"); cn.innerHTML = LOCK_SVG; cn.appendChild(node("span", null, "ปิดรับจองอยู่ · ผู้จองจองหรือยกเลิกเองไม่ได้ คุณยังจัดการที่นั่งด้านล่างได้")); sh.appendChild(cn); }
       if (st.trip.vans.length > 1) sh.appendChild(chips(function (id) { st.van = id; draw(); }, st.van));
       var seats = st.roster[st.van] || {}, nums = Object.keys(seats).map(Number).sort(function (a, b) { return a - b; });
       if (!nums.length) sh.appendChild(node("div", "empty", "คัน " + vanLabel(st.van) + " ยังไม่มีผู้จอง"));
@@ -505,6 +578,15 @@ a { color: inherit; }
       }
       sh.appendChild(node("div", "rfree", "ว่าง " + (10 - nums.length) + " ที่นั่ง"));
       var cl = node("button", "b-plain", "ปิด"); cl.type = "button"; cl.style.height = "48px"; cl.style.borderRadius = "16px"; cl.style.fontWeight = "600"; cl.addEventListener("click", close); sh.appendChild(cl);
+    }
+    async function setClosed(close, btn) {
+      btn.disabled = true;
+      try {
+        var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body: JSON.stringify({ t: x.id, close: close }) });
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) throw new Error(d.error);
+        st.closed = !!d.closed; toast(close ? "ปิดรับจองแล้ว" : "เปิดรับจองแล้ว"); draw();
+      } catch (e) { btn.disabled = false; toast("ทำรายการไม่สำเร็จ ลองอีกครั้ง", true); }
     }
     async function cancelOne(v, n, name, btn) {
       if (btn.dataset.sure !== "1") { btn.dataset.sure = "1"; btn.textContent = "ยืนยัน?"; setTimeout(function () { if (btn.isConnected) { btn.dataset.sure = ""; btn.textContent = "ยกเลิก"; } }, 3500); return; }

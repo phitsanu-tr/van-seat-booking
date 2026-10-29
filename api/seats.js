@@ -24,6 +24,7 @@ module.exports = async function handler(req, res) {
     const user = await L.currentUser(req);
     const role = L.roleOf(trip, user);
     const isOwner = !!role; // organizer: the owner or a helper (both manage seats)
+    const closed = L.bookingClosed(trip); // passengers can't book, hold or cancel; organizers can
 
     if (req.method === "GET") {
       const cmds = [["HGETALL", key], ["MGET"].concat(Array.from({ length: L.TOTAL_SEATS }, (_, i) => holdKey(t, van.id, i + 1)))].concat(trip.vans.map((x) => ["HLEN", L.seatsKey(t, x.id)]));
@@ -43,7 +44,7 @@ module.exports = async function handler(req, res) {
       const counts = {};
       trip.vans.forEach((x, i) => { counts[x.id] = Number(out[i + 2]) || 0; });
       const held = []; (out[1] || []).forEach((h, i) => { if (h && !seats[i + 1]) held.push(i + 1); }); // free seats someone is signing in to book
-      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip) });
+      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip), closed });
     }
 
     if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
@@ -54,6 +55,7 @@ module.exports = async function handler(req, res) {
     if (req.method === "POST" && body.hold !== undefined && body.seat === undefined) {
       const seat = L.parseSeat(body.hold);
       if (seat === null) return L.json(res, 400, { error: "bad_seat" });
+      if (closed) return L.json(res, 403, { error: "closed" });
       const hc = /^[a-z0-9]{16}$/.test(String(body.hc || "")) ? String(body.hc) : "";
       if (await L.rateLimited(req, null, "hold:" + t, hc ? 40 : 10, 600)) return L.json(res, 429, { error: "too_many" }); // per network
       if (hc && await L.rateLimited(req, { id: "hc:" + hc }, "hold:" + t, 10, 600)) return L.json(res, 429, { error: "too_many" }); // per browser
@@ -129,6 +131,7 @@ module.exports = async function handler(req, res) {
       if (!rawName.trim()) return L.json(res, 400, { error: "bad_name" });
       const name = L.cleanName(rawName).text;
       if (name !== rawName || !L.hasBaseLetter(name)) return L.json(res, 400, { error: "name_chars" });
+      if (closed && !isOwner) return L.json(res, 403, { error: "closed" });
       const limit = L.maxPerPerson(trip);
       if (user && !isOwner && limit > 0) { // count this account's seats in every van of the trip
         const all = await L.pipeline(trip.vans.map((x) => ["HGETALL", L.seatsKey(t, x.id)]));
@@ -162,6 +165,7 @@ module.exports = async function handler(req, res) {
       try { prev = JSON.parse(raw) || {}; } catch (e) { /* damaged entry */ }
       // Only the person who booked the seat, or the trip's organizer, can cancel it.
       if (!((prev.u && user.id === prev.u) || isOwner)) return L.json(res, 403, { error: "not_yours" });
+      if (closed && !isOwner) return L.json(res, 403, { error: "closed" }); // after closing, only the organizer changes the list
       const removed = await L.redis(["HDEL", key, String(seat)]);
       if (Number(removed) === 1) {
         if (prev.u) { try { await L.redis(["SREM", L.mySeatsKey(prev.u), t + "|" + van.id + "|" + seat]); } catch (e) { /* best effort */ } }

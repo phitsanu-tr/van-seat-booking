@@ -385,6 +385,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     <div class="hero"><div class="ht"><h1>จองที่นั่งรถตู้</h1>
     <div class="org"><span>เลือกที่นั่งว่าง</span> <span>ใส่ชื่อ</span> <span>แล้วจองได้เลย</span></div></div><svg class="hv" viewBox="0 0 96 64" fill="none" aria-hidden="true"><path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--hbg)"/></g><g transform="translate(-2 3) scale(.82)"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/><g fill="color-mix(in srgb,var(--mine) 25%,var(--surface))" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g><g fill="var(--ink)"><circle cx="26" cy="43" r="6.5"/><circle cx="70" cy="43" r="6.5"/></g><g fill="var(--surface)"><circle cx="26" cy="43" r="2.4"/><circle cx="70" cy="43" r="2.4"/></g></g></svg></div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
+    <div class="ended" id="closedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span><b>ปิดรับจองแล้ว</b> จองหรือยกเลิกเองไม่ได้ ถ้าต้องการเปลี่ยนที่นั่ง ติดต่อผู้จัดทริป</span></div>
     <div class="chgban" id="chgBan" hidden></div>
     <dl class="facts" id="tripFacts" hidden></dl>
     <div class="invite" id="invite" hidden><span class="ok"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><span class="tx"><b id="invT">จองที่นั่งแล้ว</b><small>ชวนเพื่อนมาจองด้วยกัน</small></span><button type="button" class="go" id="invGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>ส่งให้เพื่อน</button><button type="button" class="x" id="invX" aria-label="ปิด">×</button></div>
@@ -578,7 +579,11 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   function skOff() { document.body.classList.remove("sk"); }
   setTimeout(skOff, 8000);
   var selected = null, message = "", shown = false, confirming = false, lastSnapshot = "", wasFree = false; // wasFree: the seat was free when this dialog opened
-  var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false;
+  var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false, closed = false;
+  // locked: nothing to tap. A finished trip is locked for everyone; a closed one only for passengers (organizers still manage seats).
+  function locked() { return ended || (closed && !isOwner); }
+  var MON_S = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  function closeText(c) { var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(c || ""); return m ? Number(m[3]) + " " + MON_S[Number(m[2]) - 1] + " " + m[4] + "." + m[5] + " น." : ""; }
 
   var overlayEl = document.getElementById("overlay");
   var panelEl = document.getElementById("panel");
@@ -664,6 +669,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     if (code === "bad_name") return "ใส่ชื่อก่อนจอง";
     if (code === "name_chars") return "ใช้ได้เฉพาะภาษาไทยและอังกฤษ";
     if (code === "ended") return "ทริปนี้สิ้นสุดแล้ว ปิดรับจอง";
+    if (code === "closed") return "ปิดรับจองแล้ว ติดต่อผู้จัดทริปถ้าต้องการเปลี่ยน";
     if (code === "login_required") return "เข้าสู่ระบบด้วย LINE ก่อน";
     if (code === "not_yours") return "ยกเลิกได้เฉพาะคนที่จอง หรือคนจัดทริป";
     if (code === "too_many") return "ทำรายการถี่เกินไป รอสักครู่แล้วลองใหม่";
@@ -698,7 +704,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
           b.setAttribute("aria-label", "ที่นั่ง " + n + " ว่าง");
         }
         if (selected === n) { b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
-        b.addEventListener("click", function () { if (ended) return; selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll(); });
+        b.addEventListener("click", function () { if (locked()) return; selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll(); });
         overlayEl.appendChild(frame(b, RECT[n]));
       })(n);
     }
@@ -1087,14 +1093,32 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   function renderNotice() {
     var box = document.getElementById("notice");
     document.getElementById("endedBar").hidden = !ended;
-    document.getElementById("deck").classList.toggle("isended", ended);
+    document.getElementById("closedBar").hidden = !(loaded && closed && !ended && !isOwner);
+    document.getElementById("deck").classList.toggle("isended", locked());
     box.textContent = "";
-    if (ended || !loaded || !trip) return;
+    if (locked() || !loaded || !trip) return;
+    if (closed) { // the organizer sees why passengers are stuck, and can reopen right here
+      var cb = el("div", "fullbar"), ct = el("span", "ft");
+      ct.appendChild(el("b", null, "ปิดรับจองอยู่")); ct.appendChild(el("br"));
+      ct.appendChild(document.createTextNode("ผู้จองจองหรือยกเลิกเองไม่ได้ · คุณยังจัดการที่นั่งได้"));
+      cb.appendChild(ct);
+      var ro = el("button", "go", "เปิดรับจอง"); ro.type = "button";
+      ro.addEventListener("click", async function () {
+        ro.disabled = true;
+        try {
+          var res = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: TRIP, close: false }), cache: "no-store" });
+          if (!res.ok) throw new Error();
+          showToast("เปิดรับจองแล้ว"); refresh(true);
+        } catch (e) { ro.disabled = false; showToast("ทำรายการไม่สำเร็จ ลองอีกครั้ง", "error"); }
+      });
+      cb.appendChild(ro); box.appendChild(cb);
+      return;
+    }
     var used = Object.keys(seats).length;
     if (used < TOTAL) {
       var tip = el("div", "tip");
       tip.appendChild(icon(HAND_PATH));
-      tip.appendChild(el("span", null, "แตะที่นั่งว่างเพื่อจอง · แตะที่นั่งของคุณเพื่อยกเลิก"));
+      tip.appendChild(el("span", null, "แตะที่นั่งว่างเพื่อจอง · แตะที่นั่งของคุณเพื่อยกเลิก" + (trip.closeAt && closeText(trip.closeAt) ? " · ปิดรับจอง " + closeText(trip.closeAt) : "")));
       box.appendChild(tip);
       return;
     }
@@ -1144,7 +1168,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       counts = (r.data && r.data.counts) || counts;
       var hw = JSON.stringify(held); held = {}; ((r.data && r.data.held) || []).forEach(function (k) { held[k] = 1; });
       if (JSON.stringify(held) !== hw) force = true;
-      ended = !!(r.data && r.data.ended);
+      ended = !!(r.data && r.data.ended); closed = !!(r.data && r.data.closed);
       var meWas = JSON.stringify(me); me = (r.data && r.data.me) || null; isOwner = !!(r.data && r.data.owner); seatLimit = Number(r.data && r.data.limit) || 0;
       if (JSON.stringify(me) !== meWas || !loaded) renderAcct();
       var next = {};
@@ -1154,14 +1178,15 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         if (n >= 1 && n <= TOTAL && src[k] && src[k].name) next[n] = { name: String(src[k].name), at: src[k].at, m: !!src[k].m, a: !!src[k].a };
       });
       var snap = JSON.stringify(next);
-      var changed = snap !== lastSnapshot || !loaded || JSON.stringify(counts) !== lastCounts || JSON.stringify(trip) + ended !== lastTrip;
+      var changed = snap !== lastSnapshot || !loaded || JSON.stringify(counts) !== lastCounts || JSON.stringify(trip) + ended + closed !== lastTrip;
       var ibNow = r.data && r.data.ib;
-      if (bellOn && ((loaded && lastTrip && JSON.stringify(trip) + ended !== lastTrip) || (ibNow !== undefined && lastIb !== null && ibNow !== lastIb))) VSBBell.load(); // new notification (or the trip changed)
+      if (bellOn && ((loaded && lastTrip && JSON.stringify(trip) + ended + closed !== lastTrip) || (ibNow !== undefined && lastIb !== null && ibNow !== lastIb))) VSBBell.load(); // new notification (or the trip changed)
       if (ibNow !== undefined) lastIb = ibNow;
-      lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip) + ended;
+      lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip) + ended + closed;
       seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff();
+      if (locked() && selected !== null) { selected = null; message = ""; confirming = false; renaming = false; force = true; } // closed while the dialog was open
       if (changed || force) renderAll();
-      if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !ended) openSeat(ws); }
+      if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !locked()) openSeat(ws); }
     } catch (e) {
       loadError = "เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่";
       if (!loaded) renderAll();

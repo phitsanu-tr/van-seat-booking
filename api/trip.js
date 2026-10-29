@@ -8,6 +8,7 @@
 //   POST {join: code}                  signed in: become a helper of that trip
 //   POST {t, removeHelper: i}          owner: remove helper #i      POST {t, leave: true}   helper: leave the trip
 //   POST {t, transfer: i}              owner: helper #i becomes the owner, the old owner becomes a helper
+// Closing bookings: POST {t, close: true | false} (owner or helper) closes / reopens at once; trip.closeAt closes it on time.
 const L = require("./_lib");
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -56,6 +57,12 @@ function clean(body, vanCap) {
     if (!Number.isInteger(m) || m < 0 || m > 50) return { error: "bad_max" };
     value.maxPerPerson = m; // 0 = no limit
   }
+  if (body.closeAt !== undefined) { // "" = no automatic closing
+    const ca = s(body.closeAt, 16);
+    if (ca && !L.CLOSE_AT_RE.test(ca)) return { error: "bad_close" };
+    value.closeAt = ca;
+  }
+  if (body.closed !== undefined) value.closed = body.closed === true;
   return { value };
 }
 
@@ -76,7 +83,7 @@ function assignVanIds(vans, taken) {
 function isManager(trip, user) { return !!L.roleOf(trip, user); }
 function isOwner(trip, user) { return L.roleOf(trip, user) === "owner"; }
 function deny(res, user) { return user ? L.json(res, 403, { error: "not_owner" }) : L.json(res, 401, { error: "login_required" }); }
-function tripSummary(trip, user) { return Object.assign(L.publicTrip(trip), { mine: isOwner(trip, user), role: L.roleOf(trip, user) }); }
+function tripSummary(trip, user) { return Object.assign(L.publicTrip(trip), { mine: isOwner(trip, user), role: L.roleOf(trip, user), closedNow: L.bookingClosed(trip) }); }
 // what the managers see about the team: names only (account ids never leave the server)
 function team(trip, user) {
   const role = L.roleOf(trip, user);
@@ -111,6 +118,18 @@ module.exports = async function handler(req, res) {
       await L.logEvent(t, { e: "helper_join", n: user.name, u: user.id, at: Date.now() });
       await L.notify([trip.owner], { k: "helper_joined", t, tn: trip.name, n: user.name });
       return L.json(res, 200, { ok: true, id: t, name: trip.name });
+    }
+    if (req.method === "POST" && typeof pb.close === "boolean") {
+      const t = L.tripId(pb.t);
+      const trip = t ? await L.loadTrip(t) : null;
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      if (!isManager(trip, user)) return deny(res, user);
+      const next = Object.assign({}, trip, { closed: pb.close, updatedAt: Date.now() });
+      // reopening also drops a closing time that has already passed, otherwise it would stay closed
+      if (!pb.close && next.closeAt && L.bookingClosed(Object.assign({}, next, { closed: false }))) next.closeAt = "";
+      await saveTrip(next);
+      await L.logEvent(t, { e: pb.close ? "close" : "reopen", n: user.name, u: user.id, by: L.roleOf(trip, user), at: Date.now() });
+      return L.json(res, 200, { ok: true, closed: L.bookingClosed(next), trip: tripSummary(next, user) });
     }
     if (req.method === "POST" && (pb.invite !== undefined || pb.removeHelper !== undefined || pb.leave !== undefined || pb.transfer !== undefined)) {
       const t = L.tripId(pb.t);
