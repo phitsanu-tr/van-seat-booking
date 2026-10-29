@@ -1,0 +1,8 @@
+held after two phones on one network [2,5]
+held after phone 1 picks another seat [5,7]
+active 1 min polls {5..9}
+idle 3-7 min polls (expect ~8) {6..10}
+idle >10 min, 5 min polls (expect ~5) {4..6}
+poll on touch after idle 1
+active again ~1 min {5..9}
+ERR []

@@ -1,0 +1,25 @@
+P before read 1/1
+P after read all 0/1
+P after new notify 1/2 (expect 1 unread of 2)
+P after read trip 0/2
+Q badge start 2
+Q badge after read+reload -
+Q badge after rename (no reload) 1 within ~{1..12}s
+ticket buttons [ 'ดูผังที่นั่ง', '⋯' ]
+menu items [ 'แก้ชื่อบนผัง', 'ยกเลิกที่นั่ง' ]
+picker [ 'รถ 1 · ที่นั่ง 3แพท', 'รถ 2 · ที่นั่ง 5แพทสอง' ] input disabled true
+prefill แพทสอง
+cleaned แพทabc count 6/16
+toast แก้ชื่อที่นั่ง 5 เป็น แพทใหม่ แล้ว
+server v2 s5 "แพทใหม่"
+menu closes on outside click
+ open after Esc 0
+ open after toggling 0
+cancel sheet opens true
+Q single: picker 0 prefill ฉินนี่
+dark rules / 0
+dark rules /mytrips 0
+dark rules /<id> 0
+dark rules /trips 0
+dark rules /privacy 0
+ERR []

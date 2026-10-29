@@ -1,0 +1,9 @@
+form select 4
+dbg { t: '', fe: [], url: 'http://localhost:8765/trips#<id>-o' }
+created #<id>-o
+edit select 2
+note จองได้ไม่เกิน 2 ที่นั่งต่อคน (รวมทุกคัน)
+toast ทริปนี้จองได้ไม่เกิน 2 ที่นั่งต่อคน
+after wipe login view true ลบข้อมูลของคุณแล้ว
+trip deleted status 404
+ERR []

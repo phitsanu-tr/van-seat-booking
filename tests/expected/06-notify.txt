@@ -1,0 +1,12 @@
+put 200
+A 1 helper_joined
+B 1 trip_changed
+P 2 seat_moved,trip_changed
+Q 2 seat_renamed,trip_changed
+P tags [ 'ย้ายที่นั่งแล้ว' ] badge 2
+banner ที่นั่งของคุณถูกย้ายคัน 1 ที่ 3 → คัน 2 ที่ 5เมื่อสักครู่ · และอีก 1 รายการ (ดูที่กระดิ่ง)× chg dd [ '20.30 น.' ]
+after x: banner hidden true badge hidden true server 0 seat_moved,trip_changed
+Q after cancel 3 seat_cancelled,seat_renamed,trip_changed
+P after delete 1 trip_deleted,seat_moved,trip_changed B 2 trip_deleted,trip_changed
+home badge 1
+ERR []

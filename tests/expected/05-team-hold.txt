@@ -1,0 +1,22 @@
+invite url http://localhost:8765/mytrips?join=…
+B sees login true เข้าด้วย LINE ก่อน แล้วระบบจะพาเข้าทีมผู้จัดให้
+B toast เข้าร่วมเป็นผู้ช่วยจัด ทริปทีม แล้ว url http://localhost:8765/mytrips
+B role line คุณเป็นผู้ช่วยจัดทริปนี้
+B cancel Cat seat 200
+B PUT trip 200
+B DELETE trip 403
+B invite 403
+B edit page delete zone hidden true name ทริปทีม (แก้โดยผู้ช่วย)
+Dan reuse used link 404
+Dan join fresh 200
+Eve join fresh 200
+Gus join 409 {"error":"helpers_full","max":3}
+after transfer A role helper owner Bob helpers Ann,Dan,Eve
+A delete now 403
+hold 200 true
+Q sees held 1
+Q book held seat 409
+R back panel ที่นั่ง 6 hold stored 1
+R booked จองที่นั่ง 6 แล้ว hold cleared 0
+stats 8 1 3
+ERR []

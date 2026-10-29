@@ -1,0 +1,14 @@
+{
+  "name": "van-seat-booking-tests",
+  "private": true,
+  "description": "Browser tests for the van seat booking app. Kept in tests/ so the site itself stays dependency-free on Vercel.",
+  "scripts": {
+    "test": "node run.js",
+    "update": "node run.js --update"
+  },
+  "devDependencies": {
+    "@fontsource/noto-sans-thai": "5.3.0",
+    "@fontsource/prompt": "5.3.0",
+    "playwright": "1.56.0"
+  }
+}

@@ -1,0 +1,11 @@
+roster0 {"v1":{"3":{"name":"บ็อบ","at":<ts>,"a":1},"4":{"name":"แคท","at":<ts>,"a":1}},"v2":{}}
+after rename {"v1":{"3":{"name":"บ็อบบี้","at":<ts>,"a":1},"4":{"name":"แคท","at":<ts>,"a":1}},"v2":{}}
+after move {"v1":{"4":{"name":"แคท","at":<ts>,"a":1}},"v2":{"5":{"name":"บ็อบบี้","at":<ts>,"a":1}}}
+swap btn สลับกับ บ็อบบี้
+after swap {"v1":{"4":{"name":"บ็อบบี้","at":<ts>,"a":1}},"v2":{"5":{"name":"แคท","at":<ts>,"a":1}}}
+bob me [[{"van":"v1","vanLabel":"1","plate":"","seat":4,"name":"บ็อบบี้","at":<ts>}]]
+after cancel {"v1":{},"v2":{"5":{"name":"แคท","at":<ts>,"a":1}}}
+after self rename {"v1":{},"v2":{"5":{"name":"แคทลียา","at":<ts>,"a":1}}} แก้ชื่อที่นั่ง 5 แล้ว
+bob rename cat 403
+dots visible false
+ERR []

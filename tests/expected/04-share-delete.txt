@@ -1,0 +1,9 @@
+token in response? false
+mine tint 1
+poster 1544x2745
+ext link http://localhost:8765/<id>?v=v1&img=1&mk=…&openExternalBrowser=1
+seat pass 1544x1808
+card page img 1544x1808
+confirm btns [ 'btn danger' ]
+after delete url http://localhost:8765/mytrips status 404
+ERR []

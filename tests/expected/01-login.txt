@@ -1,0 +1,9 @@
+anon create: 401
+A create ok true
+anon book: 401
+chip เข้าด้วย LINE
+anon panel: lg 1 input 0 note เข้าด้วย LINE ครั้งเดียว ที่นั่งเป็นของคุณทุกเครื่อง · ความเป็นส่วนตัว
+trips/new -> http://localhost:8765/trips/new submit สร้างทริป
+index chip logged ผของฉัน
+index chip anon เข้าด้วย LINE
+ERR []
