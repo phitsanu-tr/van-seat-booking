@@ -8,7 +8,8 @@
 // Elsewhere the visitor is sent to /gate.html (a short notice). Exceptions: localhost, ?dev=1 (kept for the session) and the picture-only page (?img=1).
 (function () {
   var UA = navigator.userAgent || "", P = location.pathname, Q = new URLSearchParams(location.search);
-  var ok = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA);
+  var ok = true; // accounts (sign in with LINE) keep each person's trips and seats, so any browser may open the app (the LINE-only gate is kept below, switched off)
+  if (false) ok = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA);
   if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) ok = true;
   try { if (Q.get("dev") === "1") sessionStorage.setItem("vsb_dev", "1"); if (sessionStorage.getItem("vsb_dev") === "1") ok = true; } catch (e) { if (Q.get("dev") === "1") ok = true; }
   if (!ok && Q.get("img") === "1" && !/^\/(trips|owner)/.test(P) && P !== "/") ok = true;
@@ -712,7 +713,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   // edit link: /trips#<trip>-<secret> (the part after # is never sent to the server)
   var q = new URLSearchParams(location.search);
   var T = "", K = "";
-  var hm = /^#([a-z0-9]{3,16})-([a-z0-9]{6,64})$/i.exec(location.hash || "");
+  // owner link: /trips#<trip>-o (no secret: works only for the signed-in LINE account that owns the trip)
+  var hm = /^#([a-z0-9]{3,16})-([a-z0-9]{6,64}|o)$/i.exec(location.hash || "");
+  if (q.has("li") || q.has("le")) { try { q.delete("li"); q.delete("le"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q.toString() : "") + location.hash); } catch (e) {} }
   if (hm) { T = hm[1].toLowerCase(); K = hm[2].toLowerCase(); }
   function editPath(id, token) { return "/trips#" + id + "-" + token; }
   var UA = navigator.userAgent || "";
@@ -1425,6 +1428,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   }
   async function initList() {
     document.title = "ทริปของฉัน · จองที่นั่งรถตู้";
+    try { // signed in with LINE: the account page lists every trip (it also takes over the ones saved in this browser)
+      var who = await (await fetch("/api/auth?me=1", { cache: "no-store" })).json();
+      if (who && who.user) { location.replace("/my"); return; }
+    } catch (e) {}
     $("listMain").hidden = false;
     var mine = loadMine();
     $("listEmpty").hidden = mine.length > 0; $("listFull").hidden = mine.length === 0; $("lvH1").hidden = mine.length > 0; // the banner replaces the plain title when there are trips
@@ -1502,7 +1509,13 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       try {
         var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store", headers: { "x-admin-key": K } });
         var data = await res.json();
+        if (!res.ok && K === "o" && res.status === 403) { // owner link: sign in first; signed in as someone else -> say so (no redirect loop)
+          var who2 = null; try { who2 = (await (await fetch("/api/auth?me=1", { cache: "no-store" })).json()).user; } catch (e) {}
+          if (!who2) { location.replace("/api/auth?start=1&r=" + encodeURIComponent("/trips#" + T + "-o")); return; }
+          toast("ทริปนี้อยู่ในบัญชี LINE อื่น เข้าสู่ระบบด้วยบัญชีที่สร้างทริป", true); $("submit").disabled = true; return;
+        }
         if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
+        if (data.claimable && K !== "o") { try { fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": K }, body: JSON.stringify({ claim: true, t: T }) }); } catch (e) {} } // signed in + secret: the trip joins this account
         var t = data.trip;
         $("name").value = t.name; $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || "";
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";

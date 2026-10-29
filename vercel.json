@@ -34,6 +34,11 @@
       "source": "/owner.html",
       "destination": "/owner",
       "permanent": false
+    },
+    {
+      "source": "/my.html",
+      "destination": "/my",
+      "permanent": false
     }
   ],
   "rewrites": [
@@ -50,13 +55,17 @@
       "destination": "/owner.html"
     },
     {
+      "source": "/my",
+      "destination": "/my.html"
+    },
+    {
       "source": "/:t([a-hj-km-np-z2-9]{6,8})",
       "destination": "/book.html"
     }
   ],
   "headers": [
     {
-      "source": "/(trips|trips/new|owner)",
+      "source": "/(trips|trips/new|owner|my)",
       "headers": [
         {
           "key": "X-Robots-Tag",

@@ -69,7 +69,7 @@ async function loadTrip(t) {
 }
 
 function publicTrip(trip) {
-  const { adminToken, adminHash, ...rest } = trip; // never send the admin secret (or its hash) to passengers
+  const { adminToken, adminHash, owner, ownerName, ...rest } = trip; // never send the admin secret (or its hash), nor the owner's LINE id, to passengers
   return rest;
 }
 
@@ -161,7 +161,51 @@ function newId(len) {
   return out;
 }
 
+// ---- accounts (LINE Login) ----
+// Session cookie "vsb_s" (HttpOnly) -> Redis "sess:<id>" = {u, n, p}. u = LINE user id (never sent to other visitors).
+const SESSION_DAYS = 30;
+const MY_DAYS = 400; // "my trips" / "my seats" index lifetime, refreshed on every write
+function cookies(req) {
+  const out = {};
+  String((req.headers && req.headers.cookie) || "").split(";").forEach((part) => {
+    const i = part.indexOf("=");
+    if (i > 0) { const k = part.slice(0, i).trim(); try { out[k] = decodeURIComponent(part.slice(i + 1).trim()); } catch (e) { /* skip */ } }
+  });
+  return out;
+}
+function isHttps(req) { return String((req.headers && req.headers["x-forwarded-proto"]) || "").split(",")[0].trim() === "https"; }
+function cookieStr(req, name, value, maxAgeSec) {
+  return name + "=" + encodeURIComponent(value) + "; Path=/; HttpOnly; SameSite=Lax; Max-Age=" + Math.max(0, Math.floor(maxAgeSec)) + (isHttps(req) ? "; Secure" : "");
+}
+async function currentUser(req) {
+  const sid = cookies(req).vsb_s;
+  if (!sid || !/^[a-z0-9]{32}$/.test(sid)) return null;
+  try {
+    const raw = await redis(["GET", "sess:" + sid]);
+    const s = raw ? JSON.parse(raw) : null;
+    return s && s.u ? { id: String(s.u), name: String(s.n || ""), pic: String(s.p || ""), sid } : null;
+  } catch (e) { return null; }
+}
+function publicUser(u) { return u ? { name: u.name, pic: u.pic } : null; }
+function clientIp(req) {
+  return (String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim() || "unknown").slice(0, 64);
+}
+// Fixed-window counter: true when this caller (signed-in user, else network) went over `max` in the current window.
+async function rateLimited(req, user, scope, max, windowSec) {
+  try {
+    const who = user ? "u:" + user.id : "ip:" + clientIp(req);
+    const key = "rl:" + scope + ":" + who + ":" + Math.floor(Date.now() / 1000 / windowSec);
+    const out = await pipeline([["INCR", key], ["EXPIRE", key, String(windowSec * 2)]]);
+    return Number(out[0]) > max;
+  } catch (e) { return false; }
+}
+function myTripsKey(uid) { return "mytrips:" + uid; }
+function mySeatsKey(uid) { return "myseats:" + uid; }
+// Booking requires an account only when VSB_REQUIRE_LOGIN=1 (off during the switch-over).
+const REQUIRE_LOGIN = process.env.VSB_REQUIRE_LOGIN === "1";
+
 module.exports = {
   TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json, DEFAULT_ID,
   tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, NAME_MAX, newId, crypto,
+  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, REQUIRE_LOGIN,
 };

@@ -11,7 +11,7 @@ const PORT = Number(process.env.PORT) || 8765;
 const ROOT = __dirname;
 
 // ---- fake Upstash REST (only the commands the app uses) ----
-const store = new Map();   // key -> string | Map (hash) | Array (list)
+const store = new Map();   // key -> string | Map (hash) | Array (list) | Set
 const ttl = new Map();     // key -> epoch ms when it expires
 function purge() { const now = Date.now(); for (const [k, t] of ttl) if (t <= now) { store.delete(k); ttl.delete(k); } }
 function run(cmd) {
@@ -46,6 +46,10 @@ function run(cmd) {
       let h = store.get(key); if (!(h instanceof Map)) { h = new Map(); store.set(key, h); }
       if (h.has(String(a[0]))) return 0; h.set(String(a[0]), String(a[1])); return 1;
     }
+    case "HSET": { let h = store.get(key); if (!(h instanceof Map)) { h = new Map(); store.set(key, h); } const isNew = !h.has(String(a[0])); h.set(String(a[0]), String(a[1])); return isNew ? 1 : 0; }
+    case "SADD": { let st = store.get(key); if (!(st instanceof Set)) { st = new Set(); store.set(key, st); } let n = 0; a.forEach((m) => { if (!st.has(String(m))) { st.add(String(m)); n++; } }); return n; }
+    case "SREM": { const st = store.get(key); if (!(st instanceof Set)) return 0; let n = 0; a.forEach((m) => { if (st.delete(String(m))) n++; }); return n; }
+    case "SMEMBERS": { const st = store.get(key); return st instanceof Set ? [...st] : []; }
     case "HDEL": { const h = store.get(key); return h instanceof Map && h.delete(String(a[0])) ? 1 : 0; }
     case "HLEN": { const h = store.get(key); return h instanceof Map ? h.size : 0; }
     case "HGETALL": { const h = store.get(key); return h instanceof Map ? [].concat(...[...h.entries()]) : []; }
@@ -69,6 +73,7 @@ function route(pathname, query) {
   if (pathname === "/") return "/index.html";
   if (pathname === "/trips" || pathname === "/trips/new") return "/trips.html";
   if (pathname === "/owner") return "/owner.html";
+  if (pathname === "/my") return "/my.html";
   if (/^\/[a-hj-km-np-z2-9]{6,8}$/.test(pathname)) return "/book.html";
   return pathname;
 }
@@ -76,15 +81,16 @@ function route(pathname, query) {
 function startApp() {
   const app = http.createServer((req, res) => {
     const u = new URL(req.url, "http://localhost");
-    const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/trips", "/owner.html": "/owner", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
+    const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/trips", "/owner.html": "/owner", "/my.html": "/my", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
     if (RD[u.pathname]) { res.writeHead(302, { Location: RD[u.pathname] }); return res.end(); }
-    if (u.pathname === "/api/trip" || u.pathname === "/api/seats" || u.pathname === "/api/owner" || u.pathname === "/api/mark") {
+    if (u.pathname === "/api/trip" || u.pathname === "/api/seats" || u.pathname === "/api/owner" || u.pathname === "/api/mark" || u.pathname === "/api/auth" || u.pathname === "/api/me") {
       let raw = ""; req.on("data", (c) => (raw += c));
       req.on("end", async () => {
         req.query = Object.fromEntries(u.searchParams);
         try { req.body = raw ? JSON.parse(raw) : {}; } catch (e) { req.body = {}; }
         res.status = (c) => { res.statusCode = c; return res; };
         res.json = (o) => { res.setHeader("Content-Type", "application/json"); res.end(JSON.stringify(o)); };
+        if (!req.headers["x-forwarded-for"]) req.headers["x-forwarded-for"] = req.socket.remoteAddress || "127.0.0.1";
         try { await require("./api/" + path.basename(u.pathname))(req, res); }
         catch (e) { console.error(e); if (!res.writableEnded) { res.statusCode = 500; res.end("{}"); } }
       });
@@ -119,5 +125,6 @@ function startApp() {
 redisServer.listen(0, "127.0.0.1", () => {
   process.env.UPSTASH_REDIS_REST_URL = "http://127.0.0.1:" + redisServer.address().port;
   process.env.UPSTASH_REDIS_REST_TOKEN = "dev";
+  process.env.VSB_DEV_AUTH = "1"; // "sign in with LINE" uses a fake account locally: /api/auth?start=1&as=<name>
   startApp();
 });

@@ -7,7 +7,8 @@
 // Elsewhere the visitor is sent to /gate.html (a short notice). Exceptions: localhost, ?dev=1 (kept for the session) and the picture-only page (?img=1).
 (function () {
   var UA = navigator.userAgent || "", P = location.pathname, Q = new URLSearchParams(location.search);
-  var ok = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA);
+  var ok = true; // accounts (sign in with LINE) keep each person's trips and seats, so any browser may open the app (the LINE-only gate is kept below, switched off)
+  if (false) ok = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA);
   if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) ok = true;
   try { if (Q.get("dev") === "1") sessionStorage.setItem("vsb_dev", "1"); if (sessionStorage.getItem("vsb_dev") === "1") ok = true; } catch (e) { if (Q.get("dev") === "1") ok = true; }
   if (!ok && Q.get("img") === "1" && !/^\/(trips|owner)/.test(P) && P !== "/") ok = true;
@@ -80,6 +81,22 @@ h1 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-h
 header.trip { display: block; }
 .mytrips { display: inline-flex; align-items: center; gap: 2px; margin-bottom: 8px; color: var(--mine); font: 600 14px var(--font-body); text-decoration: none; }
 .mytrips[hidden] { display: none; }
+.hbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 0; }
+.hbar .mytrips { margin-bottom: 8px; }
+.acct { margin: 0 0 8px auto; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px 0 4px; border-radius: 99px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); font: 600 13px var(--font-body); text-decoration: none; max-width: 60%; }
+.acct[hidden] { display: none; }
+.acct .aav { width: 24px; height: 24px; border-radius: 50%; background: #06c755; color: #fff; font: 600 12px/24px var(--font-display); text-align: center; overflow: hidden; flex: none; }
+.acct .aav img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.acct span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.acct.in { padding-left: 4px; }
+.acct.out { padding: 0 12px; background: #06c755; border-color: #06c755; color: #fff; }
+.lgin { display: flex; flex-direction: column; gap: 8px; margin: 2px 0 4px; }
+.lgbtn { height: 50px; border-radius: 16px; background: #06c755; color: #fff; font: 600 15px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; }
+.lgbtn i { width: 24px; height: 24px; border-radius: 7px; background: #fff; color: #06c755; font: 800 7px/24px sans-serif; font-style: normal; text-align: center; }
+.lgor { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+.lgor::before, .lgor::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.lgnote { font-size: 12px; color: var(--muted); text-align: center; }
+.lock { font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
 .org { font-size: 13px; color: var(--mine); font-weight: 600; margin-bottom: 2px; }
 .hero { --hbg: color-mix(in srgb, var(--mine) 10%, var(--surface)); display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--hbg); border-radius: 16px; padding: 16px 18px; }
 .hero .ht { min-width: 0; }
@@ -384,7 +401,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 <body class="sk">
 <main>
   <header class="trip" id="tripHdr">
-    <a class="mytrips" id="myTrips" href="/trips" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a>
+    <div class="hbar"><a class="mytrips" id="myTrips" href="/trips" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a><a class="acct" id="acct" href="/my" hidden></a></div>
     <div class="hero"><div class="ht"><h1>จองที่นั่งรถตู้</h1>
     <div class="org"><span>เลือกที่นั่งว่าง</span> <span>ใส่ชื่อ</span> <span>แล้วจองได้เลย</span></div></div><svg class="hv" viewBox="0 0 96 64" fill="none" aria-hidden="true"><path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--hbg)"/></g><g transform="translate(-2 3) scale(.82)"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/><g fill="color-mix(in srgb,var(--mine) 25%,var(--surface))" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g><g fill="var(--ink)"><circle cx="26" cy="43" r="6.5"/><circle cx="70" cy="43" r="6.5"/></g><g fill="var(--surface)"><circle cx="26" cy="43" r="2.4"/><circle cx="70" cy="43" r="2.4"/></g></g></svg></div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
@@ -512,6 +529,24 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   var counts = {};
   var seats = {};            // n -> {name, at} for the van on screen
   var mineMap = {};          // n -> {at}: seats booked from this device (only used to tint them)
+  var me = null, isOwner = false, needLogin = false, claimTried = {}; // signed-in LINE account (from the seats API)
+  var wantSeat = Number(params.get("seat")) || 0; // back from LINE sign-in: reopen the seat that was chosen
+  if (params.has("li") || params.has("le") || params.has("seat")) { try { params.delete("li"); params.delete("le"); params.delete("seat"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params.toString() : "")); } catch (e) {} }
+  function loginHref(seatN) {
+    var back = "/" + TRIP + "?" + (curVan ? "v=" + encodeURIComponent(curVan) + "&" : "") + (seatN ? "seat=" + seatN : "");
+    return "/api/auth?start=1&r=" + encodeURIComponent(back.replace(/[?&]$/, ""));
+  }
+  function renderAcct() {
+    var a = document.getElementById("acct"); if (!a || IMG_ONLY) return;
+    a.textContent = ""; a.hidden = false;
+    if (me) {
+      a.className = "acct in"; a.href = "/my#seats";
+      var av = el("span", "aav");
+      if (me.pic) { var im = document.createElement("img"); im.alt = ""; im.src = me.pic; im.referrerPolicy = "no-referrer"; av.appendChild(im); } else av.textContent = (me.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
+      a.appendChild(av); a.appendChild(el("span", null, "ของฉัน"));
+      var mt = document.getElementById("myTrips"); if (isOwner && mt) { mt.hidden = false; mt.href = "/my"; }
+    } else { a.className = "acct out"; a.href = loginHref(0); a.appendChild(el("span", null, "เข้าสู่ระบบ")); }
+  }
   var loaded = false, loadError = "";
   function skOff() { document.body.classList.remove("sk"); }
   setTimeout(skOff, 8000);
@@ -584,7 +619,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   function readMine() { try { return JSON.parse(localStorage.getItem(mineKey()) || "{}") || {}; } catch (e) { return {}; } }
   function saveMine() { try { localStorage.setItem(mineKey(), JSON.stringify(mineMap)); } catch (e) {} }
   var extMine = {}; // seats to tint on the picture-only page (verified by the server, never stored, grants nothing)
-  function mine(n) { var s = seats[n], m = mineMap[n]; return !!(s && ((m && m.at === s.at) || (extMine[n] !== undefined && extMine[n] === s.at))); }
+  function mine(n) { var s = seats[n], m = mineMap[n]; return !!(s && (s.m || (!s.a && m && m.at === s.at) || (extMine[n] !== undefined && extMine[n] === s.at))); }
 
   function deviceId() {
     try {
@@ -616,6 +651,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     if (code === "bad_name") return "ใส่ชื่อก่อนจอง";
     if (code === "name_chars") return "ใช้ได้เฉพาะภาษาไทยและอังกฤษ";
     if (code === "ended") return "ทริปนี้สิ้นสุดแล้ว ปิดรับจอง";
+    if (code === "login_required") return "เข้าสู่ระบบด้วย LINE ก่อน";
+    if (code === "not_yours") return "ยกเลิกได้เฉพาะคนที่จอง หรือคนจัดทริป";
+    if (code === "too_many") return "ทำรายการถี่เกินไป รอสักครู่แล้วลองใหม่";
     if (code === "no_trip") return "ไม่พบทริปนี้ ตรวจสอบลิงก์อีกครั้ง";
     if (code === "no_van") return "ไม่พบรถคันนี้ รีเฟรชหน้าแล้วลองใหม่";
     if (code === "not_configured") return "ยังไม่ได้เชื่อมต่อฐานข้อมูล ติดต่อเจ้าของหน้า";
@@ -680,6 +718,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     }
   }
   function closeModal() { selected = null; message = ""; confirming = false; renderAll(); }
+  function openSeat(n) { selected = n; wasFree = !seats[n]; message = ""; confirming = false; renderAll(); }
 
   var TH_MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   function fmtAt(at) {
@@ -719,7 +758,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     var n = selected, s = seats[n];
     if (!s) confirming = false;
     var mtt = el("div", "mtt");
-    mtt.appendChild(el("span", null, (vanLabelNow() ? vanLabelNow() + " · " : "") + (s ? (confirming ? "คุณกำลังยกเลิก" : (wasFree && !mine(n) ? "ที่นั่งถูกจองแล้ว" : "คุณกำลังแก้ไข")) : "คุณกำลังจอง")));
+    mtt.appendChild(el("span", null, (vanLabelNow() ? vanLabelNow() + " · " : "") + (s ? (confirming ? "คุณกำลังยกเลิก" : ((wasFree && !mine(n)) || (s.a && !mine(n) && !isOwner) ? "ที่นั่งถูกจองแล้ว" : "คุณกำลังแก้ไข")) : "คุณกำลังจอง")));
     panelEl.appendChild(mtt);
     var head = el("div", "mhead");
     var mini = el("div", "mini");
@@ -779,11 +818,30 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       var when = s.at ? fmtAt(s.at) : "";
       if (when) info.appendChild(el("span", null, when));
       panelEl.appendChild(info);
-      var cancel = el("button", "ghost", "ยกเลิกการจอง");
-      cancel.type = "button";
-      cancel.addEventListener("click", function () { confirming = true; message = ""; renderPanel(); });
-      actions.appendChild(cancel);
+      if (!s.a || mine(n) || isOwner) { // a seat booked with an account: only its owner or the trip's organizer may cancel it
+        var cancel = el("button", "ghost", !mine(n) && s.a && isOwner ? "ยกเลิกให้ (คนจัดทริป)" : "ยกเลิกการจอง");
+        cancel.type = "button";
+        cancel.addEventListener("click", function () { confirming = true; message = ""; renderPanel(); });
+        actions.appendChild(cancel);
+      } else {
+        var lk = el("div", "lock");
+        lk.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10.5h10a2 2 0 012 2V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-5.5a2 2 0 012-2zM8.5 10.5V8a3.5 3.5 0 017 0v2.5"/></svg>';
+        lk.appendChild(el("span", null, me ? "ยกเลิกได้เฉพาะคนที่จอง หรือคนจัดทริป" : "คนจองเข้าสู่ระบบไว้ ยกเลิกได้เฉพาะเจ้าของที่นั่ง"));
+        panelEl.appendChild(lk);
+        actions.appendChild(plainBtn("ปิด", closeModal));
+      }
     } else {
+      if (!me && !IMG_ONLY) { // not signed in: offer LINE first (the seat then belongs to the account on every device)
+        var lg = el("div", "lgin"), lb = el("a", "lgbtn");
+        lb.href = loginHref(n);
+        lb.appendChild(el("i", null, "LINE")); lb.appendChild(document.createTextNode("เข้าสู่ระบบด้วย LINE แล้วจองเลย"));
+        lg.appendChild(lb);
+        if (needLogin) lg.appendChild(el("div", "lgnote", "ทริปนี้ต้องเข้าสู่ระบบก่อนจอง · ใน LINE กดครั้งเดียวจบ"));
+        else lg.appendChild(el("div", "lgor", "หรือใส่ชื่อ จองโดยไม่เข้าสู่ระบบ"));
+        panelEl.appendChild(lg);
+        if (needLogin) { actions.appendChild(plainBtn("ปิด", closeModal)); panelEl.appendChild(actions); return; }
+      }
+      if (me && opening && !typedName) typedName = cleanName(me.name || "").text; // the LINE name as a starting point (editable)
       input = el("input");
       input.type = "text"; input.id = "nameInput";
       input.placeholder = "ระบุชื่อ เช่น ชื่อเล่น"; input.value = typedName;
@@ -1027,23 +1085,35 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       }
       counts = (r.data && r.data.counts) || counts;
       ended = !!(r.data && r.data.ended);
+      var meWas = JSON.stringify(me); me = (r.data && r.data.me) || null; isOwner = !!(r.data && r.data.owner); needLogin = !!(r.data && r.data.needLogin);
+      if (JSON.stringify(me) !== meWas || !loaded) renderAcct();
       var next = {};
       var src = (r.data && r.data.seats) || {};
       Object.keys(src).forEach(function (k) {
         var n = Number(k);
-        if (n >= 1 && n <= TOTAL && src[k] && src[k].name) next[n] = { name: String(src[k].name), at: src[k].at };
+        if (n >= 1 && n <= TOTAL && src[k] && src[k].name) next[n] = { name: String(src[k].name), at: src[k].at, m: !!src[k].m, a: !!src[k].a };
       });
       var snap = JSON.stringify(next);
       var changed = snap !== lastSnapshot || !loaded || JSON.stringify(counts) !== lastCounts || JSON.stringify(trip) + ended !== lastTrip;
       lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip) + ended;
       seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff();
       if (changed || force) renderAll();
+      if (me && !claimTried[curVan]) claimSeats(curVan);
+      if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !ended) openSeat(ws); }
     } catch (e) {
       loadError = "เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่";
       if (!loaded) renderAll();
     }
   }
 
+  // Signed in: seats this browser booked before signing in move to the account (the server checks booking time + browser id).
+  async function claimSeats(v) {
+    claimTried[v] = true;
+    var list = Object.keys(mineMap).map(function (k) { return { s: Number(k), at: mineMap[k] && mineMap[k].at }; })
+      .filter(function (c) { var s = seats[c.s]; return s && !s.a && typeof c.at === "number" && s.at === c.at; });
+    if (!list.length) return;
+    try { var r = await api("POST", { claim: list, d: deviceId() }); if (r.ok && r.data && r.data.claimed && r.data.claimed.length) refresh(true); } catch (e) {}
+  }
   async function book(n, rawName) {
     var name = cleanName(rawName).text;
     if (!name) { message = "ใส่ชื่อก่อนจอง"; renderPanel(); return; }

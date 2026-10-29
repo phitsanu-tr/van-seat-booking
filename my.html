@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<style>html { touch-action: manipulation; }</style>
+<script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
+<title>ของฉัน · จองที่นั่งรถตู้</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
+<style>
+* { scrollbar-width: none; -ms-overflow-style: none; box-sizing: border-box; }
+*::-webkit-scrollbar { display: none; width: 0; height: 0; }
+html, body { overscroll-behavior: none; }
+[hidden] { display: none !important; }
+:root {
+  --bg: #eef1f3; --surface: #ffffff; --ink: #1b1f22; --muted: #5f6b73; --line: #c9d2d8; --edge: #dde3e7; --mine: #0e7c86; --deep: #0b5f67; --tint: #e3f3f4;
+  --amber: #b86e00; --amber-tint: #fdf0dd; --amber-edge: #ecd3ad; --danger: #b3261e; --lg: #06c755;
+  --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif; --font-body: "Noto Sans Thai", system-ui, sans-serif; color-scheme: light;
+}
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; -webkit-tap-highlight-color: transparent; display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+.top { background: var(--surface); border-bottom: 1px solid var(--edge); }
+.top div { max-width: 520px; margin: 0 auto; height: 52px; padding: 0 max(18px, env(safe-area-inset-left)); display: flex; align-items: center; }
+.top a { font: 600 15px var(--font-display); color: var(--deep); text-decoration: none; }
+main { width: 100%; flex: 1 0 auto; max-width: 460px; margin: 0 auto; padding: 18px max(16px, env(safe-area-inset-left)) calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; }
+button { font: inherit; cursor: pointer; }
+a { color: inherit; }
+
+/* profile row + tabs */
+.who { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.hi { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.av { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--lg); color: #fff; font: 600 17px var(--font-display); display: grid; place-items: center; overflow: hidden; }
+.av img { width: 100%; height: 100%; object-fit: cover; }
+.hi b { font: 600 16px var(--font-display); display: block; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hi small { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 5px; }
+.lnb { width: 14px; height: 14px; border-radius: 4px; background: var(--lg); color: #fff; font: 700 7px/14px sans-serif; text-align: center; }
+.out { flex: none; height: 36px; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--line); background: transparent; font-size: 13px; font-weight: 500; color: var(--muted); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; background: #e2e7ea; border-radius: 16px; padding: 4px; gap: 4px; }
+.seg button { height: 40px; border: 0; border-radius: 12px; background: transparent; display: flex; align-items: center; justify-content: center; gap: 6px; font: 500 15px var(--font-display); color: var(--muted); }
+.seg button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.seg .n { font: 600 11px/18px var(--font-body); background: #b9c3c9; color: #fff; border-radius: 99px; padding: 0 7px; }
+.seg [aria-selected="true"] .n { background: var(--mine); }
+.seg #tabTrips[aria-selected="true"] .n { background: var(--amber); }
+
+.h2 { display: flex; justify-content: space-between; align-items: baseline; margin-top: 2px; }
+.h2 b { font: 600 14px var(--font-display); color: var(--muted); }
+.h2 span { font-size: 12px; color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.card.dim { opacity: .62; }
+.row1 { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+.t { font: 600 16px/1.3 var(--font-display); min-width: 0; overflow-wrap: anywhere; }
+.org { font-size: 12px; color: var(--muted); margin-top: -8px; }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); }
+.meta i { font-style: normal; color: var(--ink); font-weight: 500; }
+.meta svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 3px; }
+.pill { flex: none; font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 99px; white-space: nowrap; }
+.p-soon { background: var(--tint); color: var(--mine); } .p-full { background: var(--amber-tint); color: var(--amber); } .p-end { background: #eceff1; color: var(--muted); }
+.bar { height: 6px; border-radius: 99px; background: #e7ecef; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--mine); border-radius: 99px; }
+.bar.full i { background: var(--amber); }
+.bt { font-size: 12px; color: var(--muted); margin-top: -4px; } .bt b { color: var(--ink); }
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ab { height: 40px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--ink); display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.ab.am { border-color: var(--amber-edge); color: var(--amber); } .ab.dg { border-color: #efcfcc; color: var(--danger); } .ab.tl { border-color: #bfe0e3; color: var(--mine); }
+.ab:active { background: var(--bg); }
+.new { height: 50px; border-radius: 16px; background: var(--mine); color: #fff; font: 600 16px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; margin-top: 4px; }
+.tk { flex-direction: row; gap: 0; padding: 0; overflow: hidden; }
+.tk .l { flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.tk .r { width: 88px; flex: none; background: var(--mine); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 2px dashed rgba(255,255,255,.4); text-align: center; padding: 8px 4px; }
+.tk .r small { font-size: 11px; opacity: .85; line-height: 1.3; }
+.tk .r b { font: 600 32px/1.05 var(--font-display); }
+.tk .r b.sm { font-size: 22px; }
+.tk.dim .r { background: #8a979e; }
+.nm { font-size: 12px; color: var(--muted); } .nm b { color: var(--ink); font-weight: 600; }
+.empty { background: #f7fafb; border: 1.5px dashed var(--line); border-radius: 16px; padding: 18px 14px; text-align: center; font-size: 13px; color: var(--muted); }
+.sk { background: linear-gradient(90deg, #e6eaed 0%, #f2f4f6 50%, #e6eaed 100%); background-size: 200% 100%; animation: sk 1.2s linear infinite; border-radius: 8px; }
+@keyframes sk { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
+
+/* sign-in screen */
+.login { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center; padding: 8px 6px 24px; }
+.logo { width: 84px; height: 84px; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; color: var(--mine); }
+.login h1 { font: 600 24px var(--font-display); margin: 0; }
+.login p { margin: -8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.pts { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; text-align: left; font-size: 14px; }
+.pts div { display: flex; gap: 10px; align-items: center; }
+.pts b { width: 26px; height: 26px; border-radius: 50%; background: var(--tint); color: var(--mine); display: grid; place-items: center; font-size: 13px; font-weight: 600; flex: none; }
+.lg { height: 52px; border-radius: 16px; background: var(--lg); color: #fff; font: 600 16px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; text-decoration: none; border: 0; }
+.lg i { width: 26px; height: 26px; border-radius: 8px; background: #fff; color: var(--lg); font: 800 8px/26px sans-serif; font-style: normal; text-align: center; }
+.note { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.alt { font-size: 13px; color: var(--mine); font-weight: 600; text-decoration: none; }
+.err { color: var(--danger); font-size: 13px; }
+
+/* confirm sheet + toast */
+.bd { position: fixed; inset: 0; background: rgba(27,31,34,.4); display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
+.sheet { width: 100%; max-width: 460px; background: var(--surface); border-radius: 24px 24px 0 0; padding: 10px 20px calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; }
+.grab { width: 40px; height: 5px; border-radius: 9px; background: #d5dce0; margin: 0 auto 2px; }
+.sheet h3 { font: 600 19px var(--font-display); margin: 0; }
+.sheet p { margin: 0; color: var(--muted); font-size: 14px; }
+.sheet .acts button { height: 48px; border-radius: 16px; font-size: 15px; font-weight: 600; }
+.b-plain { background: transparent; border: 1.5px solid var(--line); color: var(--ink); }
+.b-danger { background: var(--danger); border: 1.5px solid var(--danger); color: #fff; }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 14px; padding: 10px 16px; border-radius: 12px; z-index: 30; max-width: calc(100% - 32px); text-align: center; }
+.toast.bad { background: var(--danger); }
+.foot { margin-top: auto; padding-top: 14px; text-align: center; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="top"><div><a href="/">จองที่นั่งรถตู้</a></div></div>
+<main>
+  <section class="login" id="loginView" hidden>
+    <div class="logo"><svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16.5V8.5a2 2 0 012-2h9l5 4.5v5.5H3zM9.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0zM18.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0z"/></svg></div>
+    <h1>จองที่นั่งรถตู้</h1>
+    <p>เข้าสู่ระบบครั้งเดียว<br>ทริปและที่นั่งของคุณจะอยู่ทุกเครื่อง</p>
+    <div class="pts"><div><b>1</b>ดูทริปที่สร้างไว้ได้ทั้งมือถือและคอม</div><div><b>2</b>ยกเลิกได้เฉพาะที่นั่งของตัวเอง</div><div><b>3</b>ไม่ต้องพิมพ์ชื่อทุกครั้ง</div></div>
+    <a class="lg" id="loginBtn" href="/api/auth?start=1&amp;r=%2Fmy"><i>LINE</i>เข้าสู่ระบบด้วย LINE</a>
+    <div class="err" id="loginErr" hidden></div>
+    <div class="note">เราใช้แค่ชื่อและรูปโปรไฟล์ LINE<br>ไม่เก็บเบอร์โทร อีเมล หรือแชทของคุณ</div>
+    <a class="alt" href="/">กลับหน้าแรก →</a>
+  </section>
+
+  <section id="meView" hidden>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="who"><div class="hi"><div class="av" id="av"></div><div style="min-width:0"><b id="meName"></b><small><span class="lnb">LINE</span>เข้าสู่ระบบด้วย LINE</small></div></div><button class="out" id="logout" type="button">ออกจากระบบ</button></div>
+      <div class="seg" role="tablist"><button id="tabTrips" role="tab" aria-selected="false" type="button">ทริปของฉัน <span class="n" id="nTrips">0</span></button><button id="tabSeats" role="tab" aria-selected="false" type="button">ที่นั่งของฉัน <span class="n" id="nSeats">0</span></button></div>
+      <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px"></div>
+      <div id="paneSeats" style="display:flex;flex-direction:column;gap:12px" hidden></div>
+    </div>
+  </section>
+  <div class="foot">© 2026</div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  var SV = {
+    cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 5.5h11A2.5 2.5 0 0120 8v9.5a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 014 17.5V8a2.5 2.5 0 012.5-2.5zM4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>',
+    clk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 100 17 8.5 8.5 0 000-17zM12 7.5V12l3 2"/></svg>',
+    pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s6.5-5.6 6.5-11a6.5 6.5 0 10-13 0c0 5.4 6.5 11 6.5 11zM12 7.7a2.3 2.3 0 100 4.6 2.3 2.3 0 000-4.6z"/></svg>'
+  };
+  function node(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function parseD(s) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); return m ? { y: +m[1], m: +m[2], d: +m[3] } : null; }
+  function dateRange(a, b) {
+    var x = parseD(a), y = parseD(b);
+    if (!x) return "";
+    var yy = function (p) { return String((p.y + 543) % 100); };
+    if (!y || (y.y === x.y && y.m === x.m && y.d === x.d)) return x.d + " " + MON[x.m - 1] + " " + yy(x);
+    if (y.y === x.y && y.m === x.m) return x.d + "–" + y.d + " " + MON[x.m - 1] + " " + yy(x);
+    return x.d + " " + MON[x.m - 1] + " – " + y.d + " " + MON[y.m - 1] + " " + yy(y);
+  }
+  function daysTo(s) {
+    var p = parseD(s); if (!p) return null;
+    var now = new Date(Date.now() + 7 * 3600 * 1000), today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    return Math.round((Date.UTC(p.y, p.m - 1, p.d) - today) / 86400000);
+  }
+  var toastTimer = null;
+  function toast(msg, bad) {
+    var t = $("toast"); t.textContent = msg; t.className = "toast" + (bad ? " bad" : ""); t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 2800);
+  }
+  function loginHref(back) { return "/api/auth?start=1&r=" + encodeURIComponent(back || "/my"); }
+  function meta(x, withVans) {
+    var m = node("div", "meta"), add = function (svg, text) { if (!text) return; var s = node("span"); s.innerHTML = svg || ""; var i = node("i", null, text); s.appendChild(i); m.appendChild(s); };
+    add(SV.cal, dateRange(x.startDate, x.endDate));
+    add(SV.clk, x.departTime ? x.departTime.replace(":", ".") + " น." : "");
+    if (withVans) { var s = node("span", null, "รถตู้ "); s.appendChild(node("i", null, x.vans + " คัน")); m.appendChild(s); }
+    else add(SV.pin, x.meetPoint);
+    return m;
+  }
+  function statusPill(x) {
+    if (x.ended) return node("span", "pill p-end", "จบแล้ว");
+    if (x.total && x.booked >= x.total) return node("span", "pill p-full", "เต็มแล้ว");
+    var d = daysTo(x.startDate);
+    if (d === 0) return node("span", "pill p-soon", "วันนี้");
+    if (d === 1) return node("span", "pill p-soon", "พรุ่งนี้");
+    if (d != null && d > 1) return node("span", "pill p-soon", "อีก " + d + " วัน");
+    return null;
+  }
+  function section(pane, title, sub) { var h = node("div", "h2"); h.appendChild(node("b", null, title)); h.appendChild(node("span", null, sub || "")); pane.appendChild(h); }
+
+  // ---- share the booking link (same as the booking page's "ส่งให้เพื่อน") ----
+  function shareTrip(x) {
+    var u = location.origin + "/" + x.id, L = ["🚐 " + (x.name || "จองที่นั่งรถตู้"), ""], dr = dateRange(x.startDate, x.endDate);
+    if (dr) L.push("📅 " + dr);
+    var tm = x.departTime ? x.departTime.replace(":", ".") + " น." : "";
+    if (tm && x.meetPoint) L.push("📍 " + tm + " - " + x.meetPoint); else if (tm) L.push("⏰ " + tm); else if (x.meetPoint) L.push("📍 " + x.meetPoint);
+    L.push("", "จองที่นั่งได้ที่นี่ 👇");
+    var lead = L.join("\n"), UA = navigator.userAgent || "";
+    if (/\bLine\//i.test(UA) || /Android|iPhone|iPad/i.test(UA)) { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(lead + "\n" + u); return; }
+    if (navigator.clipboard) navigator.clipboard.writeText(lead + "\n" + u).then(function () { toast("คัดลอกข้อความและลิงก์แล้ว"); }, function () { toast(u); });
+    else toast(u);
+  }
+
+  function renderTrips(list) {
+    var pane = $("paneTrips"); pane.textContent = "";
+    var up = list.filter(function (x) { return !x.ended; }), done = list.filter(function (x) { return x.ended; });
+    if (!list.length) pane.appendChild(node("div", "empty", "ยังไม่มีทริปที่คุณสร้าง กดปุ่มด้านล่างเพื่อเริ่มทริปแรก"));
+    if (up.length) section(pane, "กำลังจะถึง", "เรียงตามวันเดินทาง");
+    up.forEach(function (x) {
+      var c = node("div", "card"), r1 = node("div", "row1");
+      r1.appendChild(node("div", "t", x.name)); var p = statusPill(x); if (p) r1.appendChild(p); c.appendChild(r1);
+      if (x.organizer) c.appendChild(node("div", "org", x.organizer));
+      c.appendChild(meta(x, true));
+      var full = x.total && x.booked >= x.total, bar = node("div", "bar" + (full ? " full" : "")), bi = node("i"); bi.style.width = (x.total ? Math.min(100, Math.round(x.booked / x.total * 100)) : 0) + "%"; bar.appendChild(bi); c.appendChild(bar);
+      var bt = node("div", "bt"); bt.appendChild(document.createTextNode("จองแล้ว ")); bt.appendChild(node("b", null, String(x.booked))); bt.appendChild(document.createTextNode("/" + x.total + " ที่นั่ง")); c.appendChild(bt);
+      var acts = node("div", "acts"), ed = node("a", "ab am", "แก้ไขทริป"); ed.href = "/trips#" + x.id + "-o";
+      var sh = node("button", "ab tl", "แชร์ลิงก์จอง"); sh.type = "button"; sh.addEventListener("click", function () { shareTrip(x); });
+      acts.appendChild(ed); acts.appendChild(sh); c.appendChild(acts);
+      pane.appendChild(c);
+    });
+    if (done.length) {
+      section(pane, "จบแล้ว", "ลบอัตโนมัติหลังเดินทาง 60 วัน");
+      done.forEach(function (x) {
+        var c = node("a", "card dim"); c.href = "/" + x.id; c.style.textDecoration = "none";
+        var r1 = node("div", "row1"); r1.appendChild(node("div", "t", x.name)); r1.appendChild(node("span", "pill p-end", "จบแล้ว")); c.appendChild(r1);
+        var m = node("div", "meta"); var s1 = node("span"); s1.appendChild(node("i", null, dateRange(x.startDate, x.endDate) || "ไม่ระบุวัน")); m.appendChild(s1);
+        var s2 = node("span", null, "จอง "); s2.appendChild(node("i", null, x.booked + "/" + x.total)); m.appendChild(s2); c.appendChild(m);
+        pane.appendChild(c);
+      });
+    }
+    var nw = node("a", "new", "＋ สร้างทริปใหม่"); nw.href = "/trips/new"; pane.appendChild(nw);
+  }
+
+  function renderSeats(list) {
+    var pane = $("paneSeats"); pane.textContent = "";
+    var up = list.filter(function (x) { return !x.ended; }), done = list.filter(function (x) { return x.ended; });
+    if (up.length) section(pane, "กำลังจะถึง", up.length + " ทริป");
+    up.forEach(function (x) { pane.appendChild(ticket(x, false)); });
+    if (done.length) { section(pane, "ผ่านมาแล้ว", ""); done.forEach(function (x) { pane.appendChild(ticket(x, true)); }); }
+    pane.appendChild(node("div", "empty", list.length ? "เปิดลิงก์ทริปจากเพื่อนแล้วจอง ที่นั่งจะมาอยู่ที่นี่เอง · ใช้ได้ทั้งในมือถือและคอม" : "ยังไม่มีที่นั่งที่จองไว้ เปิดลิงก์ทริปจากเพื่อนแล้วจอง ที่นั่งจะมาอยู่ที่นี่เอง"));
+  }
+  function ticket(x, past) {
+    var c = node("div", "card tk" + (past ? " dim" : "")), l = node("div", "l");
+    l.appendChild(node("div", "t", x.name));
+    var m = node("div", "meta"), dr = dateRange(x.startDate, x.endDate), tm = x.departTime ? x.departTime.replace(":", ".") + " น." : "";
+    if (dr || tm) { var s = node("span"); s.innerHTML = SV.cal; s.appendChild(node("i", null, [dr, tm].filter(Boolean).join(" · "))); m.appendChild(s); }
+    if (x.meetPoint && !past) { var p = node("span"); p.innerHTML = SV.pin; p.appendChild(node("i", null, x.meetPoint)); m.appendChild(p); }
+    l.appendChild(m);
+    var names = []; x.seats.forEach(function (s) { if (names.indexOf(s.name) < 0) names.push(s.name); });
+    var nm = node("div", "nm", "ชื่อบนผัง "); nm.appendChild(node("b", null, names.join(", ")));
+    if (x.organizer) nm.appendChild(document.createTextNode(" · จัดโดย " + x.organizer));
+    if (!past) l.appendChild(nm);
+    var vans = []; x.seats.forEach(function (s) { if (vans.indexOf(s.vanLabel) < 0) vans.push(s.vanLabel); });
+    if (!past) {
+      var acts = node("div", "acts"), view = node("a", "ab tl", "ดูผังที่นั่ง"); view.href = "/" + x.id + "?v=" + encodeURIComponent(x.seats[0].van);
+      var cx = node("button", "ab dg", x.seats.length > 1 ? "ยกเลิกที่นั่ง" : "ยกเลิกที่นั่ง"); cx.type = "button";
+      cx.addEventListener("click", function () { askCancel(x); });
+      acts.appendChild(view); acts.appendChild(cx); l.appendChild(acts);
+    }
+    c.appendChild(l);
+    var r = node("div", "r"); r.appendChild(node("small", null, vans.length === 1 ? "รถ " + vans[0] : "หลายคัน"));
+    var nums = x.seats.map(function (s) { return s.seat; }).join(", ");
+    r.appendChild(node("b", nums.length > 3 ? "sm" : null, nums)); r.appendChild(node("small", null, "ที่นั่ง"));
+    c.appendChild(r);
+    return c;
+  }
+
+  // ---- cancel one of my seats (a bottom sheet, never a browser dialog) ----
+  function askCancel(x) {
+    var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
+    sh.appendChild(node("div", "grab")); sh.appendChild(node("h3", null, "ยกเลิกที่นั่ง?"));
+    sh.appendChild(node("p", null, x.name));
+    var pick = null;
+    if (x.seats.length > 1) {
+      var g = node("div", "acts");
+      x.seats.forEach(function (s) {
+        var b = node("button", "ab", "รถ " + s.vanLabel + " · ที่นั่ง " + s.seat); b.type = "button";
+        b.addEventListener("click", function () { pick = s; [].forEach.call(g.children, function (k) { k.classList.remove("dg"); }); b.classList.add("dg"); go.disabled = false; });
+        g.appendChild(b);
+      });
+      sh.appendChild(g);
+    } else pick = x.seats[0];
+    var acts = node("div", "acts"), back = node("button", "b-plain", "ย้อนกลับ"), go = node("button", "b-danger", "ยืนยันยกเลิก");
+    back.type = go.type = "button"; go.disabled = !pick;
+    var close = function () { bd.remove(); };
+    back.addEventListener("click", close); bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
+    go.addEventListener("click", async function () {
+      if (!pick) return;
+      go.disabled = true; go.textContent = "กำลังยกเลิก...";
+      try {
+        var r = await fetch("/api/seats?t=" + encodeURIComponent(x.id) + "&v=" + encodeURIComponent(pick.van), { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: x.id, v: pick.van, seat: pick.seat }) });
+        var d = {}; try { d = await r.json(); } catch (e) {}
+        if (!r.ok) { toast(d.error === "ended" ? "ทริปนี้สิ้นสุดแล้ว" : d.error === "too_many" ? "ทำรายการถี่เกินไป รอสักครู่แล้วลองใหม่" : "ยกเลิกไม่สำเร็จ ลองอีกครั้ง", true); go.disabled = false; go.textContent = "ยืนยันยกเลิก"; return; }
+        close(); toast("ยกเลิกที่นั่ง " + pick.seat + " แล้ว"); load();
+      } catch (e) { toast("เชื่อมต่อไม่ได้ ลองอีกครั้ง", true); go.disabled = false; go.textContent = "ยืนยันยกเลิก"; }
+    });
+    acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
+    document.body.appendChild(bd);
+  }
+
+  // ---- tabs ----
+  var tab = location.hash === "#seats" ? "seats" : "trips";
+  function setTab(t) {
+    tab = t;
+    $("tabTrips").setAttribute("aria-selected", t === "trips" ? "true" : "false");
+    $("tabSeats").setAttribute("aria-selected", t === "seats" ? "true" : "false");
+    $("paneTrips").hidden = t !== "trips"; $("paneSeats").hidden = t !== "seats";
+    try { history.replaceState(null, "", "/my" + (t === "seats" ? "#seats" : "")); } catch (e) {}
+  }
+  $("tabTrips").addEventListener("click", function () { setTab("trips"); });
+  $("tabSeats").addEventListener("click", function () { setTab("seats"); });
+
+  // ---- first visit after signing in: move what this browser created/booked before into the account ----
+  async function claimLocal() {
+    try { if (sessionStorage.getItem("vsb_claimed") === "1") return; } catch (e) {}
+    var jobs = [];
+    try {
+      (JSON.parse(localStorage.getItem("van-admin-trips") || "[]") || []).forEach(function (x) {
+        if (!x || !x.id || !x.token || x.token === "o") return;
+        jobs.push(fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": x.token }, body: JSON.stringify({ claim: true, t: x.id }) }));
+      });
+      var dev = localStorage.getItem("vsb_device") || "";
+      if (dev) for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i), m = /^van-mine:([a-z0-9]{3,16}):([A-Za-z0-9]{1,12})$/.exec(k || "");
+        if (!m) continue;
+        var map = {}; try { map = JSON.parse(localStorage.getItem(k) || "{}") || {}; } catch (e) {}
+        var list = Object.keys(map).map(function (n) { return { s: Number(n), at: map[n] && map[n].at }; }).filter(function (c) { return c.s >= 1 && c.s <= 10 && typeof c.at === "number"; });
+        if (list.length) jobs.push(fetch("/api/seats?t=" + m[1] + "&v=" + encodeURIComponent(m[2]), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: m[1], v: m[2], claim: list, d: dev }) }));
+      }
+    } catch (e) {}
+    if (jobs.length) await Promise.all(jobs.map(function (p) { return p.catch(function () {}); }));
+    try { sessionStorage.setItem("vsb_claimed", "1"); } catch (e) {}
+  }
+
+  function skeleton() {
+    ["paneTrips", "paneSeats"].forEach(function (id) {
+      var pane = $(id); pane.textContent = "";
+      for (var i = 0; i < 2; i++) { var c = node("div", "card"); c.appendChild(node("div", "sk")).style.height = "20px"; var b = c.appendChild(node("div", "sk")); b.style.height = "14px"; b.style.width = "60%"; c.appendChild(node("div", "sk")).style.height = "40px"; pane.appendChild(c); }
+    });
+  }
+  async function load() {
+    try {
+      var r = await fetch("/api/me", { cache: "no-store" });
+      if (r.status === 401) { showLogin(); return; }
+      var d = await r.json();
+      if (!r.ok) throw new Error();
+      $("meName").textContent = d.user.name || "ผู้ใช้ LINE";
+      var av = $("av"); av.textContent = "";
+      if (d.user.pic) { var im = node("img"); im.alt = ""; im.src = d.user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1); }; av.appendChild(im); }
+      else av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
+      $("nTrips").textContent = d.trips.length; $("nSeats").textContent = d.seats.length;
+      renderTrips(d.trips); renderSeats(d.seats);
+      if (!location.hash && !d.trips.length && d.seats.length) setTab("seats");
+    } catch (e) { toast("โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า", true); }
+  }
+  function showLogin() {
+    $("meView").hidden = true; $("loginView").hidden = false;
+    var le = new URLSearchParams(location.search).get("le");
+    var msg = { cancel: "ยกเลิกการเข้าสู่ระบบแล้ว", setup: "ระบบเข้าสู่ระบบยังไม่ได้ตั้งค่า (ติดต่อเจ้าของแอป)", busy: "ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่" }[le] || (le ? "เข้าสู่ระบบไม่สำเร็จ ลองอีกครั้ง" : "");
+    if (msg) { $("loginErr").textContent = msg; $("loginErr").hidden = false; }
+    $("loginBtn").href = loginHref("/my" + (location.hash || ""));
+  }
+  $("logout").addEventListener("click", async function () {
+    try { await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ logout: true }) }); } catch (e) {}
+    try { sessionStorage.removeItem("vsb_claimed"); } catch (e) {}
+    showLogin();
+  });
+
+  (async function init() {
+    var q = new URLSearchParams(location.search);
+    if (q.has("li") || q.has("le")) { try { history.replaceState(null, "", "/my" + (location.hash || "")); } catch (e) {} }
+    if (q.has("le")) { showLogin(); var le = q.get("le"); $("loginErr").textContent = { cancel: "ยกเลิกการเข้าสู่ระบบแล้ว", setup: "ระบบเข้าสู่ระบบยังไม่ได้ตั้งค่า (ติดต่อเจ้าของแอป)", busy: "ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่" }[le] || "เข้าสู่ระบบไม่สำเร็จ ลองอีกครั้ง"; $("loginErr").hidden = false; return; }
+    var me = null;
+    try { me = (await (await fetch("/api/auth?me=1", { cache: "no-store" })).json()).user; } catch (e) {}
+    if (!me) { showLogin(); return; }
+    $("meView").hidden = false; setTab(tab); skeleton();
+    $("meName").textContent = me.name || "ผู้ใช้ LINE";
+    await claimLocal();
+    load();
+  })();
+})();
+</script>
+</body>
+</html>
