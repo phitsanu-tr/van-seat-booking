@@ -1,7 +1,11 @@
 // Vercel serverless function: GET / POST / DELETE /api/seats
 // Query / body: t = trip code (default "default"), v = van id (default: the trip's first van).
-// Storage: one Redis hash per van (field = seat number, value = JSON {name, at}).
+// Storage: one Redis hash per van (field = seat number, value = JSON {name, at, u}).
+// Seat hold: POST {hold: seat} (no sign-in needed) keeps a free seat for HOLD_SEC while the visitor signs in with LINE;
+// others see it as "being booked"; the booking that carries the hold id gets it. One hold per network per trip.
 const L = require("./_lib");
+const HOLD_SEC = 5 * 60;
+const holdKey = (t, v, s) => "hold:" + t + ":" + v + ":" + s;
 
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
@@ -17,10 +21,11 @@ module.exports = async function handler(req, res) {
     if (!van) return L.json(res, 404, { error: "no_van" });
     const key = L.seatsKey(t, van.id);
     const user = await L.currentUser(req);
-    const isOwner = !!(user && trip.owner && trip.owner === user.id);
+    const role = L.roleOf(trip, user);
+    const isOwner = !!role; // organizer: the owner or a helper (both manage seats)
 
     if (req.method === "GET") {
-      const cmds = [["HGETALL", key]].concat(trip.vans.map((x) => ["HLEN", L.seatsKey(t, x.id)]));
+      const cmds = [["HGETALL", key], ["MGET"].concat(Array.from({ length: L.TOTAL_SEATS }, (_, i) => holdKey(t, van.id, i + 1)))].concat(trip.vans.map((x) => ["HLEN", L.seatsKey(t, x.id)]));
       const out = await L.pipeline(cmds);
       const flat = out[0] || [];
       const seats = {};
@@ -34,14 +39,30 @@ module.exports = async function handler(req, res) {
         } catch (e) { /* skip a damaged entry */ }
       }
       const counts = {};
-      trip.vans.forEach((x, i) => { counts[x.id] = Number(out[i + 1]) || 0; });
-      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, limit: L.maxPerPerson(trip) });
+      trip.vans.forEach((x, i) => { counts[x.id] = Number(out[i + 2]) || 0; });
+      const held = []; (out[1] || []).forEach((h, i) => { if (h && !seats[i + 1]) held.push(i + 1); }); // free seats someone is signing in to book
+      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, limit: L.maxPerPerson(trip) });
     }
 
     if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
 
     if ((req.method === "POST" || req.method === "DELETE" || req.method === "PATCH") && await L.rateLimited(req, user, "seat:" + t, 30, 600)) return L.json(res, 429, { error: "too_many" });
     if ((req.method === "PATCH" || (req.method === "POST" && body.move)) && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
+
+    if (req.method === "POST" && body.hold !== undefined && body.seat === undefined) {
+      const seat = L.parseSeat(body.hold);
+      if (seat === null) return L.json(res, 400, { error: "bad_seat" });
+      if (await L.rateLimited(req, null, "hold:" + t, 10, 600)) return L.json(res, 429, { error: "too_many" });
+      if (await L.redis(["HGET", key, String(seat)])) return L.json(res, 409, { error: "taken" });
+      const hk = holdKey(t, van.id, seat), id = L.newId(16), mineKey = "holdip:" + t + ":" + L.clientIp(req);
+      const prev = await L.redis(["GET", mineKey]);
+      if (prev && prev !== hk) { try { await L.redis(["DEL", prev]); } catch (e) { /* best effort */ } } // one hold per network: the new one replaces the old
+      if (prev === hk) await L.redis(["DEL", hk]); // same seat again: renew
+      const ok = await L.redis(["SET", hk, id, "NX", "EX", String(HOLD_SEC)]);
+      if (ok !== "OK") return L.json(res, 409, { error: "held" });
+      await L.redis(["SET", mineKey, hk, "EX", String(HOLD_SEC)]);
+      return L.json(res, 200, { hold: id, exp: Date.now() + HOLD_SEC * 1000 });
+    }
 
     if (req.method === "PATCH") {
       // rename a seat: the person who booked it, or the organizer. The booking time stays (it identifies the booking).
@@ -58,7 +79,7 @@ module.exports = async function handler(req, res) {
       if (!(rec.u ? rec.u === user.id || isOwner : isOwner)) return L.json(res, 403, { error: "not_yours" });
       const old = rec.name; rec.name = name;
       await L.redis(["HSET", key, String(seat), JSON.stringify(rec)]);
-      await L.logEvent(t, { e: "rename", v: van.id, s: seat, n: name, on: old, u: user.id, by: isOwner && rec.u !== user.id ? "owner" : undefined, at: Date.now() });
+      await L.logEvent(t, { e: "rename", v: van.id, s: seat, n: name, on: old, u: user.id, by: isOwner && rec.u !== user.id ? role : undefined, at: Date.now() });
       return L.json(res, 200, { ok: true, name, at: rec.at });
     }
 
@@ -89,7 +110,7 @@ module.exports = async function handler(req, res) {
       await L.pipeline(cmds);
       const exp = L.expireAtFor(trip);
       if (exp && exp > Math.floor(Date.now() / 1000)) { try { await L.redis(["EXPIREAT", tk, String(exp)]); } catch (e) { /* best effort */ } }
-      await L.logEvent(t, { e: b ? "swap" : "move", v: fromVan.id, s: fs, tv: toVan.id, ts, n: a.name, n2: b ? b.name : undefined, u: user.id, by: "owner", at: Date.now() });
+      await L.logEvent(t, { e: b ? "swap" : "move", v: fromVan.id, s: fs, tv: toVan.id, ts, n: a.name, n2: b ? b.name : undefined, u: user.id, by: role, at: Date.now() });
       return L.json(res, 200, { ok: true, swapped: !!b });
     }
 
@@ -108,11 +129,14 @@ module.exports = async function handler(req, res) {
         all.forEach((flat) => { for (let i = 1; i < (flat || []).length; i += 2) { try { if (JSON.parse(flat[i]).u === user.id) mineN++; } catch (e) { /* skip */ } } });
         if (mineN >= limit) return L.json(res, 403, { error: "seat_limit", limit });
       }
+      const hk = holdKey(t, van.id, seat), holder = await L.redis(["GET", hk]);
+      if (holder && holder !== String(body.hold || "")) return L.json(res, 409, { error: "held" }); // someone is signing in to book it
       const at = Date.now();
       // HSETNX only writes when the seat is still empty, so two people can never take the same seat.
       const rec = { name, at, u: user.id };
       const created = await L.redis(["HSETNX", key, String(seat), JSON.stringify(rec)]);
       if (created !== 1) return L.json(res, 409, { error: "taken" });
+      if (holder) { try { await L.redis(["DEL", hk]); } catch (e) { /* expires anyway */ } }
       { try { await L.pipeline([["SADD", L.mySeatsKey(user.id), t + "|" + van.id + "|" + seat], ["EXPIRE", L.mySeatsKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* the seat is booked; the index is best effort */ } }
       const exp = L.expireAtFor(trip);
       const live = exp && exp > Math.floor(Date.now() / 1000);
@@ -134,7 +158,7 @@ module.exports = async function handler(req, res) {
       const removed = await L.redis(["HDEL", key, String(seat)]);
       if (Number(removed) === 1) {
         if (prev.u) { try { await L.redis(["SREM", L.mySeatsKey(prev.u), t + "|" + van.id + "|" + seat]); } catch (e) { /* best effort */ } }
-        await L.logEvent(t, { e: "cancel", v: van.id, s: seat, n: String(prev.name || ""), u: user.id, ou: prev.u, by: isOwner && user.id !== prev.u ? "owner" : undefined, at: Date.now() });
+        await L.logEvent(t, { e: "cancel", v: van.id, s: seat, n: String(prev.name || ""), u: user.id, ou: prev.u, by: isOwner && user.id !== prev.u ? role : undefined, at: Date.now() });
       }
       return L.json(res, 200, { ok: true });
     }

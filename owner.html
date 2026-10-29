@@ -61,6 +61,11 @@ button { font:inherit; cursor:pointer; }
       <div class="stat"><b id="sLive">0</b><span>กำลังเปิด</span></div>
       <div class="stat"><b id="sBooked">0</b><span>ที่นั่งที่จอง</span></div>
     </div>
+    <div class="stats">
+      <div class="stat"><b id="sAcc">0</b><span>บัญชีที่ล็อกอินอยู่</span></div>
+      <div class="stat"><b id="sOwners">0</b><span>เจ้าของทริป</span></div>
+      <div class="stat"><b id="sHelpers">0</b><span>ผู้ช่วยจัด</span></div>
+    </div>
     <div class="row"><p id="note"></p><button class="btn plain" id="reload">รีเฟรช</button></div>
     <div id="list" style="display:flex;flex-direction:column;gap:14px"></div>
   </div>
@@ -85,6 +90,23 @@ button { font:inherit; cursor:pointer; }
   function fmtDay(t) { return new Date(t + 7 * 3600e3).toISOString().slice(0, 10); }
   function fmtDate(t) { return t ? new Date(t + 7 * 3600e3).toISOString().slice(0, 16).replace("T", " ") : "-"; }
 
+  // one history line; account ids are shown only as their last 6 characters
+  function acct(u) { return u ? " · บัญชี …" + String(u).slice(-6) : ""; }
+  function logLine(x) {
+    var seat = " ที่นั่ง " + x.s + " (" + (x.v || "") + ")", by = x.by === "owner" ? " · โดยเจ้าของทริป" : x.by === "helper" ? " · โดยผู้ช่วยจัด" : x.by === "account_deleted" ? " · ผู้จองลบบัญชี" : "";
+    switch (x.e) {
+      case "book": return "จอง" + seat + " " + (x.n || "") + acct(x.u);
+      case "cancel": return "ยกเลิก" + seat + " " + (x.n || "") + by + acct(x.u) + (x.ou && x.ou !== x.u ? " (ของบัญชี …" + String(x.ou).slice(-6) + ")" : "");
+      case "rename": return "แก้ชื่อ" + seat + " " + (x.on || "") + " → " + (x.n || "") + by + acct(x.u);
+      case "move": return "ย้าย " + (x.n || "") + " จาก" + seat + " ไป ที่นั่ง " + x.ts + " (" + (x.tv || "") + ")" + by + acct(x.u);
+      case "swap": return "สลับ " + (x.n || "") + " กับ " + (x.n2 || "") + seat + " ↔ ที่นั่ง " + x.ts + " (" + (x.tv || "") + ")" + by + acct(x.u);
+      case "helper_join": return "ผู้ช่วยเข้าร่วม: " + (x.n || "") + acct(x.u);
+      case "helper_leave": return "ผู้ช่วยออกจากทีม: " + (x.n || "") + acct(x.u);
+      case "helper_remove": return "เจ้าของนำผู้ช่วยออก: " + (x.n || "") + acct(x.ou);
+      case "transfer": return "โอนทริปให้ " + (x.n || "") + acct(x.ou);
+      default: return (x.e || "?") + " " + (x.n || "");
+    }
+  }
   function render(data) {
     var list = $("list"); list.textContent = "";
     var booked = 0, live = 0;
@@ -102,13 +124,16 @@ button { font:inherit; cursor:pointer; }
       chips.appendChild(el("span", "chip " + (t.ended ? "end" : "live"), t.ended ? "จบแล้ว" : "กำลังเปิด"));
       chips.appendChild(el("span", "chip", "จอง " + t.booked + " / " + t.total));
       t.vans.forEach(function (v) { chips.appendChild(el("span", "chip", v.label + ": " + v.n + "/10")); });
+      chips.appendChild(el("span", "chip", "จำกัด " + (t.maxPerPerson ? t.maxPerPerson + " ที่/คน" : "ไม่จำกัด")));
       var exTxt = t.expiresAt ? "ลบอัตโนมัติ " + fmtDay(t.expiresAt) : t.plannedExpiresAt ? "ยังไม่ได้ตั้งวันลบ (จะเป็น " + fmtDay(t.plannedExpiresAt) + ")" : "ไม่มีวันหมดอายุ (ทริปไม่มีวันที่)";
       chips.appendChild(el("span", "chip", exTxt));
       c.appendChild(chips);
-      var logBtn = el("button", "btn plain", "ดูประวัติจอง/ยกเลิก"); logBtn.type = "button";
+      var team = el("div", "meta", "เจ้าของบัญชี LINE: " + (t.hasOwner ? (t.ownerName || "-") + " (…" + t.ownerTag + ")" : "ไม่มี") + (t.helpers.length ? "  ·  ผู้ช่วย: " + t.helpers.map(function (h) { return (h.name || "-") + " (…" + h.tag + ")"; }).join(", ") : "") + (t.invite ? "  ·  มีลิงก์เชิญที่ยังใช้ได้" : ""));
+      c.appendChild(team);
+      var logBtn = el("button", "btn plain", "ดูประวัติทริป"); logBtn.type = "button";
       var logBox = el("div", "meta"); logBox.hidden = true;
       logBtn.addEventListener("click", function () {
-        if (!logBox.hidden) { logBox.hidden = true; logBtn.textContent = "ดูประวัติจอง/ยกเลิก"; return; }
+        if (!logBox.hidden) { logBox.hidden = true; logBtn.textContent = "ดูประวัติทริป"; return; }
         logBtn.disabled = true;
         api("GET", "?log=" + encodeURIComponent(t.id)).then(function (r) {
           logBtn.disabled = false;
@@ -116,11 +141,7 @@ button { font:inherit; cursor:pointer; }
           logBox.textContent = "";
           var ev = r.body.events || [];
           if (!ev.length) logBox.textContent = "ยังไม่มีประวัติ (เก็บเฉพาะหลังเริ่มบันทึก)";
-          ev.forEach(function (x) {
-            var who = x.d ? " · เครื่อง " + String(x.d).slice(0, 6) : "";
-            var other = x.e === "cancel" && x.od && x.d && x.od !== x.d ? " · ยกเลิกโดยเครื่องอื่น" : "";
-            logBox.appendChild(el("div", "", fmtDate(x.at) + "  " + (x.e === "book" ? "จอง" : "ยกเลิก") + " ที่นั่ง " + x.s + " (" + (x.v || "") + ") " + (x.n || "") + who + other));
-          });
+          ev.forEach(function (x) { logBox.appendChild(el("div", "", fmtDate(x.at) + "  " + logLine(x))); });
           logBox.hidden = false; logBtn.textContent = "ซ่อนประวัติ";
         });
       });
@@ -138,6 +159,7 @@ button { font:inherit; cursor:pointer; }
       list.appendChild(c);
     });
     $("sTrips").textContent = data.trips.length; $("sLive").textContent = live; $("sBooked").textContent = booked;
+    var st = data.stats || {}; $("sAcc").textContent = st.accounts || 0; $("sOwners").textContent = st.owners || 0; $("sHelpers").textContent = st.helpers || 0;
     $("note").textContent = data.trips.length ? "ใหม่สุดอยู่บน" + (data.truncated ? " · แสดงไม่ครบ (เกิน 1000)" : "") : "ยังไม่มีทริป";
   }
 

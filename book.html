@@ -361,6 +361,8 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 }
 .toast.error { background: var(--danger); color: var(--paper); }
 .seat.pending { opacity: .6; }
+.seat.held { background: repeating-linear-gradient(135deg, var(--surface) 0 8px, color-mix(in srgb, var(--taken) 70%, var(--surface)) 8px 16px); color: var(--muted); }
+.seat.held .who { font-size: 13px; font-size: clamp(11px, 2.6cqw, 20px); font-weight: 600; color: var(--muted); }
 button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 10px 16px; cursor: pointer; background: var(--danger); color: var(--paper); border: 1.5px solid var(--danger); }
 .foot { margin: auto auto 0; text-align: center; font-size: 12px; line-height: 18px; color: var(--muted); white-space: nowrap; }
 .foot .fmsg { transition: opacity .35s ease; }
@@ -506,7 +508,20 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   var vanCache = {};         // van id -> last seats seen
   var counts = {};
   var seats = {};            // n -> {name, at} for the van on screen
-  var me = null, isOwner = false, seatLimit = 0; // signed-in LINE account (from the seats API)
+  var me = null, isOwner = false, seatLimit = 0;
+  var held = {}; // free seats someone else is signing in to book (held for 5 minutes)
+  function readHold() { try { var h = JSON.parse(sessionStorage.getItem("vsb_hold") || "null"); return h && h.t === TRIP && h.exp > Date.now() ? h : null; } catch (e) { return null; } }
+  function myHold(n) { var h = readHold(); return !!(h && h.v === curVan && h.s === n); }
+  function heldByOther(n) { return !seats[n] && held[n] && !myHold(n); }
+  async function holdAndLogin(n, a) { // keep the seat while the visitor signs in with LINE, then go to LINE
+    a.style.opacity = ".7";
+    try {
+      var r = await api("POST", { hold: n });
+      if (r.ok && r.data && r.data.hold) { try { sessionStorage.setItem("vsb_hold", JSON.stringify({ t: TRIP, v: curVan, s: n, id: r.data.hold, exp: r.data.exp })); } catch (e) {} }
+      else if (r.data && (r.data.error === "held" || r.data.error === "taken")) { a.style.opacity = ""; showToast(r.data.error === "held" ? "มีคนกำลังจองที่นั่งนี้อยู่ เลือกที่นั่งอื่นได้เลย" : "ที่นั่งนี้ถูกจองไปแล้ว", "error"); refresh(true); return; }
+    } catch (e) { /* no hold: sign in anyway */ }
+    location.href = loginHref(n);
+  } // signed-in LINE account (from the seats API)
   var wantSeat = Number(params.get("seat")) || 0; // back from LINE sign-in: reopen the seat that was chosen
   if (params.has("li") || params.has("le") || params.has("seat")) { try { params.delete("li"); params.delete("le"); params.delete("seat"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params.toString() : "")); } catch (e) {} }
   function loginHref(seatN) {
@@ -610,6 +625,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   function errorText(r, fallback) {
     var code = r && r.data && r.data.error;
     if (code === "taken") return "ที่นั่งนี้ถูกจองไปแล้ว เลือกที่นั่งอื่น";
+    if (code === "held") return "มีคนกำลังจองที่นั่งนี้อยู่ เลือกที่นั่งอื่น หรือรอสักครู่";
     if (code === "bad_name") return "ใส่ชื่อก่อนจอง";
     if (code === "name_chars") return "ใช้ได้เฉพาะภาษาไทยและอังกฤษ";
     if (code === "ended") return "ทริปนี้สิ้นสุดแล้ว ปิดรับจอง";
@@ -639,6 +655,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
           if (s.pending) b.classList.add("pending");
           b.appendChild(el("span", "who", s.name));
           b.setAttribute("aria-label", "ที่นั่ง " + n + " จองโดย " + s.name);
+        } else if (heldByOther(n)) {
+          b.classList.add("held");
+          b.appendChild(el("span", "who", "กำลังจอง"));
+          b.setAttribute("aria-label", "ที่นั่ง " + n + " มีคนกำลังจอง");
         } else {
           b.setAttribute("aria-label", "ที่นั่ง " + n + " ว่าง");
         }
@@ -745,7 +765,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     var title = el("h2", null, "ที่นั่ง " + n);
     title.id = "mTitle";
     txt.appendChild(title);
-    txt.appendChild(el("span", s ? "pill taken" : "pill", s ? "จองแล้ว" : "ว่าง"));
+    txt.appendChild(el("span", s || heldByOther(n) ? "pill taken" : "pill", s ? "จองแล้ว" : heldByOther(n) ? "กำลังจอง" : "ว่าง"));
     head.appendChild(txt);
     panelEl.appendChild(head);
     var xb = el("button", "mx");
@@ -829,10 +849,17 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         panelEl.appendChild(lk);
         actions.appendChild(plainBtn("ปิด", closeModal));
       }
+    } else if (heldByOther(n)) { // someone is signing in to book this seat right now
+      var hw2 = el("div", "minfo warn");
+      hw2.appendChild(el("div", "who", "มีคนกำลังจองที่นั่ง " + n));
+      hw2.appendChild(el("span", null, "กันไว้ระหว่างเข้าสู่ระบบ ไม่เกิน 5 นาที"));
+      panelEl.appendChild(hw2);
+      actions.appendChild(plainBtn("ปิด", closeModal));
     } else {
       if (!me && !IMG_ONLY) { // not signed in: offer LINE first (the seat then belongs to the account on every device)
         var lg = el("div", "lgin"), lb = el("a", "lgbtn");
         lb.href = loginHref(n);
+        lb.addEventListener("click", function (e) { e.preventDefault(); holdAndLogin(n, lb); });
         lb.appendChild(el("i", null, "LINE")); lb.appendChild(document.createTextNode("เข้าด้วย LINE แล้วจองเลย"));
         lg.appendChild(lb);
         var ln = el("div", "lgnote", "เข้าด้วย LINE ครั้งเดียว ที่นั่งเป็นของคุณทุกเครื่อง · "); var pl = el("a", null, "ความเป็นส่วนตัว"); pl.href = "/privacy"; pl.style.color = "inherit"; ln.appendChild(pl); lg.appendChild(ln);
@@ -1080,6 +1107,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         if (!curVan || !trip.vans.some(function (v) { return v.id === curVan; })) curVan = r.data.van || trip.vans[0].id;
       }
       counts = (r.data && r.data.counts) || counts;
+      var hw = JSON.stringify(held); held = {}; ((r.data && r.data.held) || []).forEach(function (k) { held[k] = 1; });
+      if (JSON.stringify(held) !== hw) force = true;
       ended = !!(r.data && r.data.ended);
       var meWas = JSON.stringify(me); me = (r.data && r.data.me) || null; isOwner = !!(r.data && r.data.owner); seatLimit = Number(r.data && r.data.limit) || 0;
       if (JSON.stringify(me) !== meWas || !loaded) renderAcct();
@@ -1112,7 +1141,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     pending++; renderAll();
     var failMsg = null;
     try {
-      var r = await api("POST", { seat: n, name: name });
+      var hd = readHold(), hid = hd && hd.v === curVan && hd.s === n ? hd.id : undefined;
+      var r = await api("POST", { seat: n, name: name, hold: hid });
+      if (hid) { try { sessionStorage.removeItem("vsb_hold"); } catch (e) {} }
       if (r.ok) {
         if (seats[n] === temp) seats[n] = { name: name, at: r.data.at, m: true, a: true };
         showToast("จองที่นั่ง " + n + " แล้ว");

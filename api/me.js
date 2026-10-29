@@ -42,13 +42,27 @@ async function deleteAll(req, res, user, dropTrips) {
   if (cmds.length) await L.pipeline(cmds);
   for (const g of gone) await L.logEvent(g[0], { e: "cancel", v: g[1], s: g[2], n: g[3], by: "account_deleted", at: Date.now() }); // no account id: the organizer sees only the name
 
-  // trips I own
+  // trips I manage
   for (const id of (tripIds || []).map(String)) {
     const t = trips[id];
-    if (!t || t.owner !== uid) continue;
+    const role = L.roleOf(t, user);
+    if (!t || !role) continue;
+    if (role === "helper") { // just leave the team
+      await L.redis(["SET", L.tripKey(id), JSON.stringify(Object.assign({}, t, { helpers: t.helpers.filter((h) => h.u !== uid) }))]); await L.applyExpiry(t); touched.add(id);
+      continue;
+    }
+    if (!dropTrips && Array.isArray(t.helpers) && t.helpers.length) { // kept trip with helpers: the first helper becomes the owner
+      const h = t.helpers[0];
+      const next = Object.assign({}, t, { owner: h.u, ownerName: h.n, helpers: t.helpers.slice(1) });
+      if (next.invite) { try { await L.redis(["DEL", "inv:" + next.invite.c]); } catch (e) { /* expires anyway */ } delete next.invite; } // the old owner's invite link stops working
+      await L.redis(["SET", L.tripKey(id), JSON.stringify(next)]); await L.applyExpiry(next); tripsReleased++; touched.add(id);
+      continue;
+    }
     if (dropTrips) {
       const del = [["DEL", L.tripKey(id)], ["DEL", L.logKey(id)]];
+      if (t.invite && t.invite.c) del.push(["DEL", "inv:" + t.invite.c]);
       t.vans.forEach((v) => del.push(["DEL", L.seatsKey(id, v.id)]));
+      (t.helpers || []).forEach((h) => del.push(["SREM", L.myTripsKey(h.u), id]));
       await L.pipeline(del); tripsDeleted++; touched.delete(id);
     } else {
       const next = Object.assign({}, t); delete next.owner; delete next.ownerName;
@@ -98,7 +112,7 @@ module.exports = async function handler(req, res) {
     ids.forEach((id, i) => { try { if (raws[i]) trips[id] = JSON.parse(raws[i]); } catch (e) { /* skip */ } });
 
     // seat counts for my trips + the seat records I booked, in one round trip
-    const owned = (tripIds || []).map(String).filter((id) => trips[id] && trips[id].owner === user.id);
+    const owned = (tripIds || []).map(String).filter((id) => trips[id] && L.roleOf(trips[id], user)); // owner or helper
     const cmds = [], map = [];
     owned.forEach((id) => trips[id].vans.forEach((v) => { cmds.push(["HLEN", L.seatsKey(id, v.id)]); map.push(["n", id, v.id]); }));
     refs.forEach((p) => { if (trips[p[0]]) { cmds.push(["HGET", L.seatsKey(p[0], p[1]), p[2]]); map.push(["s", p]); } });
@@ -113,13 +127,13 @@ module.exports = async function handler(req, res) {
       (mine[p[0]] = mine[p[0]] || []).push({ v: p[1], s: Number(p[2]), name: String(rec.name || ""), at: rec.at });
     });
     refs.forEach((p) => { if (!trips[p[0]]) stale.push(p.join("|")); });
-    const goneTrips = (tripIds || []).map(String).filter((id) => !trips[id] || trips[id].owner !== user.id);
+    const goneTrips = (tripIds || []).map(String).filter((id) => !trips[id] || !L.roleOf(trips[id], user));
     const clean = [];
     if (stale.length) clean.push(["SREM", L.mySeatsKey(user.id)].concat(stale));
     if (goneTrips.length) clean.push(["SREM", L.myTripsKey(user.id)].concat(goneTrips));
     if (clean.length) { try { await L.pipeline(clean); } catch (e) { /* best effort */ } }
 
-    const myTrips = owned.map((id) => summary(trips[id], perVan[id] || {}));
+    const myTrips = owned.map((id) => Object.assign(summary(trips[id], perVan[id] || {}), { role: L.roleOf(trips[id], user), helpers: (trips[id].helpers || []).length }));
     const mySeats = Object.keys(mine).map((id) => {
       const t = trips[id];
       const list = mine[id].sort((a, b) => a.s - b.s).map((x) => {

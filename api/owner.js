@@ -34,6 +34,16 @@ async function scanTripKeys() {
   return keys.slice(0, MAX_KEYS);
 }
 
+async function countKeys(pattern) { // SCAN-based count (capped), e.g. accounts with a live session
+  let cursor = "0", n = 0;
+  for (let i = 0; i < 30; i++) {
+    const r = await L.redis(["SCAN", cursor, "MATCH", pattern, "COUNT", "500"]);
+    cursor = String(r[0]); n += (r[1] || []).length;
+    if (cursor === "0") break;
+  }
+  return n;
+}
+
 async function loadAllTrips() {
   const keys = await scanTripKeys();
   const raws = keys.length ? await L.redis(["MGET"].concat(keys)) : [];
@@ -76,9 +86,14 @@ module.exports = async function handler(req, res) {
           id: t.id, name: t.name || "", organizer: t.organizer || "", startDate: t.startDate || "", endDate: t.endDate || "",
           departTime: t.departTime || "", createdAt: t.createdAt || 0, expiresAt: Number(ttls[ti]) > 0 ? Date.now() + Number(ttls[ti]) : 0, plannedExpiresAt: (L.expireAtFor(t) || 0) * 1000, updatedAt: t.updatedAt || t.createdAt || 0, ended: L.tripEnded(t),
           vans, booked: vans.reduce((a, v) => a + v.n, 0), total: vans.length * L.TOTAL_SEATS,
+          ownerName: t.ownerName || "", hasOwner: !!t.owner, ownerTag: t.owner ? String(t.owner).slice(-6) : "", helpers: (t.helpers || []).map((h) => ({ name: h.n || "", tag: String(h.u || "").slice(-6) })),
+          maxPerPerson: L.maxPerPerson(t), invite: !!(t.invite && t.invite.exp > Date.now()),
         };
       }).sort((a, b) => b.createdAt - a.createdAt);
-      return L.json(res, 200, { trips: out, retentionDays: L.RETENTION_DAYS });
+      const owners = new Set(trips.filter((t) => t.owner).map((t) => t.owner));
+      const helpersN = trips.reduce((a, t) => a + ((t.helpers || []).length), 0);
+      const stats = { accounts: await countKeys("usess:*"), owners: owners.size, helpers: helpersN };
+      return L.json(res, 200, { trips: out, retentionDays: L.RETENTION_DAYS, stats });
     }
 
     if (req.method === "DELETE") {

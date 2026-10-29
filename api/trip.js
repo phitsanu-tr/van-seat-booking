@@ -3,6 +3,11 @@
 //   GET  ?t= [&roster=1] read a trip for editing (owner)   -> { trip, booked, perVan, roster? }
 //   PUT                  update a trip (owner, body has t)
 //   DELETE ?t=           delete a trip and its bookings (owner)
+// Co-organizers ("helpers", up to 3) join with the owner's invite link and can edit the trip and manage seats:
+//   POST {t, invite: true | "revoke"}  owner: new invite code (7 days) / cancel it
+//   POST {join: code}                  signed in: become a helper of that trip
+//   POST {t, removeHelper: i}          owner: remove helper #i      POST {t, leave: true}   helper: leave the trip
+//   POST {t, transfer: i}              owner: helper #i becomes the owner, the old owner becomes a helper
 const L = require("./_lib");
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -67,15 +72,90 @@ function assignVanIds(vans, taken) {
   return vans;
 }
 
-// Only the owner's account may read the edit view, change or delete a trip.
-function isOwner(trip, user) { return !!(user && trip.owner && trip.owner === user.id); }
+// The owner and helpers may read the edit view and change a trip; only the owner deletes it or manages helpers.
+function isManager(trip, user) { return !!L.roleOf(trip, user); }
+function isOwner(trip, user) { return L.roleOf(trip, user) === "owner"; }
 function deny(res, user) { return user ? L.json(res, 403, { error: "not_owner" }) : L.json(res, 401, { error: "login_required" }); }
-function tripSummary(trip, user) { return Object.assign(L.publicTrip(trip), { mine: !!(user && trip.owner === user.id) }); }
+function tripSummary(trip, user) { return Object.assign(L.publicTrip(trip), { mine: isOwner(trip, user), role: L.roleOf(trip, user) }); }
+// what the managers see about the team: names only (account ids never leave the server)
+function team(trip, user) {
+  const role = L.roleOf(trip, user);
+  const out = { role, ownerName: trip.ownerName || "", helpers: (trip.helpers || []).map((h, i) => ({ i, name: h.n || "", me: !!(user && h.u === user.id) })), max: L.MAX_HELPERS };
+  if (role === "owner" && trip.invite && trip.invite.exp > Date.now()) out.invite = { code: trip.invite.c, exp: trip.invite.exp };
+  return out;
+}
+async function saveTrip(trip) { await L.redis(["SET", L.tripKey(trip.id), JSON.stringify(trip)]); await L.applyExpiry(trip); } // SET clears the TTL
+const INVITE_DAYS = 7;
 
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
   try {
     const user = await L.currentUser(req);
+    const pb = req.method === "POST" ? L.readBody(req) : {};
+    if (req.method === "POST" && typeof pb.join === "string") {
+      if (!user) return L.json(res, 401, { error: "login_required" });
+      if (await L.rateLimited(req, user, "join", 20, 3600)) return L.json(res, 429, { error: "too_many" });
+      const code = /^[a-z0-9]{10}$/.test(pb.join) ? pb.join : "";
+      const t = code ? L.tripId(await L.redis(["GET", "inv:" + code])) : null;
+      const trip = t ? await L.loadTrip(t) : null;
+      if (!trip || !trip.invite || trip.invite.c !== code) return L.json(res, 404, { error: "bad_invite" });
+      if (L.roleOf(trip, user)) return L.json(res, 200, { ok: true, id: t, name: trip.name, already: true });
+      const helpers = Array.isArray(trip.helpers) ? trip.helpers.slice() : [];
+      if (helpers.length >= L.MAX_HELPERS) return L.json(res, 409, { error: "helpers_full", max: L.MAX_HELPERS });
+      helpers.push({ u: user.id, n: user.name, at: Date.now() });
+      const next = Object.assign({}, trip, { helpers });
+      await saveTrip(next);
+      await L.pipeline([["SADD", L.myTripsKey(user.id), t], ["EXPIRE", L.myTripsKey(user.id), String(L.MY_DAYS * 86400)]]);
+      await L.logEvent(t, { e: "helper_join", n: user.name, u: user.id, at: Date.now() });
+      return L.json(res, 200, { ok: true, id: t, name: trip.name });
+    }
+    if (req.method === "POST" && (pb.invite !== undefined || pb.removeHelper !== undefined || pb.leave !== undefined || pb.transfer !== undefined)) {
+      const t = L.tripId(pb.t);
+      const trip = t ? await L.loadTrip(t) : null;
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      const role = L.roleOf(trip, user);
+      if (!role) return deny(res, user);
+      const helpers = Array.isArray(trip.helpers) ? trip.helpers.slice() : [];
+      if (pb.leave === true) {
+        if (role !== "helper") return L.json(res, 400, { error: "not_helper" });
+        const next = Object.assign({}, trip, { helpers: helpers.filter((h) => h.u !== user.id) });
+        await saveTrip(next); await L.redis(["SREM", L.myTripsKey(user.id), t]);
+        await L.logEvent(t, { e: "helper_leave", n: user.name, u: user.id, at: Date.now() });
+        return L.json(res, 200, { ok: true });
+      }
+      if (role !== "owner") return L.json(res, 403, { error: "owner_only" });
+      if (pb.invite === "revoke" || pb.invite === true) {
+        const cmds = [];
+        if (trip.invite && trip.invite.c) cmds.push(["DEL", "inv:" + trip.invite.c]);
+        const next = Object.assign({}, trip);
+        if (pb.invite === true) {
+          const code = L.newId(10), exp = Date.now() + INVITE_DAYS * 86400 * 1000;
+          cmds.push(["SET", "inv:" + code, t, "EX", String(INVITE_DAYS * 86400)]);
+          next.invite = { c: code, exp };
+        } else delete next.invite;
+        if (cmds.length) await L.pipeline(cmds);
+        await saveTrip(next);
+        return L.json(res, 200, Object.assign({ ok: true }, team(next, user)));
+      }
+      const i = Number(pb.removeHelper !== undefined ? pb.removeHelper : pb.transfer);
+      if (!Number.isInteger(i) || i < 0 || i >= helpers.length) return L.json(res, 400, { error: "bad_helper" });
+      const h = helpers[i];
+      if (pb.removeHelper !== undefined) {
+        helpers.splice(i, 1);
+        const next = Object.assign({}, trip, { helpers });
+        await saveTrip(next); await L.redis(["SREM", L.myTripsKey(h.u), t]);
+        await L.logEvent(t, { e: "helper_remove", n: h.n, u: user.id, ou: h.u, at: Date.now() });
+        return L.json(res, 200, Object.assign({ ok: true }, team(next, user)));
+      }
+      // transfer: helper #i becomes the owner, the old owner stays on as a helper
+      helpers.splice(i, 1, { u: trip.owner, n: trip.ownerName || "", at: Date.now() });
+      const next = Object.assign({}, trip, { owner: h.u, ownerName: h.n, helpers });
+      delete next.invite;
+      if (trip.invite && trip.invite.c) { try { await L.redis(["DEL", "inv:" + trip.invite.c]); } catch (e) { /* best effort */ } }
+      await saveTrip(next);
+      await L.logEvent(t, { e: "transfer", n: h.n, u: user.id, ou: h.u, at: Date.now() });
+      return L.json(res, 200, Object.assign({ ok: true }, team(next, user)));
+    }
     if (req.method === "POST") {
       if (!user) return L.json(res, 401, { error: "login_required" }); // a trip always has an owner account
       const c = clean(L.readBody(req));
@@ -97,7 +177,7 @@ module.exports = async function handler(req, res) {
       const t = L.tripId(req.query && req.query.t);
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
-      if (!isOwner(trip, user)) return deny(res, user);
+      if (!isManager(trip, user)) return deny(res, user);
       const counts = await L.pipeline(trip.vans.map((v) => ["HLEN", L.seatsKey(t, v.id)]));
       const perVan = {};
       trip.vans.forEach((v, i) => { perVan[v.id] = Number(counts[i]) || 0; });
@@ -115,16 +195,18 @@ module.exports = async function handler(req, res) {
           roster[v.id] = seats;
         });
       }
-      return L.json(res, 200, { trip: tripSummary(trip, user), booked, perVan, roster, ended: L.tripEnded(trip) });
+      return L.json(res, 200, { trip: tripSummary(trip, user), booked, perVan, roster, ended: L.tripEnded(trip), team: team(trip, user) });
     }
 
     if (req.method === "DELETE") {
       const t = L.tripId(req.query && req.query.t);
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
-      if (!isOwner(trip, user)) return deny(res, user);
+      if (!isOwner(trip, user)) return isManager(trip, user) ? L.json(res, 403, { error: "owner_only" }) : deny(res, user);
       const cmds = [["DEL", L.tripKey(t)], ["DEL", L.logKey(t)]];
       if (trip.owner) cmds.push(["SREM", L.myTripsKey(trip.owner), t]);
+      (trip.helpers || []).forEach((h) => cmds.push(["SREM", L.myTripsKey(h.u), t]));
+      if (trip.invite && trip.invite.c) cmds.push(["DEL", "inv:" + trip.invite.c]);
       trip.vans.forEach((v) => cmds.push(["DEL", L.seatsKey(t, v.id)]));
       await L.pipeline(cmds);
       return L.json(res, 200, { ok: true });
@@ -135,7 +217,7 @@ module.exports = async function handler(req, res) {
       const t = L.tripId(body.t);
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
-      if (!isOwner(trip, user)) return deny(res, user);
+      if (!isManager(trip, user)) return deny(res, user);
       const c = clean(body, trip.vans.length);
       if (c.error) return L.json(res, 400, { error: c.error });
       const oldIds = trip.vans.map((v) => v.id);

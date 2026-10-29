@@ -63,7 +63,7 @@ async function loadTrip(t) {
 }
 
 function publicTrip(trip) {
-  const { adminToken, adminHash, owner, ownerName, ...rest } = trip; // never send the admin secret (or its hash), nor the owner's LINE id, to passengers
+  const { adminToken, adminHash, owner, ownerName, helpers, invite, ...rest } = trip; // never send account ids (owner, helpers) or the invite code to passengers
   return rest;
 }
 
@@ -195,6 +195,15 @@ async function rateLimited(req, user, scope, max, windowSec) {
 }
 function myTripsKey(uid) { return "mytrips:" + uid; }
 function mySeatsKey(uid) { return "myseats:" + uid; }
+// Trip managers: the owner (created the trip) and up to MAX_HELPERS co-organizers who joined with the owner's invite link.
+// Helpers manage seats and edit the trip; only the owner deletes it, invites/removes helpers or hands the trip over.
+const MAX_HELPERS = 3;
+function roleOf(trip, user) {
+  if (!trip || !user) return null;
+  if (trip.owner && trip.owner === user.id) return "owner";
+  if (Array.isArray(trip.helpers) && trip.helpers.some((h) => h && h.u === user.id)) return "helper";
+  return null;
+}
 // Seats one account may hold in one trip (all vans together). The organizer is not limited. 0 = no limit.
 const DEFAULT_MAX_PER_PERSON = 4;
 function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); return Number.isInteger(n) && n >= 0 && n <= 50 ? n : DEFAULT_MAX_PER_PERSON; }
@@ -202,5 +211,5 @@ function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); retur
 module.exports = {
   TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json,
   tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, NAME_MAX, newId, crypto,
-  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, DEFAULT_MAX_PER_PERSON, maxPerPerson,
+  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };

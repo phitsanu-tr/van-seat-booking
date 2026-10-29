@@ -97,6 +97,13 @@ a { color: inherit; }
 .grab { width: 40px; height: 5px; border-radius: 9px; background: #d5dce0; margin: 0 auto 2px; }
 .sheet h3 { font: 600 19px var(--font-display); margin: 0; }
 .sheet { max-height: 88vh; max-height: 88dvh; overflow-y: auto; }
+.rolep { margin-top: -6px; font-size: 12px; font-weight: 600; color: var(--amber); }
+.tmb { align-self: flex-start; border: 0; background: none; padding: 2px 0; font-size: 13px; font-weight: 600; color: var(--amber); text-decoration: underline; text-underline-offset: 3px; }
+.ilink { display: flex; flex-direction: column; gap: 8px; background: var(--amber-tint); border: 1px solid var(--amber-edge); border-radius: 16px; padding: 12px; }
+.ilink small { color: var(--muted); font-size: 12px; }
+.ilink code { font-size: 12px; word-break: break-all; color: var(--ink); }
+.b-amber { background: var(--amber); border: 1.5px solid var(--amber); color: #fff; }
+.ab.b-line { background: var(--lg); border-color: var(--lg); color: #fff; }
 .ros { width: 100%; height: 40px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--bg); font-size: 13px; font-weight: 600; color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 6px; }
 .vchips { display: flex; gap: 6px; flex-wrap: wrap; }
 .vchips button { height: 34px; padding: 0 12px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--muted); }
@@ -234,10 +241,12 @@ a { color: inherit; }
       var c = node("div", "card"), r1 = node("div", "row1");
       r1.appendChild(node("div", "t", x.name)); var p = statusPill(x); if (p) r1.appendChild(p); c.appendChild(r1);
       if (x.organizer) c.appendChild(node("div", "org", x.organizer));
+      if (x.role === "helper") c.appendChild(node("div", "rolep", "คุณเป็นผู้ช่วยจัดทริปนี้"));
       c.appendChild(meta(x, true));
       var full = x.total && x.booked >= x.total, bar = node("div", "bar" + (full ? " full" : "")), bi = node("i"); bi.style.width = (x.total ? Math.min(100, Math.round(x.booked / x.total * 100)) : 0) + "%"; bar.appendChild(bi); c.appendChild(bar);
       var bt = node("div", "bt"); bt.appendChild(document.createTextNode("จองแล้ว ")); bt.appendChild(node("b", null, String(x.booked))); bt.appendChild(document.createTextNode("/" + x.total + " ที่นั่ง")); c.appendChild(bt);
       var ros = node("button", "ros", "รายชื่อผู้จอง · จัดการที่นั่ง"); ros.type = "button"; ros.addEventListener("click", function () { openRoster(x); }); c.appendChild(ros);
+      var tm = node("button", "tmb", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป · " + (x.helpers || 0) + "/3"); tm.type = "button"; tm.addEventListener("click", function () { openTeam(x); }); c.appendChild(tm);
       var acts = node("div", "acts"), ed = node("a", "ab am", "แก้ไขทริป"); ed.href = "/trips#" + x.id + "-o";
       var sh = node("button", "ab tl", "แชร์ลิงก์จอง"); sh.type = "button"; sh.addEventListener("click", function () { shareTrip(x); });
       acts.appendChild(ed); acts.appendChild(sh); c.appendChild(acts);
@@ -452,6 +461,94 @@ a { color: inherit; }
     draw(); fetchRoster();
   }
 
+  // ---- organizer team: helpers join with an invite link; the owner removes them or hands the trip over ----
+  function openTeam(x) {
+    var st = { t: null };
+    var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
+    var close = function () { bd.remove(); load(); };
+    bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
+    document.body.appendChild(bd);
+    async function act(body) {
+      var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ t: x.id }, body)) });
+      var d = {}; try { d = await r.json(); } catch (e) {}
+      if (!r.ok) { toast(d.error === "owner_only" ? "ทำได้เฉพาะเจ้าของทริป" : "ทำรายการไม่สำเร็จ ลองอีกครั้ง", true); return null; }
+      return d;
+    }
+    async function fetchTeam() {
+      try { var r = await fetch("/api/trip?t=" + encodeURIComponent(x.id), { cache: "no-store" }); var d = await r.json(); if (!r.ok) throw new Error(); st.t = d.team; }
+      catch (e) { toast("โหลดข้อมูลทีมไม่สำเร็จ", true); }
+      draw();
+    }
+    function inviteUrl(code) { return location.origin + "/mytrips?join=" + code; }
+    function confirmBtn(btn, label, fn) {
+      if (btn.dataset.sure !== "1") { var old = btn.textContent; btn.dataset.sure = "1"; btn.textContent = label; setTimeout(function () { if (btn.isConnected) { btn.dataset.sure = ""; btn.textContent = old; } }, 3500); return; }
+      btn.disabled = true; fn();
+    }
+    function wideBtn(cls, label) { var b = node("button", cls, label); b.type = "button"; b.style.height = "48px"; b.style.borderRadius = "16px"; b.style.fontWeight = "600"; return b; }
+    function draw() {
+      sh.textContent = ""; sh.appendChild(node("div", "grab"));
+      sh.appendChild(node("h3", null, "ผู้ช่วยจัดทริป"));
+      sh.appendChild(node("p", null, x.name));
+      if (!st.t) { sh.appendChild(node("p", null, "กำลังโหลด...")); return; }
+      var T = st.t, owner = T.role === "owner";
+      sh.appendChild(node("p", null, "ผู้ช่วยแก้ไขทริปและจัดการที่นั่งได้เหมือนเจ้าของ แต่ลบทริป เชิญ หรือนำผู้ช่วยออกไม่ได้ · สูงสุด " + T.max + " คน"));
+      var list = node("div", "rlist");
+      var orow = node("div", "rrow"); orow.appendChild(node("div", "no", "★"));
+      var on = node("div", "nm2"); on.appendChild(node("b", null, T.ownerName || "เจ้าของทริป")); on.appendChild(node("small", null, owner ? "เจ้าของทริป (คุณ)" : "เจ้าของทริป")); orow.appendChild(on); list.appendChild(orow);
+      T.helpers.forEach(function (h) {
+        var row = node("div", "rrow"); row.appendChild(node("div", "no", String(h.i + 1)));
+        var nm = node("div", "nm2"); nm.appendChild(node("b", null, h.name || "ผู้ช่วย")); nm.appendChild(node("small", null, h.me ? "ผู้ช่วย (คุณ)" : "ผู้ช่วย")); row.appendChild(nm);
+        var ra = node("div", "ra");
+        if (owner) {
+          var tr = node("button", null, "โอนให้"); tr.type = "button";
+          tr.addEventListener("click", function () { confirmBtn(tr, "ยืนยันโอน?", async function () { var d = await act({ transfer: h.i }); if (d) { toast("โอนทริปให้ " + (h.name || "ผู้ช่วย") + " แล้ว · คุณเป็นผู้ช่วยแทน"); close(); } else tr.disabled = false; }); });
+          var rm = node("button", "dg", "นำออก"); rm.type = "button";
+          rm.addEventListener("click", function () { confirmBtn(rm, "ยืนยัน?", async function () { var d = await act({ removeHelper: h.i }); if (d) { st.t = d; draw(); toast("นำผู้ช่วยออกแล้ว"); } else rm.disabled = false; }); });
+          ra.appendChild(tr); ra.appendChild(rm);
+        } else if (h.me) {
+          var lv = node("button", "dg", "ออกจากทีม"); lv.type = "button";
+          lv.addEventListener("click", function () { confirmBtn(lv, "ยืนยัน?", async function () { var d = await act({ leave: true }); if (d) { toast("ออกจากทีมแล้ว"); close(); } else lv.disabled = false; }); });
+          ra.appendChild(lv);
+        }
+        row.appendChild(ra); list.appendChild(row);
+      });
+      sh.appendChild(list);
+      if (!T.helpers.length) sh.appendChild(node("div", "rfree", "ยังไม่มีผู้ช่วย"));
+      if (owner) {
+        if (T.helpers.length >= T.max) sh.appendChild(node("div", "rfree", "ผู้ช่วยครบ " + T.max + " คนแล้ว"));
+        else if (T.invite) {
+          var box = node("div", "ilink"), u = inviteUrl(T.invite.code);
+          box.appendChild(node("b", null, "ลิงก์เชิญผู้ช่วย"));
+          box.appendChild(node("code", null, u));
+          box.appendChild(node("small", null, "ใช้ได้ถึง " + when(T.invite.exp) + " · ใครมีลิงก์นี้เข้ามาเป็นผู้ช่วยได้ ส่งให้เฉพาะคนที่ไว้ใจ"));
+          var a2 = node("div", "acts"), ln = node("button", "ab b-line", "ส่งทาง LINE"), cp = node("button", "ab", "คัดลอก"); ln.type = cp.type = "button";
+          ln.addEventListener("click", function () { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent("ชวนมาช่วยจัดทริป " + x.name + "\n" + u); });
+          cp.addEventListener("click", function () { if (navigator.clipboard) navigator.clipboard.writeText(u).then(function () { toast("คัดลอกลิงก์แล้ว"); }, function () { toast(u); }); else toast(u); });
+          a2.appendChild(ln); a2.appendChild(cp); box.appendChild(a2);
+          var rv = node("button", "tmb", "ยกเลิกลิงก์นี้"); rv.type = "button"; rv.style.color = "var(--danger)";
+          rv.addEventListener("click", async function () { var d = await act({ invite: "revoke" }); if (d) { st.t = d; draw(); toast("ยกเลิกลิงก์แล้ว"); } });
+          box.appendChild(rv);
+          sh.appendChild(box);
+        } else {
+          var mk = wideBtn("b-amber", "สร้างลิงก์เชิญผู้ช่วย");
+          mk.addEventListener("click", async function () { mk.disabled = true; var d = await act({ invite: true }); if (d) { st.t = d; draw(); } else mk.disabled = false; });
+          sh.appendChild(mk);
+        }
+      }
+      var cl = wideBtn("b-plain", "ปิด"); cl.addEventListener("click", close); sh.appendChild(cl);
+    }
+    draw(); fetchTeam();
+  }
+  // ---- joining a trip team from an invite link (/mytrips?join=CODE) ----
+  async function joinTeam(code) {
+    try {
+      var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ join: code }) });
+      var d = {}; try { d = await r.json(); } catch (e) {}
+      if (r.ok) toast(d.already ? "คุณอยู่ในทีมของทริปนี้แล้ว" : "เข้าร่วมเป็นผู้ช่วยจัด " + (d.name || "ทริป") + " แล้ว");
+      else toast(d.error === "helpers_full" ? "ทริปนี้มีผู้ช่วยครบแล้ว" : d.error === "bad_invite" ? "ลิงก์เชิญนี้ใช้ไม่ได้แล้ว ขอลิงก์ใหม่จากเจ้าของทริป" : "เข้าร่วมไม่สำเร็จ", true);
+    } catch (e) { toast("เชื่อมต่อไม่ได้", true); }
+  }
+
   // ---- tabs ----
   var tab = location.hash === "#seats" ? "seats" : "trips";
   function setTab(t) {
@@ -485,7 +582,7 @@ a { color: inherit; }
     if (nt) {
       var lab = node("label", "chk"); chk = node("input"); chk.type = "checkbox";
       var tx = node("span"); tx.appendChild(node("b", null, "ลบทริปที่ฉันสร้างด้วย (" + nt + " ทริป)")); tx.appendChild(node("br"));
-      tx.appendChild(document.createTextNode("ถ้าไม่ติ๊ก ทริปยังเปิดให้จองต่อ แต่จะไม่มีใครแก้ไขหรือจัดการได้อีก และลบตัวเองเมื่อครบ 60 วันหลังทริปจบ"));
+      tx.appendChild(document.createTextNode("ถ้าไม่ติ๊ก ทริปยังเปิดให้จองต่อ ทริปที่มีผู้ช่วยจะโอนให้ผู้ช่วยคนแรก ส่วนทริปที่ไม่มีผู้ช่วยจะไม่มีใครแก้ไขได้อีก และลบตัวเองเมื่อครบ 60 วันหลังทริปจบ"));
       lab.appendChild(chk); lab.appendChild(tx); sh.appendChild(lab);
     }
     sh.appendChild(node("p", null, "ลบแล้วกู้คืนไม่ได้"));
@@ -527,13 +624,15 @@ a { color: inherit; }
     var le = new URLSearchParams(location.search).get("le");
     var msg = { cancel: "ยกเลิกการเข้าสู่ระบบแล้ว", setup: "ระบบเข้าสู่ระบบยังไม่ได้ตั้งค่า (ติดต่อเจ้าของแอป)", busy: "ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่" }[le] || (le ? "เข้าสู่ระบบไม่สำเร็จ ลองอีกครั้ง" : "");
     if (msg) { $("loginErr").textContent = msg; $("loginErr").hidden = false; }
-    $("loginBtn").href = loginHref("/mytrips" + (location.hash || ""));
+    $("loginBtn").href = loginHref("/mytrips" + (JOIN ? "?join=" + JOIN : "") + (location.hash || ""));
+    if (JOIN) { $("loginErr").textContent = "เข้าด้วย LINE ก่อน แล้วระบบจะพาเข้าทีมผู้จัดให้"; $("loginErr").hidden = false; $("loginErr").style.color = "var(--amber)"; }
   }
   $("logout").addEventListener("click", async function () {
     try { await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ logout: true }) }); } catch (e) {}
     showLogin();
   });
 
+  var JOIN = (function () { var j = new URLSearchParams(location.search).get("join") || ""; return /^[a-z0-9]{10}$/.test(j) ? j : ""; })();
   (async function init() {
     var q = new URLSearchParams(location.search);
     if (q.has("li") || q.has("le")) { try { history.replaceState(null, "", "/mytrips" + (location.hash || "")); } catch (e) {} }
@@ -544,6 +643,7 @@ a { color: inherit; }
     $("meView").hidden = false; setTab(tab); skeleton();
     try { var fl = sessionStorage.getItem("van-flash"); if (fl) { sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); setTimeout(function () { toast(fl); }, 300); } } catch (e) {}
     $("meName").textContent = me.name || "ผู้ใช้ LINE";
+    if (JOIN) { try { history.replaceState(null, "", "/mytrips"); } catch (e) {} await joinTeam(JOIN); JOIN = ""; setTab("trips"); }
     load();
   })();
 })();
