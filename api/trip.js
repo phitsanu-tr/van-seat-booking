@@ -4,7 +4,7 @@
 //   PUT                  update a trip (owner, body has t)
 //   DELETE ?t=           delete a trip and its bookings (owner)
 // Co-organizers ("helpers", up to 3) join with the owner's invite link and can edit the trip and manage seats:
-//   POST {t, invite: true | "revoke"}  owner: new invite code (7 days) / cancel it
+//   POST {t, invite: true | "revoke"}  owner: new invite code (7 days, one person) / cancel it
 //   POST {join: code}                  signed in: become a helper of that trip
 //   POST {t, removeHelper: i}          owner: remove helper #i      POST {t, leave: true}   helper: leave the trip
 //   POST {t, transfer: i}              owner: helper #i becomes the owner, the old owner becomes a helper
@@ -104,6 +104,8 @@ module.exports = async function handler(req, res) {
       if (helpers.length >= L.MAX_HELPERS) return L.json(res, 409, { error: "helpers_full", max: L.MAX_HELPERS });
       helpers.push({ u: user.id, n: user.name, at: Date.now() });
       const next = Object.assign({}, trip, { helpers });
+      delete next.invite; // one person per invite link: it stops working once used
+      await L.redis(["DEL", "inv:" + code]);
       await saveTrip(next);
       await L.pipeline([["SADD", L.myTripsKey(user.id), t], ["EXPIRE", L.myTripsKey(user.id), String(L.MY_DAYS * 86400)]]);
       await L.logEvent(t, { e: "helper_join", n: user.name, u: user.id, at: Date.now() });

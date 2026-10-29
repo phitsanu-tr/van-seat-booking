@@ -106,6 +106,19 @@ a { color: inherit; }
 .ilink code { font-size: 12px; word-break: break-all; color: var(--ink); }
 .b-amber { background: var(--amber); border: 1.5px solid var(--amber); color: #fff; }
 .ab.b-line { background: var(--lg); border-color: var(--lg); color: #fff; }
+.acts.am2 { grid-template-columns: 1fr 44px; }
+.ab.more { font-size: 18px; letter-spacing: 1px; padding: 0; }
+.pmenu { position: absolute; z-index: 30; width: 200px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 8px 28px rgba(0,0,0,.18); padding: 6px; display: flex; flex-direction: column; }
+.pmenu button { height: 44px; border: 0; background: none; border-radius: 10px; display: flex; align-items: center; gap: 10px; padding: 0 12px; font: 500 14px var(--font-body); color: var(--ink); text-align: left; }
+.pmenu button:active, .pmenu button:focus-visible { background: #f3f6f7; outline: none; }
+.pmenu button.dgr { color: var(--danger); }
+.pmenu svg { width: 17px; height: 17px; flex: none; }
+.spick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.spick button { height: 50px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font: 600 13px var(--font-body); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.25; }
+.spick button small { font-weight: 400; color: var(--muted); font-size: 11px; }
+.spick button.on { border-color: var(--mine); background: var(--tint); color: var(--deep); }
+.nwrap { position: relative; }
+.nwrap .cnt { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--muted); }
 .ros { width: 100%; height: 40px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--bg); font-size: 13px; font-weight: 600; color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 6px; }
 .vchips { display: flex; gap: 6px; flex-wrap: wrap; }
 .vchips button { height: 34px; padding: 0 12px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--muted); }
@@ -297,9 +310,13 @@ a { color: inherit; }
     var vans = []; x.seats.forEach(function (s) { if (vans.indexOf(s.vanLabel) < 0) vans.push(s.vanLabel); });
     if (!past) {
       var acts = node("div", "acts"), view = node("a", "ab tl", "ดูผังที่นั่ง"); view.href = "/" + x.id + "?v=" + encodeURIComponent(x.seats[0].van);
-      var cx = node("button", "ab dg", x.seats.length > 1 ? "ยกเลิกที่นั่ง" : "ยกเลิกที่นั่ง"); cx.type = "button";
-      cx.addEventListener("click", function () { askCancel(x); });
-      acts.appendChild(view); acts.appendChild(cx); l.appendChild(acts);
+      acts.className = "acts am2";
+      var more = node("button", "ab more", "⋯"); more.type = "button"; more.setAttribute("aria-label", "เมนูเพิ่มเติม"); more.setAttribute("aria-haspopup", "menu");
+      more.addEventListener("click", function (e) { e.stopPropagation(); openMenu(more, [
+        ["แก้ชื่อบนผัง", "pen", "", function () { openRename(x); }],
+        ["ยกเลิกที่นั่ง", "trash", "dgr", function () { askCancel(x); }]
+      ]); });
+      acts.appendChild(view); acts.appendChild(more); l.appendChild(acts);
     }
     c.appendChild(l);
     var r = node("div", "r"); r.appendChild(node("small", null, vans.length === 1 ? "รถ " + vans[0] : "หลายคัน"));
@@ -307,6 +324,77 @@ a { color: inherit; }
     r.appendChild(node("b", nums.length > 3 ? "sm" : null, nums)); r.appendChild(node("small", null, "ที่นั่ง"));
     c.appendChild(r);
     return c;
+  }
+
+  // ---- small pop-up menu under a button (never a browser dialog) ----
+  var MI = { pen: '<path d="M4 20h4l10-10-4-4L4 16v4zM13.5 6.5l4 4"/>', trash: '<path d="M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13"/>' };
+  function openMenu(anchor, items) {
+    var old = document.querySelector(".pmenu"); if (old) { old._done(); if (old._for === anchor) return; }
+    var m = node("div", "pmenu"); m.setAttribute("role", "menu"); m._for = anchor;
+    items.forEach(function (it) {
+      var b = node("button", it[2] || null); b.type = "button"; b.setAttribute("role", "menuitem");
+      b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MI[it[1]] + "</svg>";
+      b.appendChild(document.createTextNode(it[0]));
+      b.addEventListener("click", function () { m._done(); it[3](); });
+      m.appendChild(b);
+    });
+    document.body.appendChild(m);
+    var r = anchor.getBoundingClientRect(), w = 200;
+    var left = Math.min(Math.max(8, r.right - w + window.scrollX), window.scrollX + document.documentElement.clientWidth - w - 8);
+    var top = r.bottom + 6 + window.scrollY;
+    if (r.bottom + 110 > window.innerHeight) top = r.top - 6 - 100 + window.scrollY; // no room below: open upwards
+    m.style.left = left + "px"; m.style.top = top + "px";
+    setTimeout(function () { var f = m.querySelector("button"); if (f) f.focus(); }, 0);
+    function done() { m.remove(); document.removeEventListener("click", off, true); document.removeEventListener("keydown", esc); }
+    function off(e) { if (!m.contains(e.target)) { done(); if (e.target === anchor) e.stopPropagation(); } }
+    function esc(e) { if (e.key === "Escape") { done(); anchor.focus(); } }
+    m._done = done; document.addEventListener("click", off, true); document.addEventListener("keydown", esc);
+  }
+  // ---- rename one of my seats (pick the seat first when there are several) ----
+  function openRename(x) {
+    var pick = x.seats.length === 1 ? x.seats[0] : null;
+    var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
+    var close = function () { bd.remove(); };
+    bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
+    function draw() {
+      sh.textContent = ""; sh.appendChild(node("div", "grab"));
+      sh.appendChild(node("h3", null, "แก้ชื่อบนผัง"));
+      sh.appendChild(node("p", null, x.name + " · ที่นั่งยังเป็นของคุณเหมือนเดิม"));
+      if (x.seats.length > 1) {
+        var g = node("div", "spick");
+        x.seats.forEach(function (s) {
+          var b = node("button", pick === s ? "on" : null); b.type = "button";
+          b.appendChild(document.createTextNode("รถ " + s.vanLabel + " · ที่นั่ง " + s.seat)); b.appendChild(node("small", null, s.name));
+          b.addEventListener("click", function () { pick = s; draw(); });
+          g.appendChild(b);
+        });
+        sh.appendChild(g);
+      }
+      var wrap = node("div", "nwrap"), inp = node("input", "nin"), cnt = node("span", "cnt");
+      inp.type = "text"; inp.autocomplete = "off"; inp.spellcheck = false; inp.setAttribute("aria-label", "ชื่อบนผัง");
+      inp.value = pick ? pick.name : ""; inp.disabled = !pick; inp.placeholder = pick ? "" : "เลือกที่นั่งก่อน";
+      var count = function () { cnt.textContent = inp.value ? inp.value.length + "/" + NAME_MAX : ""; };
+      inp.addEventListener("input", function () { var c = cleanName(inp.value); if (c !== inp.value) inp.value = c; count(); });
+      wrap.appendChild(inp); wrap.appendChild(cnt); sh.appendChild(wrap); count();
+      sh.appendChild(node("div", "rfree", "ใช้ได้เฉพาะภาษาไทยและอังกฤษ ไม่เกิน " + NAME_MAX + " ตัว"));
+      var acts = node("div", "acts"), back = node("button", "b-plain", "ย้อนกลับ"), go = node("button", "b-danger", "บันทึกชื่อ");
+      go.style.background = "var(--mine)"; go.style.borderColor = "var(--mine)"; back.type = go.type = "button"; go.disabled = !pick;
+      back.addEventListener("click", close);
+      var save = async function () {
+        var name = cleanName(inp.value); if (!name) { toast("ใส่ชื่อก่อน", true); return; }
+        if (name === pick.name) { close(); return; }
+        go.disabled = true; go.textContent = "กำลังบันทึก...";
+        var r = await seatApi("PATCH", x.id, pick.van, { seat: pick.seat, name: name });
+        if (!r.ok) { toast(apiErr(r.data), true); go.disabled = false; go.textContent = "บันทึกชื่อ"; return; }
+        close(); toast("แก้ชื่อที่นั่ง " + pick.seat + " เป็น " + name + " แล้ว"); load();
+      };
+      go.addEventListener("click", save);
+      inp.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.isComposing) save(); });
+      acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
+      if (pick) setTimeout(function () { inp.focus(); var n = inp.value.length; try { inp.setSelectionRange(n, n); } catch (e) {} }, 50);
+    }
+    draw();
+    document.body.appendChild(bd);
   }
 
   // ---- cancel one of my seats (a bottom sheet, never a browser dialog) ----
@@ -528,9 +616,9 @@ a { color: inherit; }
         if (T.helpers.length >= T.max) sh.appendChild(node("div", "rfree", "ผู้ช่วยครบ " + T.max + " คนแล้ว"));
         else if (T.invite) {
           var box = node("div", "ilink"), u = inviteUrl(T.invite.code);
-          box.appendChild(node("b", null, "ลิงก์เชิญผู้ช่วย"));
+          box.appendChild(node("b", null, "ลิงก์เชิญผู้ช่วย (ใช้ได้ 1 คน)"));
           box.appendChild(node("code", null, u));
-          box.appendChild(node("small", null, "ใช้ได้ถึง " + when(T.invite.exp) + " · ใครมีลิงก์นี้เข้ามาเป็นผู้ช่วยได้ ส่งให้เฉพาะคนที่ไว้ใจ"));
+          box.appendChild(node("small", null, "ใช้ได้ถึง " + when(T.invite.exp) + " · คนแรกที่กดลิงก์จะได้เป็นผู้ช่วย แล้วลิงก์จะใช้ไม่ได้อีก · จะเชิญคนต่อไป สร้างลิงก์ใหม่"));
           var a2 = node("div", "acts"), ln = node("button", "ab b-line", "ส่งทาง LINE"), cp = node("button", "ab", "คัดลอก"); ln.type = cp.type = "button";
           ln.addEventListener("click", function () { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent("ชวนมาช่วยจัดทริป " + x.name + "\n" + u); });
           cp.addEventListener("click", function () { if (navigator.clipboard) navigator.clipboard.writeText(u).then(function () { toast("คัดลอกลิงก์แล้ว"); }, function () { toast(u); }); else toast(u); });

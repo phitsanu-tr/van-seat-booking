@@ -205,9 +205,14 @@ function roleOf(trip, user) {
   return null;
 }
 // ---- in-app notifications ("inbox:<uid>", newest first, last INBOX_MAX, kept INBOX_DAYS) ----
-// item: {id, k (kind), t (trip id), tn (trip name), at, by ("owner"|"helper"), ...details, r (1 = read)}
+// item: {id, k (kind), t (trip id), tn (trip name), at, by ("owner"|"helper"), ...details}. The list is only ever pushed to
+// (never rewritten), so a notification can't get lost; "read" lives beside it: inboxr:<uid> = ids read one by one,
+// inboxa:<uid> = time of the last "read all" (everything up to then counts as read). inboxv:<uid> = version, +1 per item.
 const INBOX_MAX = 50, INBOX_DAYS = 60;
 function inboxKey(uid) { return "inbox:" + uid; }
+function inboxReadKey(uid) { return "inboxr:" + uid; }
+function inboxAllKey(uid) { return "inboxa:" + uid; }
+function inboxVerKey(uid) { return "inboxv:" + uid; }
 async function notify(uids, item, exceptUid) {
   try {
     const list = Array.from(new Set((uids || []).filter((u) => u && u !== exceptUid)));
@@ -215,7 +220,8 @@ async function notify(uids, item, exceptUid) {
     const at = Date.now(), cmds = [];
     list.forEach((u) => {
       const it = JSON.stringify(Object.assign({ id: newId(8), at }, item));
-      cmds.push(["LPUSH", inboxKey(u), it], ["LTRIM", inboxKey(u), "0", String(INBOX_MAX - 1)], ["EXPIRE", inboxKey(u), String(INBOX_DAYS * 86400)]);
+      cmds.push(["LPUSH", inboxKey(u), it], ["LTRIM", inboxKey(u), "0", String(INBOX_MAX - 1)], ["EXPIRE", inboxKey(u), String(INBOX_DAYS * 86400)],
+        ["INCR", inboxVerKey(u)], ["EXPIRE", inboxVerKey(u), String(INBOX_DAYS * 86400)]);
     });
     await pipeline(cmds);
   } catch (e) { /* best effort: never breaks the action that caused it */ }
@@ -242,5 +248,5 @@ function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); retur
 module.exports = {
   TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json,
   tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, NAME_MAX, newId, crypto,
-  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, notify, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
+  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };

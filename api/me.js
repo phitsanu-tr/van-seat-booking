@@ -17,6 +17,14 @@ function summary(trip, perVan) {
   };
 }
 
+// newest first, with r = 1 for the ones already read
+async function inbox(uid) {
+  const [rows, readIds, allAt] = await L.pipeline([["LRANGE", L.inboxKey(uid), "0", String(L.INBOX_MAX - 1)], ["SMEMBERS", L.inboxReadKey(uid)], ["GET", L.inboxAllKey(uid)]]);
+  const seen = new Set(readIds || []), upto = Number(allAt) || 0, items = [];
+  (rows || []).forEach((r) => { try { const x = JSON.parse(r); if (x.at <= upto || seen.has(x.id)) x.r = 1; else delete x.r; items.push(x); } catch (e) { /* skip */ } });
+  return items;
+}
+
 async function deleteAll(req, res, user, dropTrips) {
   const uid = user.id;
   const [tripIds, seatRefs, sids] = await L.pipeline([["SMEMBERS", L.myTripsKey(uid)], ["SMEMBERS", L.mySeatsKey(uid)], ["SMEMBERS", "usess:" + uid]]);
@@ -78,7 +86,7 @@ async function deleteAll(req, res, user, dropTrips) {
   for (const id of touched) {
     try {
       const k = L.logKey(id);
-      const [list, pttl] = await L.pipeline([["LRANGE", k, "0", "199"], ["PTTL", k]]);
+      const list = await L.redis(["LRANGE", k, "0", "199"]);
       if (!list || !list.length) continue;
       let changed = false;
       const out = list.map((s) => {
@@ -87,14 +95,19 @@ async function deleteAll(req, res, user, dropTrips) {
         return s;
       });
       if (!changed) continue;
-      const w = [["DEL", k], ["RPUSH", k].concat(out)];
-      if (Number(pttl) > 0) w.push(["PEXPIRE", k, String(pttl)]);
-      await L.pipeline(w);
+      // edit in place, counting from the tail: new events are pushed at the head, so tail positions stay put;
+      // each entry is only replaced if it still holds the value read above
+      const n = list.length;
+      for (let i = 0; i < n; i++) {
+        if (out[i] === list[i]) continue;
+        const idx = String(i - n);
+        if ((await L.redis(["LINDEX", k, idx])) === list[i]) await L.redis(["LSET", k, idx, out[i]]);
+      }
     } catch (e) { /* best effort */ }
   }
 
   // the account itself: indexes and every session
-  const end = [["DEL", L.myTripsKey(uid)], ["DEL", L.mySeatsKey(uid)], ["DEL", L.inboxKey(uid)], ["DEL", "usess:" + uid], ["DEL", "sess:" + user.sid]];
+  const end = [["DEL", L.myTripsKey(uid)], ["DEL", L.mySeatsKey(uid)], ["DEL", L.inboxKey(uid)], ["DEL", L.inboxReadKey(uid)], ["DEL", L.inboxAllKey(uid)], ["DEL", L.inboxVerKey(uid)], ["DEL", "usess:" + uid], ["DEL", "sess:" + user.sid]];
   (sids || []).forEach((sid) => { if (/^[a-z0-9]{32}$/.test(String(sid))) end.push(["DEL", "sess:" + sid]); });
   await L.pipeline(end);
   res.setHeader("Set-Cookie", [L.cookieStr(req, "vsb_s", "", 0)]);
@@ -109,27 +122,18 @@ module.exports = async function handler(req, res) {
     if (!user) return L.json(res, 401, { error: "login_required" });
     if (req.method === "DELETE") return deleteAll(req, res, user, L.readBody(req).trips === "delete");
     if (req.method === "GET" && req.query && req.query.inbox !== undefined) {
-      const rows = (await L.redis(["LRANGE", L.inboxKey(user.id), "0", String(L.INBOX_MAX - 1)])) || [];
-      const items = []; rows.forEach((r) => { try { items.push(JSON.parse(r)); } catch (e) { /* skip */ } });
+      const items = await inbox(user.id);
       return L.json(res, 200, { items, unread: items.filter((x) => !x.r).length });
     }
     if (req.method === "POST") {
-      const rd = L.readBody(req).read;
-      const k = L.inboxKey(user.id);
-      const [rows, pttl] = await L.pipeline([["LRANGE", k, "0", String(L.INBOX_MAX - 1)], ["PTTL", k]]);
-      let changed = false;
-      const out = (rows || []).map((r) => {
-        let x = null; try { x = JSON.parse(r); } catch (e) { return r; }
-        const hit = rd === "all" || (rd && typeof rd === "object" && ((rd.t && x.t === rd.t) || (rd.id && x.id === rd.id)));
-        if (hit && !x.r) { x.r = 1; changed = true; return JSON.stringify(x); }
-        return r;
-      });
-      if (changed) {
-        const w = [["DEL", k], ["RPUSH", k].concat(out)];
-        w.push(Number(pttl) > 0 ? ["PEXPIRE", k, String(pttl)] : ["EXPIRE", k, String(L.INBOX_DAYS * 86400)]);
-        await L.pipeline(w);
+      const rd = L.readBody(req).read, uid = user.id, ttl = String(L.INBOX_DAYS * 86400);
+      if (rd === "all") await L.pipeline([["SET", L.inboxAllKey(uid), String(Date.now()), "EX", ttl], ["DEL", L.inboxReadKey(uid)]]);
+      else if (rd && typeof rd === "object") {
+        const ids = (await inbox(uid)).filter((x) => !x.r && ((rd.t && x.t === rd.t) || (rd.id && x.id === rd.id))).map((x) => x.id);
+        if (ids.length) await L.pipeline([["SADD", L.inboxReadKey(uid)].concat(ids), ["EXPIRE", L.inboxReadKey(uid), ttl]]);
       }
-      return L.json(res, 200, { ok: true, unread: out.filter((r) => { try { return !JSON.parse(r).r; } catch (e) { return false; } }).length });
+      const items = await inbox(uid);
+      return L.json(res, 200, { ok: true, unread: items.filter((x) => !x.r).length });
     }
     const [tripIds, seatRefs] = await L.pipeline([["SMEMBERS", L.myTripsKey(user.id)], ["SMEMBERS", L.mySeatsKey(user.id)]]);
     const refs = (seatRefs || []).map((r) => String(r).split("|")).filter((p) => p.length === 3 && L.tripId(p[0]) && L.parseSeat(p[2]) !== null).slice(0, MAX);

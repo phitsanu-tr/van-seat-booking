@@ -16,7 +16,6 @@ html, body { overscroll-behavior: none; }
 [hidden] { display: none !important; }
 :root { --bg:#eef1f3; --surface:#fff; --ink:#1b1f22; --muted:#5f6b73; --line:#c9d2d8; --mine:#0e7c86; --mine-ink:#fff; --danger:#b3261e; --ok:#2e7d32;
   --font-display:"Prompt","Noto Sans Thai",system-ui,sans-serif; --font-body:"Noto Sans Thai",system-ui,sans-serif; color-scheme: light; }
-@media not all /* dark theme off: re-enable by restoring (prefers-color-scheme: dark) */ { :root { --bg:#0d151a; --surface:#17252e; --ink:#e6ecef; --muted:#93a6b0; --line:#2d4350; --mine:#3cc0cc; --mine-ink:#07262a; --danger:#ff8a80; --ok:#7fd48a; color-scheme: dark; } }
 body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:15px; line-height:1.5; padding:20px max(16px, env(safe-area-inset-left)) 48px; }
 main { max-width:560px; margin:0 auto; display:flex; flex-direction:column; gap:14px; }
 h1 { font:600 24px/1.2 var(--font-display); margin:0; }

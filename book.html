@@ -41,18 +41,6 @@ img { max-width: 100%; }
   --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif;
   --font-body: "Noto Sans Thai", system-ui, sans-serif;
 }
-@media not all /* dark theme off: re-enable by restoring (prefers-color-scheme: dark) */ {
-  :root:not([data-theme="light"]) {
-    --bg: #0d151a; --paper: #131f26; --surface: #17252e; --ink: #e6ecef; --muted: #93a6b0; --line: #2d4350;
-    --taken: #2a3c46; --mine: #3cc0cc; --mine-ink: #07262a; --sel: #f2a62b; --danger: #ff8a80;
-    --tka: #2f414b; --tkb: #2a3c46; --bfree: #1d2d36; --btaken: #3a4f5a; --bmine: rgba(7,38,42,.25); --driver-ink: #ff8fa0; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0d151a; --paper: #131f26; --surface: #17252e; --ink: #e6ecef; --muted: #93a6b0; --line: #2d4350;
-  --taken: #2a3c46; --mine: #3cc0cc; --mine-ink: #07262a; --sel: #f2a62b; --danger: #ff8a80;
-  --tka: #2f414b; --tkb: #2a3c46; --bfree: #1d2d36; --btaken: #3a4f5a; --bmine: rgba(7,38,42,.25); --driver-ink: #ff8fa0; color-scheme: dark;
-}
 * { box-sizing: border-box; }
 body {
   background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
@@ -558,7 +546,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     } else { a.className = "acct out"; a.href = loginHref(0); a.appendChild(el("span", null, "เข้าด้วย LINE")); }
   }
   // ---- notifications: bell in the header, banner + highlighted facts for unread changes of this trip ----
-  var CHG = {}, bellOn = false;
+  var CHG = {}, bellOn = false, lastIb = null;
   var BAN_KINDS = { trip_changed: 1, seat_moved: 1, seat_cancelled: 1, seat_renamed: 1, van_removed: 1, became_owner: 1, helper_joined: 1 };
   function startBell() {
     if (bellOn || !window.VSBBell || IMG_ONLY) return;
@@ -1167,7 +1155,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       });
       var snap = JSON.stringify(next);
       var changed = snap !== lastSnapshot || !loaded || JSON.stringify(counts) !== lastCounts || JSON.stringify(trip) + ended !== lastTrip;
-      if (bellOn && loaded && lastTrip && JSON.stringify(trip) + ended !== lastTrip) VSBBell.load(); // the trip just changed: fetch its notification
+      var ibNow = r.data && r.data.ib;
+      if (bellOn && ((loaded && lastTrip && JSON.stringify(trip) + ended !== lastTrip) || (ibNow !== undefined && lastIb !== null && ibNow !== lastIb))) VSBBell.load(); // new notification (or the trip changed)
+      if (ibNow !== undefined) lastIb = ibNow;
       lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip) + ended;
       seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff();
       if (changed || force) renderAll();

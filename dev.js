@@ -32,6 +32,8 @@ function run(cmd) {
     case "EXPIREAT": if (!store.has(key)) return 0; ttl.set(key, num(a[0]) * 1000); purge(); return 1;
     case "PEXPIRE": if (!store.has(key)) return 0; ttl.set(key, Date.now() + num(a[0])); return 1;
     case "RPUSH": { let l = store.get(key); if (!Array.isArray(l)) { l = []; store.set(key, l); } a.forEach((x) => l.push(String(x))); return l.length; }
+    case "LINDEX": { const l = store.get(key); if (!Array.isArray(l)) return null; let i = num(a[0]); if (i < 0) i += l.length; return i >= 0 && i < l.length ? l[i] : null; }
+    case "LSET": { const l = store.get(key); if (!Array.isArray(l)) throw new Error("ERR no such key"); let i = num(a[0]); if (i < 0) i += l.length; if (i < 0 || i >= l.length) throw new Error("ERR index out of range"); l[i] = String(a[1]); return "OK"; }
     case "PERSIST": return ttl.delete(key) ? 1 : 0;
     case "PTTL": return !store.has(key) ? -2 : ttl.has(key) ? Math.max(1, ttl.get(key) - Date.now()) : -1;
     case "HGET": { const h = store.get(key); return h instanceof Map && h.has(String(a[0])) ? h.get(String(a[0])) : null; }

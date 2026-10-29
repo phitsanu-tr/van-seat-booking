@@ -27,6 +27,7 @@ module.exports = async function handler(req, res) {
 
     if (req.method === "GET") {
       const cmds = [["HGETALL", key], ["MGET"].concat(Array.from({ length: L.TOTAL_SEATS }, (_, i) => holdKey(t, van.id, i + 1)))].concat(trip.vans.map((x) => ["HLEN", L.seatsKey(t, x.id)]));
+      if (user) cmds.push(["GET", L.inboxVerKey(user.id)]); // notifications version: the page reloads the bell when it moves
       const out = await L.pipeline(cmds);
       const flat = out[0] || [];
       const seats = {};
@@ -42,7 +43,7 @@ module.exports = async function handler(req, res) {
       const counts = {};
       trip.vans.forEach((x, i) => { counts[x.id] = Number(out[i + 2]) || 0; });
       const held = []; (out[1] || []).forEach((h, i) => { if (h && !seats[i + 1]) held.push(i + 1); }); // free seats someone is signing in to book
-      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, limit: L.maxPerPerson(trip) });
+      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip) });
     }
 
     if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });

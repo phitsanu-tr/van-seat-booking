@@ -17,9 +17,6 @@ html, body { overscroll-behavior: none; }
   --bg: #eef1f3; --surface: #ffffff; --ink: #1b1f22; --muted: #5f6b73; --line: #c9d2d8; --mine: #0e7c86; --deep: #0b5f67; --tint: #e5f2f3; --edge: #dde3e7; --danger: #b3261e;
   --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif; --font-body: "Noto Sans Thai", system-ui, sans-serif; color-scheme: light;
 }
-@media not all /* dark theme off: re-enable by restoring (prefers-color-scheme: dark) */ {
-  :root { --bg: #0d151a; --surface: #17252e; --ink: #e6ecef; --muted: #93a6b0; --line: #2d4350; --mine: #3cc0cc; --deep: #7fd6de; --tint: #1a3138; --edge: #243845; --danger: #ff8a80; color-scheme: dark; }
-}
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; -webkit-tap-highlight-color: transparent; display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
 .top { background: var(--surface); border-bottom: 1px solid var(--edge); }
