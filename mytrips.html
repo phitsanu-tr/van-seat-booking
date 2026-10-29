@@ -125,7 +125,7 @@ a { color: inherit; }
 .vchips button { height: 34px; padding: 0 12px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--muted); }
 .vchips button.on { border-color: var(--amber); background: var(--amber-tint); color: var(--amber); }
 .rlist { display: flex; flex-direction: column; border: 1px solid var(--edge); border-radius: 16px; overflow: hidden; }
-.sheet > .rlist { flex-shrink: 1; min-height: 120px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; } /* a long roster scrolls inside the sheet; title and Close stay put */
+.sheet > .rlist { flex-shrink: 1; min-height: 54px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; } /* a long roster scrolls inside the sheet; title and Close stay put */
 .rrow { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--edge); }
 .rrow:last-child { border-bottom: 0; }
 .rrow .no { flex: none; width: 32px; height: 32px; border-radius: 10px; background: var(--tint); color: var(--deep); font: 600 15px/32px var(--font-display); text-align: center; }
@@ -145,6 +145,27 @@ a { color: inherit; }
 .cnote svg { width: 16px; height: 16px; flex: none; margin-top: 2px; }
 .cat { font-size: 12px; color: var(--muted); margin-top: -4px; }
 .cpy { align-self: flex-start; border: 0; background: none; padding: 2px 0; font-size: 13px; font-weight: 600; color: var(--mine); text-decoration: underline; text-underline-offset: 3px; }
+.rtabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: #e2e7ea; border-radius: 14px; padding: 4px; }
+.rtabs button { height: 36px; border: 0; border-radius: 10px; background: none; font: 600 13px var(--font-body); color: var(--muted); }
+.rtabs button.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.psum { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.psum div { border-radius: 14px; padding: 9px 12px; display: flex; flex-direction: column; gap: 1px; font-size: 12px; }
+.psum b { font: 600 21px/1.2 var(--font-display); } .psum b span { font-size: 13px; font-weight: 500; color: var(--muted); }
+.psum .g { background: #e6f4ea; color: #1f7a3f; } .psum .a { background: var(--amber-tint); color: var(--amber); }
+.pchip { flex: none; height: 34px; padding: 0 12px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--surface); font: 600 13px var(--font-body); color: var(--muted); display: flex; align-items: center; gap: 4px; }
+.pchip.y { background: #e6f4ea; border-color: #b9dfc6; color: #1f7a3f; }
+.pchip svg, .ckb svg { width: 15px; height: 15px; }
+.rrow.ck { cursor: pointer; -webkit-user-select: none; user-select: none; }
+.ckb { flex: none; width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--line); display: flex; align-items: center; justify-content: center; color: #fff; }
+.rrow.in .ckb { background: #1f7a3f; border-color: #1f7a3f; }
+.rrow.in .nm2 b { color: var(--muted); }
+.cktm { flex: none; font-size: 12px; font-weight: 600; color: #1f7a3f; }
+.bprog { display: flex; flex-direction: column; gap: 6px; }
+.bprog .pl { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--muted); }
+.bprog .pl b { font: 600 18px var(--font-display); color: #1f7a3f; }
+.bprog .bar i { background: #1f7a3f; }
+.miss { background: var(--amber-tint); border-radius: 12px; padding: 9px 12px; font-size: 13px; line-height: 1.5; color: var(--amber); }
+.miss.done { background: #e6f4ea; color: #1f7a3f; }
 .dfoot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .sgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
 .sgrid button { height: 52px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font: 600 16px var(--font-display); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; padding: 2px; }
@@ -513,17 +534,21 @@ a { color: inherit; }
     return { ok: r.ok, data: d };
   }
   function openRoster(x) {
-    var st = { trip: null, roster: {}, van: "", mode: "list", sel: null, ended: false, busy: false };
+    var st = { trip: null, roster: {}, van: "", mode: "list", tab: "seats", payF: "all", pending: 0, sel: null, ended: false, busy: false };
+    if (daysTo(x.startDate) === 0) st.tab = "board"; // trip day: open on check-in
     var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
-    var close = function () { bd.remove(); load(); };
+    var close = function () { clearInterval(st.timer); bd.remove(); load(); };
+    // check-in tab: other organizers tick people too, so the list refreshes while it is open
+    st.timer = setInterval(function () { if (st.tab === "board" && st.mode === "list" && !st.pending && document.visibilityState === "visible" && bd.isConnected) fetchRoster(true); }, 8000);
     bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
     document.body.appendChild(bd);
-    async function fetchRoster() {
+    async function fetchRoster(quiet) {
       try {
         var r = await fetch("/api/trip?t=" + encodeURIComponent(x.id) + "&roster=1", { cache: "no-store", headers: { "x-admin-key": "o" } });
         var d = await r.json(); if (!r.ok) throw new Error();
         st.trip = d.trip; st.roster = d.roster || {}; st.ended = !!d.ended; st.closed = !!d.trip.closedNow; if (!st.van) st.van = d.trip.vans[0].id;
-      } catch (e) { toast("โหลดรายชื่อไม่สำเร็จ", true); }
+      } catch (e) { if (!quiet) toast("โหลดรายชื่อไม่สำเร็จ", true); return; }
+      if (quiet && st.pending) return; // a tick is on its way: don't show the older list
       draw();
     }
     function vanLabel(id) { var v = st.trip && st.trip.vans.filter(function (q) { return q.id === id; })[0]; return v ? v.label : id; }
@@ -536,13 +561,25 @@ a { color: inherit; }
       return row;
     }
     function draw() {
+      var ol = sh.querySelector(".rlist"), keep = ol ? ol.scrollTop : 0, keepSh = sh.scrollTop, sameView = st.lastView === st.mode + st.tab + st.van + st.payF;
+      st.lastView = st.mode + st.tab + st.van + st.payF;
       sh.textContent = ""; sh.appendChild(node("div", "grab"));
+      if (sameView) setTimeout(function () { var nl = sh.querySelector(".rlist"); if (nl) nl.scrollTop = keep; sh.scrollTop = keepSh; }, 0);
       if (!st.trip) { sh.appendChild(node("h3", null, "รายชื่อผู้จอง")); sh.appendChild(node("p", null, "กำลังโหลด...")); return; }
       if (st.mode === "list") drawList(); else if (st.mode === "rename") drawRename(); else drawMove();
     }
     function drawList() {
       sh.appendChild(node("h3", null, "รายชื่อผู้จอง"));
       sh.appendChild(node("p", null, st.trip.name + (st.ended ? " · ทริปจบแล้ว ดูได้อย่างเดียว" : "")));
+      var tabs = node("div", "rtabs");
+      [["seats", "ที่นั่ง"], ["pay", "จ่ายเงิน"], ["board", "เช็กชื่อ"]].forEach(function (tb) {
+        var b = node("button", st.tab === tb[0] ? "on" : null, tb[1]); b.type = "button"; b.setAttribute("aria-pressed", st.tab === tb[0] ? "true" : "false");
+        b.addEventListener("click", function () { st.tab = tb[0]; draw(); if (tb[0] === "board") fetchRoster(true); });
+        tabs.appendChild(b);
+      });
+      sh.appendChild(tabs);
+      if (st.tab === "pay") return drawPay();
+      if (st.tab === "board") return drawBoard();
       var tools = node("div", "rtools"), cpb = node("button", null); cpb.type = "button"; cpb.innerHTML = COPY_SVG; cpb.appendChild(document.createTextNode("คัดลอกรายชื่อ"));
       cpb.addEventListener("click", function () { copyText(rosterText(st.trip, st.roster, !st.closed && !st.ended), "คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย"); });
       tools.appendChild(cpb);
@@ -578,6 +615,126 @@ a { color: inherit; }
       }
       sh.appendChild(node("div", "rfree", "ว่าง " + (10 - nums.length) + " ที่นั่ง"));
       var cl = node("button", "b-plain", "ปิด"); cl.type = "button"; cl.style.height = "48px"; cl.style.borderRadius = "16px"; cl.style.fontWeight = "600"; cl.addEventListener("click", close); sh.appendChild(cl);
+    }
+    var TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    function everyone() { // [{v, n, s}] across all vans, by van then seat
+      var out = [];
+      st.trip.vans.forEach(function (v) { var seats = st.roster[v.id] || {}; Object.keys(seats).map(Number).sort(function (a, b) { return a - b; }).forEach(function (n) { out.push({ v: v.id, n: n, s: seats[n] }); }); });
+      return out;
+    }
+    function footer(label, onCopy) {
+      var f = node("div", "rtools"), cp = node("button", null); cp.type = "button"; cp.innerHTML = COPY_SVG; cp.appendChild(document.createTextNode(label)); cp.addEventListener("click", onCopy);
+      var cl = node("button", null, "ปิด"); cl.type = "button"; cl.addEventListener("click", close);
+      f.appendChild(cp); f.appendChild(cl); sh.appendChild(f);
+    }
+    // a tick on one seat (paid / boarded): shown at once, saved in the background, put back if saving fails
+    async function flag(v, n, field, on) {
+      var s = st.roster[v] && st.roster[v][n]; if (!s) return;
+      var before = { p: s.p, c: s.c };
+      if (field === "paid") { if (on) s.p = 1; else delete s.p; } else { if (on) s.c = s.c || Date.now(); else delete s.c; }
+      st.pending++; draw();
+      var body = { seat: n }; body[field] = on;
+      var r = await seatApi("PATCH", x.id, v, body);
+      st.pending--;
+      if (!r.ok) {
+        if (before.p) s.p = before.p; else delete s.p;
+        if (before.c) s.c = before.c; else delete s.c;
+        toast(r.data && r.data.error === "no_seat" ? "ที่นั่งนี้ถูกยกเลิกไปแล้ว" : apiErr(r.data), true);
+        if (r.data && r.data.error === "no_seat") return fetchRoster(true);
+        return draw();
+      }
+      if (field === "board" && r.data && r.data.c) s.c = r.data.c;
+      if (!st.pending) draw();
+    }
+    function hhmm(ts) { var d = new Date(Number(ts) + 7 * 3600 * 1000); return String(d.getUTCHours()).padStart(2, "0") + "." + String(d.getUTCMinutes()).padStart(2, "0"); }
+    function drawPay() {
+      var all = everyone(), paid = all.filter(function (e) { return e.s.p; }).length, multi = st.trip.vans.length > 1;
+      var sum = node("div", "psum"), g = node("div", "g"), a = node("div", "a");
+      g.appendChild(document.createTextNode("จ่ายแล้ว")); var gb = node("b", null, String(paid) + " "); gb.appendChild(node("span", null, "/ " + all.length + " คน")); g.appendChild(gb);
+      a.appendChild(document.createTextNode("ยังไม่จ่าย")); var ab = node("b", null, String(all.length - paid) + " "); ab.appendChild(node("span", null, "คน")); a.appendChild(ab);
+      sum.appendChild(g); sum.appendChild(a); sh.appendChild(sum);
+      var fr = node("div", "vchips");
+      [["all", "ทั้งหมด " + all.length], ["no", "ยังไม่จ่าย " + (all.length - paid)], ["yes", "จ่ายแล้ว " + paid]].forEach(function (f) {
+        var b = node("button", st.payF === f[0] ? "on" : null, f[1]); b.type = "button"; b.addEventListener("click", function () { st.payF = f[0]; draw(); }); fr.appendChild(b);
+      });
+      sh.appendChild(fr);
+      var shown = all.filter(function (e) { return st.payF === "all" || (st.payF === "yes" ? e.s.p : !e.s.p); });
+      if (!all.length) sh.appendChild(node("div", "empty", "ยังไม่มีผู้จอง"));
+      else if (!shown.length) sh.appendChild(node("div", "empty", st.payF === "no" ? "จ่ายครบทุกคนแล้ว 🎉" : "ยังไม่มีใครจ่าย"));
+      else {
+        var list = node("div", "rlist");
+        shown.forEach(function (e) {
+          var row = node("div", "rrow"); row.appendChild(node("div", "no", String(e.n)));
+          var nm = node("div", "nm2"); nm.appendChild(node("b", null, e.s.name)); nm.appendChild(node("small", null, multi ? "คัน " + vanLabel(e.v) : when(e.s.at))); row.appendChild(nm);
+          var c = node("button", "pchip" + (e.s.p ? " y" : "")); c.type = "button"; c.setAttribute("aria-pressed", e.s.p ? "true" : "false");
+          if (e.s.p) c.innerHTML = TICK;
+          c.appendChild(document.createTextNode(e.s.p ? "จ่ายแล้ว" : "ยังไม่จ่าย"));
+          c.setAttribute("aria-label", e.s.name + (e.s.p ? " จ่ายแล้ว แตะเพื่อเอาออก" : " ยังไม่จ่าย แตะเมื่อจ่ายแล้ว"));
+          if (st.ended) c.disabled = true; else c.addEventListener("click", function () { flag(e.v, e.n, "paid", !e.s.p); });
+          row.appendChild(c); list.appendChild(row);
+        });
+        sh.appendChild(list);
+      }
+      sh.appendChild(node("div", "rfree", "ผู้จองไม่เห็นข้อมูลนี้ · เห็นเฉพาะทีมผู้จัด"));
+      footer("คัดลอกคนค้างจ่าย", function () {
+        var un = all.filter(function (e) { return !e.s.p; });
+        if (!un.length) { toast("จ่ายครบทุกคนแล้ว"); return; }
+        var L = ["💰 ยังไม่ได้จ่าย " + un.length + " คน · " + st.trip.name];
+        un.forEach(function (e) { L.push((multi ? "คัน " + vanLabel(e.v) + " " : "") + "ที่นั่ง " + e.n + ". " + e.s.name); });
+        copyText(L.join("\n"), "คัดลอกรายชื่อคนค้างจ่ายแล้ว");
+      });
+    }
+    function drawBoard() {
+      var all = everyone(), inN = all.filter(function (e) { return e.s.c; }).length, multi = st.trip.vans.length > 1;
+      var pg = node("div", "bprog"), pl = node("div", "pl"), right = node("span"); right.appendChild(node("b", null, String(inN))); right.appendChild(document.createTextNode(" / " + all.length + " ขึ้นรถแล้ว"));
+      pl.appendChild(node("span", null, st.trip.departTime ? "ออก " + st.trip.departTime.replace(":", ".") + " น." : "ทั้งทริป")); pl.appendChild(right); pg.appendChild(pl);
+      var bar = node("div", "bar"), bi = node("i"); bi.style.width = (all.length ? Math.round(inN / all.length * 100) : 0) + "%"; bar.appendChild(bi); pg.appendChild(bar); sh.appendChild(pg);
+      if (multi) {
+        var row = node("div", "vchips");
+        st.trip.vans.forEach(function (v) {
+          var vs = st.roster[v.id] || {}, ks = Object.keys(vs), on = ks.filter(function (k) { return vs[k].c; }).length;
+          var b = node("button", v.id === st.van ? "on" : null, "คัน " + v.label + " · " + on + "/" + ks.length); b.type = "button"; b.addEventListener("click", function () { st.van = v.id; draw(); }); row.appendChild(b);
+        });
+        sh.appendChild(row);
+      }
+      var seats = st.roster[st.van] || {}, nums = Object.keys(seats).map(Number).sort(function (a, b) { return a - b; });
+      var missing = nums.filter(function (n) { return !seats[n].c; });
+      if (nums.length) {
+        var ms = node("div", "miss" + (missing.length ? "" : " done"));
+        if (missing.length) {
+          ms.appendChild(node("b", null, "ยังไม่มา " + missing.length + " คน: "));
+          ms.appendChild(document.createTextNode(missing.slice(0, 6).map(function (n) { return seats[n].name + " (" + n + ")"; }).join(", ") + (missing.length > 6 ? " และอีก " + (missing.length - 6) + " คน" : "")));
+        } else ms.textContent = (multi ? "คัน " + vanLabel(st.van) + " " : "") + "ขึ้นรถครบแล้ว ✓";
+        sh.appendChild(ms);
+      }
+      if (!nums.length) sh.appendChild(node("div", "empty", "คัน " + vanLabel(st.van) + " ยังไม่มีผู้จอง"));
+      else {
+        var list = node("div", "rlist");
+        nums.forEach(function (n) {
+          var s = seats[n], r = node("div", "rrow ck" + (s.c ? " in" : ""));
+          r.setAttribute("role", "checkbox"); r.setAttribute("aria-checked", s.c ? "true" : "false"); r.tabIndex = 0;
+          r.setAttribute("aria-label", "ที่นั่ง " + n + " " + s.name + (s.c ? " ขึ้นรถแล้ว" : " ยังไม่ขึ้นรถ"));
+          var b = node("div", "ckb"); if (s.c) b.innerHTML = TICK;
+          r.appendChild(b); r.appendChild(node("div", "no", String(n)));
+          var nm = node("div", "nm2"); nm.appendChild(node("b", null, s.name)); if (!s.c) nm.appendChild(node("small", null, "ยังไม่ขึ้นรถ")); r.appendChild(nm);
+          if (s.c) r.appendChild(node("span", "cktm", hhmm(s.c)));
+          if (!st.ended) {
+            var go = function () { flag(st.van, n, "board", !s.c); };
+            r.addEventListener("click", go);
+            r.addEventListener("keydown", function (e) { if (e.key === " " || e.key === "Enter") { e.preventDefault(); go(); } });
+          }
+          list.appendChild(r);
+        });
+        sh.appendChild(list);
+      }
+      sh.appendChild(node("div", "rfree", "แตะชื่อเมื่อขึ้นรถแล้ว · แตะอีกครั้งเพื่อเอาออก · ทีมผู้จัดเห็นตรงกันทุกเครื่อง"));
+      footer("คัดลอกคนยังไม่มา", function () {
+        var miss = all.filter(function (e) { return !e.s.c; });
+        if (!miss.length) { toast("ขึ้นรถครบทุกคนแล้ว"); return; }
+        var L = ["🚐 ยังไม่ขึ้นรถ " + miss.length + " คน · " + st.trip.name];
+        miss.forEach(function (e) { L.push((multi ? "คัน " + vanLabel(e.v) + " " : "") + "ที่นั่ง " + e.n + ". " + e.s.name); });
+        copyText(L.join("\n"), "คัดลอกรายชื่อคนยังไม่มาแล้ว");
+      });
     }
     async function setClosed(close, btn) {
       btn.disabled = true;

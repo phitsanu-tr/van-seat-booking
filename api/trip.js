@@ -214,7 +214,7 @@ module.exports = async function handler(req, res) {
           const flat = all[i] || [], seats = {};
           for (let j = 0; j + 1 < flat.length; j += 2) {
             const n = L.parseSeat(flat[j]); if (n === null) continue;
-            try { const r = JSON.parse(flat[j + 1]); if (r && r.name) seats[n] = Object.assign({ name: String(r.name), at: r.at }, r.u ? { a: 1 } : {}, user && r.u === user.id ? { m: 1 } : {}); } catch (e) { /* skip */ }
+            try { const r = JSON.parse(flat[j + 1]); if (r && r.name) seats[n] = Object.assign({ name: String(r.name), at: r.at }, r.u ? { a: 1 } : {}, user && r.u === user.id ? { m: 1 } : {}, r.p ? { p: 1 } : {}, r.c ? { c: r.c } : {}); /* p = paid, c = boarded (organizers only) */ } catch (e) { /* skip */ }
           }
           roster[v.id] = seats;
         });
