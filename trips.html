@@ -1341,6 +1341,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime" };
         if (map[data.error]) { focusFirst(fieldErr($(map[data.error]), ERR[data.error])); }
         else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input.vn"); if (v0) { fieldErr(v0, ERR.bad_vans, v0.closest(".vf")); focusFirst(v0); } else toast(ERR.bad_vans); }
+        else if (data.error === "login_required") location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new");
         else toast(ERR[data.error] || "บันทึกไม่สำเร็จ ลองอีกครั้ง");
         return;
       }
@@ -1526,6 +1527,16 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
     } else {
       rows = [{ id: "", label: "A" }];
+      // creating a trip needs a LINE account (the trip then belongs to it on every device)
+      try {
+        var who3 = await (await fetch("/api/auth?me=1", { cache: "no-store" })).json();
+        if (!who3 || !who3.user) {
+          if (!q.has("le") && !sessionStorage.getItem("vsb_login_try")) { sessionStorage.setItem("vsb_login_try", "1"); location.replace("/api/auth?start=1&r=" + encodeURIComponent("/trips/new")); return; }
+          toast("เข้าด้วย LINE ก่อนสร้างทริป", true);
+          $("submit").textContent = "เข้าด้วย LINE ก่อนสร้างทริป";
+          $("submit").addEventListener("click", function (e) { e.preventDefault(); e.stopImmediatePropagation(); location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new"); }, true);
+        } else { try { sessionStorage.removeItem("vsb_login_try"); } catch (e) {} }
+      } catch (e) {}
     }
     renderVans();
   }

@@ -91,6 +91,7 @@ module.exports = async function handler(req, res) {
     if (req.method === "DELETE") {
       const seat = L.parseSeat(body.seat);
       if (seat === null) return L.json(res, 400, { error: "bad_seat" });
+      if (L.REQUIRE_LOGIN && !user) return L.json(res, 401, { error: "login_required" });
       const raw = await L.redis(["HGET", key, String(seat)]);
       if (raw === null) return L.json(res, 200, { ok: true });
       let prev = {};

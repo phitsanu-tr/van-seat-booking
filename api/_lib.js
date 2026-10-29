@@ -201,8 +201,8 @@ async function rateLimited(req, user, scope, max, windowSec) {
 }
 function myTripsKey(uid) { return "mytrips:" + uid; }
 function mySeatsKey(uid) { return "myseats:" + uid; }
-// Booking requires an account only when VSB_REQUIRE_LOGIN=1 (off during the switch-over).
-const REQUIRE_LOGIN = process.env.VSB_REQUIRE_LOGIN === "1";
+// Booking, cancelling and creating a trip need a LINE account (set VSB_REQUIRE_LOGIN=0 to allow guests again).
+const REQUIRE_LOGIN = process.env.VSB_REQUIRE_LOGIN !== "0";
 
 module.exports = {
   TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json, DEFAULT_ID,

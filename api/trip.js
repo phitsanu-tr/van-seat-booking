@@ -146,6 +146,7 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { k: code });
     }
     if (req.method === "POST") {
+      if (L.REQUIRE_LOGIN && !user) return L.json(res, 401, { error: "login_required" });
       const c = clean(L.readBody(req));
       if (c.error) return L.json(res, 400, { error: c.error });
       const q = QUOTA_ENABLED ? await takeQuota(req, L.readBody(req).d) : { over: null, keys: [] };

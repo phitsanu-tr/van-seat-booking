@@ -545,7 +545,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       if (me.pic) { var im = document.createElement("img"); im.alt = ""; im.src = me.pic; im.referrerPolicy = "no-referrer"; av.appendChild(im); } else av.textContent = (me.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
       a.appendChild(av); a.appendChild(el("span", null, "ของฉัน"));
       var mt = document.getElementById("myTrips"); if (isOwner && mt) { mt.hidden = false; mt.href = "/my"; }
-    } else { a.className = "acct out"; a.href = loginHref(0); a.appendChild(el("span", null, "เข้าสู่ระบบ")); }
+    } else { a.className = "acct out"; a.href = loginHref(0); a.appendChild(el("span", null, "เข้าด้วย LINE")); }
   }
   var loaded = false, loadError = "";
   function skOff() { document.body.classList.remove("sk"); }
@@ -818,7 +818,13 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       var when = s.at ? fmtAt(s.at) : "";
       if (when) info.appendChild(el("span", null, when));
       panelEl.appendChild(info);
-      if (!s.a || mine(n) || isOwner) { // a seat booked with an account: only its owner or the trip's organizer may cancel it
+      if (!me && needLogin) { // signed out: managing a seat needs the account first
+        var lg2 = el("div", "lgin"), lb2 = el("a", "lgbtn");
+        lb2.href = loginHref(n);
+        lb2.appendChild(el("i", null, "LINE")); lb2.appendChild(document.createTextNode("เข้าด้วย LINE เพื่อจัดการที่นั่ง"));
+        lg2.appendChild(lb2); panelEl.appendChild(lg2);
+        actions.appendChild(plainBtn("ปิด", closeModal));
+      } else if (!s.a || mine(n) || isOwner) { // a seat booked with an account: only its owner or the trip's organizer may cancel it
         var cancel = el("button", "ghost", !mine(n) && s.a && isOwner ? "ยกเลิกให้ (คนจัดทริป)" : "ยกเลิกการจอง");
         cancel.type = "button";
         cancel.addEventListener("click", function () { confirming = true; message = ""; renderPanel(); });
@@ -834,9 +840,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       if (!me && !IMG_ONLY) { // not signed in: offer LINE first (the seat then belongs to the account on every device)
         var lg = el("div", "lgin"), lb = el("a", "lgbtn");
         lb.href = loginHref(n);
-        lb.appendChild(el("i", null, "LINE")); lb.appendChild(document.createTextNode("เข้าสู่ระบบด้วย LINE แล้วจองเลย"));
+        lb.appendChild(el("i", null, "LINE")); lb.appendChild(document.createTextNode("เข้าด้วย LINE แล้วจองเลย"));
         lg.appendChild(lb);
-        if (needLogin) lg.appendChild(el("div", "lgnote", "ทริปนี้ต้องเข้าสู่ระบบก่อนจอง · ใน LINE กดครั้งเดียวจบ"));
+        if (needLogin) lg.appendChild(el("div", "lgnote", "เข้าด้วย LINE ครั้งเดียว ที่นั่งเป็นของคุณทุกเครื่อง"));
         else lg.appendChild(el("div", "lgor", "หรือใส่ชื่อ จองโดยไม่เข้าสู่ระบบ"));
         panelEl.appendChild(lg);
         if (needLogin) { actions.appendChild(plainBtn("ปิด", closeModal)); panelEl.appendChild(actions); return; }
