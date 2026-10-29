@@ -40,28 +40,6 @@ module.exports = async function handler(req, res) {
 
     if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
 
-    if (req.method === "POST" && Array.isArray(body.claim)) {
-      // Signed-in visitor takes over the seats booked from this browser before signing in:
-      // a seat moves to the account only if it has no account yet and both the booking time and the browser id match.
-      if (!user) return L.json(res, 401, { error: "login_required" });
-      const d = /^[A-Za-z0-9-]{8,64}$/.test(String(body.d || "")) ? String(body.d) : "";
-      const list = body.claim.slice(0, 10).map((c) => ({ s: L.parseSeat(c && c.s), at: Number(c && c.at) })).filter((c) => c.s !== null && c.at > 0);
-      if (!d || !list.length) return L.json(res, 200, { claimed: [] });
-      const raws = await L.pipeline(list.map((c) => ["HGET", key, String(c.s)]));
-      const claimed = [], cmds = [];
-      list.forEach((c, i) => {
-        let rec = null;
-        try { rec = JSON.parse(raws[i]); } catch (e) { rec = null; }
-        if (!rec || rec.u || rec.d !== d || Number(rec.at) !== c.at) return;
-        rec.u = user.id;
-        cmds.push(["HSET", key, String(c.s), JSON.stringify(rec)]);
-        cmds.push(["SADD", L.mySeatsKey(user.id), t + "|" + van.id + "|" + c.s]);
-        claimed.push(c.s);
-      });
-      if (cmds.length) { cmds.push(["EXPIRE", L.mySeatsKey(user.id), String(L.MY_DAYS * 86400)]); await L.pipeline(cmds); }
-      return L.json(res, 200, { claimed });
-    }
-
     if ((req.method === "POST" || req.method === "DELETE" || req.method === "PATCH") && await L.rateLimited(req, user, "seat:" + t, 30, 600)) return L.json(res, 429, { error: "too_many" });
     if ((req.method === "PATCH" || (req.method === "POST" && body.move)) && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
 
@@ -131,10 +109,8 @@ module.exports = async function handler(req, res) {
         if (mineN >= limit) return L.json(res, 403, { error: "seat_limit", limit });
       }
       const at = Date.now();
-      const d = /^[A-Za-z0-9-]{8,64}$/.test(String(body.d || "")) ? String(body.d) : undefined; // random per-browser id, stored for the owner only (never sent back to other visitors)
       // HSETNX only writes when the seat is still empty, so two people can never take the same seat.
       const rec = { name, at };
-      if (d) rec.d = d;
       if (user) rec.u = user.id;
       const created = await L.redis(["HSETNX", key, String(seat), JSON.stringify(rec)]);
       if (created !== 1) return L.json(res, 409, { error: "taken" });
@@ -142,7 +118,7 @@ module.exports = async function handler(req, res) {
       const exp = L.expireAtFor(trip);
       const live = exp && exp > Math.floor(Date.now() / 1000);
       if (live) { try { await L.redis(["EXPIREAT", key, String(exp)]); } catch (e) { /* best effort */ } } // a new van hash has no TTL yet
-      await L.logEvent(t, { e: "book", v: van.id, s: seat, n: name, d, u: user ? user.id : undefined, at }, live ? exp : undefined);
+      await L.logEvent(t, { e: "book", v: van.id, s: seat, n: name, u: user ? user.id : undefined, at }, live ? exp : undefined);
       return L.json(res, 200, { ok: true, at });
     }
 
@@ -154,14 +130,12 @@ module.exports = async function handler(req, res) {
       if (raw === null) return L.json(res, 200, { ok: true });
       let prev = {};
       try { prev = JSON.parse(raw) || {}; } catch (e) { /* damaged entry */ }
-      // A seat booked by a signed-in person can only be cancelled by that person or the trip's organizer.
-      // Seats booked without an account (before the switch-over) can still be cancelled by anyone; the log keeps who did it.
-      if (prev.u && !(user && (user.id === prev.u || isOwner))) return L.json(res, user ? 403 : 401, { error: user ? "not_yours" : "login_required" });
+      // Only the person who booked the seat, or the trip's organizer, can cancel it.
+      if (!(user && ((prev.u && user.id === prev.u) || isOwner))) return L.json(res, user ? 403 : 401, { error: user ? "not_yours" : "login_required" });
       const removed = await L.redis(["HDEL", key, String(seat)]);
       if (Number(removed) === 1) {
-        const d = /^[A-Za-z0-9-]{8,64}$/.test(String(body.d || "")) ? String(body.d) : undefined;
         if (prev.u) { try { await L.redis(["SREM", L.mySeatsKey(prev.u), t + "|" + van.id + "|" + seat]); } catch (e) { /* best effort */ } }
-        await L.logEvent(t, { e: "cancel", v: van.id, s: seat, n: String(prev.name || ""), d, od: prev.d, u: user ? user.id : undefined, ou: prev.u, by: isOwner && user && user.id !== prev.u ? "owner" : undefined, at: Date.now() });
+        await L.logEvent(t, { e: "cancel", v: van.id, s: seat, n: String(prev.name || ""), u: user ? user.id : undefined, ou: prev.u, by: isOwner && user && user.id !== prev.u ? "owner" : undefined, at: Date.now() });
       }
       return L.json(res, 200, { ok: true });
     }

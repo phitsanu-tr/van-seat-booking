@@ -464,28 +464,6 @@ a { color: inherit; }
   $("tabTrips").addEventListener("click", function () { setTab("trips"); });
   $("tabSeats").addEventListener("click", function () { setTab("seats"); });
 
-  // ---- first visit after signing in: move what this browser created/booked before into the account ----
-  async function claimLocal() {
-    try { if (sessionStorage.getItem("vsb_claimed") === "1") return; } catch (e) {}
-    var jobs = [];
-    try {
-      (JSON.parse(localStorage.getItem("van-admin-trips") || "[]") || []).forEach(function (x) {
-        if (!x || !x.id || !x.token || x.token === "o") return;
-        jobs.push(fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": x.token }, body: JSON.stringify({ claim: true, t: x.id }) }));
-      });
-      var dev = localStorage.getItem("vsb_device") || "";
-      if (dev) for (var i = 0; i < localStorage.length; i++) {
-        var k = localStorage.key(i), m = /^van-mine:([a-z0-9]{3,16}):([A-Za-z0-9]{1,12})$/.exec(k || "");
-        if (!m) continue;
-        var map = {}; try { map = JSON.parse(localStorage.getItem(k) || "{}") || {}; } catch (e) {}
-        var list = Object.keys(map).map(function (n) { return { s: Number(n), at: map[n] && map[n].at }; }).filter(function (c) { return c.s >= 1 && c.s <= 10 && typeof c.at === "number"; });
-        if (list.length) jobs.push(fetch("/api/seats?t=" + m[1] + "&v=" + encodeURIComponent(m[2]), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: m[1], v: m[2], claim: list, d: dev }) }));
-      }
-    } catch (e) {}
-    if (jobs.length) await Promise.all(jobs.map(function (p) { return p.catch(function () {}); }));
-    try { sessionStorage.setItem("vsb_claimed", "1"); } catch (e) {}
-  }
-
   function skeleton() {
     ["paneTrips", "paneSeats"].forEach(function (id) {
       var pane = $(id); pane.textContent = "";
@@ -507,7 +485,7 @@ a { color: inherit; }
     if (nt) {
       var lab = node("label", "chk"); chk = node("input"); chk.type = "checkbox";
       var tx = node("span"); tx.appendChild(node("b", null, "ลบทริปที่ฉันสร้างด้วย (" + nt + " ทริป)")); tx.appendChild(node("br"));
-      tx.appendChild(document.createTextNode("ถ้าไม่ติ๊ก ทริปยังเปิดให้จองต่อ แก้ไขได้ด้วยลิงก์ Admin Pass เท่านั้น"));
+      tx.appendChild(document.createTextNode("ถ้าไม่ติ๊ก ทริปยังเปิดให้จองต่อ แต่จะไม่มีใครแก้ไขหรือจัดการได้อีก และลบตัวเองเมื่อครบ 60 วันหลังทริปจบ"));
       lab.appendChild(chk); lab.appendChild(tx); sh.appendChild(lab);
     }
     sh.appendChild(node("p", null, "ลบแล้วกู้คืนไม่ได้"));
@@ -520,11 +498,6 @@ a { color: inherit; }
       try {
         var r = await fetch("/api/me", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trips: chk && chk.checked ? "delete" : "keep" }) });
         if (!r.ok) throw new Error();
-        try { // trips kept: keep their secret links in this browser (the only way left to edit them); owner-only links are useless now
-          sessionStorage.removeItem("vsb_claimed");
-          var keepList = chk && chk.checked ? [] : (JSON.parse(localStorage.getItem("van-admin-trips") || "[]") || []).filter(function (x) { return x && x.token && x.token !== "o"; });
-          localStorage.setItem("van-admin-trips", JSON.stringify(keepList));
-        } catch (e) {}
         close(); showLogin(); toast("ลบข้อมูลของคุณแล้ว");
       } catch (e) { toast("ลบไม่สำเร็จ ลองอีกครั้ง", true); go.disabled = false; go.textContent = "ลบข้อมูลถาวร"; }
     });
@@ -558,7 +531,6 @@ a { color: inherit; }
   }
   $("logout").addEventListener("click", async function () {
     try { await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ logout: true }) }); } catch (e) {}
-    try { sessionStorage.removeItem("vsb_claimed"); } catch (e) {}
     showLogin();
   });
 
@@ -572,7 +544,6 @@ a { color: inherit; }
     $("meView").hidden = false; setTab(tab); skeleton();
     try { var fl = sessionStorage.getItem("van-flash"); if (fl) { sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); setTimeout(function () { toast(fl); }, 300); } } catch (e) {}
     $("meName").textContent = me.name || "ผู้ใช้ LINE";
-    await claimLocal();
     load();
   })();
 })();

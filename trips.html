@@ -50,14 +50,12 @@ button { font: inherit; cursor: pointer; }
 .btn.small { height: 44px; font-size: 14px; }
 .x { flex: none; width: 44px; height: 44px; border-radius: 12px; background: transparent; border: 1.5px solid var(--line); color: var(--danger); font-size: 20px; line-height: 1; }
 .msg { color: var(--danger); font-size: 14px; }
-#saveMsg { font-size: 12.5px; }
 .msg:empty { display: none; }
 .link { display: flex; flex-direction: column; gap: 6px; }
 .link b { font-size: 14px; }
 .link .chip { cursor: pointer; display: flex; align-items: center; gap: 4px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 6px 4px 6px 12px; }
 .link .url { flex: 1; min-width: 0; font-size: 13px; line-height: 1.4; }
 .url .code { display: block; font: 700 20px/1.2 var(--font-display); letter-spacing: 1.5px; color: var(--mine); overflow: hidden; text-overflow: clip; white-space: nowrap; }
-#adminUrl .code { color: var(--ink); }
 .url .sub { display: block; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cpbtn { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border: 0; background: transparent; color: var(--muted); border-radius: 12px; cursor: pointer; }
 .cpbtn svg { width: 18px; height: 18px; }
@@ -127,13 +125,12 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .modal.admin .mbar { background: #5f6b73; }
 .xbtn { color: #fff; }
 .step { display: flex; flex-direction: column; gap: 14px; }
-.signed #result .dots { display: none; }
 .steps { display: grid; grid-template-columns: minmax(0, 1fr); }
 .steps > .step { grid-area: 1 / 1; }
 .step[hidden] { display: flex !important; visibility: hidden; pointer-events: none; }
 .step > .foot { margin-top: auto; }
 .step > a.foot { height: 44px; }
-#saveSeat, #saveImg { width: 100%; justify-content: center; }
+#saveSeat { width: 100%; justify-content: center; }
 .btn.dark { background: var(--ink); color: #fff; }
 .cardrow { display: flex; gap: 10px; }
 #cardHint { text-wrap: balance; min-height: 36px; display: flex; align-items: center; justify-content: center; }
@@ -141,8 +138,6 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .cardrow[hidden] { display: none; }
 .cardrow .btn { flex: 1; min-width: 0; padding: 0 12px; white-space: nowrap; gap: 8px; display: inline-flex; align-items: center; justify-content: center; }
 .cardrow .btn[hidden] { display: none; }
-#step2 .passtag, #result .dots button.on.amber { color: #b86e00; }
-@media not all /* dark theme off: re-enable by restoring (prefers-color-scheme: dark) */ { #step2 .passtag, #result .dots button.on.amber { color: #f2c879; } }
 .mh { padding-right: 34px; }
 .check.amber { background: #eceef0; color: var(--ink); }
 @media not all /* dark theme off: re-enable by restoring (prefers-color-scheme: dark) */ { .check.amber { background: #223540; } }
@@ -425,7 +420,6 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
     <div class="mbar" id="mbar"></div>
     <div class="mbody">
       <div class="tcard"><div class="mt" id="resultTitle"></div><div class="torg" id="resultOrg" hidden></div><div class="trows" id="resultSub"></div></div>
-      <div class="dots" role="tablist"><button type="button" role="tab" data-step="1" class="on" aria-selected="true"><svg class="tk" viewBox="2.5 5.5 19 13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg>ผู้จองทริป</button><button type="button" role="tab" data-step="2" aria-selected="false"><svg class="sh" viewBox="3 1.5 18 21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg>ผู้ดูแลทริป</button></div>
     <div class="steps">
     <!-- step 1: guests -->
     <div class="step" id="step1">
@@ -437,17 +431,6 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
 </div>
       <div class="msg" id="seatMsg" role="status"></div>
         <button class="btn primary ic small foot" id="saveSeat" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg><span class="lb">ดาวน์โหลด SEAT PASS</span></button>
-    </div>
-    <!-- step 2: admin -->
-    <div class="step" id="step2" hidden>
-      <div class="panel dark"><div class="share"><div class="qr amber" id="qr2" role="img" aria-label="คิวอาร์โค้ดลิงก์แก้ไขทริป"></div><div class="link"><div class="passtag dark"><svg viewBox="3 1.5 18 21" width="10.5" height="12.25" class="ic-s" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg><b>ADMIN PASS</b></div><b class="ptitle">สแกนเพื่อแก้ไขทริป</b><span class="hint">สำหรับผู้ดูแลทริปเท่านั้น</span><div class="chip"><div class="url" id="adminUrl"></div><button class="cpbtn" id="copyAdmin" type="button" aria-label="คัดลอกลิงก์"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button></div></div></div></div>
-      <div class="two">
-        <a class="btn line small ic" id="lineAdmin" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span class="lb">ส่งเข้า LINE</span></a>
-      
-      <a class="btn plain ic small" id="openShare2" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="lb">จองที่นั่ง</span></a>
-</div>
-      <div class="msg" id="saveMsg" role="status"></div>
-        <button class="btn amber ic small foot" id="saveImg" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg><span class="lb">ดาวน์โหลด ADMIN PASS</span></button>
     </div>
     </div>
     </div>
@@ -626,19 +609,17 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 <script>
 (function () {
   "use strict";
-  // edit link: /trips#<trip>-<secret> (the part after # is never sent to the server)
+  // edit link: /trips#<trip>-o — works only for the signed-in LINE account that owns the trip ("o" = owner, no secret)
   var q = new URLSearchParams(location.search);
-  var T = "", K = "";
-  // owner link: /trips#<trip>-o (no secret: works only for the signed-in LINE account that owns the trip)
-  var hm = /^#([a-z0-9]{3,16})-([a-z0-9]{6,64}|o)$/i.exec(location.hash || "");
+  var T = "", K = "o";
+  var hm = /^#([a-z0-9]{3,16})(?:-o)?$/i.exec(location.hash || "");
   if (q.has("li") || q.has("le")) { try { q.delete("li"); q.delete("le"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q.toString() : "") + location.hash); } catch (e) {} }
-  if (hm) { T = hm[1].toLowerCase(); K = hm[2].toLowerCase(); }
-  function editPath(id, token) { return "/trips#" + id + "-" + token; }
+  if (hm) T = hm[1].toLowerCase();
+  function editPath(id) { return "/trips#" + id + "-o"; }
   var UA = navigator.userAgent || "";
   var IN_LINE = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA), IS_IOS = /iPhone|iPad|iPod/i.test(UA);
-  var CARD_KIND = q.get("card") === "admin" ? "admin" : "guest";
-  var CARD_ONLY = !IN_LINE && q.get("img") === "1" && (CARD_KIND === "admin" ? /^[a-z0-9]{10}$/i.test(q.get("c") || "") : q.get("card") === "guest" && /^[a-z0-9]{3,16}$/i.test(q.get("t") || ""));
-  var editing = !!(T && K);
+  var CARD_ONLY = !IN_LINE && q.get("img") === "1" && q.get("card") === "guest" && /^[a-z0-9]{3,16}$/i.test(q.get("t") || ""); // SEAT PASS picture page opened outside LINE
+  var editing = !!T;
   var creating = q.get("new") === "1" || /^\/trips\/new\/?$/.test(location.pathname);
   var listMode = !editing && !creating && !CARD_ONLY;
   var vansEl = document.getElementById("vans");
@@ -647,13 +628,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
 
   function $(id) { return document.getElementById(id); }
   function letter(i) { return String.fromCharCode(65 + (i % 26)); }
-  function loadMine() { try { return JSON.parse(localStorage.getItem("van-admin-trips") || "[]") || []; } catch (e) { return []; } }
-  function saveMine(list) { try { localStorage.setItem("van-admin-trips", JSON.stringify(list.slice(0, 30))); } catch (e) {} }
-  function remember(id, token, name) {
-    var list = loadMine().filter(function (x) { return x.id !== id; });
-    list.unshift({ id: id, token: token, name: name });
-    saveMine(list);
-  }
 
   var ERR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg>';
   // field-level errors: red field + label, message right under it
@@ -803,14 +777,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       return q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }).replace(/fill="black"/g, 'fill="' + (color || "#000") + '"');
     } catch (e) { return ""; }
   }
-  function setStep(n) {
-    $("step1").hidden = n !== 1; $("step2").hidden = n !== 2;
-    $("result").classList.toggle("admin", n === 2);
-    Array.prototype.forEach.call(document.querySelectorAll(".dots button"), function (b) {
-      var on = +b.getAttribute("data-step") === n;
-      b.classList.toggle("on", on); b.classList.toggle("amber", on && n === 2); b.setAttribute("aria-selected", on ? "true" : "false");
-    }); $("closeX").focus({ preventScroll: true }); }
-  var adminUrl = "", shareLink = "", tripName = "";
+  function setStep() { $("step1").hidden = false; $("closeX").focus({ preventScroll: true }); } // one step only
+  var shareLink = "", tripName = "";
   var SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
   var ICON_SM = {
     cal: SVG_OPEN + '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
@@ -822,9 +790,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   function showResult(id, token, created, name, vanCount, startDate, endDate, departTime, meetPoint, organizer) {
     shown = { id: id, token: token }; goList = created === true;
     tripName = name || "";
-    var share = shareLink = link("/" + id); adminUrl = link(editPath(id, token));
+    var share = shareLink = link("/" + id);
     urlBox($("shareUrl"), id, "แตะเพื่อคัดลอกลิงก์");
-    $("openShare").href = "/" + id; $("openShare2").href = "/" + id;
+    $("openShare").href = "/" + id;
     var SHARE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
     $("mState").innerHTML = (created ? '<span class="okdot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span>' : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปสำเร็จแล้ว" : created ? "สร้างทริปสำเร็จแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
     $("resultTitle").textContent = name || "ทริป";
@@ -839,14 +807,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     if (vanCount) trow("van", vanCount + " คัน (" + vanCount * 10 + " ที่นั่ง)");
     var text = (name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share;
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent(text);
-    $("lineAdmin").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "ลิงก์ผู้ดูแลทริป (ห้ามส่งต่อ)\n" + adminUrl);
     $("qr").innerHTML = qrSvg(share, "#0b5f67");
-    $("qr2").innerHTML = qrSvg(adminUrl, "#1b1f22");
-    // the secret is shown masked on screen; copy / save use the full link
-    urlBox($("adminUrl"), adminCode(token, id), "แตะเพื่อคัดลอกลิงก์");
-    $("saveMsg").textContent = ""; $("seatMsg").textContent = "";
+    $("seatMsg").textContent = "";
     $("backdrop").hidden = false; document.body.style.overflow = "hidden";
-    setStep(1); // signed in: only the guest step (the admin tab is hidden by the .signed class)
+    setStep();
   }
   var goList = false; // right after creating a trip, closing the result sheet leads to the my-trips list
   function closeResult() {
@@ -854,41 +818,11 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     $("backdrop").hidden = true; document.body.style.overflow = "";
   }
   $("closeX").addEventListener("click", closeResult);
-  Array.prototype.forEach.call(document.querySelectorAll(".dots button"), function (b) { b.addEventListener("click", function () { setStep(+b.getAttribute("data-step")); }); });
   $("backdrop").addEventListener("click", function (e) { if (e.target === $("backdrop")) closeResult(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("backdrop").hidden) closeResult(); });
   $("shareBtn").addEventListener("click", function () {
     if (shown) showResult(shown.id, shown.token, false, $("name").value.trim(), rows.length, $("startDate").value, $("endDate").value, $("departTime").value, $("meetPoint").value.trim(), $("organizer").value.trim());
   });
-  // Admin Pass shows its own 8-character code: a SHA-256 fingerprint of the secret token (display only; it cannot be turned back into the token).
-  function sha256Bytes(str) {
-    var K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
-    var H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
-    var b = []; for (var i = 0; i < str.length; i++) b.push(str.charCodeAt(i) & 255);
-    var bits = b.length * 8; b.push(0x80); while (b.length % 64 !== 56) b.push(0);
-    for (var k = 7; k >= 0; k--) b.push(k > 3 ? 0 : (bits >>> (k * 8)) & 255);
-    function rr(x, n) { return (x >>> n) | (x << (32 - n)); }
-    for (var o = 0; o < b.length; o += 64) {
-      var w = [];
-      for (var t = 0; t < 16; t++) w[t] = (b[o + t * 4] << 24) | (b[o + t * 4 + 1] << 16) | (b[o + t * 4 + 2] << 8) | b[o + t * 4 + 3];
-      for (t = 16; t < 64; t++) { var s0 = rr(w[t - 15], 7) ^ rr(w[t - 15], 18) ^ (w[t - 15] >>> 3), s1 = rr(w[t - 2], 17) ^ rr(w[t - 2], 19) ^ (w[t - 2] >>> 10); w[t] = (w[t - 16] + s0 + w[t - 7] + s1) | 0; }
-      var a = H[0], bb = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
-      for (t = 0; t < 64; t++) {
-        var S1 = rr(e, 6) ^ rr(e, 11) ^ rr(e, 25), ch = (e & f) ^ (~e & g), t1 = (h + S1 + ch + K[t] + w[t]) | 0;
-        var S0 = rr(a, 2) ^ rr(a, 13) ^ rr(a, 22), mj = (a & bb) ^ (a & c) ^ (bb & c), t2 = (S0 + mj) | 0;
-        h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = bb; bb = a; a = (t1 + t2) | 0;
-      }
-      H[0] = (H[0] + a) | 0; H[1] = (H[1] + bb) | 0; H[2] = (H[2] + c) | 0; H[3] = (H[3] + d) | 0; H[4] = (H[4] + e) | 0; H[5] = (H[5] + f) | 0; H[6] = (H[6] + g) | 0; H[7] = (H[7] + h) | 0;
-    }
-    var out = []; H.forEach(function (x) { out.push((x >>> 24) & 255, (x >>> 16) & 255, (x >>> 8) & 255, x & 255); });
-    return out;
-  }
-  function adminCode(token, fallback) {
-    if (!token) return String(fallback || "").toUpperCase();
-    var by = sha256Bytes("admin-code:" + token), AL = "0123456789ABCDEFGHJKMNPQRSTVWXYZ", n = 0, bits = 0, out = "";
-    for (var i = 0; i < by.length && out.length < 8; i++) { n = (n << 8) | by[i]; bits += 8; while (bits >= 5 && out.length < 8) { out += AL[(n >>> (bits - 5)) & 31]; bits -= 5; n &= (1 << bits) - 1; } }
-    return out;
-  }
   function urlBox(el, code, sub) {
     el.textContent = "";
     var c = document.createElement("span"); c.className = "code"; c.textContent = String(code).toUpperCase();
@@ -921,7 +855,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     else fallback();
   }
   $("copyShare").parentNode.addEventListener("click", function () { copy(shareLink, $("copyShare")); });
-  $("copyAdmin").parentNode.addEventListener("click", function () { copy(adminUrl, $("copyAdmin")); });
 
   // Draws the admin card (trip details + admin QR + guest QR) to a canvas and saves it as a PNG.
   var MON = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
@@ -943,10 +876,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     return Promise.race([all, new Promise(function (r) { setTimeout(r, 2500); })]).catch(function () {});
   }
   function drawCard(mode) {
-    var GUEST = mode === "guest"; // SEAT PASS (guests only) vs ADMIN PASS
-    var TH = GUEST ? { hdr: "#0b5f67", lab: "#bfe9ed", bar: "#3fbac4", ic: "#0e7c86", rule: "#0e7c86", icon: "ticket", name: "SEAT PASS" } : { hdr: "#1b1f22", lab: "#f2c879", bar: "#b86e00", ic: "#b86e00", rule: "#b86e00", icon: "shield", name: "ADMIN PASS" };
+    var TH = { hdr: "#0b5f67", lab: "#bfe9ed", bar: "#3fbac4", ic: "#0e7c86", rule: "#0e7c86", icon: "ticket", name: "SEAT PASS" };
     // layout tokens (card units): spacing 8/16/32, type 18/14/12/10/8, all even
-    var S = 4, CW = 358, W = CW, CX = 0, CY = 0, P = 16, M = 24, ROW = 32, QR = 130, SEC = QR + 48, FOOT = 32, WARN = 16, SECA = QR + 64; // SECA: admin section incl. its warning line
+    var S = 4, CW = 358, W = CW, CX = 0, CY = 0, P = 16, M = 24, ROW = 32, QR = 130, SEC = QR + 48, FOOT = 32, WARN = 16;
     var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
     // title wraps (max 3 lines) across the content width; wrap-measuring context shared by all passes
     var wm = document.createElement("canvas").getContext("2d");
@@ -964,15 +896,13 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       if (tl.length > 3) { tl = tl.slice(0, 3); var last = tl[2]; while (last.length > 1 && wm.measureText(last + "…").width > TW) last = last.slice(0, -1); tl[2] = last + "…"; }
       return tl;
     }
-    // one fixed card width (386) for the seat pass and the admin pass, so their headers share the same proportions
-    // (and the picture saved from the booking page). The admin card is at least 9:16 (portrait story ratio): short content is padded at the bottom.
+    // one fixed card width (386): the header shares its proportions with the picture saved from the booking page
     var tl, HDR, TOP, H;
     tl = wrapTitle(386 - M * 2);
     HDR = 52 + 24 * tl.length + (org ? 18 : 0) + 16; TOP = HDR + 4 + ROW * 4; // the amber divider is the 4th row separator: sits on the row's bottom edge
-    H = CY + TOP + (GUEST ? 0 : SECA) + SEC + FOOT + CY;
+    H = CY + TOP + SEC + FOOT + CY;
     CW = W = 386;
     var TW = CW - M * 2;
-    if (!GUEST) H = Math.max(H, CW * 16 / 9);
     var c = document.createElement("canvas"); c.width = W * S; c.height = Math.round(H * S);
     var g = c.getContext("2d");
     var disp = '"Prompt","Noto Sans Thai",system-ui,sans-serif', body = '"Noto Sans Thai",system-ui,sans-serif';
@@ -1013,7 +943,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     icon(ICON[TH.icon], M - 2, 16, TH.lab, 12);
     if ("letterSpacing" in g) g.letterSpacing = "1px";
     capTxt(TH.name, M + 14, 22, "500 10px " + body, TH.lab, "left");
-    capTxt("#" + (GUEST ? String(shown ? shown.id : "").toUpperCase() : adminCode(shown ? shown.token : "", shown ? shown.id : "")), CW - M, 22, "500 10px " + body, TH.lab, "right");
+    capTxt("#" + String(shown ? shown.id : "").toUpperCase(), CW - M, 22, "500 10px " + body, TH.lab, "right");
     if ("letterSpacing" in g) g.letterSpacing = "0px";
     g.fillStyle = "rgba(255,255,255,.16)"; g.fillRect(M, 40, CW - M * 2, 1);
     tl.forEach(function (ln, i) { txt(ln, M, 64 + i * 24, "600 18px " + disp, "#fff", "left"); });
@@ -1085,23 +1015,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         txt(st[1], textX + 28, top + 23, F.sub, "#5f6b73", "left", bw - 20);
       });
     }
-    var ADM = ["สำหรับผู้ดูแลทริป", "สแกนเพื่อจัดการทริป", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["แก้ไขข้อมูลทริป", "วันที่ เวลา นัดพบ"], ["จัดการรถตู้", "เพิ่ม ลดคัน ดูผู้จอง"]]];
     var GST = ["สำหรับผู้จองทริป", "สแกนเพื่อจองที่นั่ง", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["เลือกคันและที่นั่ง", "แตะที่นั่งว่างบนผัง"], ["กรอกชื่อและยืนยัน", "ชื่อแสดงบนผังทันที"]]];
-    var BW = Math.max(blockW(ADM[0], ADM[1], ADM[2]), blockW(GST[0], GST[1], GST[2]));
-    g.fillStyle = TH.rule; g.fillRect(M, TOP - 1.5, CW - M * 2, 1.5); // thin divider (amber on the admin pass, teal on the seat pass)
-    if (!GUEST) section(TOP, true, "#1b1f22", "#1b1f22", adminUrl, ADM[0], ADM[1], ADM[2], BW);
-    if (!GUEST) {
-      // warning sits right under the black QR it refers to (one line, red text only)
-      var wy = TOP + 12 + QR + 24 + 12; // warning centred between the two panels
-      var w1 = "สำหรับผู้ดูแลทริป ", w2 = "โปรดเก็บ Admin Pass ไว้ อย่าส่งต่อ QR Code สีดำ";
-      g.font = "600 10px " + body; var m1 = g.measureText(w1).width;
-      g.font = "400 10px " + body; var m2 = g.measureText(w2).width;
-      var wx = Math.max(M, (CW - m1 - m2) / 2);
-      txt(w1, wx, wy + WARN / 2, "600 10px " + body, "#b3261e", "left");
-      txt(w2, wx + m1, wy + WARN / 2, "400 10px " + body, "#b3261e", "left", CW - wx - M - m1);
-    }
-    var gTop = GUEST ? TOP : TOP + SECA;
-    section(gTop, false, "#0e7c86", "#0b5f67", link("/" + (shown ? shown.id : "")), GST[0], GST[1], GST[2], GUEST ? blockW(GST[0], GST[1], GST[2]) : BW);
+    g.fillStyle = TH.rule; g.fillRect(M, TOP - 1.5, CW - M * 2, 1.5); // thin teal divider
+    var gTop = TOP;
+    section(gTop, false, "#0e7c86", "#0b5f67", link("/" + (shown ? shown.id : "")), GST[0], GST[1], GST[2], blockW(GST[0], GST[1], GST[2]));
     // footer (its grey band closes the card, so no dashed line before it)
     var fy = gTop + SEC;
     g.fillStyle = "#f4f6f7"; g.fillRect(0, fy, CW, FOOT + 40);
@@ -1122,16 +1039,15 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
   function openCard(mode, blob, fileName) {
     var guest = mode === "guest", img = $("cardImg"), ext = $("cardExt"), dl = $("cardDl"), cp = $("cardCopy"), hint = $("cardHint");
     var TK = '<svg viewBox="2.5 5.5 19 13" width="24" height="16.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg>';
-    var SH = '<svg viewBox="3 1.5 18 21" width="18" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4"/></svg>';
-    $("cardTtl").innerHTML = '<span style="display:inline-flex;width:24px;justify-content:center;color:' + (guest ? "var(--mine)" : "#b86e00") + '">' + (guest ? TK : SH) + "</span>" + (guest ? "SEAT PASS" : "ADMIN PASS");
+    $("cardTtl").innerHTML = '<span style="display:inline-flex;width:24px;justify-content:center;color:' + "var(--mine)" + '">' + TK + "</span>" + "SEAT PASS";
     $("cardTtl").style.cssText += ";display:flex;align-items:center;gap:8px";
     if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; }
-    ext.className = dl.className = "btn " + (guest ? "primary" : "dark");
+    ext.className = dl.className = "btn " + "primary";
     var row = $("cardRow"), sh = $("cardShare"), file = null;
     img.hidden = !blob; dl.hidden = true; ext.hidden = true; row.hidden = true; sh.hidden = true; $("cardX").hidden = CARD_ONLY;
     if (blob) { cardUrl = URL.createObjectURL(blob); img.src = cardUrl; }
     if (blob) { // share the picture where the device supports sharing files (shown only then)
-      try { file = new File([blob], fileName || (guest ? "SEAT PASS.png" : "ADMIN PASS.png"), { type: "image/png" }); } catch (e) {}
+      try { file = new File([blob], fileName || "SEAT PASS.png", { type: "image/png" }); } catch (e) {}
       if (file && navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
         sh.hidden = false;
         sh.onclick = function () {
@@ -1141,9 +1057,9 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     }
     if (CARD_ONLY) {
       row.hidden = false; cp.disabled = false;
-      var selfUrl = location.origin + "/trips?card=" + (guest ? "guest&img=1&t=" + encodeURIComponent(q.get("t") || "") : "admin&img=1&c=" + encodeURIComponent(q.get("c") || "")) + "&openExternalBrowser=1";
+      var selfUrl = location.origin + "/trips?card=guest&img=1&t=" + encodeURIComponent(q.get("t") || "") + "&openExternalBrowser=1";
       cp.onclick = function () { copyPlain(selfUrl); };
-      dl.hidden = false; dl.href = cardUrl; dl.setAttribute("download", fileName || (guest ? "SEAT PASS.png" : "ADMIN PASS.png"));
+      dl.hidden = false; dl.href = cardUrl; dl.setAttribute("download", fileName || "SEAT PASS.png");
       setHint("กดดาวน์โหลด หรือกดค้างที่รูปเพื่อบันทึก", true);
     } else {
       if (blob && IS_IOS) setHint("กดค้างที่รูปเพื่อบันทึก หรือใช้ปุ่มด้านล่าง", true);
@@ -1155,13 +1071,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         if (mySeq !== cardSeq) return;
         ext.href = u; ext.style.opacity = ""; ext.textContent = "เปิดในเบราว์เซอร์เพื่อโหลดรูป"; cp.disabled = false; cp.onclick = function () { copyPlain(u); };
       };
-      if (guest) ready(location.origin + "/trips?card=guest&img=1&t=" + encodeURIComponent(shown ? shown.id : "") + "&openExternalBrowser=1");
-      else {
-        fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": shown ? shown.token : "" }, body: JSON.stringify({ mint: true, t: shown ? shown.id : "" }) })
-          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
-          .then(function (x) { if (!x.ok || !x.d.k) throw new Error("mint"); ready(location.origin + "/trips?card=admin&img=1&c=" + x.d.k + "&openExternalBrowser=1"); })
-          .catch(function () { if (mySeq !== cardSeq) return; ext.textContent = "สร้างลิงก์ไม่สำเร็จ"; if (blob) toast("สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง"); else hint.textContent = "สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง หรือใช้ปุ่ม “ส่งเข้า LINE” ส่งลิงก์ผู้ดูแลแทน"; });
-      }
+      ready(location.origin + "/trips?card=guest&img=1&t=" + encodeURIComponent(shown ? shown.id : "") + "&openExternalBrowser=1");
     }
     $("cardBd").hidden = false; document.body.style.overflow = "hidden";
   }
@@ -1200,7 +1110,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     }, "image/png");
     });
   }
-  $("saveImg").addEventListener("click", function () { saveCard("admin", "ADMIN PASS.png", $("saveMsg")); });
   $("saveSeat").addEventListener("click", function () { saveCard("guest", "SEAT PASS.png", $("seatMsg")); });
 
   var ERR = {
@@ -1211,17 +1120,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     too_many: "ใส่รหัสผิดหลายครั้งเกินไป รอสักครู่แล้วลองใหม่"
   };
 
-  // anonymous per-browser id, used only to count how many trips this browser created this month
-  function deviceId() {
-    try {
-      var d = localStorage.getItem("vsb_device");
-      if (!d || !/^[A-Za-z0-9-]{8,64}$/.test(d)) {
-        d = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 12));
-        localStorage.setItem("vsb_device", d);
-      }
-      return d;
-    } catch (e) { return ""; }
-  }
   $("form").addEventListener("submit", async function (e) {
     e.preventDefault();
     if (busy) return;
@@ -1248,7 +1146,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       vans: rows.map(function (r) { return { id: r.id, label: r.label.trim(), plate: (r.plate || "").trim() }; }),
       maxPerPerson: Number($("maxPer").value)
     };
-    if (editing) { body.t = T; body.k = K; } else { body.d = deviceId(); }
+    if (editing) body.t = T;
     busy = true; $("submit").disabled = true; $("cancelBtn").disabled = true; $("submit").textContent = (editing ? "กำลังแก้ไข..." : "กำลังสร้าง...");
     try {
       var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -1264,12 +1162,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       dirty = false;
       if (editing) {
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
-        remember(T, K, data.trip.name);
         showResult(T, K, "saved", data.trip.name, data.trip.vans.length, data.trip.startDate, data.trip.endDate, data.trip.departTime, data.trip.meetPoint, data.trip.organizer);
       } else {
-        remember(data.id, data.token, data.trip.name);
-        T = data.id; K = data.token; editing = true;
-        history.replaceState(null, "", editPath(T, K));
+        T = data.id; editing = true;
+        history.replaceState(null, "", editPath(T));
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
         $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "แก้ไขทริป"; $("shareBtn").hidden = false;
         showResult(T, K, true, data.trip.name, data.trip.vans.length, data.trip.startDate, data.trip.endDate, data.trip.departTime, data.trip.meetPoint, data.trip.organizer);
@@ -1311,32 +1207,28 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     try {
       var r = await fetch("/api/trip?t=" + encodeURIComponent(T), { method: "DELETE", headers: { "x-admin-key": K } });
       if (!r.ok && r.status !== 404) { var d = {}; try { d = await r.json(); } catch (e) {} toast(ERR[d.error] || "ลบไม่สำเร็จ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; return; }
-      saveMine(loadMine().filter(function (y) { return y.id !== T; }));
       try { sessionStorage.setItem("van-flash", "ลบทริปแล้ว"); } catch (e) {}
       location.href = SIGNED ? "/mytrips" : "/trips";
     } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
   });
 
-  async function cardOnly() {
+  async function cardOnly() { // SEAT PASS picture page opened outside LINE (to save the picture)
     var foot = document.querySelector(".foot"); if (foot) foot.hidden = true;
-    var admin = CARD_KIND === "admin", id = admin ? "" : q.get("t").toLowerCase(), code = admin ? q.get("c") : "";
-    if (admin) { try { history.replaceState(null, "", location.pathname + "?card=admin&img=1"); } catch (e) {} } // keep the code out of the address bar / history
+    var id = q.get("t").toLowerCase();
     try {
-      var res = await fetch(admin ? "/api/trip?code=" + encodeURIComponent(code) : "/api/seats?t=" + encodeURIComponent(id), { cache: "no-store" });
+      var res = await fetch("/api/seats?t=" + encodeURIComponent(id), { cache: "no-store" });
       var data = await res.json();
-      if (!res.ok || !data.trip) { toast(admin ? "ลิงก์นี้หมดอายุแล้ว กลับไปที่ LINE แล้วกดปุ่มใหม่อีกครั้ง" : "ไม่พบทริปนี้", true); return; }
+      if (!res.ok || !data.trip) { toast("ไม่พบทริปนี้", true); return; }
       var tr = data.trip;
       $("organizer").value = tr.organizer || ""; $("startDate").value = tr.startDate || ""; $("endDate").value = tr.endDate || "";
       $("departTime").value = tr.departTime || ""; $("meetPoint").value = tr.meetPoint || "";
       rows = (tr.vans || []).map(function (v) { return { id: v.id, label: v.label }; }); tripName = tr.name || "";
-      shown = { id: admin ? data.id : id, token: admin ? data.token : "" };
-      if (admin) adminUrl = link(editPath(data.id, data.token));
+      shown = { id: id, token: "" };
       await loadFonts();
-      drawCard(admin ? "admin" : "guest").toBlob(function (blob) { if (!blob) { toast("สร้างรูปไม่สำเร็จ ลองใหม่อีกครั้ง", true); return; } openCard(admin ? "admin" : "guest", blob, admin ? "ADMIN PASS.png" : "SEAT PASS.png"); }, "image/png");
+      drawCard("guest").toBlob(function (blob) { if (!blob) { toast("สร้างรูปไม่สำเร็จ ลองใหม่อีกครั้ง", true); return; } openCard("guest", blob, "SEAT PASS.png"); }, "image/png");
     } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
   }
-  // Signed in with LINE: the trip belongs to the account, so the ADMIN PASS (secret edit link) is not offered;
-  // the secret still works in the background for old links and the picture page.
+  // signed-in state (every trip belongs to a LINE account)
   var SIGNED = false;
   var signedReady = fetch("/api/auth?me=1", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) { SIGNED = !!(d && d.user); if (SIGNED) document.documentElement.classList.add("signed"); }).catch(function () {});
   async function init() {
@@ -1349,19 +1241,17 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       try {
         var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store", headers: { "x-admin-key": K } });
         var data = await res.json();
-        if (!res.ok && K === "o" && res.status === 403) { // owner link: sign in first; signed in as someone else -> say so (no redirect loop)
+        if (!res.ok && res.status === 403) { // sign in first; signed in as someone else -> say so (no redirect loop)
           var who2 = null; try { who2 = (await (await fetch("/api/auth?me=1", { cache: "no-store" })).json()).user; } catch (e) {}
           if (!who2) { location.replace("/api/auth?start=1&r=" + encodeURIComponent("/trips#" + T + "-o")); return; }
           toast("ทริปนี้อยู่ในบัญชี LINE อื่น เข้าสู่ระบบด้วยบัญชีที่สร้างทริป", true); $("submit").disabled = true; return;
         }
         if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
-        if (data.claimable && K !== "o") { try { fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": K }, body: JSON.stringify({ claim: true, t: T }) }); } catch (e) {} } // signed in + secret: the trip joins this account
         var t = data.trip;
         $("name").value = t.name; $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || "";
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
         (function (m) { var sel = $("maxPer"), v = String(m == null ? 4 : m); if (![].some.call(sel.options, function (o) { return o.value === v; })) { var o = document.createElement("option"); o.value = v; o.textContent = v + " ที่นั่ง"; sel.appendChild(o); } sel.value = v; })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
-        remember(T, K, t.name);
         shown = { id: T, token: K }; $("shareBtn").hidden = false; $("dz").hidden = false;
         booked = data.booked || 0; perVan = data.perVan || {}; loaded = t;
       } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }

@@ -514,8 +514,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   var vanCache = {};         // van id -> last seats seen
   var counts = {};
   var seats = {};            // n -> {name, at} for the van on screen
-  var mineMap = {};          // n -> {at}: seats booked from this device (only used to tint them)
-  var me = null, isOwner = false, needLogin = false, claimTried = {}, seatLimit = 0; // signed-in LINE account (from the seats API)
+  var me = null, isOwner = false, needLogin = false, seatLimit = 0; // signed-in LINE account (from the seats API)
   var wantSeat = Number(params.get("seat")) || 0; // back from LINE sign-in: reopen the seat that was chosen
   if (params.has("li") || params.has("le") || params.has("seat")) { try { params.delete("li"); params.delete("le"); params.delete("seat"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params.toString() : "")); } catch (e) {} }
   function loginHref(seatN) {
@@ -598,25 +597,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     node.style.height = (r[3] / H * 100) + "%";
     return node;
   }
-  // Seats booked from this device are remembered per trip and van (old single-van data lives under "van-mine").
-  // organizer of this trip on this device (trip is in the "ทริปของฉัน" list) -> show a way back to the list
-  try { var AT = JSON.parse(localStorage.getItem("van-admin-trips") || "[]") || []; if (AT.some(function (x) { return x && x.id === TRIP; })) document.getElementById("myTrips").hidden = false; } catch (e) {}
-  function mineKey() { return TRIP === "default" && curVan === "A" ? "van-mine" : "van-mine:" + TRIP + ":" + curVan; }
-  function readMine() { try { return JSON.parse(localStorage.getItem(mineKey()) || "{}") || {}; } catch (e) { return {}; } }
-  function saveMine() { try { localStorage.setItem(mineKey(), JSON.stringify(mineMap)); } catch (e) {} }
   var extMine = {}; // seats to tint on the picture-only page (verified by the server, never stored, grants nothing)
-  function mine(n) { var s = seats[n], m = mineMap[n]; return !!(s && (s.m || (!s.a && m && m.at === s.at) || (extMine[n] !== undefined && extMine[n] === s.at))); }
+  // a seat is "mine" when the server says it is booked by the signed-in account (or, on the picture page, by the mark code)
+  function mine(n) { var s = seats[n]; return !!(s && (s.m || (extMine[n] !== undefined && extMine[n] === s.at))); }
 
-  function deviceId() {
-    try {
-      var d = localStorage.getItem("vsb_device");
-      if (!d || !/^[A-Za-z0-9-]{8,64}$/.test(d)) {
-        d = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 12));
-        localStorage.setItem("vsb_device", d);
-      }
-      return d;
-    } catch (e) { return ""; }
-  }
   async function api(method, body) {
     var url = API + "?t=" + encodeURIComponent(TRIP) + (curVan ? "&v=" + encodeURIComponent(curVan) : "");
     if (body) body = Object.assign({ t: TRIP, v: curVan }, body);
@@ -1033,7 +1017,6 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     vanCache[curVan] = seats;
     curVan = id; selected = null; confirming = false; message = "";
     seats = vanCache[id] || {}; loaded = !!vanCache[id]; lastSnapshot = JSON.stringify(seats);
-    mineMap = readMine();
     try { history.replaceState(null, "", location.pathname + "?" + new URLSearchParams(Object.assign({}, Object.fromEntries(params), { v: id })).toString()); } catch (e) {}
     renderAll(); refresh(true);
   }
@@ -1102,10 +1085,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         return;
       }
       if (r.data && r.data.trip) {
-        var firstLoad = !trip;
         trip = r.data.trip;
         if (!curVan || !trip.vans.some(function (v) { return v.id === curVan; })) curVan = r.data.van || trip.vans[0].id;
-        if (firstLoad) mineMap = readMine();
       }
       counts = (r.data && r.data.counts) || counts;
       ended = !!(r.data && r.data.ended);
@@ -1122,7 +1103,6 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip) + ended;
       seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff();
       if (changed || force) renderAll();
-      if (me && !claimTried[curVan]) claimSeats(curVan);
       if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !ended) openSeat(ws); }
     } catch (e) {
       loadError = "เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่";
@@ -1130,14 +1110,6 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     }
   }
 
-  // Signed in: seats this browser booked before signing in move to the account (the server checks booking time + browser id).
-  async function claimSeats(v) {
-    claimTried[v] = true;
-    var list = Object.keys(mineMap).map(function (k) { return { s: Number(k), at: mineMap[k] && mineMap[k].at }; })
-      .filter(function (c) { var s = seats[c.s]; return s && !s.a && typeof c.at === "number" && s.at === c.at; });
-    if (!list.length) return;
-    try { var r = await api("POST", { claim: list, d: deviceId() }); if (r.ok && r.data && r.data.claimed && r.data.claimed.length) refresh(true); } catch (e) {}
-  }
   async function book(n, rawName) {
     var name = cleanName(rawName).text;
     if (!name) { message = "ใส่ชื่อก่อนจอง"; renderPanel(); return; }
@@ -1149,11 +1121,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     pending++; renderAll();
     var failMsg = null;
     try {
-      var r = await api("POST", { seat: n, name: name, d: deviceId() });
+      var r = await api("POST", { seat: n, name: name });
       if (r.ok) {
-        if (seats[n] === temp) seats[n] = { name: name, at: r.data.at };
-        mineMap[n] = { at: r.data.at };
-        saveMine();
+        if (seats[n] === temp) seats[n] = { name: name, at: r.data.at, m: true, a: true };
         showToast("จองที่นั่ง " + n + " แล้ว");
         showInvite(n);
       } else if (r.data && r.data.error === "taken") {
@@ -1178,10 +1148,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     pending++; renderAll();
     var failMsg = null;
     try {
-      var r = await api("DELETE", { seat: n, d: deviceId() });
+      var r = await api("DELETE", { seat: n });
       if (r.ok) {
-        delete mineMap[n];
-        saveMine();
         showToast("ยกเลิกที่นั่ง " + n + " แล้ว");
       } else {
         failMsg = errorText(r, "ยกเลิกไม่สำเร็จ ลองอีกครั้ง");
@@ -1522,7 +1490,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   var lineUrl = "";
   async function buildLineUrl() { // link to the picture-only page, carrying a server-issued token for "my seats" when there are any
     var arr = [], k = "";
-    for (var n in mineMap) if (mine(Number(n))) arr.push({ seat: Number(n), at: mineMap[n].at });
+    for (var n in seats) if (mine(Number(n))) arr.push({ seat: Number(n), at: seats[n].at });
     if (arr.length) {
       try {
         var rr = await fetch("/api/mark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: TRIP, v: curVan, seats: arr }) });
