@@ -34,6 +34,8 @@ a { color: inherit; }
 .hi b { font: 600 16px var(--font-display); display: block; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hi small { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 5px; }
 .lnb { width: 14px; height: 14px; border-radius: 4px; background: var(--lg); color: #fff; font: 700 7px/14px sans-serif; text-align: center; }
+.wr { display: flex; align-items: center; gap: 8px; flex: none; }
+.ntag { align-self: flex-start; font-size: 11px; font-weight: 600; color: var(--amber); background: var(--amber-tint); border: 1px solid var(--amber-edge); border-radius: 99px; padding: 1px 9px; }
 .out { flex: none; height: 36px; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--line); background: transparent; font-size: 13px; font-weight: 500; color: var(--muted); }
 .seg { display: grid; grid-template-columns: 1fr 1fr; background: #e2e7ea; border-radius: 16px; padding: 4px; gap: 4px; }
 .seg button { height: 40px; border: 0; border-radius: 12px; background: transparent; display: flex; align-items: center; justify-content: center; gap: 6px; font: 500 15px var(--font-display); color: var(--muted); }
@@ -159,7 +161,7 @@ a { color: inherit; }
 
   <section id="meView" hidden>
     <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="who"><div class="hi"><div class="av" id="av"></div><div style="min-width:0"><b id="meName"></b><small><span class="lnb">LINE</span>เข้าสู่ระบบด้วย LINE</small></div></div><button class="out" id="logout" type="button">ออกจากระบบ</button></div>
+      <div class="who"><div class="hi"><div class="av" id="av"></div><div style="min-width:0"><b id="meName"></b><small><span class="lnb">LINE</span>เข้าสู่ระบบด้วย LINE</small></div></div><div class="wr"><span id="bellHost" style="display:flex"></span><button class="out" id="logout" type="button">ออกจากระบบ</button></div></div>
       <div class="seg" role="tablist"><button id="tabTrips" role="tab" aria-selected="false" type="button">ทริปของฉัน <span class="n" id="nTrips">0</span></button><button id="tabSeats" role="tab" aria-selected="false" type="button">ที่นั่งของฉัน <span class="n" id="nSeats">0</span></button></div>
       <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px"></div>
       <div id="paneSeats" style="display:flex;flex-direction:column;gap:12px" hidden></div>
@@ -169,6 +171,7 @@ a { color: inherit; }
   <div class="foot">© 2026</div>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script src="/bell.js"></script>
 <script>
 (function () {
   "use strict";
@@ -239,6 +242,7 @@ a { color: inherit; }
     if (up.length) section(pane, "กำลังจะถึง", "เรียงตามวันเดินทาง");
     up.forEach(function (x) {
       var c = node("div", "card"), r1 = node("div", "row1");
+      var tg0 = noteTag(x.id); if (tg0) c.appendChild(tg0);
       r1.appendChild(node("div", "t", x.name)); var p = statusPill(x); if (p) r1.appendChild(p); c.appendChild(r1);
       if (x.organizer) c.appendChild(node("div", "org", x.organizer));
       if (x.role === "helper") c.appendChild(node("div", "rolep", "คุณเป็นผู้ช่วยจัดทริปนี้"));
@@ -273,8 +277,14 @@ a { color: inherit; }
     if (done.length) { section(pane, "ผ่านมาแล้ว", ""); done.forEach(function (x) { pane.appendChild(ticket(x, true)); }); }
     pane.appendChild(node("div", "empty", list.length ? "เปิดลิงก์ทริปจากเพื่อนแล้วจอง ที่นั่งจะมาอยู่ที่นี่เอง · ใช้ได้ทั้งในมือถือและคอม" : "ยังไม่มีที่นั่งที่จองไว้ เปิดลิงก์ทริปจากเพื่อนแล้วจอง ที่นั่งจะมาอยู่ที่นี่เอง"));
   }
+  function noteTag(id) { // unread change of this trip -> short orange label
+    if (!window.VSBBell) return null;
+    var it = VSBBell.forTrip(id).map(function (x) { return VSBBell.tag(x); }).filter(Boolean)[0];
+    return it ? node("span", "ntag", it) : null;
+  }
   function ticket(x, past) {
     var c = node("div", "card tk" + (past ? " dim" : "")), l = node("div", "l");
+    var tg = past ? null : noteTag(x.id); if (tg) l.appendChild(tg);
     l.appendChild(node("div", "t", x.name));
     var m = node("div", "meta"), dr = dateRange(x.startDate, x.endDate), tm = x.departTime ? x.departTime.replace(":", ".") + " น." : "";
     if (dr || tm) { var s = node("span"); s.innerHTML = SV.cal; s.appendChild(node("i", null, [dr, tm].filter(Boolean).join(" · "))); m.appendChild(s); }
@@ -644,6 +654,7 @@ a { color: inherit; }
     try { var fl = sessionStorage.getItem("van-flash"); if (fl) { sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); setTimeout(function () { toast(fl); }, 300); } } catch (e) {}
     $("meName").textContent = me.name || "ผู้ใช้ LINE";
     if (JOIN) { try { history.replaceState(null, "", "/mytrips"); } catch (e) {} await joinTeam(JOIN); JOIN = ""; setTab("trips"); }
+    if (window.VSBBell) { VSBBell.mount($("bellHost")); VSBBell.onChange(function () { if (D) { renderTrips(D.trips); renderSeats(D.seats); } }); VSBBell.load(); }
     load();
   })();
 })();

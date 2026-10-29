@@ -71,6 +71,18 @@ header.trip { display: block; }
 .hbar .mytrips { margin-bottom: 8px; }
 .acct { margin: 0 0 8px auto; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px 0 4px; border-radius: 99px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); font: 600 13px var(--font-body); text-decoration: none; max-width: 60%; }
 .acct[hidden] { display: none; }
+.bellhost { margin: 0 0 8px auto; display: flex; }
+.bellhost + .acct { margin-left: 8px; }
+.chgban { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 12px; background: #fdf0dd; border: 1px solid #ecd3ad; border-radius: 16px; padding: 12px 10px 12px 12px; }
+.chgban[hidden] { display: none; }
+.chgban .ci { flex: none; width: 30px; height: 30px; border-radius: 50%; background: #b86e00; color: #fff; display: grid; place-items: center; }
+.chgban .ci svg { width: 17px; height: 17px; }
+.chgban .ct { flex: 1; min-width: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.chgban .ct b { display: block; font: 600 14px var(--font-display); color: #b86e00; }
+.chgban .ct em { font-style: normal; font-weight: 600; color: var(--ink); }
+.chgban .ct small { display: block; font-size: 11.5px; color: #8a979e; }
+.chgban .cx { flex: none; border: 0; background: none; color: var(--muted); font-size: 22px; line-height: 1; padding: 2px 6px; cursor: pointer; }
+.facts dd.chg { display: inline-block; justify-self: start; background: #fdf0dd; color: #b86e00; border-radius: 6px; padding: 0 6px; font-weight: 600; }
 .acct .aav { width: 24px; height: 24px; border-radius: 50%; background: #06c755; color: #fff; font: 600 12px/24px var(--font-display); text-align: center; overflow: hidden; flex: none; }
 .acct .aav img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .acct span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -381,10 +393,11 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 <body class="sk">
 <main>
   <header class="trip" id="tripHdr">
-    <div class="hbar"><a class="mytrips" id="myTrips" href="/mytrips" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a><a class="acct" id="acct" href="/mytrips" hidden></a></div>
+    <div class="hbar"><a class="mytrips" id="myTrips" href="/mytrips" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a><span class="bellhost" id="bellHost"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div>
     <div class="hero"><div class="ht"><h1>จองที่นั่งรถตู้</h1>
     <div class="org"><span>เลือกที่นั่งว่าง</span> <span>ใส่ชื่อ</span> <span>แล้วจองได้เลย</span></div></div><svg class="hv" viewBox="0 0 96 64" fill="none" aria-hidden="true"><path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="var(--mine)"/><circle cx="12" cy="10" r="3" fill="var(--hbg)"/></g><g transform="translate(-2 3) scale(.82)"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/><g fill="color-mix(in srgb,var(--mine) 25%,var(--surface))" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g><g fill="var(--ink)"><circle cx="26" cy="43" r="6.5"/><circle cx="70" cy="43" r="6.5"/></g><g fill="var(--surface)"><circle cx="26" cy="43" r="2.4"/><circle cx="70" cy="43" r="2.4"/></g></g></svg></div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
+    <div class="chgban" id="chgBan" hidden></div>
     <dl class="facts" id="tripFacts" hidden></dl>
     <div class="invite" id="invite" hidden><span class="ok"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><span class="tx"><b id="invT">จองที่นั่งแล้ว</b><small>ชวนเพื่อนมาจองด้วยกัน</small></span><button type="button" class="go" id="invGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>ส่งให้เพื่อน</button><button type="button" class="x" id="invX" aria-label="ปิด">×</button></div>
   </header>
@@ -476,6 +489,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+<script src="/bell.js"></script>
 <script>
 (function () {
   var TOTAL = 10;
@@ -537,7 +551,36 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       if (me.pic) { var im = document.createElement("img"); im.alt = ""; im.src = me.pic; im.referrerPolicy = "no-referrer"; av.appendChild(im); } else av.textContent = (me.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
       a.appendChild(av); a.appendChild(el("span", null, "ของฉัน"));
       var mt = document.getElementById("myTrips"); if (isOwner && mt) { mt.hidden = false; mt.href = "/mytrips"; }
+      startBell();
     } else { a.className = "acct out"; a.href = loginHref(0); a.appendChild(el("span", null, "เข้าด้วย LINE")); }
+  }
+  // ---- notifications: bell in the header, banner + highlighted facts for unread changes of this trip ----
+  var CHG = {}, bellOn = false;
+  var BAN_KINDS = { trip_changed: 1, seat_moved: 1, seat_cancelled: 1, seat_renamed: 1, van_removed: 1, became_owner: 1, helper_joined: 1 };
+  function startBell() {
+    if (bellOn || !window.VSBBell || IMG_ONLY) return;
+    bellOn = true;
+    VSBBell.mount(document.getElementById("bellHost"));
+    VSBBell.onChange(onBell);
+    VSBBell.load();
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) VSBBell.load(); });
+  }
+  function onBell() {
+    var its = VSBBell.forTrip(TRIP).filter(function (x) { return BAN_KINDS[x.k]; });
+    var was = JSON.stringify(CHG); CHG = {};
+    its.forEach(function (x) { if (x.k === "trip_changed") (x.ch || []).forEach(function (c) { CHG[c.f] = 1; }); });
+    var ban = document.getElementById("chgBan");
+    if (!its.length) { ban.hidden = true; ban.textContent = ""; }
+    else {
+      var it = its[0], tx = VSBBell.text(Object.assign({}, it, { tn: "\u0000" }));
+      var body = tx.body.replace("\u0000 · ", "").replace("\u0000<br>", "").replace("\u0000", "");
+      ban.innerHTML = '<span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1112 0v5l1.5 2h-15L6 16zM10 20.5a2 2 0 004 0"/></svg></span>' +
+        '<div class="ct"><b>' + tx.title + "</b>" + body + "<small>" + VSBBell.when(it.at) + (its.length > 1 ? " · และอีก " + (its.length - 1) + " รายการ (ดูที่กระดิ่ง)" : "") + "</small></div>" +
+        '<button type="button" class="cx" aria-label="ปิด">×</button>';
+      ban.querySelector(".cx").addEventListener("click", function () { VSBBell.read({ t: TRIP }); });
+      ban.hidden = false;
+    }
+    if (trip && JSON.stringify(CHG) !== was) renderTrip();
   }
   var loaded = false, loadError = "";
   function skOff() { document.body.classList.remove("sk"); }
@@ -990,9 +1033,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       van: '<path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/>',
       pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'
     };
-    if (dr) rows.push(["วันที่", dr, "cal"]);
-    if (trip.departTime) rows.push(["รถออก", trip.departTime.replace(":", ".") + " น.", "clk"]);
-    if (trip.meetPoint) rows.push(["นัดพบ", trip.meetPoint, "pin"]);
+    if (dr) rows.push(["วันที่", dr, "cal", "date"]);
+    if (trip.departTime) rows.push(["รถออก", trip.departTime.replace(":", ".") + " น.", "clk", "time"]);
+    if (trip.meetPoint) rows.push(["นัดพบ", trip.meetPoint, "pin", "meet"]);
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน (" + trip.vans.length * TOTAL + " ที่นั่ง)", "van"]);
     factsEl.textContent = "";
     var fh = el("div", "fhead");
@@ -1005,7 +1048,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       sv.setAttribute("viewBox", "0 0 24 24"); sv.setAttribute("fill", "none"); sv.setAttribute("stroke", "currentColor");
       sv.setAttribute("stroke-width", "2"); sv.setAttribute("stroke-linecap", "round"); sv.setAttribute("stroke-linejoin", "round");
       sv.setAttribute("aria-hidden", "true"); sv.innerHTML = IC[r[2]]; d.appendChild(sv);
-      d.appendChild(el("dt", null, r[0])); d.appendChild(el("dd", null, r[1])); factsEl.appendChild(d);
+      d.appendChild(el("dt", null, r[0])); d.appendChild(el("dd", r[3] && CHG[r[3]] ? "chg" : null, r[1])); factsEl.appendChild(d);
     });
     factsEl.hidden = false;
     var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0] || trip.vans[0];
@@ -1120,6 +1163,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       });
       var snap = JSON.stringify(next);
       var changed = snap !== lastSnapshot || !loaded || JSON.stringify(counts) !== lastCounts || JSON.stringify(trip) + ended !== lastTrip;
+      if (bellOn && loaded && lastTrip && JSON.stringify(trip) + ended !== lastTrip) VSBBell.load(); // the trip just changed: fetch its notification
       lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip) + ended;
       seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff();
       if (changed || force) renderAll();

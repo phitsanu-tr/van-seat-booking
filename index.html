@@ -176,11 +176,13 @@ a.path:active { background: var(--tint); }
   input.addEventListener("input", function () { showErr(""); });
 })();
 </script>
+<script src="/bell.js"></script>
 <script>(function(){ // account chip: "เข้าสู่ระบบ" (LINE) or "ของฉัน"
   var a=document.getElementById("acct"); if(!a)return;
   fetch("/api/auth?me=1",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
     var u=d&&d.user; a.textContent="";
-    if(u){a.className="acct in";a.href="/mytrips";var av=document.createElement("span");av.className="aav";if(u.pic){var im=document.createElement("img");im.alt="";im.src=u.pic;im.referrerPolicy="no-referrer";av.appendChild(im);}else av.textContent=(u.name||"?").replace(/^[เแโใไ]/,"").slice(0,1);a.appendChild(av);a.appendChild(document.createTextNode("ของฉัน"));}
+    if(u){a.className="acct in";a.href="/mytrips";var av=document.createElement("span");av.className="aav";if(u.pic){var im=document.createElement("img");im.alt="";im.src=u.pic;im.referrerPolicy="no-referrer";av.appendChild(im);}else av.textContent=(u.name||"?").replace(/^[เแโใไ]/,"").slice(0,1);a.appendChild(av);a.appendChild(document.createTextNode("ของฉัน"));
+      if(window.VSBBell){var h=document.createElement("span");h.style.cssText="display:flex;margin-left:auto;margin-right:8px";a.parentNode.insertBefore(h,a);VSBBell.mount(h);VSBBell.load();}}
     else{a.className="acct out";a.href="/api/auth?start=1&r=%2Fmytrips";a.textContent="เข้าด้วย LINE";}
     a.hidden=false;
   }).catch(function(){});

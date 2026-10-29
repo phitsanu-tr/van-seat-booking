@@ -204,6 +204,37 @@ function roleOf(trip, user) {
   if (Array.isArray(trip.helpers) && trip.helpers.some((h) => h && h.u === user.id)) return "helper";
   return null;
 }
+// ---- in-app notifications ("inbox:<uid>", newest first, last INBOX_MAX, kept INBOX_DAYS) ----
+// item: {id, k (kind), t (trip id), tn (trip name), at, by ("owner"|"helper"), ...details, r (1 = read)}
+const INBOX_MAX = 50, INBOX_DAYS = 60;
+function inboxKey(uid) { return "inbox:" + uid; }
+async function notify(uids, item, exceptUid) {
+  try {
+    const list = Array.from(new Set((uids || []).filter((u) => u && u !== exceptUid)));
+    if (!list.length) return;
+    const at = Date.now(), cmds = [];
+    list.forEach((u) => {
+      const it = JSON.stringify(Object.assign({ id: newId(8), at }, item));
+      cmds.push(["LPUSH", inboxKey(u), it], ["LTRIM", inboxKey(u), "0", String(INBOX_MAX - 1)], ["EXPIRE", inboxKey(u), String(INBOX_DAYS * 86400)]);
+    });
+    await pipeline(cmds);
+  } catch (e) { /* best effort: never breaks the action that caused it */ }
+}
+// account ids of everyone booked in the trip, per van: { vanId: [uid, ...] }
+async function tripBookers(trip) {
+  const out = {};
+  try {
+    const all = await pipeline(trip.vans.map((v) => ["HGETALL", seatsKey(trip.id, v.id)]));
+    trip.vans.forEach((v, i) => {
+      const flat = all[i] || [], us = [];
+      for (let j = 1; j < flat.length; j += 2) { try { const r = JSON.parse(flat[j]); if (r && r.u) us.push(r.u); } catch (e) { /* skip */ } }
+      out[v.id] = us;
+    });
+  } catch (e) { /* best effort */ }
+  return out;
+}
+function teamIds(trip) { return [trip.owner].concat((trip.helpers || []).map((h) => h.u)).filter(Boolean); }
+function vanLabel(trip, id) { const v = (trip.vans || []).find((x) => x.id === id); return v ? v.label : id; }
 // Seats one account may hold in one trip (all vans together). The organizer is not limited. 0 = no limit.
 const DEFAULT_MAX_PER_PERSON = 4;
 function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); return Number.isInteger(n) && n >= 0 && n <= 50 ? n : DEFAULT_MAX_PER_PERSON; }
@@ -211,5 +242,5 @@ function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); retur
 module.exports = {
   TOTAL_SEATS, REST_URL, REST_TOKEN, pipeline, redis, readBody, json,
   tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, NAME_MAX, newId, crypto,
-  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, DEFAULT_MAX_PER_PERSON, maxPerPerson,
+  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, notify, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };

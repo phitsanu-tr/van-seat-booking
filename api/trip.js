@@ -107,6 +107,7 @@ module.exports = async function handler(req, res) {
       await saveTrip(next);
       await L.pipeline([["SADD", L.myTripsKey(user.id), t], ["EXPIRE", L.myTripsKey(user.id), String(L.MY_DAYS * 86400)]]);
       await L.logEvent(t, { e: "helper_join", n: user.name, u: user.id, at: Date.now() });
+      await L.notify([trip.owner], { k: "helper_joined", t, tn: trip.name, n: user.name });
       return L.json(res, 200, { ok: true, id: t, name: trip.name });
     }
     if (req.method === "POST" && (pb.invite !== undefined || pb.removeHelper !== undefined || pb.leave !== undefined || pb.transfer !== undefined)) {
@@ -145,6 +146,7 @@ module.exports = async function handler(req, res) {
         const next = Object.assign({}, trip, { helpers });
         await saveTrip(next); await L.redis(["SREM", L.myTripsKey(h.u), t]);
         await L.logEvent(t, { e: "helper_remove", n: h.n, u: user.id, ou: h.u, at: Date.now() });
+        await L.notify([h.u], { k: "removed_team", t, tn: trip.name });
         return L.json(res, 200, Object.assign({ ok: true }, team(next, user)));
       }
       // transfer: helper #i becomes the owner, the old owner stays on as a helper
@@ -154,6 +156,7 @@ module.exports = async function handler(req, res) {
       if (trip.invite && trip.invite.c) { try { await L.redis(["DEL", "inv:" + trip.invite.c]); } catch (e) { /* best effort */ } }
       await saveTrip(next);
       await L.logEvent(t, { e: "transfer", n: h.n, u: user.id, ou: h.u, at: Date.now() });
+      await L.notify([h.u], { k: "became_owner", t, tn: trip.name, n: trip.ownerName || "" });
       return L.json(res, 200, Object.assign({ ok: true }, team(next, user)));
     }
     if (req.method === "POST") {
@@ -203,12 +206,14 @@ module.exports = async function handler(req, res) {
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (!isOwner(trip, user)) return isManager(trip, user) ? L.json(res, 403, { error: "owner_only" }) : deny(res, user);
+      const bookers = await L.tripBookers(trip); // read before the seats are gone
       const cmds = [["DEL", L.tripKey(t)], ["DEL", L.logKey(t)]];
       if (trip.owner) cmds.push(["SREM", L.myTripsKey(trip.owner), t]);
       (trip.helpers || []).forEach((h) => cmds.push(["SREM", L.myTripsKey(h.u), t]));
       if (trip.invite && trip.invite.c) cmds.push(["DEL", "inv:" + trip.invite.c]);
       trip.vans.forEach((v) => cmds.push(["DEL", L.seatsKey(t, v.id)]));
       await L.pipeline(cmds);
+      await L.notify([].concat(...Object.values(bookers), L.teamIds(trip)), { k: "trip_deleted", t, tn: trip.name, by: "owner" }, user.id);
       return L.json(res, 200, { ok: true });
     }
 
@@ -225,10 +230,21 @@ module.exports = async function handler(req, res) {
       const kept = new Set(next.map((v) => v.id));
       const removed = oldIds.filter((id) => !kept.has(id));
       const updated = Object.assign({}, trip, c.value, { vans: next, schemaVersion: 1, updatedAt: Date.now() });
+      const bookers = await L.tripBookers(trip); // before removed vans lose their seats
       const cmds = [["SET", L.tripKey(t), JSON.stringify(updated)]];
       removed.forEach((id) => cmds.push(["DEL", L.seatsKey(t, id)]));
       await L.pipeline(cmds);
       await L.applyExpiry(updated); // SET cleared the TTL; dates may have changed
+      // notifications: what passengers care about (name, dates, departure, meeting point) and removed vans
+      const by = L.roleOf(trip, user), ch = [];
+      if ((trip.name || "") !== (updated.name || "")) ch.push({ f: "name", o: trip.name || "", n: updated.name || "" });
+      if ((trip.startDate || "") !== (updated.startDate || "") || (trip.endDate || "") !== (updated.endDate || "")) ch.push({ f: "date", o: [trip.startDate || "", trip.endDate || ""], n: [updated.startDate || "", updated.endDate || ""] });
+      if ((trip.departTime || "") !== (updated.departTime || "")) ch.push({ f: "time", o: trip.departTime || "", n: updated.departTime || "" });
+      if ((trip.meetPoint || "") !== (updated.meetPoint || "")) ch.push({ f: "meet", o: trip.meetPoint || "", n: updated.meetPoint || "" });
+      const gone = new Set();
+      removed.forEach((id) => { (bookers[id] || []).forEach((u) => gone.add(u)); });
+      if (gone.size) await L.notify(Array.from(gone), { k: "van_removed", t, tn: updated.name, vl: L.vanLabel(trip, removed[0]), by }, user.id);
+      if (ch.length) await L.notify([].concat(...next.map((v) => bookers[v.id] || []), L.teamIds(updated)), { k: "trip_changed", t, tn: updated.name, ch, by }, user.id);
       return L.json(res, 200, { ok: true, trip: tripSummary(updated, user) });
     }
 

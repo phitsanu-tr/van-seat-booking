@@ -80,6 +80,7 @@ module.exports = async function handler(req, res) {
       const old = rec.name; rec.name = name;
       await L.redis(["HSET", key, String(seat), JSON.stringify(rec)]);
       await L.logEvent(t, { e: "rename", v: van.id, s: seat, n: name, on: old, u: user.id, by: isOwner && rec.u !== user.id ? role : undefined, at: Date.now() });
+      if (rec.u && rec.u !== user.id) await L.notify([rec.u], { k: "seat_renamed", t, tn: trip.name, vl: van.label, s: seat, o: old, n: name, by: role });
       return L.json(res, 200, { ok: true, name, at: rec.at });
     }
 
@@ -110,6 +111,8 @@ module.exports = async function handler(req, res) {
       await L.pipeline(cmds);
       const exp = L.expireAtFor(trip);
       if (exp && exp > Math.floor(Date.now() / 1000)) { try { await L.redis(["EXPIREAT", tk, String(exp)]); } catch (e) { /* best effort */ } }
+      await L.notify(a.u ? [a.u] : [], { k: "seat_moved", t, tn: trip.name, fvl: fromVan.label, fs, tvl: toVan.label, ts, by: role }, user.id);
+      if (b && b.u) await L.notify([b.u], { k: "seat_moved", t, tn: trip.name, fvl: toVan.label, fs: ts, tvl: fromVan.label, ts: fs, by: role }, user.id);
       await L.logEvent(t, { e: b ? "swap" : "move", v: fromVan.id, s: fs, tv: toVan.id, ts, n: a.name, n2: b ? b.name : undefined, u: user.id, by: role, at: Date.now() });
       return L.json(res, 200, { ok: true, swapped: !!b });
     }
@@ -158,6 +161,7 @@ module.exports = async function handler(req, res) {
       const removed = await L.redis(["HDEL", key, String(seat)]);
       if (Number(removed) === 1) {
         if (prev.u) { try { await L.redis(["SREM", L.mySeatsKey(prev.u), t + "|" + van.id + "|" + seat]); } catch (e) { /* best effort */ } }
+        if (prev.u && prev.u !== user.id) await L.notify([prev.u], { k: "seat_cancelled", t, tn: trip.name, vl: van.label, s: seat, by: role });
         await L.logEvent(t, { e: "cancel", v: van.id, s: seat, n: String(prev.name || ""), u: user.id, ou: prev.u, by: isOwner && user.id !== prev.u ? role : undefined, at: Date.now() });
       }
       return L.json(res, 200, { ok: true });

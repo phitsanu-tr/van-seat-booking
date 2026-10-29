@@ -3,6 +3,8 @@
 // DELETE /api/me { trips: "delete" | "keep" } — "delete my data": upcoming seats are cancelled, seats on finished trips
 // lose the link to the account (the name stays on the organizer's list), my trips are deleted or kept without an owner,
 // the account id is removed from those trips' logs, and every session of the account ends.
+// GET ?inbox=1 -> { items, unread }   in-app notifications (newest first)
+// POST { read: "all" | { t } | { id } } -> marks notifications read (all / one trip / one item)
 const L = require("./_lib");
 const MAX = 60;
 
@@ -59,6 +61,8 @@ async function deleteAll(req, res, user, dropTrips) {
       continue;
     }
     if (dropTrips) {
+      const bookers = await L.tripBookers(t);
+      await L.notify([].concat(...Object.values(bookers), L.teamIds(t)), { k: "trip_deleted", t: id, tn: t.name, by: "owner" }, uid);
       const del = [["DEL", L.tripKey(id)], ["DEL", L.logKey(id)]];
       if (t.invite && t.invite.c) del.push(["DEL", "inv:" + t.invite.c]);
       t.vans.forEach((v) => del.push(["DEL", L.seatsKey(id, v.id)]));
@@ -90,7 +94,7 @@ async function deleteAll(req, res, user, dropTrips) {
   }
 
   // the account itself: indexes and every session
-  const end = [["DEL", L.myTripsKey(uid)], ["DEL", L.mySeatsKey(uid)], ["DEL", "usess:" + uid], ["DEL", "sess:" + user.sid]];
+  const end = [["DEL", L.myTripsKey(uid)], ["DEL", L.mySeatsKey(uid)], ["DEL", L.inboxKey(uid)], ["DEL", "usess:" + uid], ["DEL", "sess:" + user.sid]];
   (sids || []).forEach((sid) => { if (/^[a-z0-9]{32}$/.test(String(sid))) end.push(["DEL", "sess:" + sid]); });
   await L.pipeline(end);
   res.setHeader("Set-Cookie", [L.cookieStr(req, "vsb_s", "", 0)]);
@@ -99,11 +103,34 @@ async function deleteAll(req, res, user, dropTrips) {
 
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
-  if (req.method !== "GET" && req.method !== "DELETE") { res.setHeader("Allow", "GET, DELETE"); return L.json(res, 405, { error: "method_not_allowed" }); }
+  if (req.method !== "GET" && req.method !== "DELETE" && req.method !== "POST") { res.setHeader("Allow", "GET, POST, DELETE"); return L.json(res, 405, { error: "method_not_allowed" }); }
   try {
     const user = await L.currentUser(req);
     if (!user) return L.json(res, 401, { error: "login_required" });
     if (req.method === "DELETE") return deleteAll(req, res, user, L.readBody(req).trips === "delete");
+    if (req.method === "GET" && req.query && req.query.inbox !== undefined) {
+      const rows = (await L.redis(["LRANGE", L.inboxKey(user.id), "0", String(L.INBOX_MAX - 1)])) || [];
+      const items = []; rows.forEach((r) => { try { items.push(JSON.parse(r)); } catch (e) { /* skip */ } });
+      return L.json(res, 200, { items, unread: items.filter((x) => !x.r).length });
+    }
+    if (req.method === "POST") {
+      const rd = L.readBody(req).read;
+      const k = L.inboxKey(user.id);
+      const [rows, pttl] = await L.pipeline([["LRANGE", k, "0", String(L.INBOX_MAX - 1)], ["PTTL", k]]);
+      let changed = false;
+      const out = (rows || []).map((r) => {
+        let x = null; try { x = JSON.parse(r); } catch (e) { return r; }
+        const hit = rd === "all" || (rd && typeof rd === "object" && ((rd.t && x.t === rd.t) || (rd.id && x.id === rd.id)));
+        if (hit && !x.r) { x.r = 1; changed = true; return JSON.stringify(x); }
+        return r;
+      });
+      if (changed) {
+        const w = [["DEL", k], ["RPUSH", k].concat(out)];
+        w.push(Number(pttl) > 0 ? ["PEXPIRE", k, String(pttl)] : ["EXPIRE", k, String(L.INBOX_DAYS * 86400)]);
+        await L.pipeline(w);
+      }
+      return L.json(res, 200, { ok: true, unread: out.filter((r) => { try { return !JSON.parse(r).r; } catch (e) { return false; } }).length });
+    }
     const [tripIds, seatRefs] = await L.pipeline([["SMEMBERS", L.myTripsKey(user.id)], ["SMEMBERS", L.mySeatsKey(user.id)]]);
     const refs = (seatRefs || []).map((r) => String(r).split("|")).filter((p) => p.length === 3 && L.tripId(p[0]) && L.parseSeat(p[2]) !== null).slice(0, MAX);
     const ids = Array.from(new Set((tripIds || []).map(String).filter((x) => L.tripId(x)).slice(0, MAX).concat(refs.map((p) => p[0]))));
