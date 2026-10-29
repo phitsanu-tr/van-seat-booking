@@ -182,6 +182,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .modal.admin .mbar { background: #5f6b73; }
 .xbtn { color: #fff; }
 .step { display: flex; flex-direction: column; gap: 14px; }
+.signed #result .dots { display: none; }
 .steps { display: grid; grid-template-columns: minmax(0, 1fr); }
 .steps > .step { grid-area: 1 / 1; }
 .step[hidden] { display: flex !important; visibility: hidden; pointer-events: none; }
@@ -935,11 +936,11 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
     urlBox($("adminUrl"), adminCode(token, id), "แตะเพื่อคัดลอกลิงก์");
     $("saveMsg").textContent = ""; $("seatMsg").textContent = "";
     $("backdrop").hidden = false; document.body.style.overflow = "hidden";
-    setStep(1);
+    setStep(1); // signed in: only the guest step (the admin tab is hidden by the .signed class)
   }
   var goList = false; // right after creating a trip, closing the result sheet leads to the my-trips list
   function closeResult() {
-    if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = "/trips"; return; }
+    if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = SIGNED ? "/my" : "/trips"; return; }
     $("backdrop").hidden = true; document.body.style.overflow = "";
   }
   $("closeX").addEventListener("click", closeResult);
@@ -1478,7 +1479,7 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       if (!r.ok && r.status !== 404) { var d = {}; try { d = await r.json(); } catch (e) {} toast(ERR[d.error] || "ลบไม่สำเร็จ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; return; }
       saveMine(loadMine().filter(function (y) { return y.id !== T; }));
       try { sessionStorage.setItem("van-flash", "ลบทริปแล้ว"); } catch (e) {}
-      location.href = "/trips";
+      location.href = SIGNED ? "/my" : "/trips";
     } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
   });
 
@@ -1500,6 +1501,10 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
       drawCard(admin ? "admin" : "guest").toBlob(function (blob) { if (!blob) { toast("สร้างรูปไม่สำเร็จ ลองใหม่อีกครั้ง", true); return; } openCard(admin ? "admin" : "guest", blob, admin ? "ADMIN PASS.png" : "SEAT PASS.png"); }, "image/png");
     } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
   }
+  // Signed in with LINE: the trip belongs to the account, so the ADMIN PASS (secret edit link) is not offered;
+  // the secret still works in the background for old links and the picture page.
+  var SIGNED = false;
+  var signedReady = fetch("/api/auth?me=1", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) { SIGNED = !!(d && d.user); if (SIGNED) document.documentElement.classList.add("signed"); }).catch(function () {});
   async function init() {
     if (CARD_ONLY) { cardOnly(); return; }
     if (listMode) {

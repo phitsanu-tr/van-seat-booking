@@ -681,7 +681,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
           b.setAttribute("aria-label", "ที่นั่ง " + n + " ว่าง");
         }
         if (selected === n) { b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
-        b.addEventListener("click", function () { if (ended) return; selected = n; wasFree = !seats[n]; message = ""; confirming = false; renderAll(); });
+        b.addEventListener("click", function () { if (ended) return; selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll(); });
         overlayEl.appendChild(frame(b, RECT[n]));
       })(n);
     }
@@ -718,8 +718,22 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       window.scrollTo(0, lockY); lockY = null;
     }
   }
-  function closeModal() { selected = null; message = ""; confirming = false; renderAll(); }
-  function openSeat(n) { selected = n; wasFree = !seats[n]; message = ""; confirming = false; renderAll(); }
+  var renaming = false; // the dialog shows the "edit name" form for the visitor's own seat
+  function closeModal() { selected = null; message = ""; confirming = false; renaming = false; renderAll(); }
+  function openSeat(n) { selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll(); }
+  async function renameSeat(n, rawName) {
+    var name = cleanName(rawName).text;
+    if (!name) { message = "ใส่ชื่อก่อน"; renderPanel(); return; }
+    if (!hasBaseLetter(name)) { message = "ต้องมีตัวอักษรอย่างน้อย 1 ตัว"; renderPanel(); return; }
+    if (seats[n] && name === seats[n].name) { renaming = false; renderPanel(); return; }
+    pending++;
+    try {
+      var r = await api("PATCH", { seat: n, name: name });
+      if (r.ok) { if (seats[n]) seats[n].name = name; renaming = false; message = ""; showToast("แก้ชื่อที่นั่ง " + n + " แล้ว"); }
+      else { message = errorText(r, "แก้ชื่อไม่สำเร็จ ลองอีกครั้ง"); }
+    } catch (e) { message = "แก้ชื่อไม่สำเร็จ ตรวจสอบอินเทอร์เน็ต"; }
+    pending--; renderAll(); refresh(false);
+  }
 
   var TH_MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   function fmtAt(at) {
@@ -801,6 +815,21 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       sure.type = "button";
       sure.addEventListener("click", function () { cancelSeat(n); });
       actions.appendChild(sure);
+    } else if (s && renaming) { // edit the name on my own seat (or, for the organizer, anyone's)
+      var rin = el("input");
+      rin.type = "text"; rin.id = "nameInput"; rin.value = typedName || s.name;
+      rin.autocomplete = "off"; rin.autocapitalize = "off"; rin.spellcheck = false; rin.setAttribute("aria-label", "ชื่อบนผัง");
+      rin.addEventListener("input", function () { var c = cleanName(rin.value).text; if (c !== rin.value) rin.value = c; });
+      rin.addEventListener("keydown", function (e) { if (e.key === "Enter") renameSeat(n, rin.value); });
+      var rw = el("div", "nmwrap"); rw.appendChild(rin); panelEl.appendChild(rw);
+      if (message) panelEl.appendChild(el("div", "msg", message));
+      actions.appendChild(plainBtn("ย้อนกลับ", function () { renaming = false; message = ""; renderPanel(); }));
+      var sv = el("button", "primary", "บันทึกชื่อ"); sv.type = "button";
+      sv.addEventListener("click", function () { renameSeat(n, rin.value); });
+      actions.appendChild(sv);
+      panelEl.appendChild(actions);
+      if (opening || !hadFocus) setTimeout(function () { try { rin.focus(); } catch (e) {} }, 30);
+      return;
     } else if (s && wasFree && !mine(n)) { // someone else took it while this dialog was open: say so, and do not offer a cancel button
       var warn = el("div", "minfo warn");
       warn.setAttribute("role", "alert");
@@ -826,6 +855,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         lg2.appendChild(lb2); panelEl.appendChild(lg2);
         actions.appendChild(plainBtn("ปิด", closeModal));
       } else if (!s.a || mine(n) || isOwner) { // a seat booked with an account: only its owner or the trip's organizer may cancel it
+        if (me && ((mine(n) && s.a) || isOwner)) actions.appendChild(plainBtn("แก้ชื่อ", function () { renaming = true; message = ""; renderPanel(); }));
         var cancel = el("button", "ghost", !mine(n) && s.a && isOwner ? "ยกเลิกให้ (คนจัดทริป)" : "ยกเลิกการจอง");
         cancel.type = "button";
         cancel.addEventListener("click", function () { confirming = true; message = ""; renderPanel(); });

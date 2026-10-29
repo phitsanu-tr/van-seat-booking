@@ -187,7 +187,20 @@ module.exports = async function handler(req, res) {
       const perVan = {};
       trip.vans.forEach((v, i) => { perVan[v.id] = Number(counts[i]) || 0; });
       const booked = counts.reduce((a, n) => a + (Number(n) || 0), 0);
-      return L.json(res, 200, { trip: tripSummary(trip, user), booked, perVan, claimable: !!(user && !trip.owner) });
+      let roster;
+      if (req.query.roster !== undefined) { // organizer's passenger list: every seat of every van (no account ids)
+        const all = await L.pipeline(trip.vans.map((v) => ["HGETALL", L.seatsKey(t, v.id)]));
+        roster = {};
+        trip.vans.forEach((v, i) => {
+          const flat = all[i] || [], seats = {};
+          for (let j = 0; j + 1 < flat.length; j += 2) {
+            const n = L.parseSeat(flat[j]); if (n === null) continue;
+            try { const r = JSON.parse(flat[j + 1]); if (r && r.name) seats[n] = Object.assign({ name: String(r.name), at: r.at }, r.u ? { a: 1 } : {}, user && r.u === user.id ? { m: 1 } : {}); } catch (e) { /* skip */ }
+          }
+          roster[v.id] = seats;
+        });
+      }
+      return L.json(res, 200, { trip: tripSummary(trip, user), booked, perVan, claimable: !!(user && !trip.owner), roster, ended: L.tripEnded(trip) });
     }
 
     if (req.method === "DELETE") {

@@ -62,7 +62,58 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { claimed });
     }
 
-    if ((req.method === "POST" || req.method === "DELETE") && await L.rateLimited(req, user, "seat:" + t, 30, 600)) return L.json(res, 429, { error: "too_many" });
+    if ((req.method === "POST" || req.method === "DELETE" || req.method === "PATCH") && await L.rateLimited(req, user, "seat:" + t, 30, 600)) return L.json(res, 429, { error: "too_many" });
+    if ((req.method === "PATCH" || (req.method === "POST" && body.move)) && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
+
+    if (req.method === "PATCH") {
+      // rename a seat: the person who booked it, or the organizer. The booking time stays (it identifies the booking).
+      if (!user) return L.json(res, 401, { error: "login_required" });
+      const seat = L.parseSeat(body.seat);
+      if (seat === null) return L.json(res, 400, { error: "bad_seat" });
+      const rawName = String(body.name || "");
+      const name = L.cleanName(rawName).text;
+      if (!rawName.trim()) return L.json(res, 400, { error: "bad_name" });
+      if (name !== rawName || !L.hasBaseLetter(name)) return L.json(res, 400, { error: "name_chars" });
+      const raw = await L.redis(["HGET", key, String(seat)]);
+      let rec = null; try { rec = JSON.parse(raw); } catch (e) { rec = null; }
+      if (!rec) return L.json(res, 404, { error: "no_seat" });
+      if (!(rec.u ? rec.u === user.id || isOwner : isOwner)) return L.json(res, 403, { error: "not_yours" });
+      const old = rec.name; rec.name = name;
+      await L.redis(["HSET", key, String(seat), JSON.stringify(rec)]);
+      await L.logEvent(t, { e: "rename", v: van.id, s: seat, n: name, on: old, u: user.id, by: isOwner && rec.u !== user.id ? "owner" : undefined, at: Date.now() });
+      return L.json(res, 200, { ok: true, name, at: rec.at });
+    }
+
+    if (req.method === "POST" && body.move) {
+      // organizer moves a passenger to another seat / van; an occupied target swaps the two seats
+      if (!user) return L.json(res, 401, { error: "login_required" });
+      if (!isOwner) return L.json(res, 403, { error: "not_owner" });
+      const m = body.move || {};
+      const fromVan = trip.vans.find((x) => x.id === String(m.fromVan || "")), toVan = trip.vans.find((x) => x.id === String(m.toVan || ""));
+      const fs = L.parseSeat(m.fromSeat), ts = L.parseSeat(m.toSeat);
+      if (!fromVan || !toVan || fs === null || ts === null) return L.json(res, 400, { error: "bad_seat" });
+      if (fromVan.id === toVan.id && fs === ts) return L.json(res, 200, { ok: true });
+      const fk = L.seatsKey(t, fromVan.id), tk = L.seatsKey(t, toVan.id);
+      const [fr, tr] = await L.pipeline([["HGET", fk, String(fs)], ["HGET", tk, String(ts)]]);
+      let a = null, b = null; try { a = JSON.parse(fr); } catch (e) { a = null; } try { b = JSON.parse(tr); } catch (e) { b = null; }
+      if (!a) return L.json(res, 404, { error: "no_seat" });
+      if (b && m.swap !== true) return L.json(res, 409, { error: "taken" });
+      const ref = (v, s) => t + "|" + v + "|" + s;
+      const cmds = [["HSET", tk, String(ts), JSON.stringify(a)]];
+      if (b) cmds.push(["HSET", fk, String(fs), JSON.stringify(b)]); else cmds.push(["HDEL", fk, String(fs)]);
+      if (a.u) cmds.push(["SREM", L.mySeatsKey(a.u), ref(fromVan.id, fs)], ["SADD", L.mySeatsKey(a.u), ref(toVan.id, ts)]);
+      if (b && b.u) cmds.push(["SREM", L.mySeatsKey(b.u), ref(toVan.id, ts)], ["SADD", L.mySeatsKey(b.u), ref(fromVan.id, fs)]);
+      if (!b) { // HSETNX-style guard: the target must still be empty (someone may have booked it meanwhile)
+        const ok = await L.redis(["HSETNX", tk, String(ts), JSON.stringify(a)]);
+        if (ok !== 1) return L.json(res, 409, { error: "taken" });
+        cmds.shift();
+      }
+      await L.pipeline(cmds);
+      const exp = L.expireAtFor(trip);
+      if (exp && exp > Math.floor(Date.now() / 1000)) { try { await L.redis(["EXPIREAT", tk, String(exp)]); } catch (e) { /* best effort */ } }
+      await L.logEvent(t, { e: b ? "swap" : "move", v: fromVan.id, s: fs, tv: toVan.id, ts, n: a.name, n2: b ? b.name : undefined, u: user.id, by: "owner", at: Date.now() });
+      return L.json(res, 200, { ok: true, swapped: !!b });
+    }
 
     if (req.method === "POST") {
       if (L.REQUIRE_LOGIN && !user) return L.json(res, 401, { error: "login_required" });
@@ -115,7 +166,7 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { ok: true });
     }
 
-    res.setHeader("Allow", "GET, POST, DELETE");
+    res.setHeader("Allow", "GET, POST, PATCH, DELETE");
     return L.json(res, 405, { error: "method_not_allowed" });
   } catch (e) {
     return L.json(res, 502, { error: "storage_error" });

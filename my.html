@@ -96,11 +96,36 @@ a { color: inherit; }
 .sheet { width: 100%; max-width: 460px; background: var(--surface); border-radius: 24px 24px 0 0; padding: 10px 20px calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; }
 .grab { width: 40px; height: 5px; border-radius: 9px; background: #d5dce0; margin: 0 auto 2px; }
 .sheet h3 { font: 600 19px var(--font-display); margin: 0; }
+.sheet { max-height: 88vh; max-height: 88dvh; overflow-y: auto; }
+.ros { width: 100%; height: 40px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--bg); font-size: 13px; font-weight: 600; color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 6px; }
+.vchips { display: flex; gap: 6px; flex-wrap: wrap; }
+.vchips button { height: 34px; padding: 0 12px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--muted); }
+.vchips button.on { border-color: var(--amber); background: var(--amber-tint); color: var(--amber); }
+.rlist { display: flex; flex-direction: column; border: 1px solid var(--edge); border-radius: 16px; overflow: hidden; }
+.rrow { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--edge); }
+.rrow:last-child { border-bottom: 0; }
+.rrow .no { flex: none; width: 32px; height: 32px; border-radius: 10px; background: var(--tint); color: var(--deep); font: 600 15px/32px var(--font-display); text-align: center; }
+.rrow .nm2 { flex: 1; min-width: 0; }
+.rrow .nm2 b { display: block; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rrow .nm2 small { color: var(--muted); font-size: 12px; }
+.rrow .ra { display: flex; gap: 6px; flex: none; }
+.rrow .ra button { height: 32px; padding: 0 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); font-size: 12px; font-weight: 600; color: var(--ink); }
+.rrow .ra button.dg { border-color: #efcfcc; color: var(--danger); }
+.rfree { font-size: 13px; color: var(--muted); }
+.sgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.sgrid button { height: 52px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font: 600 16px var(--font-display); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; padding: 2px; }
+.sgrid button small { font: 500 10px var(--font-body); color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sgrid button.tk2 { background: #eef1f3; }
+.sgrid button.cur { border-color: var(--amber); background: var(--amber-tint); }
+.sgrid button.pick { border-color: var(--mine); background: var(--tint); box-shadow: 0 0 0 3px rgba(14,124,134,.18); }
+.sgrid button:disabled { opacity: .5; }
+.nin { width: 100%; height: 48px; font: inherit; font-size: 16px; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 16px; padding: 0 14px; }
+.nin:focus { outline: none; border-color: var(--mine); }
 .sheet p { margin: 0; color: var(--muted); font-size: 14px; }
 .sheet .acts button { height: 48px; border-radius: 16px; font-size: 15px; font-weight: 600; }
 .b-plain { background: transparent; border: 1.5px solid var(--line); color: var(--ink); }
 .b-danger { background: var(--danger); border: 1.5px solid var(--danger); color: #fff; }
-.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 14px; padding: 10px 16px; border-radius: 12px; z-index: 30; max-width: calc(100% - 32px); text-align: center; }
+.toast { position: fixed; left: 50%; top: calc(14px + env(safe-area-inset-top)); transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 14px; padding: 10px 16px; border-radius: 12px; z-index: 30; max-width: calc(100% - 32px); text-align: center; }
 .toast.bad { background: var(--danger); }
 .data { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--muted); }
 .data a { color: var(--muted); }
@@ -212,6 +237,7 @@ a { color: inherit; }
       c.appendChild(meta(x, true));
       var full = x.total && x.booked >= x.total, bar = node("div", "bar" + (full ? " full" : "")), bi = node("i"); bi.style.width = (x.total ? Math.min(100, Math.round(x.booked / x.total * 100)) : 0) + "%"; bar.appendChild(bi); c.appendChild(bar);
       var bt = node("div", "bt"); bt.appendChild(document.createTextNode("จองแล้ว ")); bt.appendChild(node("b", null, String(x.booked))); bt.appendChild(document.createTextNode("/" + x.total + " ที่นั่ง")); c.appendChild(bt);
+      var ros = node("button", "ros", "รายชื่อผู้จอง · จัดการที่นั่ง"); ros.type = "button"; ros.addEventListener("click", function () { openRoster(x); }); c.appendChild(ros);
       var acts = node("div", "acts"), ed = node("a", "ab am", "แก้ไขทริป"); ed.href = "/trips#" + x.id + "-o";
       var sh = node("button", "ab tl", "แชร์ลิงก์จอง"); sh.type = "button"; sh.addEventListener("click", function () { shareTrip(x); });
       acts.appendChild(ed); acts.appendChild(sh); c.appendChild(acts);
@@ -295,6 +321,135 @@ a { color: inherit; }
     });
     acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
     document.body.appendChild(bd);
+  }
+
+  // ---- organizer: passenger list per van, rename / move (swap) / cancel ----
+  var NAME_MAX = 16;
+  function cleanName(input) { // same rules as the server (Thai + English letters only, marks after a consonant)
+    var src = Array.from(String(input == null ? "" : input).normalize("NFC")), out = "", prev = "", marks = 0;
+    for (var i = 0; i < src.length; i++) {
+      var ch = src[i], c = ch.charCodeAt(0), cons = c >= 0x0E01 && c <= 0x0E2E, lead = c >= 0x0E40 && c <= 0x0E45, mark = (c >= 0x0E30 && c <= 0x0E39) || (c >= 0x0E47 && c <= 0x0E4C);
+      var ok = cons || lead || /^[A-Za-z]$/.test(ch);
+      if (mark) { var pc = prev ? prev.charCodeAt(0) : 0; ok = ((pc >= 0x0E01 && pc <= 0x0E2E) || (pc >= 0x0E30 && pc <= 0x0E39) || (pc >= 0x0E47 && pc <= 0x0E4C)) && marks < 2 && ch !== prev; }
+      if (!ok || out.length >= NAME_MAX) continue;
+      out += ch; prev = ch; marks = mark ? marks + 1 : 0;
+    }
+    return out;
+  }
+  function when(ts) { if (!ts) return ""; var d = new Date(Number(ts) + 7 * 3600 * 1000); return d.getUTCDate() + " " + MON[d.getUTCMonth()] + " " + String(d.getUTCHours()).padStart(2, "0") + "." + String(d.getUTCMinutes()).padStart(2, "0") + " น."; }
+  function apiErr(d) { var e = d && d.error; return e === "taken" ? "ที่นั่งนั้นมีคนจองแล้ว" : e === "ended" ? "ทริปนี้สิ้นสุดแล้ว" : e === "too_many" ? "ทำรายการถี่เกินไป รอสักครู่" : e === "name_chars" ? "ชื่อใช้ได้เฉพาะภาษาไทยและอังกฤษ" : e === "not_owner" || e === "not_yours" ? "ไม่มีสิทธิ์ทำรายการนี้" : "ทำรายการไม่สำเร็จ ลองอีกครั้ง"; }
+  async function seatApi(method, id, v, body) {
+    var r = await fetch("/api/seats?t=" + encodeURIComponent(id) + "&v=" + encodeURIComponent(v), { method: method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ t: id, v: v }, body)) });
+    var d = {}; try { d = await r.json(); } catch (e) {}
+    return { ok: r.ok, data: d };
+  }
+  function openRoster(x) {
+    var st = { trip: null, roster: {}, van: "", mode: "list", sel: null, ended: false, busy: false };
+    var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
+    var close = function () { bd.remove(); load(); };
+    bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
+    document.body.appendChild(bd);
+    async function fetchRoster() {
+      try {
+        var r = await fetch("/api/trip?t=" + encodeURIComponent(x.id) + "&roster=1", { cache: "no-store", headers: { "x-admin-key": "o" } });
+        var d = await r.json(); if (!r.ok) throw new Error();
+        st.trip = d.trip; st.roster = d.roster || {}; st.ended = !!d.ended; if (!st.van) st.van = d.trip.vans[0].id;
+      } catch (e) { toast("โหลดรายชื่อไม่สำเร็จ", true); }
+      draw();
+    }
+    function vanLabel(id) { var v = st.trip && st.trip.vans.filter(function (q) { return q.id === id; })[0]; return v ? v.label : id; }
+    function chips(onPick, cur) {
+      var row = node("div", "vchips");
+      st.trip.vans.forEach(function (v) {
+        var n = Object.keys(st.roster[v.id] || {}).length, b = node("button", v.id === cur ? "on" : null, "คัน " + v.label + " · " + n + "/10"); b.type = "button";
+        b.addEventListener("click", function () { onPick(v.id); }); row.appendChild(b);
+      });
+      return row;
+    }
+    function draw() {
+      sh.textContent = ""; sh.appendChild(node("div", "grab"));
+      if (!st.trip) { sh.appendChild(node("h3", null, "รายชื่อผู้จอง")); sh.appendChild(node("p", null, "กำลังโหลด...")); return; }
+      if (st.mode === "list") drawList(); else if (st.mode === "rename") drawRename(); else drawMove();
+    }
+    function drawList() {
+      sh.appendChild(node("h3", null, "รายชื่อผู้จอง"));
+      sh.appendChild(node("p", null, st.trip.name + (st.ended ? " · ทริปจบแล้ว ดูได้อย่างเดียว" : "")));
+      if (st.trip.vans.length > 1) sh.appendChild(chips(function (id) { st.van = id; draw(); }, st.van));
+      var seats = st.roster[st.van] || {}, nums = Object.keys(seats).map(Number).sort(function (a, b) { return a - b; });
+      if (!nums.length) sh.appendChild(node("div", "empty", "คัน " + vanLabel(st.van) + " ยังไม่มีผู้จอง"));
+      else {
+        var list = node("div", "rlist");
+        nums.forEach(function (n) {
+          var s = seats[n], row = node("div", "rrow");
+          row.appendChild(node("div", "no", String(n)));
+          var nm = node("div", "nm2"); nm.appendChild(node("b", null, s.name)); nm.appendChild(node("small", null, when(s.at) + (s.a ? "" : " · จองแบบไม่เข้าสู่ระบบ"))); row.appendChild(nm);
+          if (!st.ended) {
+            var ra = node("div", "ra");
+            var b1 = node("button", null, "แก้ชื่อ"); b1.type = "button"; b1.addEventListener("click", function () { st.sel = { v: st.van, s: n, name: s.name }; st.mode = "rename"; draw(); });
+            var b2 = node("button", null, "ย้าย"); b2.type = "button"; b2.addEventListener("click", function () { st.sel = { v: st.van, s: n, name: s.name, tv: st.van, ts: null }; st.mode = "move"; draw(); });
+            var b3 = node("button", "dg", "ยกเลิก"); b3.type = "button"; b3.addEventListener("click", function () { cancelOne(st.van, n, s.name, b3); });
+            ra.appendChild(b1); ra.appendChild(b2); ra.appendChild(b3); row.appendChild(ra);
+          }
+          list.appendChild(row);
+        });
+        sh.appendChild(list);
+      }
+      sh.appendChild(node("div", "rfree", "ว่าง " + (10 - nums.length) + " ที่นั่ง"));
+      var cl = node("button", "b-plain", "ปิด"); cl.type = "button"; cl.style.height = "48px"; cl.style.borderRadius = "16px"; cl.style.fontWeight = "600"; cl.addEventListener("click", close); sh.appendChild(cl);
+    }
+    async function cancelOne(v, n, name, btn) {
+      if (btn.dataset.sure !== "1") { btn.dataset.sure = "1"; btn.textContent = "ยืนยัน?"; setTimeout(function () { if (btn.isConnected) { btn.dataset.sure = ""; btn.textContent = "ยกเลิก"; } }, 3500); return; }
+      btn.disabled = true;
+      var r = await seatApi("DELETE", x.id, v, { seat: n });
+      if (!r.ok) { toast(apiErr(r.data), true); btn.disabled = false; return; }
+      toast("ยกเลิกที่นั่ง " + n + " (" + name + ") แล้ว"); fetchRoster();
+    }
+    function drawRename() {
+      sh.appendChild(node("h3", null, "แก้ชื่อ · ที่นั่ง " + st.sel.s));
+      sh.appendChild(node("p", null, "คัน " + vanLabel(st.sel.v) + " · ใช้ได้เฉพาะภาษาไทยและอังกฤษ ไม่เกิน " + NAME_MAX + " ตัว"));
+      var inp = node("input", "nin"); inp.type = "text"; inp.value = st.sel.name; inp.maxLength = 40; inp.autocomplete = "off";
+      inp.addEventListener("input", function () { var c = cleanName(inp.value); if (c !== inp.value) inp.value = c; });
+      sh.appendChild(inp);
+      var acts = node("div", "acts"), back = node("button", "b-plain", "ย้อนกลับ"), go = node("button", "b-danger", "บันทึกชื่อ");
+      go.style.background = "var(--mine)"; go.style.borderColor = "var(--mine)"; back.type = go.type = "button";
+      back.addEventListener("click", function () { st.mode = "list"; draw(); });
+      go.addEventListener("click", async function () {
+        var name = cleanName(inp.value); if (!name) { toast("ใส่ชื่อก่อน", true); return; }
+        go.disabled = true; var r = await seatApi("PATCH", x.id, st.sel.v, { seat: st.sel.s, name: name });
+        if (!r.ok) { toast(apiErr(r.data), true); go.disabled = false; return; }
+        toast("แก้ชื่อแล้ว"); st.mode = "list"; fetchRoster();
+      });
+      acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
+      setTimeout(function () { inp.focus(); }, 50);
+    }
+    function drawMove() {
+      var sel = st.sel;
+      sh.appendChild(node("h3", null, "ย้ายที่นั่ง · " + sel.name));
+      sh.appendChild(node("p", null, "จาก คัน " + vanLabel(sel.v) + " ที่นั่ง " + sel.s + " · เลือกที่นั่งใหม่ (เลือกที่นั่งที่มีคนอยู่ = สลับกัน)"));
+      if (st.trip.vans.length > 1) sh.appendChild(chips(function (id) { sel.tv = id; sel.ts = null; draw(); }, sel.tv));
+      var grid = node("div", "sgrid"), seats = st.roster[sel.tv] || {};
+      for (var n = 1; n <= 10; n++) (function (n) {
+        var s = seats[n], isCur = sel.tv === sel.v && n === sel.s;
+        var b = node("button", (s ? "tk2" : "") + (isCur ? " cur" : "") + (sel.ts === n ? " pick" : "")); b.type = "button";
+        b.appendChild(document.createTextNode(String(n))); b.appendChild(node("small", null, isCur ? "ตอนนี้" : s ? s.name : "ว่าง"));
+        b.disabled = isCur;
+        b.addEventListener("click", function () { sel.ts = n; draw(); });
+        grid.appendChild(b);
+      })(n);
+      sh.appendChild(grid);
+      var target = sel.ts && seats[sel.ts];
+      var acts = node("div", "acts"), back = node("button", "b-plain", "ย้อนกลับ"), go = node("button", "b-danger", sel.ts ? (target ? "สลับกับ " + target.name : "ย้ายไปที่นั่ง " + sel.ts) : "เลือกที่นั่งก่อน");
+      go.style.background = "var(--amber)"; go.style.borderColor = "var(--amber)"; back.type = go.type = "button"; go.disabled = !sel.ts;
+      back.addEventListener("click", function () { st.mode = "list"; draw(); });
+      go.addEventListener("click", async function () {
+        go.disabled = true;
+        var r = await seatApi("POST", x.id, sel.v, { move: { fromVan: sel.v, fromSeat: sel.s, toVan: sel.tv, toSeat: sel.ts, swap: !!target } });
+        if (!r.ok) { toast(apiErr(r.data), true); go.disabled = false; fetchRoster(); return; }
+        toast(r.data.swapped ? "สลับที่นั่งแล้ว" : "ย้ายไปที่นั่ง " + sel.ts + " แล้ว"); st.mode = "list"; st.van = sel.tv; fetchRoster();
+      });
+      acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
+    }
+    draw(); fetchRoster();
   }
 
   // ---- tabs ----
@@ -415,6 +570,7 @@ a { color: inherit; }
     try { me = (await (await fetch("/api/auth?me=1", { cache: "no-store" })).json()).user; } catch (e) {}
     if (!me) { showLogin(); return; }
     $("meView").hidden = false; setTab(tab); skeleton();
+    try { var fl = sessionStorage.getItem("van-flash"); if (fl) { sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); setTimeout(function () { toast(fl); }, 300); } } catch (e) {}
     $("meName").textContent = me.name || "ผู้ใช้ LINE";
     await claimLocal();
     load();
