@@ -19,7 +19,7 @@
     ".vb-sh{width:100%;max-width:460px;max-height:86vh;max-height:86dvh;overflow-y:auto;background:#fff;border-radius:24px 24px 0 0;padding:10px 16px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;font-family:'Noto Sans Thai',system-ui,sans-serif;color:#1b1f22;box-sizing:border-box}",
     ".vb-sh{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.vb-sh>*{flex-shrink:0}",
     ".vb-grab{width:40px;height:5px;border-radius:9px;background:#d5dce0;margin:0 auto 4px}",
-    ".vb-hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px}",
+    ".vb-hd{display:flex;align-items:center;gap:10px}.vb-hd b{flex:1}",
     ".vb-hd b{font:600 19px 'Prompt','Noto Sans Thai',sans-serif}",
     ".vb-hd button{border:0;background:none;padding:4px 0;font:600 13px 'Noto Sans Thai',sans-serif;color:#0e7c86;cursor:pointer}",
     ".vb-hd button:disabled{color:#9aa6ad}",
@@ -36,7 +36,7 @@
     ".vb-dot{position:absolute;right:10px;top:14px;width:8px;height:8px;border-radius:50%;background:#b3261e}",
     ".vb-empty{text-align:center;color:#5f6b73;font-size:14px;padding:28px 8px}",
     ".vb-ft{font-size:12px;color:#5f6b73;text-align:center;margin-top:6px}",
-    ".vb-close{height:46px;border-radius:16px;border:1.5px solid #c9d2d8;background:#fff;font:600 15px 'Noto Sans Thai',sans-serif;color:#1b1f22;margin-top:6px;cursor:pointer}"
+    ".vb-hd .vb-close{flex:none;width:36px;height:36px;margin:-4px -8px 0 0;padding:0;border:0;border-radius:10px;background:none;color:#1b1f22;display:flex;align-items:center;justify-content:center;cursor:pointer}.vb-hd .vb-close svg{width:22px;height:22px}.vb-hd .vb-close:active{background:#f3f6f7}",
   ].join("\n");
   var IC = {
     bell: '<path d="M6 16V11a6 6 0 1112 0v5l1.5 2h-15L6 16zM10 20.5a2 2 0 004 0"/>',
@@ -138,7 +138,7 @@
     bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
     function draw() {
       sh.innerHTML = "";
-      sh.insertAdjacentHTML("beforeend", '<div class="vb-grab"></div><div class="vb-hd"><b>การแจ้งเตือน</b><button type="button" class="vb-all"' + (B.unread ? "" : " disabled") + ">อ่านทั้งหมด</button></div>");
+      sh.insertAdjacentHTML("beforeend", '<div class="vb-grab"></div><div class="vb-hd"><b>การแจ้งเตือน</b><button type="button" class="vb-all"' + (B.unread ? "" : " disabled") + '>อ่านทั้งหมด</button><button type="button" class="vb-close" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>');
       sh.querySelector(".vb-all").addEventListener("click", function () { B.read("all"); draw(); });
       if (!B.items.length) sh.insertAdjacentHTML("beforeend", '<div class="vb-empty">ยังไม่มีการแจ้งเตือน<br>ถ้าผู้จัดเปลี่ยนเวลา ย้ายที่นั่ง หรือยกเลิกทริป จะแจ้งที่นี่</div>');
       var groups = [["ใหม่", B.items.filter(function (x) { return !x.r; })], ["ก่อนหน้านี้", B.items.filter(function (x) { return x.r; })]];
@@ -155,7 +155,7 @@
           sh.appendChild(b);
         });
       });
-      sh.insertAdjacentHTML("beforeend", '<div class="vb-ft">เก็บการแจ้งเตือนล่าสุด 50 รายการ · ลบเองหลัง 60 วัน</div><button type="button" class="vb-close">ปิด</button>');
+      sh.insertAdjacentHTML("beforeend", '<div class="vb-ft">เก็บการแจ้งเตือนล่าสุด 50 รายการ · ลบเองหลัง 60 วัน</div>');
       sh.querySelector(".vb-close").addEventListener("click", close);
     }
     draw();
