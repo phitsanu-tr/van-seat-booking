@@ -43,7 +43,7 @@ const r1=await (await A.request.post(B+'/api/trip',{data:{t:ID,close:false}})).j
 log('reopen after passed time: closed',r1.closed,'closeAt cleared',r1.trip.closeAt===''?'yes':JSON.stringify(r1.trip.closeAt),'P books',await st(await seats(P,'POST',{seat:9,name:'แพทสาม'})));
 log('bad closeAt',await st(await put({closeAt:'tomorrow'})));
 // --- roster sheet toggle (two taps) and the edit form switch
-await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ros');await A.waitForTimeout(800);
+await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);
 await A.click('.rtools .lk');await A.waitForTimeout(200);log('first tap',(await A.textContent('.rtools .lk')).trim());await A.click('.rtools .lk');await A.waitForTimeout(800);
 log('sheet closed',await A.textContent('#toast'),'note',await A.isVisible('.sheet .cnote'),'server',await pub());await A.screenshot({path:S+'/close_sheet.png'});
 await A.goto(B+'/trips/'+ID);await A.waitForTimeout(1500);log('form switch shown',await A.isVisible('#closedRow'),'checked',await A.isChecked('#closedNow'));

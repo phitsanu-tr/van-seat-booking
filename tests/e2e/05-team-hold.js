@@ -23,7 +23,7 @@ await Bp.goto(B+'/trips/'+ID);await Bp.reload();await Bp.waitForTimeout(1500);lo
 const code=url.split('join=')[1];
 {const p=await user('Dan');log('Dan reuse used link',(await p.request.post(B+'/api/trip',{data:{join:code}})).status());}
 const fresh=async()=>(await (await A.request.post(B+'/api/trip',{data:{t:ID,invite:true}})).json()).invite.code;
-for(const n of ['Dan','Eve']){const p=await user(n);log(n,'join fresh',(await p.request.post(B+'/api/trip',{data:{join:await fresh()}})).status());}
+for(const n of ['Dan']){const p=await user(n);log(n,'join fresh',(await p.request.post(B+'/api/trip',{data:{join:await fresh()}})).status());}
 const G=await user('Gus');const gj=await G.request.post(B+'/api/trip',{data:{join:await fresh()}});log('Gus join',gj.status(),JSON.stringify(await gj.json()));
 // transfer to helper 0 (Bob) via UI
 await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);await A.click('.mgb:has-text("ผู้ช่วยจัดทริป")');await A.waitForTimeout(800);await A.screenshot({path:S+'/t4.png'});
@@ -41,7 +41,7 @@ const R=await ctx('Ron');await R.goto(B+'/'+ID);await R.waitForTimeout(1000);
 await R.evaluate(()=>[...document.querySelectorAll('.seat')].find(b=>b.getAttribute('aria-label').startsWith('ที่นั่ง 6')).click());await R.waitForTimeout(300);
 await R.route('**/api/auth?start=1*',async route=>{const u=new URL(route.request().url());u.searchParams.set('as','Ron');await route.continue({url:u.toString()})});
 await R.click('.lgbtn');await R.waitForTimeout(1800);log('R back panel',await R.textContent('#mTitle').catch(()=>'none'),'hold stored',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));
-await R.click('#panel .primary');await R.waitForTimeout(1000);log('R booked',await R.textContent('#toast'),'hold cleared',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));
+await R.fill('#nameInput','รอน');await R.click('#panel .primary');await R.waitForTimeout(1000);log('R booked',await R.textContent('#toast'),'hold cleared',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));
 // owner console
 const O=await ctx('owner');await O.goto(B+'/owner#test-owner-key-1234567');await O.waitForTimeout(1500);log('stats',await O.textContent('#sAcc'),await O.textContent('#sOwners'),await O.textContent('#sHelpers'));
 await O.click('text=ดูประวัติทริป >> nth=0');await O.waitForTimeout(800);await O.screenshot({path:S+'/t7.png',fullPage:true});

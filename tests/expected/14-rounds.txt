@@ -5,7 +5,7 @@ named รอบที่ 1 | ขาไป toast ตั้งชื่อรอ�
 new dialog เริ่มเช็กรอบใหม่ | ติ๊กของรอบที่ 1 (2 คน) จะถูกล้าง ทุกคนกลับเป็น “ยังไม่ขึ้นรถ” · สรุปรอบนี้เก็บไว้ในประวัติ | button เริ่มรอบที่ 2
 round 2 รอบที่ 2 | ขากลับ toast เริ่มรอบที่ 2 · ขากลับ แล้ว ticked now 0 / 3 ขึ้นรถแล้ว
 server cur {"i":2,"name":"ขากลับ","by":"Ann"} hist [{"i":1,"name":"ขาไป","n":2,"total":3,"miss":[{"vl":"2","s":5,"n":"ฉิน"}],"by":"Ann","times":true}]
-ticks cleared 0 paid kept 1
+ticks cleared 0
 passenger trip has board false passenger roster 403
 helper sees รอบที่ 2 | ขากลับ
 history cards [

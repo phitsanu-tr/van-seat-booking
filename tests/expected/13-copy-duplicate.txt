@@ -18,18 +18,11 @@ copied text:
 จองที่นั่งได้ที่นี่ 👇
 http://localhost:8765/<id>
 closed trip last lines ["ปิดรับจองแล้ว · ดูผังที่นั่ง 👇","http://localhost:8765/<id>"]
-manage sheet [
-  'ดูผังที่นั่ง',
-  'แก้ไขทริป',
-  'ผู้ช่วยจัดทริป0/3',
-  'คัดลอกรายชื่อ',
-  'ปิดรับจอง',
-  'สร้างทริปซ้ำ'
-]
+manage sheet [ 'แก้ไขทริป›', 'ผู้ช่วยจัดทริป0/2›', 'สร้างทริปซ้ำ›', 'ปิดรับจอง' ]
 x closes 0
-sheet copy คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย same text 17
+no copy or seat map in manage 0
 first tap ยืนยันปิด?
-closed true card share แชร์ผังที่นั่ง
+closed true card share แชร์ผัง
 reopened false
 duplicate link /trips/new?copy=<id>
 form {"name":"เขาใหญ่ชิล ๆ","org":"ทัวร์ตัวตึง","start":"","end":"","time":"07:00","meet":"BTS หมอชิต","max":"2","close":"","vans":["1","กข 1234","2"]} lead คัดลอกจาก “เขาใหญ่ชิล ๆ” แล้ว · เลือกวันเดินทางใหม่ แก้ส่วนอื่นได้ตามต้องการ

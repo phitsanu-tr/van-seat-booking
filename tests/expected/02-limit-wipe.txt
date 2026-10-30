@@ -3,6 +3,8 @@ dbg { t: '', fe: [], url: 'http://localhost:8765/trips/<id>' }
 created /trips/<id>
 edit select 2
 note จองได้ไม่เกิน 2 ที่นั่งต่อคน (รวมทุกคัน)
+first booking name empty true
+next booking remembers name บ็อบ
 toast ทริปนี้จองได้ไม่เกิน 2 ที่นั่งต่อคน
 after wipe login view true ลบข้อมูลของคุณแล้ว
 trip deleted status 404

@@ -7,7 +7,7 @@ const tr=await (await A.request.post(B+'/api/trip',{data:{name:'ทริปจ�
 await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'บ็อบ'}});await C.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:4,name:'แคท'}});
 const ros=async()=>JSON.stringify((await (await A.request.get(B+'/api/trip?t='+ID+'&roster=1',{headers:{'x-admin-key':'o'}})).json()).roster);
 log('roster0',await ros());
-await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ros');await A.waitForTimeout(800);await A.screenshot({path:S+'/15_roster.png'});
+await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);await A.screenshot({path:S+'/15_roster.png'});
 // rename Bob
 await A.click('.rrow >> nth=0 >> text=แก้ชื่อ');await A.waitForTimeout(200);await A.fill('.nin','บ็อบบี้');await A.click('.sheet .b-danger');await A.waitForTimeout(900);log('after rename',await ros());
 // move Bob (row0) to van 2 seat 5

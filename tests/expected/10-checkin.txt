@@ -1,16 +1,11 @@
-owner marks Pat paid 200
-passenger marks own seat paid 403
+paid tick is no longer accepted 400
 passenger marks boarded 403
 helper marks Rin boarded 200
 public seat fields ["a,at,name","a,at,m,name"]
-roster flags {"p3":1,"c2":true}
-paid follows the move 1 old seat gone true
+roster flags {"p3":0,"c2":true}
+boarded follows the move true old seat gone true
 12 quick ticks, rate limited 0
-tabs [ 'ที่นั่ง', 'จ่ายเงิน', 'เช็กชื่อ' ]
-pay summary [ '1 / 3 คน', '2 คน' ] chips [ 'ยังไม่จ่าย', 'ยังไม่จ่าย', 'จ่ายแล้ว' ]
-after tick [ '2 / 3 คน', '1 คน' ] server 1
-unpaid filter [ 'ริน' ]
-copied unpaid "💰 ยังไม่ได้จ่าย 1 คน · เขาใหญ่ชิล ๆ\nคัน 2 ที่นั่ง 2. ริน"
+tabs [ 'ที่นั่ง', 'เช็กชื่อ' ]
 board start A 1 / 3 ขึ้นรถแล้ว miss ยังไม่มา 1 คน: ฉิน (5)
 A after tick 2 / 3 ขึ้นรถแล้ว row in 1 server true
 Bob sees it without reloading 2 / 3 ขึ้นรถแล้ว within ~8s

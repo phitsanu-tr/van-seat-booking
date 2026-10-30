@@ -9,7 +9,7 @@ organizer cancels other 200
 P bar true ปิดรับจองแล้ว  locked deck true
 P tap free seat opens panel false
 A bar hidden true A notice ปิดรับจองอยู่ผู้จองจองหรือยกเลิกเองไม่ได้ · คุณยังจัดการที่นั่งได้เปิดรับจอง
-card pill [ 'ปิดรับจอง' ] share button แชร์ผังที่นั่ง
+card pill [ 'ปิดรับจอง' ] share button แชร์ผัง
 ticket note ปิดรับจองแล้ว 
 menu cancel -> ปิดรับจองแล้ว ยกเลิกเองไม่ได้ ติดต่อผู้จัดทริป sheet opened 0
 A reopened เปิดรับจองแล้ว closed now false notice แตะที่นั่งว่างเพื่อจอง · แตะที
