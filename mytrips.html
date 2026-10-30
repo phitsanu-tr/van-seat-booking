@@ -32,8 +32,15 @@ a { color: inherit; }
 .av { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--lg); color: #fff; font: 600 17px var(--font-display); display: grid; place-items: center; overflow: hidden; }
 .av img { width: 100%; height: 100%; object-fit: cover; }
 .hi b { font: 600 16px var(--font-display); display: block; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hi small { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 5px; }
-.lnb { width: 14px; height: 14px; border-radius: 4px; background: var(--lg); color: #fff; font: 700 7px/14px sans-serif; text-align: center; }
+.hi small { color: var(--muted); font-size: 12.5px; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.hi.acct { flex: 1; border: 0; background: none; padding: 0; margin: 0; text-align: left; color: inherit; font: inherit; cursor: pointer; border-radius: 12px; }
+.hi.acct:active { opacity: .7; }
+.hn { display: flex; flex-direction: column; min-width: 0; }
+.avw { position: relative; flex: none; display: block; }
+.avdot { position: absolute; right: -3px; bottom: -3px; width: 18px; height: 18px; border-radius: 50%; background: var(--lg); border: 2px solid var(--bg); display: flex; align-items: center; justify-content: center; }
+.avdot svg { width: 10px; height: 10px; }
+.chv { font-size: 15px; line-height: 1; margin-left: 1px; }
+.lnb { flex: none; display: inline-flex; align-items: center; height: 16px; padding: 0 5px; border-radius: 5px; background: var(--lg); color: #fff; font: 700 9.5px/1 Arial, sans-serif; letter-spacing: .2px; }
 .wr { display: flex; align-items: center; gap: 8px; flex: none; }
 .ntag { align-self: flex-start; font-size: 11px; font-weight: 600; color: var(--amber); background: var(--amber-tint); border: 1px solid var(--amber-edge); border-radius: 99px; padding: 1px 9px; }
 .out { flex: none; height: 36px; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--line); background: transparent; font-size: 13px; font-weight: 500; color: var(--muted); }
@@ -45,7 +52,9 @@ a { color: inherit; }
 .seg #tabTrips[aria-selected="true"] .n { background: var(--amber); }
 
 .h2 { display: flex; justify-content: space-between; align-items: baseline; margin-top: 2px; }
-.h2 b { font: 600 14px var(--font-display); color: var(--muted); }
+.h2 b { font: 600 16px var(--font-display); color: var(--ink); }
+.h2.c { justify-content: flex-start; gap: 8px; }
+.h2 .cntp { font: 500 13px var(--font-body); color: var(--muted); background: #e2e7ea; border-radius: 99px; padding: 1px 9px; }
 .h2 span { font-size: 12px; color: var(--muted); }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 .card.dim { opacity: .62; }
@@ -84,6 +93,15 @@ a { color: inherit; }
 .mx { flex: none; width: 36px; height: 36px; margin: -6px -8px 0 0; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 10px; }
 .mx svg { width: 22px; height: 22px; }
 .mx:active { background: #f3f6f7; }
+.acchd { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--edge); }
+.acchd .hn { flex: 1; } .acchd .hn b { font: 600 17px var(--font-display); }
+.acchd .hn small { color: var(--muted); font-size: 12.5px; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.acchd .mx { align-self: flex-start; }
+.acti { height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 6px; border: 0; background: none; border-radius: 12px; font: 500 15px var(--font-body); color: var(--ink); text-decoration: none; text-align: left; width: 100%; }
+.acti svg { width: 20px; height: 20px; color: var(--muted); flex: none; }
+.acti .c { margin-left: auto; color: #b7c1c7; font-size: 18px; }
+.acti.dg { color: var(--danger); } .acti.dg svg { color: var(--danger); }
+.acti:active { background: #f3f6f7; }
 .mgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .mgb { min-height: 78px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font: 600 12.5px var(--font-body); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px 4px; text-align: center; }
 .mgb svg { width: 22px; height: 22px; }
@@ -270,11 +288,11 @@ a { color: inherit; }
 
   <section id="meView" hidden>
     <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="who"><div class="hi"><div class="av" id="av"></div><div style="min-width:0"><b id="meName"></b><small><span class="lnb">LINE</span>เข้าสู่ระบบด้วย LINE</small></div></div><div class="wr"><span id="bellHost" style="display:flex"></span><button class="out" id="logout" type="button">ออกจากระบบ</button></div></div>
+      <div class="who"><button class="hi acct" id="acctBtn" type="button" aria-haspopup="dialog" aria-label="เมนูบัญชี"><span class="avw"><span class="av" id="av"></span><span class="avdot"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 3C6.5 3 2 6.6 2 11c0 3.9 3.5 7.2 8.3 7.9l-.5 2.6c-.1.4.3.7.7.5 2.6-1.4 6-3.6 8-5.9 1.6-1.5 2.5-3.2 2.5-5.1C21 6.6 17.5 3 12 3z"/></svg></span></span><span class="hn"><b id="meName"></b><small><span class="lnb">LINE</span>เข้าสู่ระบบด้วย LINE<span class="chv" aria-hidden="true">›</span></small></span></button><div class="wr"><span id="bellHost" style="display:flex"></span></div></div>
       <div class="seg" role="tablist"><button id="tabTrips" role="tab" aria-selected="false" type="button">ทริปของฉัน <span class="n" id="nTrips">0</span></button><button id="tabSeats" role="tab" aria-selected="false" type="button">ที่นั่งของฉัน <span class="n" id="nSeats">0</span></button></div>
       <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px"></div>
       <div id="paneSeats" style="display:flex;flex-direction:column;gap:12px" hidden></div>
-      <div class="data"><a href="/privacy">นโยบายความเป็นส่วนตัว</a><span>·</span><button type="button" id="wipe">ลบข้อมูลของฉัน</button></div>
+      <div class="data"><a href="/privacy">นโยบายความเป็นส่วนตัว</a></div>
     </div>
   </section>
   <div class="foot">© 2026</div>
@@ -330,7 +348,10 @@ a { color: inherit; }
     if (d != null && d > 1) return node("span", "pill p-soon", "อีก " + d + " วัน");
     return null;
   }
-  function section(pane, title, sub) { var h = node("div", "h2"); h.appendChild(node("b", null, title)); h.appendChild(node("span", null, sub || "")); pane.appendChild(h); }
+  function section(pane, title, sub, count) {
+    var h = node("div", "h2" + (count != null ? " c" : "")); h.appendChild(node("b", null, title));
+    h.appendChild(count != null ? node("span", "cntp", count + " ทริป") : node("span", null, sub || "")); pane.appendChild(h);
+  }
 
   var LOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
   var OPEN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>';
@@ -470,7 +491,7 @@ a { color: inherit; }
     var up = list.filter(function (x) { return !x.ended; }), done = list.filter(function (x) { return x.ended; });
     if (!list.length) { pane.appendChild(welcome()); return; } // first visit: what the app does + one big button
     pane.appendChild(newBar()); // with trips: the same card, slimmed to one row at the top
-    if (up.length) section(pane, "กำลังจะถึง", "เรียงตามวันเดินทาง");
+    if (up.length) section(pane, "กำลังจะถึง", "", up.length);
     up.forEach(function (x) {
       var c = node("div", "card"), r1 = node("div", "row1");
       var hd = node("a", "chead"); hd.href = "/" + x.id; hd.setAttribute("aria-label", "เปิดผังที่นั่ง " + x.name); // the top of the card opens the seat map
@@ -511,7 +532,7 @@ a { color: inherit; }
   function renderSeats(list) {
     var pane = $("paneSeats"); pane.textContent = "";
     var up = list.filter(function (x) { return !x.ended; }), done = list.filter(function (x) { return x.ended; });
-    if (up.length) section(pane, "กำลังจะถึง", up.length + " ทริป");
+    if (up.length) section(pane, "กำลังจะถึง", "", up.length);
     up.forEach(function (x) { pane.appendChild(ticket(x, false)); });
     if (done.length) { section(pane, "ผ่านมาแล้ว", ""); done.forEach(function (x) { pane.appendChild(ticket(x, true)); }); }
     pane.appendChild(node("div", "empty", list.length ? "เปิดลิงก์ทริปจากเพื่อนแล้วจอง ที่นั่งจะมาอยู่ที่นี่เอง · ใช้ได้ทั้งในมือถือและคอม" : "ยังไม่มีที่นั่งที่จองไว้ เปิดลิงก์ทริปจากเพื่อนแล้วจอง ที่นั่งจะมาอยู่ที่นี่เอง"));
@@ -1244,7 +1265,6 @@ a { color: inherit; }
     acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
     document.body.appendChild(bd);
   }
-  $("wipe").addEventListener("click", askWipe);
 
   async function load() {
     try {
@@ -1272,10 +1292,31 @@ a { color: inherit; }
     $("loginBtn").href = loginHref("/mytrips" + (JOIN ? "?join=" + JOIN : "") + (location.hash || ""));
     if (JOIN) { $("loginErr").textContent = "เข้าด้วย LINE ก่อน แล้วระบบจะพาเข้าทีมผู้จัดให้"; $("loginErr").hidden = false; $("loginErr").style.color = "var(--amber)"; }
   }
-  $("logout").addEventListener("click", async function () {
+  // account menu (tap the photo or name): privacy policy, sign out, delete my data (last, in red)
+  function openAccount() {
+    var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
+    var shut = function () { bd.remove(); };
+    bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
+    var head = node("div", "acchd"), avw = $("av").parentNode.cloneNode(true); avw.querySelector(".av").removeAttribute("id");
+    var nm = node("div", "hn"); nm.appendChild(node("b", null, $("meName").textContent)); var sm = node("small"); sm.innerHTML = '<span class="lnb">LINE</span>เข้าสู่ระบบด้วย LINE'; nm.appendChild(sm);
+    var xb = node("button", "mx"); xb.type = "button"; xb.setAttribute("aria-label", "ปิด"); xb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'; xb.addEventListener("click", shut);
+    head.appendChild(avw); head.appendChild(nm); head.appendChild(xb); sh.appendChild(head);
+    function row(tag, icon, label, cls, act) {
+      var r = node(tag, "acti" + (cls ? " " + cls : "")); if (tag === "a") r.href = act; else { r.type = "button"; r.addEventListener("click", act); }
+      r.insertAdjacentHTML("beforeend", icon); r.appendChild(node("span", null, label)); if (tag === "a") r.appendChild(node("span", "c", "›"));
+      sh.appendChild(r);
+    }
+    var SV0 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+    row("a", SV0 + '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', "นโยบายความเป็นส่วนตัว", "", "/privacy");
+    row("button", SV0 + '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>', "ออกจากระบบ", "", function () { shut(); logout(); });
+    row("button", SV0 + '<path d="M4 7h16M10 7V4h4v3M6 7l1 13h10l1-13"/></svg>', "ลบข้อมูลของฉัน", "dg", function () { shut(); askWipe(); });
+    document.body.appendChild(bd);
+  }
+  $("acctBtn").addEventListener("click", openAccount);
+  async function logout() {
     try { await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ logout: true }) }); } catch (e) {}
     showLogin();
-  });
+  }
 
   var JOIN = (function () { var j = new URLSearchParams(location.search).get("join") || ""; return /^[a-z0-9]{10}$/.test(j) ? j : ""; })();
   (async function init() {
