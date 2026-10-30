@@ -1255,7 +1255,7 @@ body { background: #fff; }
     var acts = node("div", "acts"), back = node("button", "b-plain", "ย้อนกลับ"), go = node("button", "b-danger", "ลบข้อมูลถาวร");
     back.type = go.type = "button";
     var close = function () { bd.remove(); };
-    back.addEventListener("click", close); bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
+    back.addEventListener("click", function () { close(); openAccount(); }); bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
     go.addEventListener("click", async function () {
       go.disabled = true; go.textContent = "กำลังลบ...";
       try {
