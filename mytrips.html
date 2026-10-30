@@ -59,10 +59,11 @@ a { color: inherit; }
 .chead { display: flex; flex-direction: column; gap: 12px; color: inherit; text-decoration: none; margin: -16px -16px 0; padding: 16px 16px 0; border-radius: 16px 16px 0 0; -webkit-tap-highlight-color: transparent; }
 .chead:active { background: #f3f6f7; }
 .chead .row1 .t { flex: 1; }
-.chead .row1 .chev { flex: none; font: 500 20px/20px var(--font-display); color: var(--muted); margin-left: -2px; }
 .row1 { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
 .t { font: 600 16px/1.3 var(--font-display); min-width: 0; overflow-wrap: anywhere; }
-.org { font-size: 12px; color: var(--muted); margin-top: -8px; }
+.org { font-size: 12px; color: var(--muted); margin-top: -8px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+.vmap { flex: none; height: 20.8px; display: inline-flex; align-items: center; gap: 2px; font: 500 12px var(--font-body); color: var(--mine); white-space: nowrap; }
+.vmap svg { width: 14px; height: 14px; flex: none; position: relative; top: .25px; }
 .meta { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: var(--muted); }
 .meta i { font-style: normal; color: var(--ink); font-weight: 500; }
 .meta svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 3px; }
@@ -505,8 +506,9 @@ body { background: #fff; }
       var c = node("div", "card"), r1 = node("div", "row1");
       var hd = node("a", "chead"); hd.href = "/" + x.id; hd.setAttribute("aria-label", "เปิดผังที่นั่ง " + x.name); // the top of the card opens the seat map
       var tg0 = noteTag(x.id); if (tg0) hd.appendChild(tg0);
-      r1.appendChild(node("div", "t", x.name)); var p = statusPill(x); if (p) r1.appendChild(p); r1.appendChild(node("span", "chev", "›")); hd.appendChild(r1);
-      if (x.organizer) hd.appendChild(node("div", "org", x.organizer));
+      r1.appendChild(node("div", "t", x.name)); var vm = node("span", "vmap", "ผังที่นั่ง"); vm.insertAdjacentHTML("beforeend", '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>'); r1.appendChild(vm); hd.appendChild(r1);
+      var p = statusPill(x);
+      if (x.organizer || p) { var sub = node("div", "org"); if (x.organizer) sub.appendChild(node("span", null, x.organizer)); if (p) sub.appendChild(p); hd.appendChild(sub); }
       if (x.role === "helper") hd.appendChild(node("div", "rolep", "คุณเป็นผู้ช่วยจัดทริปนี้"));
       hd.appendChild(meta(x, true));
       var full = x.total && x.booked >= x.total, bar = node("div", "bar" + (full ? " full" : "")), bi = node("i"); bi.style.width = (x.total ? Math.min(100, Math.round(x.booked / x.total * 100)) : 0) + "%"; bar.appendChild(bi); hd.appendChild(bar);
