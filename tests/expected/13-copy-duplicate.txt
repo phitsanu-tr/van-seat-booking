@@ -26,6 +26,7 @@ manage sheet [
   'ปิดรับจอง',
   'สร้างทริปซ้ำ'
 ]
+x closes 0
 sheet copy คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย same text 17
 first tap ยืนยันปิด?
 closed true card share แชร์ผังที่นั่ง

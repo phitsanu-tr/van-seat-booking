@@ -18,6 +18,7 @@ await A.request.post(B+'/api/trip',{data:{t:ID,close:false}});
 // --- the "จัดการทริป" sheet: copy the list, close / reopen bookings
 await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(800);
 log('manage sheet',await A.$$eval('.mgb',e=>e.map(x=>x.textContent)));await A.screenshot({path:S+'/manage.png'});
+await A.click('.mx');await A.waitForTimeout(300);log('x closes',await A.$$eval('.mgrid',e=>e.length));await A.click('.ab.mgo');await A.waitForTimeout(800);
 await A.click('.mgb:has-text("คัดลอกรายชื่อ")');await A.waitForTimeout(400);log('sheet copy',await A.textContent('#toast'),'same text',mask(await clip()).split('\n').length);
 await A.click('.mgb.lk');await A.waitForTimeout(200);log('first tap',(await A.textContent('.mgb.lk')).trim());await A.click('.mgb.lk');await A.waitForTimeout(1200);
 const closedNow=async()=>(await (await A.request.get(B+'/api/seats?t='+ID+'&v=v1')).json()).closed;

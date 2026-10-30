@@ -79,6 +79,11 @@ a { color: inherit; }
 .acts .ab svg { width: 16px; height: 16px; flex: none; }
 .acts .ab { gap: 6px; }
 .ab.mgo { color: var(--ink); }
+.mhead { display: flex; align-items: flex-start; gap: 8px; }
+.mhead h3 { flex: 1; min-width: 0; }
+.mx { flex: none; width: 36px; height: 36px; margin: -6px -8px 0 0; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 10px; }
+.mx svg { width: 22px; height: 22px; }
+.mx:active { background: #f3f6f7; }
 .mgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .mgb { min-height: 78px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font: 600 12.5px var(--font-body); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px 4px; text-align: center; }
 .mgb svg { width: 22px; height: 22px; }
@@ -386,7 +391,10 @@ a { color: inherit; }
     // the passenger list is fetched now, so "คัดลอกรายชื่อ" can copy at once inside the tap (iPhone allows copying only then)
     fetch("/api/trip?t=" + encodeURIComponent(x.id) + "&roster=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) { roster = d; }).catch(function () {});
     sh.appendChild(node("div", "grab"));
-    sh.appendChild(node("h3", null, x.name));
+    var head = node("div", "mhead"), xb = node("button", "mx"); xb.type = "button"; xb.setAttribute("aria-label", "ปิด");
+    xb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    xb.addEventListener("click", shut);
+    head.appendChild(node("h3", null, x.name)); head.appendChild(xb); sh.appendChild(head);
     sh.appendChild(node("p", null, [dateRange(x.startDate, x.endDate), x.departTime ? x.departTime.replace(":", ".") + " น." : "", "จองแล้ว " + x.booked + "/" + x.total].filter(Boolean).join(" · ")));
     var g = node("div", "mgrid");
     function item(icon, label, cls, sub, act) {
@@ -414,7 +422,6 @@ a { color: inherit; }
     lk.querySelector("svg").outerHTML = x.closed ? OPEN_SVG : LOCK_SVG;
     item("dup", "สร้างทริปซ้ำ", "", "", "/trips/new?copy=" + encodeURIComponent(x.id));
     sh.appendChild(g);
-    var cl = node("button", "b-plain", "ปิด"); cl.type = "button"; cl.style.height = "48px"; cl.style.borderRadius = "16px"; cl.style.fontWeight = "600"; cl.addEventListener("click", shut); sh.appendChild(cl);
     document.body.appendChild(bd);
   }
   function shareTrip(x) {
