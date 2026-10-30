@@ -578,19 +578,19 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
 <script>
 (function () {
   "use strict";
-  // edit link: /trips#<trip>-o — works only for the signed-in LINE account that owns the trip ("o" = owner, no secret)
+  // links: /trips/new = create · /trips/<trip> = edit (owner or helper, checked by the LINE account)
+  //        /trips/<trip>?card=guest&img=1 = the SEAT PASS picture opened outside LINE · plain /trips is redirected to /mytrips by the server
   var q = new URLSearchParams(location.search);
   var T = "", K = "o";
-  var hm = /^#([a-z0-9]{3,16})(?:-o)?$/i.exec(location.hash || "");
+  var pm = /^\/trips\/([a-z0-9]{3,16})\/?$/i.exec(location.pathname);
   if (q.has("li") || q.has("le")) { try { q.delete("li"); q.delete("le"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q.toString() : "") + location.hash); } catch (e) {} }
-  if (hm) T = hm[1].toLowerCase();
-  function editPath(id) { return "/trips#" + id + "-o"; }
+  if (pm && pm[1].toLowerCase() !== "new") T = pm[1].toLowerCase();
+  function editPath(id) { return "/trips/" + id; }
   var UA = navigator.userAgent || "";
   var IN_LINE = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA), IS_IOS = /iPhone|iPad|iPod/i.test(UA);
-  var CARD_ONLY = !IN_LINE && q.get("img") === "1" && q.get("card") === "guest" && /^[a-z0-9]{3,16}$/i.test(q.get("t") || ""); // SEAT PASS picture page opened outside LINE
-  var editing = !!T;
+  var CARD_ONLY = !IN_LINE && q.get("img") === "1" && q.get("card") === "guest" && !!T; // SEAT PASS picture page opened outside LINE
+  var editing = !!T && !CARD_ONLY;
   var creating = q.get("new") === "1" || /^\/trips\/new\/?$/.test(location.pathname);
-  var listMode = !editing && !creating && !CARD_ONLY;
   var vansEl = document.getElementById("vans");
   var rows = []; // [{id, label}]
   var busy = false;
@@ -643,7 +643,7 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
   var dirty = false;
   ["input", "change"].forEach(function (ev) { $("form").addEventListener(ev, function () { dirty = true; }); });
   $("cancelBtn").addEventListener("click", async function () {
-    var dest = editing ? "/trips" : "/";
+    var dest = "/mytrips";
     if (dirty && !(await askConfirm(editing ? "ออกโดยไม่บันทึก?" : "ยกเลิกการสร้างทริป?", "ข้อมูลที่กรอกไว้จะไม่ถูกบันทึก", "ออกจากหน้านี้", $("cancelBtn")))) return;
     location.href = dest;
   });
@@ -785,7 +785,7 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
   }
   var goList = false; // right after creating a trip, closing the result sheet leads to the my-trips list
   function closeResult() {
-    if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = SIGNED ? "/mytrips" : "/trips"; return; }
+    if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = "/mytrips"; return; }
     $("backdrop").hidden = true; document.body.style.overflow = "";
   }
   $("closeX").addEventListener("click", closeResult);
@@ -1040,7 +1040,7 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
     }
     if (CARD_ONLY) {
       row.hidden = false; cp.disabled = false;
-      var selfUrl = location.origin + "/trips?card=guest&img=1&t=" + encodeURIComponent(q.get("t") || "") + "&openExternalBrowser=1";
+      var selfUrl = location.origin + "/trips/" + encodeURIComponent(T) + "?card=guest&img=1&openExternalBrowser=1";
       cp.onclick = function () { copyPlain(selfUrl); };
       dl.hidden = false; dl.href = cardUrl; dl.setAttribute("download", fileName || "SEAT PASS.png");
       setHint("กดดาวน์โหลด หรือกดค้างที่รูปเพื่อบันทึก", true);
@@ -1054,7 +1054,7 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
         if (mySeq !== cardSeq) return;
         ext.href = u; ext.style.opacity = ""; ext.textContent = "เปิดในเบราว์เซอร์เพื่อโหลดรูป"; cp.disabled = false; cp.onclick = function () { copyPlain(u); };
       };
-      ready(location.origin + "/trips?card=guest&img=1&t=" + encodeURIComponent(shown ? shown.id : "") + "&openExternalBrowser=1");
+      ready(location.origin + "/trips/" + encodeURIComponent(shown ? shown.id : "") + "?card=guest&img=1&openExternalBrowser=1");
     }
     $("cardBd").hidden = false; document.body.style.overflow = "hidden";
   }
@@ -1198,13 +1198,13 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
       var r = await fetch("/api/trip?t=" + encodeURIComponent(T), { method: "DELETE" });
       if (!r.ok && r.status !== 404) { var d = {}; try { d = await r.json(); } catch (e) {} toast(ERR[d.error] || "ลบไม่สำเร็จ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; return; }
       try { sessionStorage.setItem("van-flash", "ลบทริปแล้ว"); } catch (e) {}
-      location.href = SIGNED ? "/mytrips" : "/trips";
+      location.href = "/mytrips";
     } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
   });
 
   async function cardOnly() { // SEAT PASS picture page opened outside LINE (to save the picture)
     var foot = document.querySelector(".foot"); if (foot) foot.hidden = true;
-    var id = q.get("t").toLowerCase();
+    var id = T;
     try {
       var res = await fetch("/api/seats?t=" + encodeURIComponent(id), { cache: "no-store" });
       var data = await res.json();
@@ -1241,7 +1241,6 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
   }
   async function init() {
     if (CARD_ONLY) { cardOnly(); return; }
-    if (listMode) { location.replace("/mytrips"); return; } // the trip list lives on the account page now
     $("formMain").hidden = false;
     if (editing) {
       $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตแล้วผู้จองเห็นข้อมูลใหม่ทันที";
@@ -1251,7 +1250,7 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
         var data = await res.json();
         if (!res.ok && res.status === 403) { // sign in first; signed in as someone else -> say so (no redirect loop)
           var who2 = null; try { who2 = (await (await fetch("/api/auth?me=1", { cache: "no-store" })).json()).user; } catch (e) {}
-          if (!who2) { location.replace("/api/auth?start=1&r=" + encodeURIComponent("/trips#" + T + "-o")); return; }
+          if (!who2) { location.replace("/api/auth?start=1&r=" + encodeURIComponent("/trips/" + T)); return; }
           toast("ทริปนี้อยู่ในบัญชี LINE อื่น เข้าสู่ระบบด้วยบัญชีที่สร้างทริป", true); $("submit").disabled = true; return;
         }
         if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
@@ -1280,7 +1279,6 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
     }
     renderVans();
   }
-  window.addEventListener("hashchange", function () { location.reload(); });
   init();
   setTimeout(function () { loadFontsOnly(); }, 400); // warm the web fonts (the QR library waits until a QR is drawn) so the card sheet text shows at once
 })();

@@ -9,13 +9,13 @@ await p.goto(B+'/'+ID);await p.waitForTimeout(1200);log('mine tint',await p.loca
 await p.click('#shareImg');await p.waitForTimeout(2500);log('poster',await p.evaluate(()=>{const i=document.querySelector('#imgBackdrop img');return i?i.naturalWidth+'x'+i.naturalHeight:'none'}));
 const ext=await p.evaluate(()=>{const a=document.getElementById('imgExt')||document.querySelector('#imgBackdrop a[href*="img=1"]');return a?a.href:''});log('ext link',ext.replace(/mk=\w+/,'mk=…'));
 // Seat Pass from edit page
-await p.goto(B+'/trips#'+ID+'-o');await p.waitForTimeout(1500);await p.click('#shareBtn');await p.waitForTimeout(500);await p.click('#saveSeat');await p.waitForTimeout(2500);
+await p.goto(B+'/trips/'+ID);await p.waitForTimeout(1500);await p.click('#shareBtn');await p.waitForTimeout(500);await p.click('#saveSeat');await p.waitForTimeout(2500);
 log('seat pass',await p.evaluate(()=>{const i=document.getElementById('cardImg');return i&&!i.hidden?i.naturalWidth+'x'+i.naturalHeight:'none'}));
 // card-only page outside LINE
 const c2=await b.newContext({viewport:{width:390,height:844}});await HLP.fonts(c2);const q=await c2.newPage();q.on('pageerror',e=>errs.push('card: '+e.message));
-await q.goto(B+'/trips?card=guest&img=1&t='+ID);await q.waitForTimeout(2500);log('card page img',await q.evaluate(()=>{const i=document.getElementById('cardImg');return i&&!i.hidden?i.naturalWidth+'x'+i.naturalHeight:'none'}));
+await q.goto(B+'/trips/'+ID+'?card=guest&img=1');await q.waitForTimeout(2500);log('card page img',await q.evaluate(()=>{const i=document.getElementById('cardImg');return i&&!i.hidden?i.naturalWidth+'x'+i.naturalHeight:'none'}));
 // delete from edit page (dialog in-page)
-await p.goto(B+'/trips#'+ID+'-o');await p.reload();await p.waitForTimeout(1500);await p.click('#delBtn');await p.waitForTimeout(400);
+await p.goto(B+'/trips/'+ID);await p.reload();await p.waitForTimeout(1500);await p.click('#delBtn');await p.waitForTimeout(400);
 const btns=await p.$$eval('button',bs=>bs.filter(x=>x.offsetParent&&/ลบทริป/.test(x.textContent)).map(x=>x.id||x.className));log('confirm btns',btns);
 await p.evaluate(()=>{const x=[...document.querySelectorAll('button')].filter(x=>x.offsetParent&&/ลบทริป/.test(x.textContent)&&x.id!=='delBtn');x[x.length-1].click()});await p.waitForTimeout(1500);
 log('after delete url',p.url(),'status',(await fetch(B+'/api/seats?t='+ID)).status);

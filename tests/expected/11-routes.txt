@@ -1,0 +1,13 @@
+home organizer button /mytrips
+/trips -> /mytrips
+/trips.html -> /mytrips
+edit button /trips/<id>
+edit page /trips/<id> title แก้ไขทริป name ทริปลิงก์
+old edit link -> /trips/<id> name ทริปลิงก์
+cancel -> /mytrips
+/trips/new title สร้างทริป
+cancel new -> /mytrips
+not organizer: submit disabled true
+seat pass outside LINE: form hidden true card open true
+book page 200 unknown edit id 404
+ERR []

@@ -12,7 +12,7 @@
     },
     {
       "source": "/trips.html",
-      "destination": "/trips",
+      "destination": "/mytrips",
       "permanent": false
     },
     {
@@ -44,15 +44,20 @@
       "source": "/mytrips.html",
       "destination": "/mytrips",
       "permanent": false
+    },
+    {
+      "source": "/trips",
+      "destination": "/mytrips",
+      "permanent": false
     }
   ],
   "rewrites": [
     {
-      "source": "/trips",
+      "source": "/trips/new",
       "destination": "/trips.html"
     },
     {
-      "source": "/trips/new",
+      "source": "/trips/:t([a-hj-km-np-z2-9]{6,8})",
       "destination": "/trips.html"
     },
     {
@@ -74,7 +79,7 @@
   ],
   "headers": [
     {
-      "source": "/(trips|trips/new|owner|mytrips)",
+      "source": "/(trips/new|trips/[a-hj-km-np-z2-9]{6,8}|owner|mytrips)",
       "headers": [
         {
           "key": "X-Robots-Tag",

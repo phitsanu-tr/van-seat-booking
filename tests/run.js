@@ -24,7 +24,7 @@ const files = fs.readdirSync(DIR).filter((f) => f.endsWith(".js") && (!only.leng
 
 const mask = (s) => s
   .replace(/\b1[6-9]\d{11}\b/g, "<ts>") // millisecond timestamps
-  .replace(/([/#])[a-z0-9]{8}(?=[-?&\s"]|$)/gm, "$1<id>") // trip ids in urls
+  .replace(/([/#])[a-z0-9]{8}(?=[-?&\s"']|$)/gm, "$1<id>") // trip ids in urls
   .replace(/\r/g, "").trimEnd();
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function lineMatches(exp, got) {

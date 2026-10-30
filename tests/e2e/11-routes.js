@@ -1,0 +1,22 @@
+const HLP=require('../helpers');const {chromium}=require(HLP.PW);const S=HLP.OUT;const B=HLP.BASE;
+const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Line/14.0';
+const SAFARI='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
+const errs=[];const log=(...a)=>console.log(...a);const path=u=>{const x=new URL(u);return x.pathname+x.search+x.hash;};
+(async()=>{const b=await chromium.launch(HLP.launchOpts);
+async function user(n,ua){const c=await b.newContext({viewport:{width:390,height:844},userAgent:ua||LINE});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2F');await p.waitForTimeout(300);return p;}
+const A=await user('Ann');
+const tr=await (await A.request.post(B+'/api/trip',{data:{name:'ทริปลิงก์',startDate:HLP.day(20),departTime:'07:00',vans:[{label:'1'}]}})).json();const ID=tr.id;
+await A.goto(B+'/');log('home organizer button',await A.getAttribute('a.path[href="/mytrips"]','href'));
+await A.goto(B+'/trips');await A.waitForTimeout(800);log('/trips ->',path(A.url()));
+await A.goto(B+'/trips.html');await A.waitForTimeout(800);log('/trips.html ->',path(A.url()));
+await A.goto(B+'/mytrips');await A.waitForTimeout(1200);log('edit button',(await A.getAttribute('.acts a.am','href')).replace(ID,'<id>'));
+await A.click('.acts a.am');await A.waitForTimeout(1500);log('edit page',path(A.url()).replace(ID,'<id>'),'title',await A.textContent('#title'),'name',await A.inputValue('#name'));
+await A.goto(B+'/trips#'+ID+'-o');await A.waitForTimeout(2000);log('old edit link ->',path(A.url()).replace(ID,'<id>'),'name',await A.inputValue('#name').catch(()=>'-'));
+await A.click('#cancelBtn');await A.waitForTimeout(1000);log('cancel ->',path(A.url()));
+await A.goto(B+'/trips/new');await A.waitForTimeout(1000);log('/trips/new title',await A.textContent('#title'));
+await A.click('#cancelBtn');await A.waitForTimeout(1000);log('cancel new ->',path(A.url()));
+const Z=await user('Zed');await Z.goto(B+'/trips/'+ID);await Z.waitForTimeout(1500);log('not organizer: submit disabled',await Z.isDisabled('#submit'));
+const G=await user('Gus',SAFARI);await G.goto(B+'/trips/'+ID+'?card=guest&img=1');await G.waitForTimeout(2500);
+log('seat pass outside LINE: form hidden',await G.isHidden('#formMain'),'card open',await G.isVisible('#cardBd'));await G.screenshot({path:S+'/route_card.png'});
+log('book page',(await A.request.get(B+'/'+ID)).status(),'unknown edit id',(await A.request.get(B+'/trips/zzzzzzzzzzzzzzzzzz',{maxRedirects:0})).status());
+log('ERR',errs);await b.close();})();

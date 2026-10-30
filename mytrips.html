@@ -345,7 +345,7 @@ a { color: inherit; }
       var tm = node("button", "tmb", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป · " + (x.helpers || 0) + "/3"); tm.type = "button"; tm.addEventListener("click", function () { openTeam(x); });
       var df = node("div", "dfoot"), cp = node("a", "cpy", "สร้างทริปซ้ำ"); cp.href = "/trips/new?copy=" + encodeURIComponent(x.id);
       df.appendChild(tm); df.appendChild(cp); c.appendChild(df);
-      var acts = node("div", "acts"), ed = node("a", "ab am", "แก้ไขทริป"); ed.href = "/trips#" + x.id + "-o";
+      var acts = node("div", "acts"), ed = node("a", "ab am", "แก้ไขทริป"); ed.href = "/trips/" + x.id;
       var sh = node("button", "ab tl", "แชร์ลิงก์จอง"); sh.type = "button"; sh.addEventListener("click", function () { shareTrip(x); });
       acts.appendChild(ed); acts.appendChild(sh); c.appendChild(acts);
       pane.appendChild(c);
@@ -889,6 +889,9 @@ a { color: inherit; }
   }
 
   // ---- tabs ----
+  // an old edit link (/trips#<trip>-o) arrives here through the /trips redirect: send it on to the edit page
+  var oldEdit = /^#([a-z0-9]{3,16})-o$/i.exec(location.hash || "");
+  if (oldEdit) { location.replace("/trips/" + oldEdit[1].toLowerCase()); return; }
   var tab = location.hash === "#seats" ? "seats" : "trips";
   function setTab(t) {
     tab = t;

@@ -24,5 +24,5 @@ await C.screenshot({path:S+'/17_own.png'});await C.click('#panel button.plain:ha
 // Bob cannot rename Cat
 log('bob rename cat',(await P.request.fetch(B+'/api/seats?t='+ID+'&v=v2',{method:'PATCH',data:{seat:5,name:'แฮก'}})).status());
 // trips result sheet: no admin tab when signed in
-await A.goto(B+'/trips#'+ID+'-o');await A.waitForTimeout(1500);await A.click('#shareBtn');await A.waitForTimeout(500);log('dots visible',await A.isVisible('#result .dots'));await A.screenshot({path:S+'/18_share.png'});
+await A.goto(B+'/trips/'+ID);await A.waitForTimeout(1500);await A.click('#shareBtn');await A.waitForTimeout(500);log('dots visible',await A.isVisible('#result .dots'));await A.screenshot({path:S+'/18_share.png'});
 log('ERR',errs);await b.close();})();

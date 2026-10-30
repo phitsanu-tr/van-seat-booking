@@ -18,7 +18,7 @@ log('B cancel Cat seat',(await Bp.request.fetch(B+'/api/seats?t='+ID+'&v=v1',{me
 log('B PUT trip',(await Bp.request.fetch(B+'/api/trip',{method:'PUT',data:{t:ID,name:'ทริปทีม (แก้โดยผู้ช่วย)',startDate:HLP.day(45),vans:[{id:'v1',label:'1'}]}})).status());
 log('B DELETE trip',(await Bp.request.fetch(B+'/api/trip?t='+ID,{method:'DELETE'})).status());
 log('B invite',(await Bp.request.post(B+'/api/trip',{data:{t:ID,invite:true}})).status());
-await Bp.goto(B+'/trips#'+ID+'-o');await Bp.reload();await Bp.waitForTimeout(1500);log('B edit page delete zone hidden',await Bp.evaluate(()=>document.getElementById('dz').hidden),'name',await Bp.inputValue('#name'));
+await Bp.goto(B+'/trips/'+ID);await Bp.reload();await Bp.waitForTimeout(1500);log('B edit page delete zone hidden',await Bp.evaluate(()=>document.getElementById('dz').hidden),'name',await Bp.inputValue('#name'));
 // fill helpers to max
 const code=url.split('join=')[1];
 {const p=await user('Dan');log('Dan reuse used link',(await p.request.post(B+'/api/trip',{data:{join:code}})).status());}
