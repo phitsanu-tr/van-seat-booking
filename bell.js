@@ -16,9 +16,8 @@
     ".vb-bell .vb-n{position:absolute;top:-5px;right:-6px;min-width:19px;height:19px;padding:0 5px;border-radius:99px;background:#b3261e;color:#fff;font:600 11px/15px 'Noto Sans Thai',system-ui,sans-serif;text-align:center;border:2px solid #eef1f3;box-sizing:border-box}",
     ".vb-bell .vb-n[hidden]{display:none}",
     ".vb-bd{position:fixed;inset:0;z-index:60;background:rgba(27,31,34,.4);display:flex;align-items:flex-end;justify-content:center}",
-    ".vb-sh{width:100%;max-width:460px;max-height:86vh;max-height:86dvh;overflow-y:auto;background:#fff;border-radius:24px 24px 0 0;padding:10px 16px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;font-family:'Noto Sans Thai',system-ui,sans-serif;color:#1b1f22;box-sizing:border-box}",
+    ".vb-sh{width:100%;max-width:460px;max-height:86vh;max-height:86dvh;overflow-y:auto;background:#fff;border-radius:24px 24px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;font-family:'Noto Sans Thai',system-ui,sans-serif;color:#1b1f22;box-sizing:border-box}",
     ".vb-sh{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.vb-sh>*{flex-shrink:0}",
-    ".vb-grab{width:40px;height:5px;border-radius:9px;background:#d5dce0;margin:0 auto 4px}",
     ".vb-hd{display:flex;align-items:center;gap:10px}.vb-hd b{flex:1}",
     ".vb-hd b{font:600 19px 'Prompt','Noto Sans Thai',sans-serif}",
     ".vb-hd button{border:0;background:none;padding:4px 0;font:600 13px 'Noto Sans Thai',sans-serif;color:#0e7c86;cursor:pointer}",
@@ -138,7 +137,7 @@
     bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
     function draw() {
       sh.innerHTML = "";
-      sh.insertAdjacentHTML("beforeend", '<div class="vb-grab"></div><div class="vb-hd"><b>การแจ้งเตือน</b><button type="button" class="vb-all"' + (B.unread ? "" : " disabled") + '>อ่านทั้งหมด</button><button type="button" class="vb-close" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>');
+      sh.insertAdjacentHTML("beforeend", '<div class="vb-hd"><b>การแจ้งเตือน</b><button type="button" class="vb-all"' + (B.unread ? "" : " disabled") + '>อ่านทั้งหมด</button><button type="button" class="vb-close" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>');
       sh.querySelector(".vb-all").addEventListener("click", function () { B.read("all"); draw(); });
       if (!B.items.length) sh.insertAdjacentHTML("beforeend", '<div class="vb-empty">ยังไม่มีการแจ้งเตือน<br>ถ้าผู้จัดเปลี่ยนเวลา ย้ายที่นั่ง หรือยกเลิกทริป จะแจ้งที่นี่</div>');
       var groups = [["ใหม่", B.items.filter(function (x) { return !x.r; })], ["ก่อนหน้านี้", B.items.filter(function (x) { return x.r; })]];

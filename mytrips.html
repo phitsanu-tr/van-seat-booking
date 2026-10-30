@@ -132,8 +132,7 @@ a { color: inherit; }
 
 /* confirm sheet + toast */
 .bd { position: fixed; inset: 0; background: rgba(27,31,34,.4); display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
-.sheet { width: 100%; max-width: 460px; background: var(--surface); border-radius: 24px 24px 0 0; padding: 10px 20px calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; }
-.grab { width: 40px; height: 5px; border-radius: 9px; background: #d5dce0; margin: 0 auto 2px; }
+.sheet { width: 100%; max-width: 460px; background: var(--surface); border-radius: 24px 24px 0 0; padding: 20px 20px calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; }
 .sheet h3 { font: 600 19px var(--font-display); margin: 0; }
 .sheet { max-height: 88vh; max-height: 88dvh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .sheet > * { flex-shrink: 0; }
@@ -342,7 +341,7 @@ a { color: inherit; }
   function copyText(text, okMsg) {
     function manual() {
       var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
-      sh.appendChild(node("div", "grab")); sheetHead(sh, "คัดลอกข้อความ", function () { bd.remove(); });
+      sheetHead(sh, "คัดลอกข้อความ", function () { bd.remove(); });
       sh.appendChild(node("p", null, "กดค้างที่ข้อความ แล้วเลือก \u201cคัดลอก\u201d"));
       var ta = node("textarea", "nin"); ta.value = text; ta.readOnly = true; ta.rows = 10; ta.style.height = "auto"; ta.style.padding = "12px"; ta.style.lineHeight = "1.5"; sh.appendChild(ta);
       bd.addEventListener("click", function (e) { if (e.target === bd) bd.remove(); });
@@ -402,8 +401,7 @@ a { color: inherit; }
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
     // the passenger list is fetched now, so "คัดลอกรายชื่อ" can copy at once inside the tap (iPhone allows copying only then)
     fetch("/api/trip?t=" + encodeURIComponent(x.id) + "&roster=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) { roster = d; }).catch(function () {});
-    sh.appendChild(node("div", "grab"));
-    sheetHead(sh, x.name, shut);
+        sheetHead(sh, x.name, shut);
     sh.appendChild(node("p", null, [dateRange(x.startDate, x.endDate), x.departTime ? x.departTime.replace(":", ".") + " น." : "", "จองแล้ว " + x.booked + "/" + x.total].filter(Boolean).join(" · ")));
     var g = node("div", "mgrid");
     function item(icon, label, cls, sub, act) {
@@ -587,8 +585,7 @@ a { color: inherit; }
     var close = function () { bd.remove(); };
     bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
     function draw() {
-      sh.textContent = ""; sh.appendChild(node("div", "grab"));
-      sh.appendChild(node("h3", null, "แก้ชื่อบนผัง"));
+      sh.textContent = "";       sh.appendChild(node("h3", null, "แก้ชื่อบนผัง"));
       sh.appendChild(node("p", null, x.name + " · ที่นั่งยังเป็นของคุณเหมือนเดิม"));
       if (x.seats.length > 1) {
         var g = node("div", "spick");
@@ -630,7 +627,7 @@ a { color: inherit; }
   // ---- cancel one of my seats (a bottom sheet, never a browser dialog) ----
   function askCancel(x) {
     var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
-    sh.appendChild(node("div", "grab")); sh.appendChild(node("h3", null, "ยกเลิกที่นั่ง?"));
+    sh.appendChild(node("h3", null, "ยกเลิกที่นั่ง?"));
     sh.appendChild(node("p", null, x.name));
     var pick = null;
     if (x.seats.length > 1) {
@@ -751,8 +748,7 @@ a { color: inherit; }
     function draw() {
       var ol = sh.querySelector(".rlist"), keep = ol ? ol.scrollTop : 0, keepSh = sh.scrollTop, sameView = st.lastView === st.mode + st.tab + st.van + st.payF;
       st.lastView = st.mode + st.tab + st.van + st.payF;
-      sh.textContent = ""; sh.appendChild(node("div", "grab"));
-      if (sameView) setTimeout(function () { var nl = sh.querySelector(".rlist"); if (nl) nl.scrollTop = keep; sh.scrollTop = keepSh; }, 0);
+      sh.textContent = "";       if (sameView) setTimeout(function () { var nl = sh.querySelector(".rlist"); if (nl) nl.scrollTop = keep; sh.scrollTop = keepSh; }, 0);
       if (!st.trip) { // still loading: the sheet's real shape (title, tabs, grey rows) at its usual height instead of a short "loading" box
         sheetHead(sh, "รายชื่อผู้จอง", close); sh.appendChild(node("p", null, x.name));
         var sk = node("div", "rtabs skel"); ["ที่นั่ง", "จ่ายเงิน", "เช็กชื่อ"].forEach(function (t, i) { var b = node("button", i === 0 ? "on" : null, t); b.type = "button"; b.disabled = true; sk.appendChild(b); }); sh.appendChild(sk);
@@ -943,8 +939,7 @@ a { color: inherit; }
       var bd2 = node("div", "bd"), d = node("div", "sheet"); bd2.style.zIndex = "25"; bd2.appendChild(d);
       var shut = function () { bd2.remove(); };
       bd2.addEventListener("click", function (e) { if (e.target === bd2) shut(); });
-      d.appendChild(node("div", "grab"));
-      d.appendChild(node("h3", null, isNew ? "เริ่มเช็กรอบใหม่" : "ตั้งชื่อรอบที่ " + cur.i));
+            d.appendChild(node("h3", null, isNew ? "เริ่มเช็กรอบใหม่" : "ตั้งชื่อรอบที่ " + cur.i));
       d.appendChild(node("p", null, isNew ? (inN ? "ติ๊กของรอบที่ " + cur.i + " (" + inN + " คน) จะถูกล้าง ทุกคนกลับเป็น “ยังไม่ขึ้นรถ” · สรุปรอบนี้เก็บไว้ในประวัติ" : "ทุกคนจะเริ่มเป็น “ยังไม่ขึ้นรถ” · สรุปรอบที่ " + cur.i + " เก็บไว้ในประวัติ") : "เช่น ขาไป ขากลับ หรือจุดที่แวะ · ทีมผู้จัดเห็นชื่อนี้ทุกเครื่อง"));
       var inp = node("input", "nin"); inp.type = "text"; inp.maxLength = 24; inp.autocomplete = "off"; inp.placeholder = isNew ? "ชื่อรอบ (ไม่บังคับ)" : "ชื่อรอบ";
       inp.value = isNew ? "" : cur.name || ""; inp.setAttribute("aria-label", "ชื่อรอบ"); d.appendChild(inp);
@@ -1134,8 +1129,7 @@ a { color: inherit; }
     }
     function wideBtn(cls, label) { var b = node("button", cls, label); b.type = "button"; b.style.height = "48px"; b.style.borderRadius = "16px"; b.style.fontWeight = "600"; return b; }
     function draw() {
-      sh.textContent = ""; sh.appendChild(node("div", "grab"));
-      sheetHead(sh, "ผู้ช่วยจัดทริป", close);
+      sh.textContent = "";       sheetHead(sh, "ผู้ช่วยจัดทริป", close);
       sh.appendChild(node("p", null, x.name));
       if (!st.t) { sh.appendChild(node("p", null, "กำลังโหลด...")); return; }
       var T = st.t, owner = T.role === "owner";
@@ -1222,7 +1216,7 @@ a { color: inherit; }
     var up = D ? D.seats.filter(function (x) { return !x.ended; }).reduce(function (n, x) { return n + x.seats.length; }, 0) : 0;
     var nt = D ? D.trips.length : 0;
     var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
-    sh.appendChild(node("div", "grab")); sh.appendChild(node("h3", null, "ลบข้อมูลของฉัน?"));
+    sh.appendChild(node("h3", null, "ลบข้อมูลของฉัน?"));
     var ul = node("ul");
     ul.appendChild(node("li", null, up ? "ยกเลิกที่นั่งที่จองไว้ " + up + " ที่นั่ง (ทริปที่ยังไม่ถึง)" : "ไม่มีที่นั่งที่ต้องยกเลิก"));
     ul.appendChild(node("li", null, "ทริปที่จบแล้ว ชื่อบนผังยังอยู่ให้คนจัดทริปดู แต่ไม่ผูกกับบัญชี LINE ของคุณแล้ว"));
