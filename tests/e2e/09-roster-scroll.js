@@ -8,7 +8,7 @@ const tr=await (await A.request.post(B+'/api/trip',{data:{name:'รถเต็�
 const names=['เฟิร์น','บอล','เฟรม','ตาน','ปอ','จ๋า','ท็อป','มิว','แนน','โอ๊ต','ฝน','เก่ง'];
 for(let i=0;i<names.length;i++){const u=await user('U'+Math.floor(i/4));await u.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:i+2,name:names[i]}});await u.context().close();}
 await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.tap('.ros');await A.waitForTimeout(900);
-const box=async()=>A.evaluate(()=>{const l=document.querySelector('.sheet .rlist'),sh=document.querySelector('.sheet'),last=l.lastElementChild.getBoundingClientRect(),lr=l.getBoundingClientRect(),close=[...sh.querySelectorAll('button')].pop().getBoundingClientRect();
+const box=async()=>A.evaluate(()=>{const l=document.querySelector('.sheet .rlist'),sh=document.querySelector('.sheet'),last=l.lastElementChild.getBoundingClientRect(),lr=l.getBoundingClientRect(),close=sh.querySelector('.mx').getBoundingClientRect();
  return {rows:l.children.length,scrollable:l.scrollHeight>l.clientHeight,lastVisible:last.bottom<=lr.bottom+1&&last.top>=lr.top-1,closeOnScreen:close.bottom<=innerHeight,sheetFits:sh.getBoundingClientRect().top>=0};});
 log('before',JSON.stringify(await box()));await A.screenshot({path:S+'/roster_top.png'});
 // swipe up inside the list
