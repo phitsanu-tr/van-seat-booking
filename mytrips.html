@@ -49,6 +49,10 @@ a { color: inherit; }
 .h2 span { font-size: 12px; color: var(--muted); }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 .card.dim { opacity: .62; }
+.chead { display: flex; flex-direction: column; gap: 10px; color: inherit; text-decoration: none; margin: -14px -14px 0; padding: 14px 14px 0; border-radius: 16px 16px 0 0; -webkit-tap-highlight-color: transparent; }
+.chead:active { background: #f3f6f7; }
+.chead .row1 .t { flex: 1; }
+.chead .row1 .chev { flex: none; font: 500 22px/20px var(--font-display); color: var(--muted); margin-left: -2px; }
 .row1 { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
 .t { font: 600 16px/1.3 var(--font-display); min-width: 0; overflow-wrap: anywhere; }
 .org { font-size: 12px; color: var(--muted); margin-top: -8px; }
@@ -398,14 +402,16 @@ a { color: inherit; }
     if (up.length) section(pane, "กำลังจะถึง", "เรียงตามวันเดินทาง");
     up.forEach(function (x) {
       var c = node("div", "card"), r1 = node("div", "row1");
-      var tg0 = noteTag(x.id); if (tg0) c.appendChild(tg0);
-      r1.appendChild(node("div", "t", x.name)); var p = statusPill(x); if (p) r1.appendChild(p); c.appendChild(r1);
-      if (x.organizer) c.appendChild(node("div", "org", x.organizer));
-      if (x.role === "helper") c.appendChild(node("div", "rolep", "คุณเป็นผู้ช่วยจัดทริปนี้"));
-      c.appendChild(meta(x, true));
-      var full = x.total && x.booked >= x.total, bar = node("div", "bar" + (full ? " full" : "")), bi = node("i"); bi.style.width = (x.total ? Math.min(100, Math.round(x.booked / x.total * 100)) : 0) + "%"; bar.appendChild(bi); c.appendChild(bar);
-      var bt = node("div", "bt"); bt.appendChild(document.createTextNode("จองแล้ว ")); bt.appendChild(node("b", null, String(x.booked))); bt.appendChild(document.createTextNode("/" + x.total + " ที่นั่ง")); c.appendChild(bt);
-      if (!x.closed && closeText(x.closeAt)) c.appendChild(node("div", "cat", "ปิดรับจองอัตโนมัติ " + closeText(x.closeAt)));
+      var hd = node("a", "chead"); hd.href = "/" + x.id; hd.setAttribute("aria-label", "เปิดผังที่นั่ง " + x.name); // the top of the card opens the seat map
+      var tg0 = noteTag(x.id); if (tg0) hd.appendChild(tg0);
+      r1.appendChild(node("div", "t", x.name)); var p = statusPill(x); if (p) r1.appendChild(p); r1.appendChild(node("span", "chev", "›")); hd.appendChild(r1);
+      if (x.organizer) hd.appendChild(node("div", "org", x.organizer));
+      if (x.role === "helper") hd.appendChild(node("div", "rolep", "คุณเป็นผู้ช่วยจัดทริปนี้"));
+      hd.appendChild(meta(x, true));
+      var full = x.total && x.booked >= x.total, bar = node("div", "bar" + (full ? " full" : "")), bi = node("i"); bi.style.width = (x.total ? Math.min(100, Math.round(x.booked / x.total * 100)) : 0) + "%"; bar.appendChild(bi); hd.appendChild(bar);
+      var bt = node("div", "bt"); bt.appendChild(document.createTextNode("จองแล้ว ")); bt.appendChild(node("b", null, String(x.booked))); bt.appendChild(document.createTextNode("/" + x.total + " ที่นั่ง")); hd.appendChild(bt);
+      if (!x.closed && closeText(x.closeAt)) hd.appendChild(node("div", "cat", "ปิดรับจองอัตโนมัติ " + closeText(x.closeAt)));
+      c.appendChild(hd);
       var ros = node("button", "ros", "รายชื่อผู้จอง · จัดการที่นั่ง"); ros.type = "button"; ros.addEventListener("click", function () { openRoster(x); }); c.appendChild(ros);
       var tm = node("button", "tmb", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป · " + (x.helpers || 0) + "/3"); tm.type = "button"; tm.addEventListener("click", function () { openTeam(x); });
       var df = node("div", "dfoot"), cp = node("a", "cpy", "สร้างทริปซ้ำ"); cp.href = "/trips/new?copy=" + encodeURIComponent(x.id);
