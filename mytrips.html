@@ -435,7 +435,7 @@ body { background: #fff; }
       g.appendChild(b); return b;
     }
     item(g1, "pen", "แก้ไขทริป", "", "", "/trips/" + x.id);
-    item(g1, "team", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป", "", x.role === "helper" ? "" : (x.helpers || 0) + "/3", function () { shut(); openTeam(x); });
+    item(g1, "team", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป", "", x.role === "helper" ? "" : (x.helpers || 0) + "/2", function () { shut(); openTeam(x); });
     item(g1, "dup", "สร้างทริปซ้ำ", "", "", "/trips/new?copy=" + encodeURIComponent(x.id));
     var lk = item(g2, "share", x.closed ? "เปิดรับจอง" : "ปิดรับจอง", x.closed ? "op" : "dg lk", null, async function (btn) {
       if (!x.closed && btn.dataset.sure !== "1") { btn.dataset.sure = "1"; btn.querySelector("span").textContent = "ยืนยันปิด?"; setTimeout(function () { if (btn.isConnected) { btn.dataset.sure = ""; btn.querySelector("span").textContent = "ปิดรับจอง"; } }, 3500); return; }
@@ -472,7 +472,7 @@ body { background: #fff; }
     var go = node("a", "wgo", "＋ สร้างทริปแรก"); go.href = "/trips/new"; big.appendChild(go);
     w.appendChild(big);
     var grid = node("div", "wfeat");
-    [["🪑", "เพื่อนเลือกที่นั่งเอง", "ผังรถอัปเดตทันที ไม่จองซ้ำ"], ["👥", "มีผู้ช่วยได้ 3 คน", "ช่วยกันจัดการทริป"],
+    [["🪑", "เพื่อนเลือกที่นั่งเอง", "ผังรถอัปเดตทันที ไม่จองซ้ำ"], ["👥", "มีผู้ช่วยได้ 2 คน", "ช่วยกันจัดการทริป"],
      ["💰", "ติ๊กว่าใครจ่ายแล้ว", "คัดลอกรายชื่อไปทวงในกลุ่ม"], ["✅", "เช็กชื่อขึ้นรถ", "ขาไป ขากลับ จุดแวะ"]].forEach(function (f) {
       var t = node("div", "wf"); t.appendChild(node("span", "we", f[0])); t.appendChild(node("b", null, f[1])); t.appendChild(node("span", null, f[2])); grid.appendChild(t);
     });

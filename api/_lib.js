@@ -206,7 +206,7 @@ function myTripsKey(uid) { return "mytrips:" + uid; }
 function mySeatsKey(uid) { return "myseats:" + uid; }
 // Trip managers: the owner (created the trip) and up to MAX_HELPERS co-organizers who joined with the owner's invite link.
 // Helpers manage seats and edit the trip; only the owner deletes it, invites/removes helpers or hands the trip over.
-const MAX_HELPERS = 3;
+const MAX_HELPERS = 2;
 function roleOf(trip, user) {
   if (!trip || !user) return null;
   if (trip.owner && trip.owner === user.id) return "owner";

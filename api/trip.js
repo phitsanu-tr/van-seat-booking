@@ -3,7 +3,7 @@
 //   GET  ?t= [&roster=1] read a trip for editing (owner)   -> { trip, booked, perVan, roster? }
 //   PUT                  update a trip (owner, body has t)
 //   DELETE ?t=           delete a trip and its bookings (owner)
-// Co-organizers ("helpers", up to 3) join with the owner's invite link and can edit the trip and manage seats:
+// Co-organizers ("helpers", up to 2) join with the owner's invite link and can edit the trip and manage seats:
 //   POST {t, invite: true | "revoke"}  owner: new invite code (7 days, one person) / cancel it
 //   POST {join: code}                  signed in: become a helper of that trip
 //   POST {t, removeHelper: i}          owner: remove helper #i      POST {t, leave: true}   helper: leave the trip
