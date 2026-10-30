@@ -99,7 +99,10 @@ a { color: inherit; }
 .acti svg { width: 20px; height: 20px; color: var(--muted); flex: none; }
 .acti .c { margin-left: auto; color: #b7c1c7; font-size: 18px; }
 .acti.dg { color: var(--danger); } .acti.dg svg { color: var(--danger); }
-.acti:active { background: #f3f6f7; }
+.acti:active { background: #e6ecef; }
+.agrp { background: #f3f6f7; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; }
+.agrp .acti { height: 50px; padding: 0 14px; border-radius: 0; }
+.agrp .acti + .acti { border-top: 1px solid #e3e8eb; }
 .mgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .mgb { min-height: 78px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font: 600 12.5px var(--font-body); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px 4px; text-align: center; }
 .mgb svg { width: 22px; height: 22px; }
@@ -1295,15 +1298,17 @@ a { color: inherit; }
     var nm = node("div", "hn"); nm.appendChild(node("b", null, $("meName").textContent)); var sm = node("small"); sm.innerHTML = '<span class="lnb">LINE</span>เข้าสู่ระบบแล้ว'; nm.appendChild(sm);
     var xb = node("button", "mx"); xb.type = "button"; xb.setAttribute("aria-label", "ปิด"); xb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'; xb.addEventListener("click", shut);
     head.appendChild(avw); head.appendChild(nm); head.appendChild(xb); sh.appendChild(head);
-    function row(tag, icon, label, cls, act) {
+    var g1 = node("div", "agrp"), g2 = node("div", "agrp");
+    function row(g, tag, icon, label, cls, act) {
       var r = node(tag, "acti" + (cls ? " " + cls : "")); if (tag === "a") r.href = act; else { r.type = "button"; r.addEventListener("click", act); }
       r.insertAdjacentHTML("beforeend", icon); r.appendChild(node("span", null, label)); if (tag === "a") r.appendChild(node("span", "c", "›"));
-      sh.appendChild(r);
+      g.appendChild(r);
     }
     var SV0 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
-    row("a", SV0 + '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', "นโยบายความเป็นส่วนตัว", "", "/privacy");
-    row("button", SV0 + '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>', "ออกจากระบบ", "", function () { shut(); logout(); });
-    row("button", SV0 + '<path d="M4 7h16M10 7V4h4v3M6 7l1 13h10l1-13"/></svg>', "ลบข้อมูลของฉัน", "dg", function () { shut(); askWipe(); });
+    row(g1, "a", SV0 + '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', "นโยบายความเป็นส่วนตัว", "", "/privacy");
+    row(g1, "button", SV0 + '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>', "ออกจากระบบ", "", function () { shut(); logout(); });
+    row(g2, "button", SV0 + '<path d="M4 7h16M10 7V4h4v3M6 7l1 13h10l1-13"/></svg>', "ลบข้อมูลของฉัน", "dg", function () { shut(); askWipe(); });
+    sh.appendChild(g1); sh.appendChild(g2);
     document.body.appendChild(bd);
   }
   $("acctBtn").addEventListener("click", openAccount);
