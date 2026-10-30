@@ -82,7 +82,9 @@ module.exports = async function handler(req, res) {
       let rec = null; try { rec = JSON.parse(raw); } catch (e) { rec = null; }
       if (!rec) return L.json(res, 404, { error: "no_seat" });
       if (body.paid !== undefined) { if (body.paid === true) rec.p = 1; else delete rec.p; }
-      if (body.board !== undefined) { if (body.board === true) rec.c = rec.c || Date.now(); else delete rec.c; }
+      if (body.board !== undefined) { // c = boarded at, cb = which organizer ticked it (names the round's checker)
+        if (body.board === true) { if (!rec.c) { rec.c = Date.now(); rec.cb = String(user.name || "").slice(0, 40); } } else { delete rec.c; delete rec.cb; }
+      }
       await L.redis(["HSET", key, String(seat), JSON.stringify(rec)]);
       if (body.paid !== undefined) await L.logEvent(t, { e: body.paid === true ? "paid" : "unpaid", v: van.id, s: seat, n: rec.name, u: user.id, by: role, at: Date.now() });
       return L.json(res, 200, { ok: true, p: rec.p ? 1 : 0, c: rec.c || 0 });

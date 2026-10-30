@@ -139,19 +139,20 @@ module.exports = async function handler(req, res) {
       const all = await L.pipeline(trip.vans.map((v) => ["HGETALL", L.seatsKey(t, v.id)]));
       const cmds = [], miss = [];
       let total = 0, inN = 0, first = 0, last = 0;
+      const checkers = []; // who ticked people in this round (round 1 has no one who "started" it)
       trip.vans.forEach((v, i) => {
         const flat = all[i] || [], args = [];
         for (let j = 0; j + 1 < flat.length; j += 2) {
           let r = null; try { r = JSON.parse(flat[j + 1]); } catch (e) { r = null; }
           if (!r || !r.name) continue;
           total++;
-          if (r.c) { inN++; first = first ? Math.min(first, r.c) : r.c; last = Math.max(last, r.c); delete r.c; args.push(flat[j], JSON.stringify(r)); }
+          if (r.c) { inN++; first = first ? Math.min(first, r.c) : r.c; last = Math.max(last, r.c); if (r.cb && checkers.indexOf(r.cb) < 0) checkers.push(r.cb); delete r.c; delete r.cb; args.push(flat[j], JSON.stringify(r)); }
           else miss.push({ vl: v.label, s: Number(flat[j]), n: String(r.name) });
         }
         if (args.length) cmds.push(["HSET", L.seatsKey(t, v.id)].concat(args));
       });
       miss.sort((a, b) => (a.vl === b.vl ? a.s - b.s : String(a.vl).localeCompare(String(b.vl))));
-      const done = { i: board.cur.i, name: board.cur.name || "", start: board.cur.at || first, end: last, by: board.cur.by || "", n: inN, total, miss: miss.slice(0, 40) };
+      const done = { i: board.cur.i, name: board.cur.name || "", start: board.cur.at || first, end: last, by: board.cur.by || checkers.slice(0, 3).join(", "), n: inN, total, miss: miss.slice(0, 40) };
       const hist = [done].concat(board.hist || []).slice(0, 20); // newest first, at most 20 rounds
       const next = Object.assign({}, trip, { board: { cur: { i: board.cur.i + 1, name: roundName(pb.name), at: Date.now(), by: user.name }, hist } });
       if (cmds.length) await L.pipeline(cmds);
@@ -254,7 +255,7 @@ module.exports = async function handler(req, res) {
           const flat = all[i] || [], seats = {};
           for (let j = 0; j + 1 < flat.length; j += 2) {
             const n = L.parseSeat(flat[j]); if (n === null) continue;
-            try { const r = JSON.parse(flat[j + 1]); if (r && r.name) seats[n] = Object.assign({ name: String(r.name), at: r.at }, r.u ? { a: 1 } : {}, user && r.u === user.id ? { m: 1 } : {}, r.p ? { p: 1 } : {}, r.c ? { c: r.c } : {}); /* p = paid, c = boarded (organizers only) */ } catch (e) { /* skip */ }
+            try { const r = JSON.parse(flat[j + 1]); if (r && r.name) seats[n] = Object.assign({ name: String(r.name), at: r.at }, r.u ? { a: 1 } : {}, user && r.u === user.id ? { m: 1 } : {}, r.p ? { p: 1 } : {}, r.c ? { c: r.c } : {}, r.c && r.cb ? { cb: r.cb } : {}); /* p = paid, c = boarded, cb = ticked by (organizers only) */ } catch (e) { /* skip */ }
           }
           roster[v.id] = seats;
         });

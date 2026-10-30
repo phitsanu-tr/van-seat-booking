@@ -723,7 +723,8 @@ a { color: inherit; }
     }
     function liveRound() { // the current round as a summary, from the ticks now on the list
       var all = everyone(), b = board(), ts = all.filter(function (e) { return e.s.c; }).map(function (e) { return e.s.c; });
-      return { i: b.cur.i, name: b.cur.name, by: b.cur.by, start: b.cur.at || (ts.length ? Math.min.apply(null, ts) : 0), end: ts.length ? Math.max.apply(null, ts) : 0,
+      var who = []; all.forEach(function (e) { if (e.s.c && e.s.cb && who.indexOf(e.s.cb) < 0) who.push(e.s.cb); }); // nobody started round 1: show who is checking it
+      return { i: b.cur.i, name: b.cur.name, by: b.cur.by || who.slice(0, 3).join(", "), start: b.cur.at || (ts.length ? Math.min.apply(null, ts) : 0), end: ts.length ? Math.max.apply(null, ts) : 0,
         n: ts.length, total: all.length, miss: all.filter(function (e) { return !e.s.c; }).map(function (e) { return { vl: vanLabel(e.v), s: e.n, n: e.s.name }; }), live: true };
     }
     function missText(r, max) {
