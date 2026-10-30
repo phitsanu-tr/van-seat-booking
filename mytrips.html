@@ -56,14 +56,11 @@ a { color: inherit; }
 .h2 span { font-size: 12px; color: var(--muted); }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .card.dim { opacity: .62; }
-.chead { display: flex; flex-direction: column; gap: 12px; color: inherit; text-decoration: none; margin: -16px -16px 0; padding: 16px 16px 0; border-radius: 16px 16px 0 0; -webkit-tap-highlight-color: transparent; }
-.chead:active { background: #f3f6f7; }
+.chead { display: flex; flex-direction: column; gap: 12px; }
 .chead .row1 .t { flex: 1; }
 .row1 { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
 .t { font: 600 16px/1.3 var(--font-display); min-width: 0; overflow-wrap: anywhere; }
 .org { font-size: 12px; color: var(--muted); margin-top: -8px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
-.vmap { flex: none; height: 20.8px; display: inline-flex; align-items: center; gap: 2px; font: 500 12px var(--font-body); color: var(--mine); white-space: nowrap; }
-.vmap svg { width: 14px; height: 14px; flex: none; position: relative; top: .25px; }
 .meta { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: var(--muted); }
 .meta i { font-style: normal; color: var(--ink); font-weight: 500; }
 .meta svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 3px; }
@@ -75,7 +72,8 @@ a { color: inherit; }
 .bar.full i { background: var(--amber); }
 .bt { font-size: 12px; color: var(--muted); margin-top: -4px; } .bt b { color: var(--ink); font-weight: 600; }
 .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.acts.a3 { grid-template-columns: 1fr 48px 48px; } .acts .ab.ico svg { width: 18px; height: 18px; } .ros svg { width: 16px; height: 16px; flex: none; }
+.acts.a3 { grid-template-columns: 1fr 1fr 1fr; }
+.ab.kb { flex: none; width: 40px; height: 40px; padding: 0; margin: -8px -6px -8px 0; border-color: transparent; background: #f1f4f6; color: var(--ink); } .ab.kb svg { width: 18px; height: 18px; } .ab.kb:active { background: #e4e9ec; }
 .ab { height: 40px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--ink); display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .ab.am { border-color: var(--amber-edge); color: var(--amber); } .ab.dg { border-color: #efcfcc; color: var(--danger); } .ab.tl { border-color: #bfe0e3; color: var(--mine); }
 .ab:active { background: var(--bg); }
@@ -418,6 +416,8 @@ body { background: #fff; }
   // ---- "จัดการทริป": everything an organizer does less often, in one sheet of big buttons ----
   var MG = {
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>',
+    dots: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>',
+    seats: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h3v3H8zM13 7h3v3h-3zM8 14h3v3H8zM13 14h3v3h-3z"/></svg>',
     gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>',
     map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M9 8h2M13 8h2M9 12h2M13 12h2M9 16h2M13 16h2"/></svg>',
     pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10-10-4-4L4 16v4zM13.5 6.5l4 4"/></svg>',
@@ -504,9 +504,11 @@ body { background: #fff; }
     if (up.length) section(pane, "กำลังจะถึง", "", up.length);
     up.forEach(function (x) {
       var c = node("div", "card"), r1 = node("div", "row1");
-      var hd = node("a", "chead"); hd.href = "/" + x.id; hd.setAttribute("aria-label", "เปิดผังที่นั่ง " + x.name); // the top of the card opens the seat map
+      var hd = node("div", "chead");
       var tg0 = noteTag(x.id); if (tg0) hd.appendChild(tg0);
-      r1.appendChild(node("div", "t", x.name)); var vm = node("span", "vmap", "ผังที่นั่ง"); vm.insertAdjacentHTML("beforeend", '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>'); r1.appendChild(vm); hd.appendChild(r1);
+      r1.appendChild(node("div", "t", x.name));
+      var mg = node("button", "ab mgo kb"); mg.type = "button"; mg.insertAdjacentHTML("beforeend", MG.dots); mg.setAttribute("aria-label", "จัดการทริป"); mg.title = "จัดการทริป";
+      mg.addEventListener("click", function () { openManage(x); }); r1.appendChild(mg); hd.appendChild(r1);
       var p = statusPill(x);
       if (x.organizer || p) { var sub = node("div", "org"); if (x.organizer) sub.appendChild(node("span", null, x.organizer)); if (p) sub.appendChild(p); hd.appendChild(sub); }
       if (x.role === "helper") hd.appendChild(node("div", "rolep", "คุณเป็นผู้ช่วยจัดทริปนี้"));
@@ -515,13 +517,12 @@ body { background: #fff; }
       var bt = node("div", "bt"); bt.appendChild(document.createTextNode("จองแล้ว ")); bt.appendChild(node("b", null, String(x.booked))); bt.appendChild(document.createTextNode("/" + x.total + " ที่นั่ง")); hd.appendChild(bt);
       if (!x.closed && closeText(x.closeAt)) hd.appendChild(node("div", "cat", "ปิดรับจองอัตโนมัติ " + closeText(x.closeAt)));
       c.appendChild(hd);
-      var ros = node("button", "ros", "รายชื่อผู้จอง · จัดการที่นั่ง"); ros.type = "button"; ros.addEventListener("click", function () { openRoster(x); }); ros.addEventListener("pointerdown", function () { prefetchRoster(x.id); }); ros.insertAdjacentHTML("afterbegin", MG.team);
-      var acts = node("div", "acts a3"), sh = node("button", "ab tl ico"); sh.type = "button";
-      sh.insertAdjacentHTML("beforeend", MG.share); sh.setAttribute("aria-label", x.closed ? "แชร์ผังที่นั่ง" : "แชร์ลิงก์จอง"); sh.title = sh.getAttribute("aria-label");
+      var ros = node("button", "ab ros3", "รายชื่อ"); ros.type = "button"; ros.addEventListener("click", function () { openRoster(x); }); ros.addEventListener("pointerdown", function () { prefetchRoster(x.id); }); ros.insertAdjacentHTML("afterbegin", MG.team);
+      var vmap = node("a", "ab vmap", "ผังที่นั่ง"); vmap.href = "/" + x.id; vmap.insertAdjacentHTML("afterbegin", MG.seats);
+      var acts = node("div", "acts a3"), sh = node("button", "ab tl"); sh.type = "button";
+      sh.insertAdjacentHTML("beforeend", MG.share); sh.appendChild(document.createTextNode(x.closed ? "แชร์ผัง" : "แชร์ลิงก์")); sh.setAttribute("aria-label", x.closed ? "แชร์ผังที่นั่ง" : "แชร์ลิงก์จอง");
       sh.addEventListener("click", function () { shareTrip(x); });
-      var mg = node("button", "ab mgo ico"); mg.type = "button"; mg.insertAdjacentHTML("beforeend", MG.gear); mg.setAttribute("aria-label", "จัดการทริป"); mg.title = "จัดการทริป";
-      mg.addEventListener("click", function () { openManage(x); });
-      acts.appendChild(ros); acts.appendChild(sh); acts.appendChild(mg); c.appendChild(acts);
+      acts.appendChild(ros); acts.appendChild(vmap); acts.appendChild(sh); c.appendChild(acts);
       pane.appendChild(c);
     });
     if (done.length) {
