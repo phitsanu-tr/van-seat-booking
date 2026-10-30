@@ -9,7 +9,8 @@
 //   POST {t, removeHelper: i}          owner: remove helper #i      POST {t, leave: true}   helper: leave the trip
 //   POST {t, transfer: i}              owner: helper #i becomes the owner, the old owner becomes a helper
 // Closing bookings: POST {t, close: true | false} (owner or helper) closes / reopens at once; trip.closeAt closes it on time.
-// Check-in: POST {t, resetBoard: true} (owner or helper) clears every seat's boarded tick, to check people in again (e.g. the way back).
+// Check-in rounds: POST {t, resetBoard: true, name?} (owner or helper) saves a summary of the current round and clears every
+//   boarded tick for the next one (e.g. the way back); POST {t, boardName} renames the current round. Passengers never see trip.board.
 const L = require("./_lib");
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -94,6 +95,7 @@ function team(trip, user) {
 }
 async function saveTrip(trip) { await L.redis(["SET", L.tripKey(trip.id), JSON.stringify(trip)]); await L.applyExpiry(trip); } // SET clears the TTL
 const INVITE_DAYS = 7;
+function roundName(v) { return String(v == null ? "" : v).replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 24); } // check-in round label, e.g. "ขากลับ"
 
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
@@ -120,24 +122,42 @@ module.exports = async function handler(req, res) {
       await L.notify([trip.owner], { k: "helper_joined", t, tn: trip.name, n: user.name });
       return L.json(res, 200, { ok: true, id: t, name: trip.name });
     }
-    if (req.method === "POST" && pb.resetBoard === true) {
+    if (req.method === "POST" && (pb.resetBoard === true || typeof pb.boardName === "string")) {
+      // check-in rounds (trip.board = { cur: {i, name, at, by}, hist: [summary of each earlier round] }), organizers only
       const t = L.tripId(pb.t);
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (!isManager(trip, user)) return deny(res, user);
+      if (L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
+      const board = Object.assign({ cur: { i: 1, name: "", at: 0, by: "" }, hist: [] }, trip.board || {});
+      if (pb.resetBoard !== true) { // rename the current round
+        const next = Object.assign({}, trip, { board: Object.assign({}, board, { cur: Object.assign({}, board.cur, { name: roundName(pb.boardName) }) }) });
+        await saveTrip(next);
+        return L.json(res, 200, { ok: true, board: next.board });
+      }
+      // start a new round: sum up the current one (who was missing at this moment), then clear every tick
       const all = await L.pipeline(trip.vans.map((v) => ["HGETALL", L.seatsKey(t, v.id)]));
-      const cmds = [];
+      const cmds = [], miss = [];
+      let total = 0, inN = 0, first = 0, last = 0;
       trip.vans.forEach((v, i) => {
         const flat = all[i] || [], args = [];
         for (let j = 0; j + 1 < flat.length; j += 2) {
           let r = null; try { r = JSON.parse(flat[j + 1]); } catch (e) { r = null; }
-          if (r && r.c) { delete r.c; args.push(flat[j], JSON.stringify(r)); }
+          if (!r || !r.name) continue;
+          total++;
+          if (r.c) { inN++; first = first ? Math.min(first, r.c) : r.c; last = Math.max(last, r.c); delete r.c; args.push(flat[j], JSON.stringify(r)); }
+          else miss.push({ vl: v.label, s: Number(flat[j]), n: String(r.name) });
         }
         if (args.length) cmds.push(["HSET", L.seatsKey(t, v.id)].concat(args));
       });
+      miss.sort((a, b) => (a.vl === b.vl ? a.s - b.s : String(a.vl).localeCompare(String(b.vl))));
+      const done = { i: board.cur.i, name: board.cur.name || "", start: board.cur.at || first, end: last, by: board.cur.by || "", n: inN, total, miss: miss.slice(0, 40) };
+      const hist = [done].concat(board.hist || []).slice(0, 20); // newest first, at most 20 rounds
+      const next = Object.assign({}, trip, { board: { cur: { i: board.cur.i + 1, name: roundName(pb.name), at: Date.now(), by: user.name }, hist } });
       if (cmds.length) await L.pipeline(cmds);
+      await saveTrip(next);
       await L.logEvent(t, { e: "board_reset", n: user.name, u: user.id, by: L.roleOf(trip, user), at: Date.now() });
-      return L.json(res, 200, { ok: true, cleared: cmds.length });
+      return L.json(res, 200, { ok: true, board: next.board });
     }
     if (req.method === "POST" && typeof pb.close === "boolean") {
       const t = L.tripId(pb.t);
@@ -239,7 +259,7 @@ module.exports = async function handler(req, res) {
           roster[v.id] = seats;
         });
       }
-      return L.json(res, 200, { trip: tripSummary(trip, user), booked, perVan, roster, ended: L.tripEnded(trip), team: team(trip, user) });
+      return L.json(res, 200, { trip: tripSummary(trip, user), booked, perVan, roster, board: roster ? trip.board || null : undefined, ended: L.tripEnded(trip), team: team(trip, user) });
     }
 
     if (req.method === "DELETE") {
