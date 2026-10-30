@@ -99,17 +99,12 @@ a { color: inherit; }
 .acti svg { width: 20px; height: 20px; color: var(--muted); flex: none; }
 .acti .c { margin-left: auto; color: #b7c1c7; font-size: 18px; }
 .acti.dg { color: var(--danger); } .acti.dg svg { color: var(--danger); }
+.acti.op, .acti.op svg { color: var(--mine); } .acti .c small { font-size: 14px; color: var(--muted); margin-right: 6px; } .acti .c { display: flex; align-items: center; }
+.msub { margin: -8px 0 0; font-size: 14px; color: var(--muted); }
 .acti:active { background: #e6ecef; }
 .agrp { background: #f3f6f7; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; }
 .agrp .acti { height: 50px; padding: 0 14px; border-radius: 0; }
 .agrp .acti + .acti { border-top: 1px solid #e3e8eb; }
-.mgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.mgb { min-height: 78px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font: 600 12.5px var(--font-body); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px 4px; text-align: center; }
-.mgb svg { width: 22px; height: 22px; }
-.mgb small { font-weight: 500; font-size: 11px; color: var(--muted); margin-top: -4px; }
-.mgb.lk { color: var(--danger); border-color: #f0c9c5; }
-.mgb.op { color: var(--mine); border-color: color-mix(in srgb, var(--mine) 40%, var(--surface)); background: var(--tint); }
-.mgb:active { background: #f3f6f7; }
 .wslim { position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px; border-radius: 16px; padding: 12px 12px 12px 16px; color: #fff; text-decoration: none; background: linear-gradient(160deg, var(--mine), var(--deep)); }
 .wslim .tx { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .wslim .tx b { font: 600 16px/1.35 var(--font-display); }
@@ -426,28 +421,23 @@ body { background: #fff; }
     dup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>'
   };
   function openManage(x) {
-    var bd = node("div", "bd"), sh = node("div", "sheet"), roster = null; bd.appendChild(sh);
+    var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
     var shut = function () { bd.remove(); };
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
-    // the passenger list is fetched now, so "คัดลอกรายชื่อ" can copy at once inside the tap (iPhone allows copying only then)
-    fetch("/api/trip?t=" + encodeURIComponent(x.id) + "&roster=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) { roster = d; }).catch(function () {});
-        sheetHead(sh, x.name, shut);
-    sh.appendChild(node("p", null, [dateRange(x.startDate, x.endDate), x.departTime ? x.departTime.replace(":", ".") + " น." : "", "จองแล้ว " + x.booked + "/" + x.total].filter(Boolean).join(" · ")));
-    var g = node("div", "mgrid");
-    function item(icon, label, cls, sub, act) {
-      var b = node(typeof act === "string" ? "a" : "button", "mgb" + (cls ? " " + cls : ""));
+    sheetHead(sh, x.name, shut);
+    sh.appendChild(node("p", "msub", [dateRange(x.startDate, x.endDate), x.departTime ? x.departTime.replace(":", ".") + " น." : "", "จองแล้ว " + x.booked + "/" + x.total].filter(Boolean).join(" · ")));
+    var g1 = node("div", "agrp"), g2 = node("div", "agrp");
+    function item(g, icon, label, cls, right, act) {
+      var b = node(typeof act === "string" ? "a" : "button", "acti mgb" + (cls ? " " + cls : ""));
       if (typeof act === "string") b.href = act; else { b.type = "button"; b.addEventListener("click", function () { act(b); }); }
-      b.insertAdjacentHTML("beforeend", MG[icon]); b.appendChild(node("span", null, label)); if (sub) b.appendChild(node("small", null, sub));
+      b.insertAdjacentHTML("beforeend", MG[icon]); b.appendChild(node("span", null, label));
+      if (right != null) { var r = node("span", "c"); if (right) r.appendChild(node("small", null, right)); r.appendChild(document.createTextNode("›")); b.appendChild(r); }
       g.appendChild(b); return b;
     }
-    item("map", "ดูผังที่นั่ง", "", "", "/" + x.id);
-    item("pen", "แก้ไขทริป", "", "", "/trips/" + x.id);
-    item("team", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป", "", x.role === "helper" ? "" : (x.helpers || 0) + "/3", function () { shut(); openTeam(x); });
-    item("text", "คัดลอกรายชื่อ", "", "", function () {
-      if (!roster) { toast("กำลังโหลดรายชื่อ ลองอีกครั้ง", true); return; }
-      copyText(rosterText(roster.trip, roster.roster || {}, !x.closed), "คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย");
-    });
-    var lk = item(x.closed ? "share" : "share", x.closed ? "เปิดรับจอง" : "ปิดรับจอง", x.closed ? "op" : "lk", "", async function (btn) {
+    item(g1, "pen", "แก้ไขทริป", "", "", "/trips/" + x.id);
+    item(g1, "team", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป", "", x.role === "helper" ? "" : (x.helpers || 0) + "/3", function () { shut(); openTeam(x); });
+    item(g1, "dup", "สร้างทริปซ้ำ", "", "", "/trips/new?copy=" + encodeURIComponent(x.id));
+    var lk = item(g2, "share", x.closed ? "เปิดรับจอง" : "ปิดรับจอง", x.closed ? "op" : "dg lk", null, async function (btn) {
       if (!x.closed && btn.dataset.sure !== "1") { btn.dataset.sure = "1"; btn.querySelector("span").textContent = "ยืนยันปิด?"; setTimeout(function () { if (btn.isConnected) { btn.dataset.sure = ""; btn.querySelector("span").textContent = "ปิดรับจอง"; } }, 3500); return; }
       btn.disabled = true;
       try {
@@ -457,10 +447,10 @@ body { background: #fff; }
       } catch (e) { btn.disabled = false; toast("ทำรายการไม่สำเร็จ ลองอีกครั้ง", true); }
     });
     lk.querySelector("svg").outerHTML = x.closed ? OPEN_SVG : LOCK_SVG;
-    item("dup", "สร้างทริปซ้ำ", "", "", "/trips/new?copy=" + encodeURIComponent(x.id));
-    sh.appendChild(g);
+    sh.appendChild(g1); sh.appendChild(g2);
     document.body.appendChild(bd);
   }
+
   function shareTrip(x) {
     var u = location.origin + "/" + x.id, L = ["🚐 " + (x.name || "จองที่นั่งรถตู้"), ""], dr = dateRange(x.startDate, x.endDate);
     if (dr) L.push("📅 " + dr);
