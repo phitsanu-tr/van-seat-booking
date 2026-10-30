@@ -1245,6 +1245,7 @@ body { background: #fff; }
   }
   function showLogin() {
     forgetRosters(); // signed out or another account: drop the lists kept in this tab
+    try { localStorage.removeItem("vsb_name"); } catch (e) {} // and the booking name remembered on this device
     $("meView").hidden = true; $("loginView").hidden = false;
     var le = new URLSearchParams(location.search).get("le");
     var msg = { cancel: "ยกเลิกการเข้าสู่ระบบแล้ว", setup: "ระบบเข้าสู่ระบบยังไม่ได้ตั้งค่า (ติดต่อเจ้าของแอป)", busy: "ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่" }[le] || (le ? "เข้าสู่ระบบไม่สำเร็จ ลองอีกครั้ง" : "");

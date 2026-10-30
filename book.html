@@ -907,10 +907,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         panelEl.appendChild(lg);
         actions.appendChild(plainBtn("ปิด", closeModal)); panelEl.appendChild(actions); return;
       }
-      if (me && opening && !typedName) typedName = cleanName(me.name || "").text; // the LINE name as a starting point (editable)
+      if (me && opening && !typedName) { try { typedName = cleanName(localStorage.getItem("vsb_name") || "").text; } catch (e) {} } // the name typed last time on this device (first time: empty, the person types it)
       input = el("input");
       input.type = "text"; input.id = "nameInput";
-      input.placeholder = "ระบุชื่อ เช่น ชื่อเล่น"; input.value = typedName;
+      input.placeholder = "ชื่อที่ผู้จัดรู้จัก เช่น ชื่อเล่น"; input.value = typedName;
       input.autocomplete = "off"; input.autocapitalize = "off"; input.spellcheck = false;
       input.setAttribute("autocorrect", "off");
       input.setAttribute("aria-label", "ชื่อผู้จอง");
@@ -1209,6 +1209,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       if (hid) { try { sessionStorage.removeItem("vsb_hold"); } catch (e) {} }
       if (r.ok) {
         if (seats[n] === temp) seats[n] = { name: name, at: r.data.at, m: true, a: true };
+        try { localStorage.setItem("vsb_name", name); } catch (e) {}
         showToast("จองที่นั่ง " + n + " แล้ว");
         showInvite(n);
       } else if (r.data && r.data.error === "taken") {
