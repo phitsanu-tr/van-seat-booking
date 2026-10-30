@@ -136,7 +136,8 @@ a { color: inherit; }
 .grab { width: 40px; height: 5px; border-radius: 9px; background: #d5dce0; margin: 0 auto 2px; }
 .sheet h3 { font: 600 19px var(--font-display); margin: 0; }
 .sheet { max-height: 88vh; max-height: 88dvh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-.sheet > * { flex-shrink: 0; } /* a tall sheet scrolls; its parts never get squashed and clipped */
+.sheet > * { flex-shrink: 0; }
+.sheet.tall { height: 85vh; height: 85dvh; } /* a tall sheet scrolls; its parts never get squashed and clipped */
 .rolep { margin-top: -6px; font-size: 12px; font-weight: 600; color: var(--amber); }
 .tmb { align-self: flex-start; border: 0; background: none; padding: 2px 0; font-size: 13px; font-weight: 600; color: var(--amber); text-decoration: underline; text-underline-offset: 3px; }
 .ilink { display: flex; flex-direction: column; gap: 8px; background: var(--amber-tint); border: 1px solid var(--amber-edge); border-radius: 16px; padding: 12px; }
@@ -677,7 +678,7 @@ a { color: inherit; }
   function openRoster(x) {
     var st = { trip: null, roster: {}, van: "", mode: "list", tab: "seats", payF: "all", boardView: "cur", pending: 0, sel: null, ended: false, busy: false };
     if (daysTo(x.startDate) === 0) st.tab = "board"; // trip day: open on check-in
-    var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
+    var bd = node("div", "bd"), sh = node("div", "sheet tall"); bd.appendChild(sh); // fixed height: switching tabs or vans doesn't make the sheet jump
     var close = function () { clearInterval(st.timer); bd.remove(); load(); };
     // check-in tab: other organizers tick people too, so the list refreshes while it is open
     st.timer = setInterval(function () { if (st.tab === "board" && st.mode === "list" && !st.pending && document.visibilityState === "visible" && bd.isConnected) fetchRoster(true); }, 8000);
