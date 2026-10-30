@@ -166,6 +166,9 @@ a { color: inherit; }
 .bprog .bar i { background: #1f7a3f; }
 .miss { background: var(--amber-tint); border-radius: 12px; padding: 9px 12px; font-size: 13px; line-height: 1.5; color: var(--amber); }
 .miss.done { background: #e6f4ea; color: #1f7a3f; }
+.rnew { align-self: center; border: 0; background: none; padding: 4px 8px; font: 600 13px var(--font-body); color: var(--muted); text-decoration: underline; text-underline-offset: 3px; display: flex; align-items: center; gap: 5px; }
+.rnew svg { width: 15px; height: 15px; }
+.rnew.sure { color: var(--danger); text-decoration: none; background: #fdf1ef; border-radius: 99px; padding: 6px 12px; }
 .dfoot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .sgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
 .sgrid button { height: 52px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font: 600 16px var(--font-display); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; padding: 2px; }
@@ -728,6 +731,25 @@ a { color: inherit; }
         sh.appendChild(list);
       }
       sh.appendChild(node("div", "rfree", "แตะชื่อเมื่อขึ้นรถแล้ว · แตะอีกครั้งเพื่อเอาออก · ทีมผู้จัดเห็นตรงกันทุกเครื่อง"));
+      if (inN && !st.ended) { // e.g. the way back: clear every tick (all vans) and check people in again
+        var rn = node("button", "rnew"); rn.type = "button";
+        rn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg>';
+        rn.appendChild(document.createTextNode("เริ่มเช็กรอบใหม่ (เช่น ขากลับ)"));
+        rn.addEventListener("click", async function () {
+          if (rn.dataset.sure !== "1") {
+            rn.dataset.sure = "1"; rn.classList.add("sure"); rn.lastChild.textContent = "ล้างติ๊กทั้ง " + inN + " คน ทุกคัน? แตะอีกครั้งเพื่อยืนยัน";
+            setTimeout(function () { if (rn.isConnected && rn.dataset.sure === "1") { rn.dataset.sure = ""; rn.classList.remove("sure"); rn.lastChild.textContent = "เริ่มเช็กรอบใหม่ (เช่น ขากลับ)"; } }, 4000);
+            return;
+          }
+          rn.disabled = true; st.pending++;
+          try {
+            var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body: JSON.stringify({ t: x.id, resetBoard: true }) });
+            if (!r.ok) throw new Error();
+            st.pending--; toast("เริ่มเช็กรอบใหม่แล้ว ทุกคนยังไม่ขึ้นรถ"); fetchRoster(true);
+          } catch (e) { st.pending--; rn.disabled = false; toast("ทำรายการไม่สำเร็จ ลองอีกครั้ง", true); }
+        });
+        sh.appendChild(rn);
+      }
       footer("คัดลอกคนยังไม่มา", function () {
         var miss = all.filter(function (e) { return !e.s.c; });
         if (!miss.length) { toast("ขึ้นรถครบทุกคนแล้ว"); return; }

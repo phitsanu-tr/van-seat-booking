@@ -9,6 +9,7 @@
 //   POST {t, removeHelper: i}          owner: remove helper #i      POST {t, leave: true}   helper: leave the trip
 //   POST {t, transfer: i}              owner: helper #i becomes the owner, the old owner becomes a helper
 // Closing bookings: POST {t, close: true | false} (owner or helper) closes / reopens at once; trip.closeAt closes it on time.
+// Check-in: POST {t, resetBoard: true} (owner or helper) clears every seat's boarded tick, to check people in again (e.g. the way back).
 const L = require("./_lib");
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -118,6 +119,25 @@ module.exports = async function handler(req, res) {
       await L.logEvent(t, { e: "helper_join", n: user.name, u: user.id, at: Date.now() });
       await L.notify([trip.owner], { k: "helper_joined", t, tn: trip.name, n: user.name });
       return L.json(res, 200, { ok: true, id: t, name: trip.name });
+    }
+    if (req.method === "POST" && pb.resetBoard === true) {
+      const t = L.tripId(pb.t);
+      const trip = t ? await L.loadTrip(t) : null;
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      if (!isManager(trip, user)) return deny(res, user);
+      const all = await L.pipeline(trip.vans.map((v) => ["HGETALL", L.seatsKey(t, v.id)]));
+      const cmds = [];
+      trip.vans.forEach((v, i) => {
+        const flat = all[i] || [], args = [];
+        for (let j = 0; j + 1 < flat.length; j += 2) {
+          let r = null; try { r = JSON.parse(flat[j + 1]); } catch (e) { r = null; }
+          if (r && r.c) { delete r.c; args.push(flat[j], JSON.stringify(r)); }
+        }
+        if (args.length) cmds.push(["HSET", L.seatsKey(t, v.id)].concat(args));
+      });
+      if (cmds.length) await L.pipeline(cmds);
+      await L.logEvent(t, { e: "board_reset", n: user.name, u: user.id, by: L.roleOf(trip, user), at: Date.now() });
+      return L.json(res, 200, { ok: true, cleared: cmds.length });
     }
     if (req.method === "POST" && typeof pb.close === "boolean") {
       const t = L.tripId(pb.t);

@@ -105,6 +105,7 @@ button { font:inherit; cursor:pointer; }
       case "transfer": return "โอนทริปให้ " + (x.n || "") + acct(x.ou);
       case "paid": return "ติ๊กจ่ายแล้ว" + seat + " " + (x.n || "") + by + acct(x.u);
       case "unpaid": return "เอาติ๊กจ่ายออก" + seat + " " + (x.n || "") + by + acct(x.u);
+      case "board_reset": return "เริ่มเช็กชื่อรอบใหม่" + (x.n ? " โดย " + x.n : "") + acct(x.u);
       case "close": return "ปิดรับจอง" + (x.n ? " โดย " + x.n : "") + acct(x.u);
       case "reopen": return "เปิดรับจองอีกครั้ง" + (x.n ? " โดย " + x.n : "") + acct(x.u);
       default: return (x.e || "?") + " " + (x.n || "");
