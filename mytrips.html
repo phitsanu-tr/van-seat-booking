@@ -37,10 +37,8 @@ a { color: inherit; }
 .hi.acct:active { opacity: .7; }
 .hn { display: flex; flex-direction: column; min-width: 0; }
 .avw { position: relative; flex: none; display: block; }
-.avdot { position: absolute; right: -3px; bottom: -3px; width: 18px; height: 18px; border-radius: 50%; background: var(--lg); border: 2px solid var(--bg); display: flex; align-items: center; justify-content: center; }
-.avdot svg { width: 10px; height: 10px; }
 .chv { font-size: 15px; line-height: 1; margin-left: 1px; }
-.lnb { flex: none; display: inline-flex; align-items: center; height: 16px; padding: 0 5px; border-radius: 5px; background: var(--lg); color: #fff; font: 700 9.5px/1 Arial, sans-serif; letter-spacing: .2px; }
+.lnb { flex: none; display: inline-flex; align-items: center; box-sizing: border-box; height: 16px; padding: 2.5px 5px 0; border-radius: 5px; background: var(--lg); color: #fff; font: 700 9.5px/1 Arial, sans-serif; letter-spacing: .2px; }
 .wr { display: flex; align-items: center; gap: 8px; flex: none; }
 .ntag { align-self: flex-start; font-size: 11px; font-weight: 600; color: var(--amber); background: var(--amber-tint); border: 1px solid var(--amber-edge); border-radius: 99px; padding: 1px 9px; }
 .out { flex: none; height: 36px; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--line); background: transparent; font-size: 13px; font-weight: 500; color: var(--muted); }
@@ -288,7 +286,7 @@ a { color: inherit; }
 
   <section id="meView" hidden>
     <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="who"><button class="hi acct" id="acctBtn" type="button" aria-haspopup="dialog" aria-label="เมนูบัญชี"><span class="avw"><span class="av" id="av"></span><span class="avdot"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 3C6.5 3 2 6.6 2 11c0 3.9 3.5 7.2 8.3 7.9l-.5 2.6c-.1.4.3.7.7.5 2.6-1.4 6-3.6 8-5.9 1.6-1.5 2.5-3.2 2.5-5.1C21 6.6 17.5 3 12 3z"/></svg></span></span><span class="hn"><b id="meName"></b><small><span class="lnb">LINE</span>เข้าสู่ระบบด้วย LINE<span class="chv" aria-hidden="true">›</span></small></span></button><div class="wr"><span id="bellHost" style="display:flex"></span></div></div>
+      <div class="who"><button class="hi acct" id="acctBtn" type="button" aria-haspopup="dialog" aria-label="เมนูบัญชี"><span class="avw"><span class="av" id="av"></span></span><span class="hn"><b id="meName"></b><small><span class="lnb">LINE</span>เข้าสู่ระบบด้วย LINE<span class="chv" aria-hidden="true">›</span></small></span></button><div class="wr"><span id="bellHost" style="display:flex"></span></div></div>
       <div class="seg" role="tablist"><button id="tabTrips" role="tab" aria-selected="false" type="button">ทริปของฉัน <span class="n" id="nTrips">0</span></button><button id="tabSeats" role="tab" aria-selected="false" type="button">ที่นั่งของฉัน <span class="n" id="nSeats">0</span></button></div>
       <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px"></div>
       <div id="paneSeats" style="display:flex;flex-direction:column;gap:12px" hidden></div>
