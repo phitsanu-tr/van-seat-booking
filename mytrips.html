@@ -286,7 +286,7 @@ a { color: inherit; }
 
   <section id="meView" hidden>
     <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="who"><button class="hi acct" id="acctBtn" type="button" aria-haspopup="dialog" aria-label="เมนูบัญชี"><span class="avw"><span class="av" id="av"></span></span><span class="hn"><b id="meName"></b><small><span class="lnb">LINE</span>เข้าสู่ระบบด้วย LINE<span class="chv" aria-hidden="true">›</span></small></span></button><div class="wr"><span id="bellHost" style="display:flex"></span></div></div>
+      <div class="who"><button class="hi acct" id="acctBtn" type="button" aria-haspopup="dialog" aria-label="เมนูบัญชี"><span class="avw"><span class="av" id="av"></span></span><span class="hn"><b id="meName"></b><small><span class="lnb">LINE</span>บัญชีของฉัน<span class="chv" aria-hidden="true">›</span></small></span></button><div class="wr"><span id="bellHost" style="display:flex"></span></div></div>
       <div class="seg" role="tablist"><button id="tabTrips" role="tab" aria-selected="false" type="button">ทริปของฉัน <span class="n" id="nTrips">0</span></button><button id="tabSeats" role="tab" aria-selected="false" type="button">ที่นั่งของฉัน <span class="n" id="nSeats">0</span></button></div>
       <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px"></div>
       <div id="paneSeats" style="display:flex;flex-direction:column;gap:12px" hidden></div>
@@ -1296,7 +1296,7 @@ a { color: inherit; }
     var shut = function () { bd.remove(); };
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
     var head = node("div", "acchd"), avw = $("av").parentNode.cloneNode(true); avw.querySelector(".av").removeAttribute("id");
-    var nm = node("div", "hn"); nm.appendChild(node("b", null, $("meName").textContent)); var sm = node("small"); sm.innerHTML = '<span class="lnb">LINE</span>เข้าสู่ระบบด้วย LINE'; nm.appendChild(sm);
+    var nm = node("div", "hn"); nm.appendChild(node("b", null, $("meName").textContent)); var sm = node("small"); sm.innerHTML = '<span class="lnb">LINE</span>เข้าสู่ระบบแล้ว'; nm.appendChild(sm);
     var xb = node("button", "mx"); xb.type = "button"; xb.setAttribute("aria-label", "ปิด"); xb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'; xb.addEventListener("click", shut);
     head.appendChild(avw); head.appendChild(nm); head.appendChild(xb); sh.appendChild(head);
     function row(tag, icon, label, cls, act) {
