@@ -243,13 +243,15 @@ module.exports = async function handler(req, res) {
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (!isManager(trip, user)) return deny(res, user);
-      const counts = await L.pipeline(trip.vans.map((v) => ["HLEN", L.seatsKey(t, v.id)]));
+      const wantRoster = req.query.roster !== undefined;
+      // one round trip: the roster's HGETALL also gives the counts (HLEN only when no roster is asked for)
+      const all = await L.pipeline(trip.vans.map((v) => [wantRoster ? "HGETALL" : "HLEN", L.seatsKey(t, v.id)]));
+      const counts = all.map((x) => (wantRoster ? Math.floor(((x || []).length) / 2) : Number(x) || 0));
       const perVan = {};
-      trip.vans.forEach((v, i) => { perVan[v.id] = Number(counts[i]) || 0; });
-      const booked = counts.reduce((a, n) => a + (Number(n) || 0), 0);
+      trip.vans.forEach((v, i) => { perVan[v.id] = counts[i]; });
+      const booked = counts.reduce((a, n) => a + n, 0);
       let roster;
-      if (req.query.roster !== undefined) { // organizer's passenger list: every seat of every van (no account ids)
-        const all = await L.pipeline(trip.vans.map((v) => ["HGETALL", L.seatsKey(t, v.id)]));
+      if (wantRoster) { // organizer's passenger list: every seat of every van (no account ids)
         roster = {};
         trip.vans.forEach((v, i) => {
           const flat = all[i] || [], seats = {};

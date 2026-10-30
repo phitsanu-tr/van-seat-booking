@@ -481,7 +481,7 @@ a { color: inherit; }
       var bt = node("div", "bt"); bt.appendChild(document.createTextNode("จองแล้ว ")); bt.appendChild(node("b", null, String(x.booked))); bt.appendChild(document.createTextNode("/" + x.total + " ที่นั่ง")); hd.appendChild(bt);
       if (!x.closed && closeText(x.closeAt)) hd.appendChild(node("div", "cat", "ปิดรับจองอัตโนมัติ " + closeText(x.closeAt)));
       c.appendChild(hd);
-      var ros = node("button", "ros", "รายชื่อผู้จอง · จัดการที่นั่ง"); ros.type = "button"; ros.addEventListener("click", function () { openRoster(x); }); c.appendChild(ros);
+      var ros = node("button", "ros", "รายชื่อผู้จอง · จัดการที่นั่ง"); ros.type = "button"; ros.addEventListener("click", function () { openRoster(x); }); ros.addEventListener("pointerdown", function () { prefetchRoster(x.id); }); c.appendChild(ros);
       var acts = node("div", "acts"), sh = node("button", "ab tl"); sh.type = "button";
       sh.insertAdjacentHTML("beforeend", MG.share); sh.appendChild(document.createTextNode(x.closed ? "แชร์ผังที่นั่ง" : "แชร์ลิงก์จอง"));
       sh.addEventListener("click", function () { shareTrip(x); });
@@ -675,6 +675,10 @@ a { color: inherit; }
     var d = {}; try { d = await r.json(); } catch (e) {}
     return { ok: r.ok, data: d };
   }
+  // passenger lists: the last one per trip (open at once next time) and a fetch started when a finger touches the button
+  var ROSTER = {}, ROSTER_PRE = {};
+  function getRoster(id) { return fetch("/api/trip?t=" + encodeURIComponent(id) + "&roster=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("load")); }); }
+  function prefetchRoster(id) { if (!ROSTER_PRE[id] || Date.now() - ROSTER_PRE[id].at > 3000) ROSTER_PRE[id] = { p: getRoster(id), at: Date.now() }; }
   function openRoster(x) {
     var st = { trip: null, roster: {}, van: "", mode: "list", tab: "seats", payF: "all", boardView: "cur", pending: 0, sel: null, ended: false, busy: false };
     if (daysTo(x.startDate) === 0) st.tab = "board"; // trip day: open on check-in
@@ -686,17 +690,24 @@ a { color: inherit; }
     document.body.appendChild(bd);
     async function fetchRoster(quiet) {
       try {
-        var r = await fetch("/api/trip?t=" + encodeURIComponent(x.id) + "&roster=1", { cache: "no-store" });
-        var d = await r.json(); if (!r.ok) throw new Error();
-        st.trip = d.trip; st.roster = d.roster || {}; st.board = d.board || null; st.ended = !!d.ended; st.closed = !!d.trip.closedNow; if (!st.van) st.van = d.trip.vans[0].id;
+        var pre = !quiet && ROSTER_PRE[x.id] && Date.now() - ROSTER_PRE[x.id].at < 3000 ? ROSTER_PRE[x.id].p : null; delete ROSTER_PRE[x.id];
+        var d = await (pre || getRoster(x.id));
+        ROSTER[x.id] = d; apply(d);
       } catch (e) { if (!quiet) toast("โหลดรายชื่อไม่สำเร็จ", true); return; }
       if (quiet && st.pending) return; // a tick is on its way: don't show the older list
       lockHeight();
+    }
+    function apply(d) {
+      if (!bd.isConnected) return;
+      st.trip = d.trip; st.roster = d.roster || {}; st.board = d.board || null; st.ended = !!d.ended; st.closed = !!d.trip.closedNow; if (!st.van) st.van = d.trip.vans[0].id;
     }
     // The sheet's height = its tallest view for this trip (every tab and van), at most 80% of the screen,
     // so switching tabs or vans never makes it jump. It only grows while open (more bookings), never shrinks.
     function lockHeight() {
       if (!st.trip || st.mode !== "list") { draw(); return; }
+      var sig = everyone().length + "|" + st.trip.vans.length + "|" + ((st.board && st.board.hist) || []).length + "|" + st.closed + "|" + st.ended;
+      if (st.lockedH && sig === st.sig) { draw(); return; } // same size as last time: just redraw
+      st.sig = sig;
       var keep = { tab: st.tab, van: st.van, bv: st.boardView }, max = 0;
       sh.style.height = "auto";
       ["seats", "pay", "board"].forEach(function (tab) {
@@ -1068,7 +1079,8 @@ a { color: inherit; }
       });
       acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
     }
-    draw(); fetchRoster();
+    if (ROSTER[x.id]) { apply(ROSTER[x.id]); lockHeight(); fetchRoster(true); } // shown at once from the last load, then refreshed
+    else { draw(); fetchRoster(); }
   }
 
   // ---- organizer team: helpers join with an invite link; the owner removes them or hands the trip over ----
