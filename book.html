@@ -1598,7 +1598,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     if (tm && T.meetPoint) L.push("📍 " + tm + " - " + T.meetPoint);
     else if (tm) L.push("⏰ " + tm);
     else if (T.meetPoint) L.push("📍 " + T.meetPoint);
-    L.push("", "จองที่นั่งได้ที่นี่ 👇");
+    L.push("", closed || ended ? "ดูผังที่นั่ง 👇" : "จองที่นั่งได้ที่นี่ 👇"); // closed: the link only shows the seat map
     var lead = L.join("\n");
     if (!IN_LINE && navigator.share) { try { await navigator.share({ title: lead, text: lead, url: u }); } catch (e) {} return; }
     if (IN_LINE || /Android|iPhone|iPad/i.test(UA)) { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(lead + "\n" + u); return; }

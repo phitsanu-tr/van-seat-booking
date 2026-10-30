@@ -319,7 +319,7 @@ a { color: inherit; }
     if (dr) L.push("📅 " + dr);
     var tm = x.departTime ? x.departTime.replace(":", ".") + " น." : "";
     if (tm && x.meetPoint) L.push("📍 " + tm + " - " + x.meetPoint); else if (tm) L.push("⏰ " + tm); else if (x.meetPoint) L.push("📍 " + x.meetPoint);
-    L.push("", "จองที่นั่งได้ที่นี่ 👇");
+    L.push("", x.closed ? "ปิดรับจองแล้ว · ดูผังที่นั่ง 👇" : "จองที่นั่งได้ที่นี่ 👇");
     var lead = L.join("\n"), UA = navigator.userAgent || "";
     if (/\bLine\//i.test(UA) || /Android|iPhone|iPad/i.test(UA)) { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(lead + "\n" + u); return; }
     if (navigator.clipboard) navigator.clipboard.writeText(lead + "\n" + u).then(function () { toast("คัดลอกข้อความและลิงก์แล้ว"); }, function () { toast(u); });
@@ -346,7 +346,7 @@ a { color: inherit; }
       var df = node("div", "dfoot"), cp = node("a", "cpy", "สร้างทริปซ้ำ"); cp.href = "/trips/new?copy=" + encodeURIComponent(x.id);
       df.appendChild(tm); df.appendChild(cp); c.appendChild(df);
       var acts = node("div", "acts"), ed = node("a", "ab am", "แก้ไขทริป"); ed.href = "/trips/" + x.id;
-      var sh = node("button", "ab tl", "แชร์ลิงก์จอง"); sh.type = "button"; sh.addEventListener("click", function () { shareTrip(x); });
+      var sh = node("button", "ab tl", x.closed ? "แชร์ผังที่นั่ง" : "แชร์ลิงก์จอง"); sh.type = "button"; sh.addEventListener("click", function () { shareTrip(x); });
       acts.appendChild(ed); acts.appendChild(sh); c.appendChild(acts);
       pane.appendChild(c);
     });
