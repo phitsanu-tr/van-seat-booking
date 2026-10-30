@@ -137,7 +137,7 @@ a { color: inherit; }
 .sheet h3 { font: 600 19px var(--font-display); margin: 0; }
 .sheet { max-height: 88vh; max-height: 88dvh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .sheet > * { flex-shrink: 0; }
-.sheet.tall { height: 85vh; height: 85dvh; } /* a tall sheet scrolls; its parts never get squashed and clipped */
+.sheet.tall { max-height: 80vh; max-height: 80dvh; } /* a tall sheet scrolls; its parts never get squashed and clipped */
 .rolep { margin-top: -6px; font-size: 12px; font-weight: 600; color: var(--amber); }
 .tmb { align-self: flex-start; border: 0; background: none; padding: 2px 0; font-size: 13px; font-weight: 600; color: var(--amber); text-decoration: underline; text-underline-offset: 3px; }
 .ilink { display: flex; flex-direction: column; gap: 8px; background: var(--amber-tint); border: 1px solid var(--amber-edge); border-radius: 16px; padding: 12px; }
@@ -691,6 +691,22 @@ a { color: inherit; }
         st.trip = d.trip; st.roster = d.roster || {}; st.board = d.board || null; st.ended = !!d.ended; st.closed = !!d.trip.closedNow; if (!st.van) st.van = d.trip.vans[0].id;
       } catch (e) { if (!quiet) toast("โหลดรายชื่อไม่สำเร็จ", true); return; }
       if (quiet && st.pending) return; // a tick is on its way: don't show the older list
+      lockHeight();
+    }
+    // The sheet's height = its tallest view for this trip (every tab and van), at most 80% of the screen,
+    // so switching tabs or vans never makes it jump. It only grows while open (more bookings), never shrinks.
+    function lockHeight() {
+      if (!st.trip || st.mode !== "list") { draw(); return; }
+      var keep = { tab: st.tab, van: st.van, bv: st.boardView }, max = 0;
+      sh.style.height = "auto";
+      ["seats", "pay", "board"].forEach(function (tab) {
+        (tab === "pay" ? [st.van] : st.trip.vans.map(function (v) { return v.id; })).forEach(function (v) {
+          st.tab = tab; st.van = v; st.boardView = "cur"; draw(); max = Math.max(max, sh.scrollHeight);
+        });
+      });
+      st.tab = keep.tab; st.van = keep.van; st.boardView = keep.bv; st.lastView = null;
+      st.lockedH = Math.min(Math.max(max, st.lockedH || 0), Math.round(window.innerHeight * 0.8));
+      sh.style.height = st.lockedH + "px";
       draw();
     }
     function vanLabel(id) { var v = st.trip && st.trip.vans.filter(function (q) { return q.id === id; })[0]; return v ? v.label : id; }
