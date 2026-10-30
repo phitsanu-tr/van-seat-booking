@@ -200,16 +200,10 @@ a { color: inherit; }
 .cnote svg { width: 16px; height: 16px; flex: none; margin-top: 2px; }
 .cat { font-size: 12px; color: var(--muted); margin-top: -4px; }
 .cpy { align-self: flex-start; border: 0; background: none; padding: 2px 0; font-size: 13px; font-weight: 600; color: var(--mine); text-decoration: underline; text-underline-offset: 3px; }
-.rtabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: #e2e7ea; border-radius: 14px; padding: 4px; }
+.rtabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; background: #e2e7ea; border-radius: 14px; padding: 4px; }
 .rtabs button { height: 36px; border: 0; border-radius: 10px; background: none; font: 600 13px var(--font-body); color: var(--muted); }
 .rtabs button.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-.psum { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.psum div { border-radius: 14px; padding: 9px 12px; display: flex; flex-direction: column; gap: 1px; font-size: 12px; }
-.psum b { font: 600 21px/1.2 var(--font-display); } .psum b span { font-size: 13px; font-weight: 500; color: var(--muted); }
-.psum .g { background: #e6f4ea; color: #1f7a3f; } .psum .a { background: var(--amber-tint); color: var(--amber); }
-.pchip { flex: none; height: 34px; padding: 0 12px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--surface); font: 600 13px var(--font-body); color: var(--muted); display: flex; align-items: center; gap: 4px; }
-.pchip.y { background: #e6f4ea; border-color: #b9dfc6; color: #1f7a3f; }
-.pchip svg, .ckb svg { width: 15px; height: 15px; }
+.ckb svg { width: 15px; height: 15px; }
 .rrow.ck { cursor: pointer; -webkit-user-select: none; user-select: none; }
 .ckb { flex: none; width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--line); display: flex; align-items: center; justify-content: center; color: #fff; }
 .rrow.in .ckb { background: #1f7a3f; border-color: #1f7a3f; }
@@ -476,7 +470,7 @@ body { background: #fff; }
     w.appendChild(big);
     var grid = node("div", "wfeat");
     [["🪑", "เพื่อนเลือกที่นั่งเอง", "ผังรถอัปเดตทันที ไม่จองซ้ำ"], ["👥", "มีผู้ช่วยได้ 2 คน", "ช่วยกันจัดการทริป"],
-     ["💰", "ติ๊กว่าใครจ่ายแล้ว", "คัดลอกรายชื่อไปทวงในกลุ่ม"], ["✅", "เช็กชื่อขึ้นรถ", "ขาไป ขากลับ จุดแวะ"]].forEach(function (f) {
+     ["📋", "คัดลอกรายชื่อ", "วางในกลุ่ม LINE ได้เลย"], ["✅", "เช็กชื่อขึ้นรถ", "ขาไป ขากลับ จุดแวะ"]].forEach(function (f) {
       var t = node("div", "wf"); t.appendChild(node("span", "we", f[0])); t.appendChild(node("b", null, f[1])); t.appendChild(node("span", null, f[2])); grid.appendChild(t);
     });
     w.appendChild(grid);
@@ -721,7 +715,7 @@ body { background: #fff; }
   function getRoster(id) { return fetch("/api/trip?t=" + encodeURIComponent(id) + "&roster=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("load")); }); }
   function prefetchRoster(id) { if (!ROSTER_PRE[id] || Date.now() - ROSTER_PRE[id].at > 3000) ROSTER_PRE[id] = { p: getRoster(id), at: Date.now() }; }
   function openRoster(x) {
-    var st = { trip: null, roster: {}, van: "", mode: "list", tab: "seats", payF: "all", boardView: "cur", pending: 0, sel: null, ended: false, busy: false };
+    var st = { trip: null, roster: {}, van: "", mode: "list", tab: "seats", boardView: "cur", pending: 0, sel: null, ended: false, busy: false };
     if (daysTo(x.startDate) === 0) st.tab = "board"; // trip day: open on check-in
     var bd = node("div", "bd"), sh = node("div", "sheet tall"); bd.appendChild(sh); // fixed height: switching tabs or vans doesn't make the sheet jump
     var close = function () { clearInterval(st.timer); bd.remove(); load(); };
@@ -751,8 +745,8 @@ body { background: #fff; }
       st.sig = sig;
       var keep = { tab: st.tab, van: st.van, bv: st.boardView }, max = 0;
       sh.style.height = "auto";
-      ["seats", "pay", "board"].forEach(function (tab) {
-        (tab === "pay" ? [st.van] : st.trip.vans.map(function (v) { return v.id; })).forEach(function (v) {
+      ["seats", "board"].forEach(function (tab) {
+        st.trip.vans.map(function (v) { return v.id; }).forEach(function (v) {
           st.tab = tab; st.van = v; st.boardView = "cur"; draw(); max = Math.max(max, sh.scrollHeight);
         });
       });
@@ -771,12 +765,12 @@ body { background: #fff; }
       return row;
     }
     function draw() {
-      var ol = sh.querySelector(".rlist"), keep = ol ? ol.scrollTop : 0, keepSh = sh.scrollTop, sameView = st.lastView === st.mode + st.tab + st.van + st.payF;
-      st.lastView = st.mode + st.tab + st.van + st.payF;
+      var ol = sh.querySelector(".rlist"), keep = ol ? ol.scrollTop : 0, keepSh = sh.scrollTop, sameView = st.lastView === st.mode + st.tab + st.van;
+      st.lastView = st.mode + st.tab + st.van;
       sh.textContent = "";       if (sameView) setTimeout(function () { var nl = sh.querySelector(".rlist"); if (nl) nl.scrollTop = keep; sh.scrollTop = keepSh; }, 0);
       if (!st.trip) { // still loading: the sheet's real shape (title, tabs, grey rows) at its usual height instead of a short "loading" box
         sheetHead(sh, "รายชื่อผู้จอง", close); sh.appendChild(node("p", null, x.name));
-        var sk = node("div", "rtabs skel"); ["ที่นั่ง", "จ่ายเงิน", "เช็กชื่อ"].forEach(function (t, i) { var b = node("button", i === 0 ? "on" : null, t); b.type = "button"; b.disabled = true; sk.appendChild(b); }); sh.appendChild(sk);
+        var sk = node("div", "rtabs skel"); ["ที่นั่ง", "เช็กชื่อ"].forEach(function (t, i) { var b = node("button", i === 0 ? "on" : null, t); b.type = "button"; b.disabled = true; sk.appendChild(b); }); sh.appendChild(sk);
         var sl = node("div", "rlist skel-list"); for (var i = 0; i < 5; i++) { var r = node("div", "rrow"); r.appendChild(node("div", "no sk")); var m = node("div", "nm2"); m.appendChild(node("b", "sk sk-l")); m.appendChild(node("small", "sk sk-s")); r.appendChild(m); sl.appendChild(r); }
         sh.appendChild(sl);
         if (!sh.style.height) sh.style.height = (ROSTER_H[x.id] || Math.round(window.innerHeight * 0.7)) + "px";
@@ -788,13 +782,12 @@ body { background: #fff; }
       sheetHead(sh, "รายชื่อผู้จอง", close);
       sh.appendChild(node("p", null, st.trip.name + (st.ended ? " · ทริปจบแล้ว ดูได้อย่างเดียว" : "")));
       var tabs = node("div", "rtabs");
-      [["seats", "ที่นั่ง"], ["pay", "จ่ายเงิน"], ["board", "เช็กชื่อ"]].forEach(function (tb) {
+      [["seats", "ที่นั่ง"], ["board", "เช็กชื่อ"]].forEach(function (tb) {
         var b = node("button", st.tab === tb[0] ? "on" : null, tb[1]); b.type = "button"; b.setAttribute("aria-pressed", st.tab === tb[0] ? "true" : "false");
         b.addEventListener("click", function () { st.tab = tb[0]; draw(); if (tb[0] === "board") fetchRoster(true); });
         tabs.appendChild(b);
       });
       sh.appendChild(tabs);
-      if (st.tab === "pay") return drawPay();
       if (st.tab === "board") return drawBoard();
       var tools = node("div", "rtools"), cpb = node("button", null); cpb.type = "button"; cpb.innerHTML = COPY_SVG; cpb.appendChild(document.createTextNode("คัดลอกรายชื่อ"));
       cpb.addEventListener("click", function () { copyText(rosterText(st.trip, st.roster, !st.closed && !st.ended), "คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย"); });
@@ -841,17 +834,16 @@ body { background: #fff; }
       var f = node("div", "rtools"), cp = node("button", null); cp.type = "button"; cp.innerHTML = COPY_SVG; cp.appendChild(document.createTextNode(label)); cp.addEventListener("click", onCopy);
       f.style.gridTemplateColumns = "1fr"; f.appendChild(cp); sh.appendChild(f);
     }
-    // a tick on one seat (paid / boarded): shown at once, saved in the background, put back if saving fails
+    // a check-in tick on one seat: shown at once, saved in the background, put back if saving fails
     async function flag(v, n, field, on) {
       var s = st.roster[v] && st.roster[v][n]; if (!s) return;
-      var before = { p: s.p, c: s.c };
-      if (field === "paid") { if (on) s.p = 1; else delete s.p; } else { if (on) s.c = s.c || Date.now(); else delete s.c; }
+      var before = { c: s.c };
+      if (on) s.c = s.c || Date.now(); else delete s.c;
       st.pending++; draw();
       var body = { seat: n }; body[field] = on;
       var r = await seatApi("PATCH", x.id, v, body);
       st.pending--;
       if (!r.ok) {
-        if (before.p) s.p = before.p; else delete s.p;
         if (before.c) s.c = before.c; else delete s.c;
         toast(r.data && r.data.error === "no_seat" ? "ที่นั่งนี้ถูกยกเลิกไปแล้ว" : apiErr(r.data), true);
         if (r.data && r.data.error === "no_seat") return fetchRoster(true);
@@ -861,43 +853,6 @@ body { background: #fff; }
       if (!st.pending) draw();
     }
     function hhmm(ts) { var d = new Date(Number(ts) + 7 * 3600 * 1000); return String(d.getUTCHours()).padStart(2, "0") + "." + String(d.getUTCMinutes()).padStart(2, "0"); }
-    function drawPay() {
-      var all = everyone(), paid = all.filter(function (e) { return e.s.p; }).length, multi = st.trip.vans.length > 1;
-      var sum = node("div", "psum"), g = node("div", "g"), a = node("div", "a");
-      g.appendChild(document.createTextNode("จ่ายแล้ว")); var gb = node("b", null, String(paid) + " "); gb.appendChild(node("span", null, "/ " + all.length + " คน")); g.appendChild(gb);
-      a.appendChild(document.createTextNode("ยังไม่จ่าย")); var ab = node("b", null, String(all.length - paid) + " "); ab.appendChild(node("span", null, "คน")); a.appendChild(ab);
-      sum.appendChild(g); sum.appendChild(a); sh.appendChild(sum);
-      var fr = node("div", "vchips");
-      [["all", "ทั้งหมด " + all.length], ["no", "ยังไม่จ่าย " + (all.length - paid)], ["yes", "จ่ายแล้ว " + paid]].forEach(function (f) {
-        var b = node("button", st.payF === f[0] ? "on" : null, f[1]); b.type = "button"; b.addEventListener("click", function () { st.payF = f[0]; draw(); }); fr.appendChild(b);
-      });
-      sh.appendChild(fr);
-      var shown = all.filter(function (e) { return st.payF === "all" || (st.payF === "yes" ? e.s.p : !e.s.p); });
-      if (!all.length) sh.appendChild(node("div", "empty", "ยังไม่มีผู้จอง"));
-      else if (!shown.length) sh.appendChild(node("div", "empty", st.payF === "no" ? "จ่ายครบทุกคนแล้ว 🎉" : "ยังไม่มีใครจ่าย"));
-      else {
-        var list = node("div", "rlist");
-        shown.forEach(function (e) {
-          var row = node("div", "rrow"); row.appendChild(node("div", "no", String(e.n)));
-          var nm = node("div", "nm2"); nm.appendChild(node("b", null, e.s.name)); nm.appendChild(node("small", null, multi ? "คัน " + vanLabel(e.v) : when(e.s.at))); row.appendChild(nm);
-          var c = node("button", "pchip" + (e.s.p ? " y" : "")); c.type = "button"; c.setAttribute("aria-pressed", e.s.p ? "true" : "false");
-          if (e.s.p) c.innerHTML = TICK;
-          c.appendChild(document.createTextNode(e.s.p ? "จ่ายแล้ว" : "ยังไม่จ่าย"));
-          c.setAttribute("aria-label", e.s.name + (e.s.p ? " จ่ายแล้ว แตะเพื่อเอาออก" : " ยังไม่จ่าย แตะเมื่อจ่ายแล้ว"));
-          if (st.ended) c.disabled = true; else c.addEventListener("click", function () { flag(e.v, e.n, "paid", !e.s.p); });
-          row.appendChild(c); list.appendChild(row);
-        });
-        sh.appendChild(list);
-      }
-      sh.appendChild(node("div", "rfree", "ผู้จองไม่เห็นข้อมูลนี้ · เห็นเฉพาะทีมผู้จัด"));
-      footer("คัดลอกคนค้างจ่าย", function () {
-        var un = all.filter(function (e) { return !e.s.p; });
-        if (!un.length) { toast("จ่ายครบทุกคนแล้ว"); return; }
-        var L = ["💰 ยังไม่ได้จ่าย " + un.length + " คน · " + st.trip.name];
-        un.forEach(function (e) { L.push((multi ? "คัน " + vanLabel(e.v) + " " : "") + "ที่นั่ง " + e.n + ". " + e.s.name); });
-        copyText(L.join("\n"), "คัดลอกรายชื่อคนค้างจ่ายแล้ว");
-      });
-    }
     // ---- check-in rounds: the current round, earlier rounds (summaries), and the "new round" dialog ----
     var ROUND_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg>';
     var CLOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
@@ -975,7 +930,7 @@ body { background: #fff; }
         qs.appendChild(q);
       });
       d.appendChild(qs);
-      if (isNew) d.appendChild(node("div", "rfree", "ชื่อรอบไม่บังคับ · เว้นว่างได้ จะขึ้นเป็น “รอบที่ " + (cur.i + 1) + "” · สถานะจ่ายเงินไม่ถูกล้าง"));
+      if (isNew) d.appendChild(node("div", "rfree", "ชื่อรอบไม่บังคับ · เว้นว่างได้ จะขึ้นเป็น “รอบที่ " + (cur.i + 1) + "”"));
       var acts = node("div", "acts"), no = node("button", "b-plain", "ย้อนกลับ"), go = node("button", "b-danger", isNew ? "เริ่มรอบที่ " + (cur.i + 1) : "บันทึกชื่อ");
       go.style.background = "var(--mine)"; go.style.borderColor = "var(--mine)"; no.type = go.type = "button";
       no.addEventListener("click", shut);

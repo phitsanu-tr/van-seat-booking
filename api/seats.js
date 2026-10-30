@@ -49,7 +49,7 @@ module.exports = async function handler(req, res) {
 
     if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
 
-    const flagOnly = req.method === "PATCH" && (body.paid !== undefined || body.board !== undefined); // organizer ticks: many in a row on the trip day
+    const flagOnly = req.method === "PATCH" && body.board !== undefined; // organizer check-in ticks: many in a row on the trip day
     if ((req.method === "POST" || req.method === "DELETE" || req.method === "PATCH") && await L.rateLimited(req, user, flagOnly ? "flag:" + t : "seat:" + t, flagOnly ? 400 : 30, 600)) return L.json(res, 429, { error: "too_many" });
     if ((req.method === "PATCH" || (req.method === "POST" && body.move)) && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
 
@@ -71,8 +71,8 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { hold: id, exp: Date.now() + HOLD_SEC * 1000 });
     }
 
-    if (req.method === "PATCH" && (body.paid !== undefined || body.board !== undefined)) {
-      // organizer's own notes on a seat: paid (p = 1) and boarded on the trip day (c = time). Stored in the seat record,
+    if (req.method === "PATCH" && body.board !== undefined) {
+      // organizer's own note on a seat: boarded on the trip day (c = time). Stored in the seat record,
       // so they follow the passenger when the seat is moved and vanish when it is cancelled. Passengers never see them.
       if (!user) return L.json(res, 401, { error: "login_required" });
       if (!isOwner) return L.json(res, 403, { error: "not_owner" });
@@ -81,13 +81,11 @@ module.exports = async function handler(req, res) {
       const raw = await L.redis(["HGET", key, String(seat)]);
       let rec = null; try { rec = JSON.parse(raw); } catch (e) { rec = null; }
       if (!rec) return L.json(res, 404, { error: "no_seat" });
-      if (body.paid !== undefined) { if (body.paid === true) rec.p = 1; else delete rec.p; }
-      if (body.board !== undefined) { // c = boarded at, cb = which organizer ticked it (names the round's checker)
+      { // c = boarded at, cb = which organizer ticked it (names the round's checker)
         if (body.board === true) { if (!rec.c) { rec.c = Date.now(); rec.cb = String(user.name || "").slice(0, 40); } } else { delete rec.c; delete rec.cb; }
       }
       await L.redis(["HSET", key, String(seat), JSON.stringify(rec)]);
-      if (body.paid !== undefined) await L.logEvent(t, { e: body.paid === true ? "paid" : "unpaid", v: van.id, s: seat, n: rec.name, u: user.id, by: role, at: Date.now() });
-      return L.json(res, 200, { ok: true, p: rec.p ? 1 : 0, c: rec.c || 0 });
+      return L.json(res, 200, { ok: true, c: rec.c || 0 });
     }
 
     if (req.method === "PATCH") {
