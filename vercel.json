@@ -44,11 +44,6 @@
       "source": "/mytrips.html",
       "destination": "/mytrips",
       "permanent": false
-    },
-    {
-      "source": "/my",
-      "destination": "/mytrips",
-      "permanent": false
     }
   ],
   "rewrites": [

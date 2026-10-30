@@ -544,7 +544,7 @@ a { color: inherit; }
     document.body.appendChild(bd);
     async function fetchRoster(quiet) {
       try {
-        var r = await fetch("/api/trip?t=" + encodeURIComponent(x.id) + "&roster=1", { cache: "no-store", headers: { "x-admin-key": "o" } });
+        var r = await fetch("/api/trip?t=" + encodeURIComponent(x.id) + "&roster=1", { cache: "no-store" });
         var d = await r.json(); if (!r.ok) throw new Error();
         st.trip = d.trip; st.roster = d.roster || {}; st.ended = !!d.ended; st.closed = !!d.trip.closedNow; if (!st.van) st.van = d.trip.vans[0].id;
       } catch (e) { if (!quiet) toast("โหลดรายชื่อไม่สำเร็จ", true); return; }
@@ -601,7 +601,7 @@ a { color: inherit; }
         nums.forEach(function (n) {
           var s = seats[n], row = node("div", "rrow");
           row.appendChild(node("div", "no", String(n)));
-          var nm = node("div", "nm2"); nm.appendChild(node("b", null, s.name)); nm.appendChild(node("small", null, when(s.at) + (s.a ? "" : " · จองแบบไม่เข้าสู่ระบบ"))); row.appendChild(nm);
+          var nm = node("div", "nm2"); nm.appendChild(node("b", null, s.name)); nm.appendChild(node("small", null, when(s.at) + (s.a ? "" : " · ผู้จองลบบัญชีแล้ว"))); row.appendChild(nm);
           if (!st.ended) {
             var ra = node("div", "ra");
             var b1 = node("button", null, "แก้ชื่อ"); b1.type = "button"; b1.addEventListener("click", function () { st.sel = { v: st.van, s: n, name: s.name }; st.mode = "rename"; draw(); });

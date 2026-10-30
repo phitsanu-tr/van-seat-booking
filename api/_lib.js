@@ -63,7 +63,7 @@ async function loadTrip(t) {
 }
 
 function publicTrip(trip) {
-  const { adminToken, adminHash, owner, ownerName, helpers, invite, ...rest } = trip; // never send account ids (owner, helpers) or the invite code to passengers
+  const { owner, ownerName, helpers, invite, ...rest } = trip; // never send account ids (owner, helpers) or the invite code to passengers
   return rest;
 }
 
