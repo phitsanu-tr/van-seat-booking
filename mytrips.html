@@ -65,6 +65,18 @@ a { color: inherit; }
 .ab { height: 40px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--ink); display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .ab.am { border-color: var(--amber-edge); color: var(--amber); } .ab.dg { border-color: #efcfcc; color: var(--danger); } .ab.tl { border-color: #bfe0e3; color: var(--mine); }
 .ab:active { background: var(--bg); }
+.wel { display: flex; flex-direction: column; gap: 12px; }
+.wbig { position: relative; overflow: hidden; border-radius: 22px; padding: 22px 18px 18px; color: #fff; background: linear-gradient(160deg, var(--mine), var(--deep)); display: flex; flex-direction: column; gap: 8px; }
+.wbig h2 { margin: 0; font: 600 21px/1.35 var(--font-display); position: relative; }
+.wbig p { margin: 0; font-size: 13.5px; line-height: 1.6; color: #d4ecee; position: relative; }
+.wvan { position: absolute; right: -8px; top: 12px; width: 120px; color: #fff; opacity: .16; }
+.wgo { position: relative; margin-top: 8px; height: 52px; border-radius: 16px; background: #fff; color: var(--deep); font: 600 16px var(--font-display); display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.wgo:active { opacity: .85; }
+.wfeat { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.wf { background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 3px; }
+.wf .we { font-size: 20px; line-height: 1.3; }
+.wf b { font: 600 13.5px/1.35 var(--font-display); }
+.wf span:not(.we) { font-size: 11.5px; line-height: 1.45; color: var(--muted); }
 .new { height: 50px; border-radius: 16px; background: var(--mine); color: #fff; font: 600 16px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; margin-top: 4px; }
 .tk { flex-direction: row; gap: 0; padding: 0; overflow: hidden; }
 .tk .l { flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
@@ -348,10 +360,26 @@ a { color: inherit; }
     else toast(u);
   }
 
+  // no trips yet: a welcome card (create button) and four tiles saying what organizers get
+  function welcome() {
+    var w = node("div", "wel"), big = node("div", "wbig");
+    big.innerHTML = '<svg class="wvan" viewBox="0 0 96 50" fill="currentColor" aria-hidden="true"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/></svg>';
+    var h = node("h2"); h.appendChild(document.createTextNode("จัดทริปรถตู้")); h.appendChild(node("br")); h.appendChild(document.createTextNode("ไม่ต้องจดชื่อในแชทอีกต่อไป"));
+    big.appendChild(h); big.appendChild(node("p", null, "สร้างทริป แชร์ลิงก์ เพื่อนเลือกที่นั่งเอง"));
+    var go = node("a", "wgo", "＋ สร้างทริปแรก"); go.href = "/trips/new"; big.appendChild(go);
+    w.appendChild(big);
+    var grid = node("div", "wfeat");
+    [["🪑", "เพื่อนเลือกที่นั่งเอง", "ผังรถอัปเดตทันที ไม่จองซ้ำ"], ["👥", "มีผู้ช่วยได้ 3 คน", "ช่วยกันจัดการทริป"],
+     ["💰", "ติ๊กว่าใครจ่ายแล้ว", "คัดลอกรายชื่อไปทวงในกลุ่ม"], ["✅", "เช็กชื่อขึ้นรถ", "ขาไป ขากลับ จุดแวะ"]].forEach(function (f) {
+      var t = node("div", "wf"); t.appendChild(node("span", "we", f[0])); t.appendChild(node("b", null, f[1])); t.appendChild(node("span", null, f[2])); grid.appendChild(t);
+    });
+    w.appendChild(grid);
+    return w;
+  }
   function renderTrips(list) {
     var pane = $("paneTrips"); pane.textContent = "";
     var up = list.filter(function (x) { return !x.ended; }), done = list.filter(function (x) { return x.ended; });
-    if (!list.length) pane.appendChild(node("div", "empty", "ยังไม่มีทริปที่คุณสร้าง กดปุ่มด้านล่างเพื่อเริ่มทริปแรก"));
+    if (!list.length) { pane.appendChild(welcome()); return; } // first visit: what the app does + one big button
     if (up.length) section(pane, "กำลังจะถึง", "เรียงตามวันเดินทาง");
     up.forEach(function (x) {
       var c = node("div", "card"), r1 = node("div", "row1");
