@@ -15,10 +15,18 @@ log('copied text:\n'+mask(await clip()));
 await A.request.post(B+'/api/trip',{data:{t:ID,close:true}});await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ros');await A.waitForTimeout(800);
 await A.click('.rtools button:first-child');await A.waitForTimeout(500);log('closed trip last lines',JSON.stringify(mask(await clip()).split('\n').slice(-2)));
 await A.request.post(B+'/api/trip',{data:{t:ID,close:false}});
+// --- the "จัดการทริป" sheet: copy the list, close / reopen bookings
+await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(800);
+log('manage sheet',await A.$$eval('.mgb',e=>e.map(x=>x.textContent)));await A.screenshot({path:S+'/manage.png'});
+await A.click('.mgb:has-text("คัดลอกรายชื่อ")');await A.waitForTimeout(400);log('sheet copy',await A.textContent('#toast'),'same text',mask(await clip()).split('\n').length);
+await A.click('.mgb.lk');await A.waitForTimeout(200);log('first tap',(await A.textContent('.mgb.lk')).trim());await A.click('.mgb.lk');await A.waitForTimeout(1200);
+const closedNow=async()=>(await (await A.request.get(B+'/api/seats?t='+ID+'&v=v1')).json()).closed;
+log('closed',await closedNow(),'card share',(await A.textContent('.acts .ab.tl')).trim());
+await A.click('.ab.mgo');await A.waitForTimeout(500);await A.click('.mgb.op');await A.waitForTimeout(1200);log('reopened',await closedNow());
 // --- duplicate an upcoming trip
 await A.goto(B+'/mytrips');await A.waitForTimeout(1200);
-log('duplicate link',(await A.getAttribute('.dfoot .cpy','href')).replace(ID,'<id>'));
-await A.click('.dfoot .cpy');await A.waitForTimeout(1800);
+await A.click('.ab.mgo');await A.waitForTimeout(300);log('duplicate link',(await A.getAttribute('.mgb:has-text("สร้างทริปซ้ำ")','href')).replace(ID,'<id>'));
+await A.click('.mgb:has-text("สร้างทริปซ้ำ")');await A.waitForTimeout(1800);
 const form=()=>A.evaluate(()=>({name:document.getElementById('name').value,org:document.getElementById('organizer').value,start:document.getElementById('startDate').value,end:document.getElementById('endDate').value,time:document.getElementById('departTime').value,meet:document.getElementById('meetPoint').value,max:document.getElementById('maxPer').value,close:document.getElementById('closeDate').value,vans:[...document.querySelectorAll('#vans input')].map(i=>i.value).filter(Boolean)}));
 log('form',JSON.stringify(await form()),'lead',await A.textContent('#lead'));
 await A.screenshot({path:S+'/dup_form.png'});

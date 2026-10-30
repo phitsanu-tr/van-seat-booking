@@ -9,8 +9,8 @@ const tr=await (await A.request.post(B+'/api/trip',{data:{name:'ทริปล�
 await A.goto(B+'/');log('home organizer button',await A.getAttribute('a.path[href="/mytrips"]','href'));
 await A.goto(B+'/trips');await A.waitForTimeout(800);log('/trips ->',path(A.url()));
 await A.goto(B+'/trips.html');await A.waitForTimeout(800);log('/trips.html ->',path(A.url()));
-await A.goto(B+'/mytrips');await A.waitForTimeout(1200);log('edit button',(await A.getAttribute('.acts a.am','href')).replace(ID,'<id>'));
-await A.click('.acts a.am');await A.waitForTimeout(1500);log('edit page',path(A.url()).replace(ID,'<id>'),'title',await A.textContent('#title'),'name',await A.inputValue('#name'));
+await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);log('edit button',(await A.getAttribute('.mgb:has-text("แก้ไขทริป")','href')).replace(ID,'<id>'));
+await A.click('.mgb:has-text("แก้ไขทริป")');await A.waitForTimeout(1500);log('edit page',path(A.url()).replace(ID,'<id>'),'title',await A.textContent('#title'),'name',await A.inputValue('#name'));
 await A.goto(B+'/trips#'+ID+'-o');await A.waitForTimeout(2000);log('old edit link ->',path(A.url()).replace(ID,'<id>'),'name',await A.inputValue('#name').catch(()=>'-'));
 await A.click('#cancelBtn');await A.waitForTimeout(1000);log('cancel ->',path(A.url()));
 await A.goto(B+'/trips/new');await A.waitForTimeout(1000);log('/trips/new title',await A.textContent('#title'));

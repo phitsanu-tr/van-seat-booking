@@ -29,7 +29,7 @@ await A.goto(B+'/'+ID);await A.waitForTimeout(1500);
 log('A bar hidden',await A.isHidden('#closedBar'),'A notice',(await A.textContent('#notice')).replace(/\s+/g,' ').trim());
 await A.screenshot({path:S+'/close_organizer.png'});
 // --- my trips: card pill, ticket note, cancel from the menu
-await A.goto(B+'/mytrips');await A.waitForTimeout(1200);log('card pill',await A.$$eval('.pill',e=>e.map(x=>x.textContent)),'share button',await A.textContent('.acts .ab.tl'));
+await A.goto(B+'/mytrips');await A.waitForTimeout(1200);log('card pill',await A.$$eval('.pill',e=>e.map(x=>x.textContent)),'share button',(await A.textContent('.acts .ab.tl')).trim());
 await P.goto(B+'/mytrips#seats');await P.waitForTimeout(1200);log('ticket note',(await P.textContent('.cnote')).trim().slice(0,14));
 await P.click('.ab.more');await P.click('.pmenu .dgr');await P.waitForTimeout(400);log('menu cancel ->',await P.textContent('#toast'),'sheet opened',await P.$$eval('.sheet',e=>e.length));
 // --- reopen from the booking page (organizer)

@@ -7,7 +7,7 @@ const A=await user('Ann'),C=await user('Cat');
 const tr=await (await A.request.post(B+'/api/trip',{data:{name:'ทริปทีม',startDate:HLP.day(45),vans:[{label:'1'}]}})).json();const ID=tr.id;
 await C.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:4,name:'แคท'}});
 // A creates invite in UI
-await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.tmb');await A.waitForTimeout(700);await A.screenshot({path:S+'/t1.png'});
+await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);await A.click('.mgb:has-text("ผู้ช่วยจัดทริป")');await A.waitForTimeout(700);await A.screenshot({path:S+'/t1.png'});
 await A.click('.sheet .b-amber');await A.waitForTimeout(700);const url=await A.textContent('.ilink code');log('invite url',url.replace(/join=\w+/,'join=…'));await A.screenshot({path:S+'/t2.png'});
 // B (not signed in) opens invite link -> login view -> sign in -> joined
 const Bp=await ctx('Bob');await Bp.goto(url);await Bp.waitForTimeout(800);log('B sees login',await Bp.isVisible('#loginView'),await Bp.textContent('#loginErr'));
@@ -26,7 +26,7 @@ const fresh=async()=>(await (await A.request.post(B+'/api/trip',{data:{t:ID,invi
 for(const n of ['Dan','Eve']){const p=await user(n);log(n,'join fresh',(await p.request.post(B+'/api/trip',{data:{join:await fresh()}})).status());}
 const G=await user('Gus');const gj=await G.request.post(B+'/api/trip',{data:{join:await fresh()}});log('Gus join',gj.status(),JSON.stringify(await gj.json()));
 // transfer to helper 0 (Bob) via UI
-await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.tmb');await A.waitForTimeout(800);await A.screenshot({path:S+'/t4.png'});
+await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);await A.click('.mgb:has-text("ผู้ช่วยจัดทริป")');await A.waitForTimeout(800);await A.screenshot({path:S+'/t4.png'});
 await A.click('.rrow >> nth=1 >> text=โอนให้');await A.click('.rrow >> nth=1 >> text=ยืนยันโอน?');await A.waitForTimeout(1200);
 const team=await (await A.request.get(B+'/api/trip?t='+ID)).json();log('after transfer A role',team.team.role,'owner',team.team.ownerName,'helpers',team.team.helpers.map(h=>h.name).join(','));
 log('A delete now',(await A.request.fetch(B+'/api/trip?t='+ID,{method:'DELETE'})).status());

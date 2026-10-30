@@ -76,6 +76,16 @@ a { color: inherit; }
 .wvan { position: absolute; right: -8px; top: 12px; width: 120px; color: #fff; opacity: .16; }
 .wgo { position: relative; margin-top: 8px; height: 52px; border-radius: 16px; background: #fff; color: var(--deep); font: 600 16px var(--font-display); display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .wgo:active { opacity: .85; }
+.acts .ab svg { width: 16px; height: 16px; flex: none; }
+.acts .ab { gap: 6px; }
+.ab.mgo { color: var(--ink); }
+.mgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mgb { min-height: 78px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font: 600 12.5px var(--font-body); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px 4px; text-align: center; }
+.mgb svg { width: 22px; height: 22px; }
+.mgb small { font-weight: 500; font-size: 11px; color: var(--muted); margin-top: -4px; }
+.mgb.lk { color: var(--danger); border-color: #f0c9c5; }
+.mgb.op { color: var(--mine); border-color: color-mix(in srgb, var(--mine) 40%, var(--surface)); background: var(--tint); }
+.mgb:active { background: #f3f6f7; }
 .wslim { position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px; border-radius: 18px; padding: 12px 12px 12px 16px; color: #fff; text-decoration: none; background: linear-gradient(160deg, var(--mine), var(--deep)); }
 .wslim .wvan { width: 78px; right: auto; left: 46%; top: 8px; }
 .wslim .tx { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -359,6 +369,54 @@ a { color: inherit; }
   }
 
   // ---- share the booking link (same as the booking page's "ส่งให้เพื่อน") ----
+  // ---- "จัดการทริป": everything an organizer does less often, in one sheet of big buttons ----
+  var MG = {
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>',
+    gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>',
+    map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M9 8h2M13 8h2M9 12h2M13 12h2M9 16h2M13 16h2"/></svg>',
+    pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10-10-4-4L4 16v4zM13.5 6.5l4 4"/></svg>',
+    team: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>',
+    text: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>',
+    dup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>'
+  };
+  function openManage(x) {
+    var bd = node("div", "bd"), sh = node("div", "sheet"), roster = null; bd.appendChild(sh);
+    var shut = function () { bd.remove(); };
+    bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
+    // the passenger list is fetched now, so "คัดลอกรายชื่อ" can copy at once inside the tap (iPhone allows copying only then)
+    fetch("/api/trip?t=" + encodeURIComponent(x.id) + "&roster=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) { roster = d; }).catch(function () {});
+    sh.appendChild(node("div", "grab"));
+    sh.appendChild(node("h3", null, x.name));
+    sh.appendChild(node("p", null, [dateRange(x.startDate, x.endDate), x.departTime ? x.departTime.replace(":", ".") + " น." : "", "จองแล้ว " + x.booked + "/" + x.total].filter(Boolean).join(" · ")));
+    var g = node("div", "mgrid");
+    function item(icon, label, cls, sub, act) {
+      var b = node(typeof act === "string" ? "a" : "button", "mgb" + (cls ? " " + cls : ""));
+      if (typeof act === "string") b.href = act; else { b.type = "button"; b.addEventListener("click", function () { act(b); }); }
+      b.insertAdjacentHTML("beforeend", MG[icon]); b.appendChild(node("span", null, label)); if (sub) b.appendChild(node("small", null, sub));
+      g.appendChild(b); return b;
+    }
+    item("map", "ดูผังที่นั่ง", "", "", "/" + x.id);
+    item("pen", "แก้ไขทริป", "", "", "/trips/" + x.id);
+    item("team", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป", "", x.role === "helper" ? "" : (x.helpers || 0) + "/3", function () { shut(); openTeam(x); });
+    item("text", "คัดลอกรายชื่อ", "", "", function () {
+      if (!roster) { toast("กำลังโหลดรายชื่อ ลองอีกครั้ง", true); return; }
+      copyText(rosterText(roster.trip, roster.roster || {}, !x.closed), "คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย");
+    });
+    var lk = item(x.closed ? "share" : "share", x.closed ? "เปิดรับจอง" : "ปิดรับจอง", x.closed ? "op" : "lk", "", async function (btn) {
+      if (!x.closed && btn.dataset.sure !== "1") { btn.dataset.sure = "1"; btn.querySelector("span").textContent = "ยืนยันปิด?"; setTimeout(function () { if (btn.isConnected) { btn.dataset.sure = ""; btn.querySelector("span").textContent = "ปิดรับจอง"; } }, 3500); return; }
+      btn.disabled = true;
+      try {
+        var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body: JSON.stringify({ t: x.id, close: !x.closed }) });
+        if (!r.ok) throw new Error();
+        toast(x.closed ? "เปิดรับจองแล้ว" : "ปิดรับจองแล้ว"); shut(); load();
+      } catch (e) { btn.disabled = false; toast("ทำรายการไม่สำเร็จ ลองอีกครั้ง", true); }
+    });
+    lk.querySelector("svg").outerHTML = x.closed ? OPEN_SVG : LOCK_SVG;
+    item("dup", "สร้างทริปซ้ำ", "", "", "/trips/new?copy=" + encodeURIComponent(x.id));
+    sh.appendChild(g);
+    var cl = node("button", "b-plain", "ปิด"); cl.type = "button"; cl.style.height = "48px"; cl.style.borderRadius = "16px"; cl.style.fontWeight = "600"; cl.addEventListener("click", shut); sh.appendChild(cl);
+    document.body.appendChild(bd);
+  }
   function shareTrip(x) {
     var u = location.origin + "/" + x.id, L = ["🚐 " + (x.name || "จองที่นั่งรถตู้"), ""], dr = dateRange(x.startDate, x.endDate);
     if (dr) L.push("📅 " + dr);
@@ -413,12 +471,12 @@ a { color: inherit; }
       if (!x.closed && closeText(x.closeAt)) hd.appendChild(node("div", "cat", "ปิดรับจองอัตโนมัติ " + closeText(x.closeAt)));
       c.appendChild(hd);
       var ros = node("button", "ros", "รายชื่อผู้จอง · จัดการที่นั่ง"); ros.type = "button"; ros.addEventListener("click", function () { openRoster(x); }); c.appendChild(ros);
-      var tm = node("button", "tmb", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป · " + (x.helpers || 0) + "/3"); tm.type = "button"; tm.addEventListener("click", function () { openTeam(x); });
-      var df = node("div", "dfoot"), cp = node("a", "cpy", "สร้างทริปซ้ำ"); cp.href = "/trips/new?copy=" + encodeURIComponent(x.id);
-      df.appendChild(tm); df.appendChild(cp); c.appendChild(df);
-      var acts = node("div", "acts"), ed = node("a", "ab am", "แก้ไขทริป"); ed.href = "/trips/" + x.id;
-      var sh = node("button", "ab tl", x.closed ? "แชร์ผังที่นั่ง" : "แชร์ลิงก์จอง"); sh.type = "button"; sh.addEventListener("click", function () { shareTrip(x); });
-      acts.appendChild(ed); acts.appendChild(sh); c.appendChild(acts);
+      var acts = node("div", "acts"), sh = node("button", "ab tl"); sh.type = "button";
+      sh.insertAdjacentHTML("beforeend", MG.share); sh.appendChild(document.createTextNode(x.closed ? "แชร์ผังที่นั่ง" : "แชร์ลิงก์จอง"));
+      sh.addEventListener("click", function () { shareTrip(x); });
+      var mg = node("button", "ab mgo"); mg.type = "button"; mg.insertAdjacentHTML("beforeend", MG.gear); mg.appendChild(document.createTextNode("จัดการทริป"));
+      mg.addEventListener("click", function () { openManage(x); });
+      acts.appendChild(sh); acts.appendChild(mg); c.appendChild(acts);
       pane.appendChild(c);
     });
     if (done.length) {
