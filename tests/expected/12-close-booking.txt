@@ -1,0 +1,29 @@
+close 200 seats GET closed true
+passenger books 403 closed
+passenger holds 403 closed
+passenger cancels own 403 closed
+passenger renames own 200
+organizer books 200
+organizer moves 200
+organizer cancels other 200
+P bar true ปิดรับจองแล้ว  locked deck true
+P tap free seat opens panel false
+A bar hidden true A notice ปิดรับจองอยู่ผู้จองจองหรือยกเลิกเองไม่ได้ · คุณยังจัดการที่นั่งได้เปิดรับจอง
+card pill [ 'ปิดรับจอง' ] share button แชร์ผังที่นั่ง
+ticket note ปิดรับจองแล้ว 
+menu cancel -> ปิดรับจองแล้ว ยกเลิกเองไม่ได้ ติดต่อผู้จัดทริป sheet opened 0
+A reopened เปิดรับจองแล้ว closed now false notice แตะที่นั่งว่างเพื่อจอง · แตะที
+closeAt in 1 day 200 closed false P books 200
+tip shows closing time true
+card closing line true
+closeAt 1 min ago 200 closed true P books 403 closed
+reopen after passed time: closed false closeAt cleared yes P books 200
+bad closeAt 400 bad_close
+first tap ยืนยันปิด?
+sheet closed ปิดรับจองแล้ว note true server true
+form switch shown true checked true
+saved with switch off: closed false form errors 0
+saved with switch on: closed true
+past closing time in form -> [ 'เวลานี้ผ่านไปแล้ว เลือกเวลาข้างหน้า หรือใช้สวิตช์ปิดรับจองตอนนี้' ]
+new form: switch hidden true
+ERR []

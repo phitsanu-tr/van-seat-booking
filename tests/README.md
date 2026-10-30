@@ -14,7 +14,7 @@ npx playwright install chromium # the browser, ~150 MB, once per machine
 ## Run
 
 ```sh
-node tests/run.js            # all tests (about 2 minutes)
+node tests/run.js            # all tests (about 4 minutes)
 node tests/run.js 05 08      # only files starting with 05 or 08
 ```
 
@@ -46,3 +46,9 @@ from a to b (used for counts that depend on timing).
 | 06-notify | notifications for trip changes, moves, renames, cancels, deleted trips; change banner |
 | 07-polling | hold per browser, polling slows when idle and resumes on touch (fake clock) |
 | 08-inbox-rename | read state survives new notifications, bell updates on an open page, "⋯" rename menu, no dark-theme CSS |
+| 09-roster-scroll | a long passenger list scrolls inside the sheet on a short phone screen |
+| 10-paid-checkin | payment ticks and check-in ticks: organizer-only, hidden from passengers, follow moves, live refresh |
+| 11-routes | link scheme: /mytrips, /trips/new, /trips/<id>, old /trips#<id>-o, seat-pass picture outside LINE |
+| 12-close-booking | close/reopen bookings, automatic closing time, what passengers and organizers can still do |
+| 13-copy-duplicate | copy the passenger list as text, duplicate a trip (upcoming and finished) |
+| 14-rounds | check-in rounds: names, new round, history, privacy, read-only summary after the trip |

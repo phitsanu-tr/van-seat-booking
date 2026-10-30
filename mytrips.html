@@ -331,7 +331,7 @@ a { color: inherit; }
       if (nums.length && free.length) L.push("ว่าง: " + free.join(", "));
     });
     if (trip.vans.length > 1) L.push("", "รวม " + all + "/" + trip.vans.length * 10 + " ที่นั่ง");
-    L.push("", open ? "จองที่นั่งได้ที่ 👇" : "ดูผังที่นั่ง 👇", location.origin + "/" + trip.id);
+    L.push("", open ? "จองที่นั่งได้ที่นี่ 👇" : trip.closedNow ? "ปิดรับจองแล้ว · ดูผังที่นั่ง 👇" : "ดูผังที่นั่ง 👇", location.origin + "/" + trip.id);
     return L.join("\n");
   }
 
@@ -748,9 +748,9 @@ a { color: inherit; }
     function summaryText() {
       var b = board(), rounds = [liveRound()].concat(b.hist), L = ["🚐 สรุปเช็กชื่อ · " + st.trip.name];
       rounds.slice().reverse().forEach(function (r) {
-        var full = r.total && r.n >= r.total;
-        L.push(roundTitle(r) + " · " + (full ? "ครบ " : "ขึ้น ") + r.n + "/" + r.total + (r.start ? " · " + stamp(r.start) : ""));
-        if (!full && r.miss && r.miss.length) L.push("  ขาด: " + missText(r, 40));
+        var full = r.total && r.n >= r.total, now = r.live && !st.ended; // the round still being checked is not "missing" anyone yet
+        L.push(roundTitle(r) + " · " + (now ? "กำลังเช็ก " : full ? "ครบ " : "ขึ้น ") + r.n + "/" + r.total + (r.start ? " · " + stamp(r.start) : ""));
+        if (!full && r.miss && r.miss.length) L.push("  " + (now ? "ยังไม่มา" : "ขาด") + ": " + missText(r, 40));
       });
       return L.join("\n");
     }

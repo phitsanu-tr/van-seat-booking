@@ -15,6 +15,6 @@ board start A 1 / 3 ขึ้นรถแล้ว miss ยังไม่มา
 A after tick 2 / 3 ขึ้นรถแล้ว row in 1 server true
 Bob sees it without reloading 2 / 3 ขึ้นรถแล้ว within ~8s
 untick 1 / 3 ขึ้นรถแล้ว server false
-copied missing "🚐 ยังไม่ขึ้นรถ 2 คน · เขาใหญ่ชิล ๆ\nคัน 1 ที่นั่ง 5. ฉิน\nคัน 2 ที่นั่ง 7. แพท"
+copied missing "🚐 ยังไม่ขึ้นรถ 2 คน · เขาใหญ่ชิล ๆ · รอบที่ 1\nคัน 1 ที่นั่ง 5. ฉิน\nคัน 2 ที่นั่ง 7. แพท"
 cancelled seat gone true
 ERR []

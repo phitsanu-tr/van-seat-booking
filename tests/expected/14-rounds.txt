@@ -1,0 +1,21 @@
+start รอบที่ 1 | รอบแรก history button 0 new round button เริ่มเช็กรอบใหม่ (รอบที่ 2)
+ticked 2 / 3 ขึ้นรถแล้ว
+name dialog ตั้งชื่อรอบที่ 1
+named รอบที่ 1 | ขาไป toast ตั้งชื่อรอบแล้ว
+new dialog เริ่มเช็กรอบใหม่ | ติ๊กของรอบที่ 1 (2 คน) จะถูกล้าง ทุกคนกลับเป็น “ยังไม่ขึ้นรถ” · สรุปรอบนี้เก็บไว้ในประวัติ | button เริ่มรอบที่ 2
+round 2 รอบที่ 2 | ขากลับ toast เริ่มรอบที่ 2 · ขากลับ แล้ว ticked now 0 / 3 ขึ้นรถแล้ว
+server cur {"i":2,"name":"ขากลับ","by":"Ann"} hist [{"i":1,"name":"ขาไป","n":2,"total":3,"miss":[{"vl":"2","s":5,"n":"ฉิน"}],"by":"","times":true}]
+ticks cleared 0 paid kept 1
+passenger trip has board false passenger roster 403
+helper sees รอบที่ 2 | ขากลับ
+history cards [
+  'รอบที่ 2 ขากลับ [กำลังเช็ก 0/3] เริ่ม hh.mm น. · โดย Ann',
+  'รอบที่ 1 ขาไป [ขาด 1] hh.mm – hh.mm น. · ขึ้น 2/3ขาด: ฉิน (คัน 2 ที่ 5)'
+]
+copied summary "🚐 สรุปเช็กชื่อ · เขาใหญ่ชิล ๆ\nรอบที่ 1 · ขาไป · ขึ้น 2/3 · hh.mm น.\n  ขาด: ฉิน (คัน 2 ที่ 5)\nรอบที่ 2 · ขากลับ · กำลังเช็ก 0/3 · hh.mm น.\n  ยังไม่มา: แพท (คัน 1 ที่ 3), แพทสอง (คัน 1 ที่ 4), ฉิน (คัน 2 ที่ 5)"
+back รอบที่ 2 | ขากลับ
+round 3 รอบที่ 3 | เช็กรอบใหม่ history ประวัติรอบก่อนหน้า2 รอบ
+cleaned name "bแวะpั๊ม/b ยาวมากกกกกกกก" 24
+new round after the trip 403
+ended view สรุปการเช็กชื่อ · 3 รอบ cards 3 tick rows 0 new round button 0
+ERR []

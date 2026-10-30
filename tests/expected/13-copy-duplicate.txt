@@ -1,0 +1,30 @@
+toast คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย
+copied text:
+🚐 เขาใหญ่ชิล ๆ
+📅 <dates> · ออก 07.00 น.
+📍 BTS หมอชิต
+
+รถคัน 1 (กข 1234) · 2/10
+1. แพทสอง
+3. แพท
+ว่าง: 2, 4, 5, 6, 7, 8, 9, 10
+
+รถคัน 2 · 1/10
+5. ฉิน
+ว่าง: 1, 2, 3, 4, 6, 7, 8, 9, 10
+
+รวม 3/20 ที่นั่ง
+
+จองที่นั่งได้ที่นี่ 👇
+http://localhost:8765/<id>
+closed trip last lines ["ปิดรับจองแล้ว · ดูผังที่นั่ง 👇","http://localhost:8765/<id>"]
+duplicate link /trips/new?copy=<id>
+form {"name":"เขาใหญ่ชิล ๆ","org":"ทัวร์ตัวตึง","start":"","end":"","time":"07:00","meet":"BTS หมอชิต","max":"2","close":"","vans":["1","กข 1234","2"]} lead คัดลอกจาก “เขาใหญ่ชิล ๆ” แล้ว · เลือกวันเดินทางใหม่ แก้ส่วนอื่นได้ตามต้องการ
+submit without dates -> [ 'ระบุวันที่เดินทางไป', 'ระบุวันที่เดินทางกลับ' ]
+trips with that name 2 new id differs true
+new trip {"vans":["1/กข 1234","2"],"max":2,"booked":0,"dates":true}
+original untouched true 3
+stranger copy: name empty true toast คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย
+finished card links [ 'รายชื่อและสรุปเช็กชื่อ', 'สร้างทริปซ้ำ' ]
+copy finished trip: name ทริปที่แล้ว start empty true
+ERR []
