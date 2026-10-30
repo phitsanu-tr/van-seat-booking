@@ -95,6 +95,20 @@ function team(trip, user) {
 }
 async function saveTrip(trip) { await L.redis(["SET", L.tripKey(trip.id), JSON.stringify(trip)]); await L.applyExpiry(trip); } // SET clears the TTL
 const INVITE_DAYS = 7;
+// the organizer's passenger list of one trip (no account ids), from the HGETALL of each van in trip.vans order
+function rosterPayload(trip, user, all) {
+  const roster = {}, perVan = {};
+  let booked = 0;
+  trip.vans.forEach((v, i) => {
+    const flat = all[i] || [], seats = {};
+    for (let j = 0; j + 1 < flat.length; j += 2) {
+      const n = L.parseSeat(flat[j]); if (n === null) continue;
+      try { const r = JSON.parse(flat[j + 1]); if (r && r.name) seats[n] = Object.assign({ name: String(r.name), at: r.at }, r.u ? { a: 1 } : {}, user && r.u === user.id ? { m: 1 } : {}, r.p ? { p: 1 } : {}, r.c ? { c: r.c } : {}, r.c && r.cb ? { cb: r.cb } : {}); /* p = paid, c = boarded, cb = ticked by (organizers only) */ } catch (e) { /* skip */ }
+    }
+    roster[v.id] = seats; perVan[v.id] = Math.floor(flat.length / 2); booked += perVan[v.id];
+  });
+  return { trip: tripSummary(trip, user), booked, perVan, roster, board: trip.board || null, ended: L.tripEnded(trip), team: team(trip, user) };
+}
 function roundName(v) { return String(v == null ? "" : v).replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 24); } // check-in round label, e.g. "ขากลับ"
 
 module.exports = async function handler(req, res) {
@@ -238,6 +252,21 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { id, trip: tripSummary(trip, user) });
     }
 
+    if (req.method === "GET" && req.query && typeof req.query.many === "string") {
+      // several passenger lists in one request (the my-trips page loads them in the background); only trips you organize
+      const ids = Array.from(new Set(req.query.many.split(",").map((x) => L.tripId(x)).filter(Boolean))).slice(0, 12);
+      if (!user) return L.json(res, 401, { error: "login_required" });
+      const raws = ids.length ? await L.pipeline(ids.map((id) => ["GET", L.tripKey(id)])) : [];
+      const trips = [];
+      raws.forEach((raw) => { let tr = null; try { tr = JSON.parse(raw); } catch (e) { tr = null; } if (tr && tr.id && isManager(tr, user)) trips.push(tr); });
+      const cmds = [];
+      trips.forEach((tr) => tr.vans.forEach((v) => cmds.push(["HGETALL", L.seatsKey(tr.id, v.id)])));
+      const all = cmds.length ? await L.pipeline(cmds) : [];
+      const out = {};
+      let k = 0;
+      trips.forEach((tr) => { out[tr.id] = rosterPayload(tr, user, all.slice(k, k + tr.vans.length)); k += tr.vans.length; });
+      return L.json(res, 200, { rosters: out });
+    }
     if (req.method === "GET") {
       const t = L.tripId(req.query && req.query.t);
       const trip = t ? await L.loadTrip(t) : null;
@@ -251,18 +280,8 @@ module.exports = async function handler(req, res) {
       trip.vans.forEach((v, i) => { perVan[v.id] = counts[i]; });
       const booked = counts.reduce((a, n) => a + n, 0);
       let roster;
-      if (wantRoster) { // organizer's passenger list: every seat of every van (no account ids)
-        roster = {};
-        trip.vans.forEach((v, i) => {
-          const flat = all[i] || [], seats = {};
-          for (let j = 0; j + 1 < flat.length; j += 2) {
-            const n = L.parseSeat(flat[j]); if (n === null) continue;
-            try { const r = JSON.parse(flat[j + 1]); if (r && r.name) seats[n] = Object.assign({ name: String(r.name), at: r.at }, r.u ? { a: 1 } : {}, user && r.u === user.id ? { m: 1 } : {}, r.p ? { p: 1 } : {}, r.c ? { c: r.c } : {}, r.c && r.cb ? { cb: r.cb } : {}); /* p = paid, c = boarded, cb = ticked by (organizers only) */ } catch (e) { /* skip */ }
-          }
-          roster[v.id] = seats;
-        });
-      }
-      return L.json(res, 200, { trip: tripSummary(trip, user), booked, perVan, roster, board: roster ? trip.board || null : undefined, ended: L.tripEnded(trip), team: team(trip, user) });
+      if (wantRoster) return L.json(res, 200, rosterPayload(trip, user, all));
+      return L.json(res, 200, { trip: tripSummary(trip, user), booked, perVan, roster, ended: L.tripEnded(trip), team: team(trip, user) });
     }
 
     if (req.method === "DELETE") {

@@ -137,7 +137,12 @@ a { color: inherit; }
 .sheet h3 { font: 600 19px var(--font-display); margin: 0; }
 .sheet { max-height: 88vh; max-height: 88dvh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .sheet > * { flex-shrink: 0; }
-.sheet.tall { max-height: 80vh; max-height: 80dvh; } /* a tall sheet scrolls; its parts never get squashed and clipped */
+.sheet.tall { max-height: 80vh; max-height: 80dvh; }
+.sk { background: linear-gradient(90deg, #e9eef1 25%, #f4f7f8 50%, #e9eef1 75%); background-size: 200% 100%; animation: skel 1.2s linear infinite; border-radius: 8px; color: transparent !important; }
+.sk-l { display: block; width: 46%; height: 14px; margin: 3px 0 6px; } .sk-s { display: block; width: 30%; height: 10px; }
+.rtabs.skel button { opacity: .6; }
+@keyframes skel { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .sk { animation: none; } } /* a tall sheet scrolls; its parts never get squashed and clipped */
 .rolep { margin-top: -6px; font-size: 12px; font-weight: 600; color: var(--amber); }
 .tmb { align-self: flex-start; border: 0; background: none; padding: 2px 0; font-size: 13px; font-weight: 600; color: var(--amber); text-decoration: underline; text-underline-offset: 3px; }
 .ilink { display: flex; flex-direction: column; gap: 8px; background: var(--amber-tint); border: 1px solid var(--amber-edge); border-radius: 16px; padding: 12px; }
@@ -676,7 +681,21 @@ a { color: inherit; }
     return { ok: r.ok, data: d };
   }
   // passenger lists: the last one per trip (open at once next time) and a fetch started when a finger touches the button
-  var ROSTER = {}, ROSTER_PRE = {};
+  var ROSTER = {}, ROSTER_PRE = {}, ROSTER_H = {};
+  // kept in this browser tab while the app is open (sessionStorage), so coming back from another page is instant too
+  try { var keep0 = JSON.parse(sessionStorage.getItem("vsb_roster") || "{}"); if (keep0 && typeof keep0 === "object") ROSTER = keep0; } catch (e) { ROSTER = {}; }
+  function saveRosters() { try { sessionStorage.setItem("vsb_roster", JSON.stringify(ROSTER)); } catch (e) { /* storage full or blocked: memory only */ } }
+  function forgetRosters() { ROSTER = {}; ROSTER_H = {}; try { sessionStorage.removeItem("vsb_roster"); } catch (e) { /* ignore */ } }
+  // after the page shows: every upcoming trip's passenger list in one request, so the sheet opens at once
+  function preloadRosters(trips) {
+    var ids = trips.filter(function (t) { return !t.ended; }).map(function (t) { return t.id; }).slice(0, 12);
+    if (!ids.length) return;
+    fetch("/api/trip?many=" + ids.join(","), { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (!d || !d.rosters) return;
+      Object.keys(d.rosters).forEach(function (id) { ROSTER[id] = d.rosters[id]; });
+      saveRosters();
+    }).catch(function () { /* the sheet loads it itself */ });
+  }
   function getRoster(id) { return fetch("/api/trip?t=" + encodeURIComponent(id) + "&roster=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("load")); }); }
   function prefetchRoster(id) { if (!ROSTER_PRE[id] || Date.now() - ROSTER_PRE[id].at > 3000) ROSTER_PRE[id] = { p: getRoster(id), at: Date.now() }; }
   function openRoster(x) {
@@ -692,7 +711,7 @@ a { color: inherit; }
       try {
         var pre = !quiet && ROSTER_PRE[x.id] && Date.now() - ROSTER_PRE[x.id].at < 3000 ? ROSTER_PRE[x.id].p : null; delete ROSTER_PRE[x.id];
         var d = await (pre || getRoster(x.id));
-        ROSTER[x.id] = d; apply(d);
+        ROSTER[x.id] = d; saveRosters(); apply(d);
       } catch (e) { if (!quiet) toast("โหลดรายชื่อไม่สำเร็จ", true); return; }
       if (quiet && st.pending) return; // a tick is on its way: don't show the older list
       lockHeight();
@@ -716,7 +735,7 @@ a { color: inherit; }
         });
       });
       st.tab = keep.tab; st.van = keep.van; st.boardView = keep.bv; st.lastView = null;
-      st.lockedH = Math.min(Math.max(max, st.lockedH || 0), Math.round(window.innerHeight * 0.8));
+      st.lockedH = Math.min(Math.max(max, st.lockedH || 0), Math.round(window.innerHeight * 0.8)); ROSTER_H[x.id] = st.lockedH;
       sh.style.height = st.lockedH + "px";
       draw();
     }
@@ -734,7 +753,14 @@ a { color: inherit; }
       st.lastView = st.mode + st.tab + st.van + st.payF;
       sh.textContent = ""; sh.appendChild(node("div", "grab"));
       if (sameView) setTimeout(function () { var nl = sh.querySelector(".rlist"); if (nl) nl.scrollTop = keep; sh.scrollTop = keepSh; }, 0);
-      if (!st.trip) { sheetHead(sh, "รายชื่อผู้จอง", close); sh.appendChild(node("p", null, "กำลังโหลด...")); return; }
+      if (!st.trip) { // still loading: the sheet's real shape (title, tabs, grey rows) at its usual height instead of a short "loading" box
+        sheetHead(sh, "รายชื่อผู้จอง", close); sh.appendChild(node("p", null, x.name));
+        var sk = node("div", "rtabs skel"); ["ที่นั่ง", "จ่ายเงิน", "เช็กชื่อ"].forEach(function (t, i) { var b = node("button", i === 0 ? "on" : null, t); b.type = "button"; b.disabled = true; sk.appendChild(b); }); sh.appendChild(sk);
+        var sl = node("div", "rlist skel-list"); for (var i = 0; i < 5; i++) { var r = node("div", "rrow"); r.appendChild(node("div", "no sk")); var m = node("div", "nm2"); m.appendChild(node("b", "sk sk-l")); m.appendChild(node("small", "sk sk-s")); r.appendChild(m); sl.appendChild(r); }
+        sh.appendChild(sl);
+        if (!sh.style.height) sh.style.height = (ROSTER_H[x.id] || Math.round(window.innerHeight * 0.7)) + "px";
+        return;
+      }
       if (st.mode === "list") drawList(); else if (st.mode === "rename") drawRename(); else drawMove();
     }
     function drawList() {
@@ -1240,10 +1266,12 @@ a { color: inherit; }
       else av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
       $("nTrips").textContent = d.trips.length; $("nSeats").textContent = d.seats.length;
       renderTrips(d.trips); renderSeats(d.seats);
+      setTimeout(function () { preloadRosters(d.trips); }, 300); // after the page has drawn
       if (!location.hash && !d.trips.length && d.seats.length) setTab("seats");
     } catch (e) { toast("โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า", true); }
   }
   function showLogin() {
+    forgetRosters(); // signed out or another account: drop the lists kept in this tab
     $("meView").hidden = true; $("loginView").hidden = false;
     var le = new URLSearchParams(location.search).get("le");
     var msg = { cancel: "ยกเลิกการเข้าสู่ระบบแล้ว", setup: "ระบบเข้าสู่ระบบยังไม่ได้ตั้งค่า (ติดต่อเจ้าของแอป)", busy: "ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่" }[le] || (le ? "เข้าสู่ระบบไม่สำเร็จ ลองอีกครั้ง" : "");
