@@ -76,6 +76,22 @@ a.path:active { background: var(--tint); }
 .fc span, .st span { display: block; font-size: 12px; color: var(--muted); line-height: 17px; }
 .st { padding: 12px 8px; gap: 10px; }
 @media (min-width: 380px) { .fc, .st { padding-left: 10px; padding-right: 10px; gap: 10px; } .fc i, .st i { width: 34px; height: 34px; } .fc i svg, .st i svg { width: 18px; height: 18px; } }
+/* standard scale (same as my trips): white page, soft-shadow cards, one border grey */
+body{background:#fff}
+.top{border-bottom-color:#e8ecef}
+.top div{padding:0 max(16px,env(safe-area-inset-left))}
+main{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));gap:16px}
+h1{font-size:20px}h2{font-size:16px}
+.hero{padding:16px}.hero p{font-size:12px}
+.acct{font-size:12px;gap:8px}
+.path{border-color:#e8ecef;box-shadow:0 8px 24px -10px rgba(20,40,50,.18);padding:16px}
+.path .tx b{font-size:16px}.path .tx span{font-size:12px}
+.code input{border-color:#dde3e7;border-width:1px;border-radius:12px}
+.code button{border-radius:12px}
+.err{font-size:12px}
+.fc,.st{border-color:#e8ecef;box-shadow:0 6px 18px -10px rgba(20,40,50,.16)}
+.feat,.steps{gap:8px}
+.foot .fcr{margin-top:8px}
 </style>
 </head>
 <body>

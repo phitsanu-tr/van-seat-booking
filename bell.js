@@ -36,6 +36,13 @@
     ".vb-empty{text-align:center;color:#5f6b73;font-size:14px;padding:28px 8px}",
     ".vb-ft{font-size:12px;color:#5f6b73;text-align:center;margin-top:6px}",
     ".vb-hd .vb-close{flex:none;width:36px;height:36px;margin:-4px -8px 0 0;padding:0;border:0;border-radius:10px;background:none;color:#1b1f22;display:flex;align-items:center;justify-content:center;cursor:pointer}.vb-hd .vb-close svg{width:22px;height:22px}.vb-hd .vb-close:active{background:#f3f6f7}",
+    /* standard scale, same as the rest of the app */
+    ".vb-sh{padding:20px 20px calc(24px + env(safe-area-inset-bottom));gap:12px}",
+    ".vb-hd{gap:12px}.vb-hd b{font-size:20px}.vb-hd button{font-size:14px}",
+    ".vb-it{gap:12px;padding:12px;border-radius:12px}",
+    ".vb-tx{font-size:14px}.vb-tx b{font-size:14px}.vb-tx small{font-size:12px}",
+    ".vb-ft{font-size:12px;margin-top:8px}",
+    ".vb-bell{border-color:#e8ecef}"
   ].join("\n");
   var IC = {
     bell: '<path d="M6 16V11a6 6 0 1112 0v5l1.5 2h-15L6 16zM10 20.5a2 2 0 004 0"/>',
