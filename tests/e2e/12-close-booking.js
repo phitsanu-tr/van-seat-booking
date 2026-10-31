@@ -42,10 +42,11 @@ log('closeAt 1 min ago',await st(await put({closeAt:bkk(-1)})),'closed',await pu
 const r1=await (await A.request.post(B+'/api/trip',{data:{t:ID,close:false}})).json();
 log('reopen after passed time: closed',r1.closed,'closeAt cleared',r1.trip.closeAt===''?'yes':JSON.stringify(r1.trip.closeAt),'P books',await st(await seats(P,'POST',{seat:9,name:'แพทสาม'})));
 log('bad closeAt',await st(await put({closeAt:'tomorrow'})));
-// --- roster sheet toggle (two taps) and the edit form switch
-await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);
-await A.click('.rtools .lk');await A.waitForTimeout(200);log('first tap',(await A.textContent('.rtools .lk')).trim());await A.click('.rtools .lk');await A.waitForTimeout(800);
-log('sheet closed',await A.textContent('#toast'),'note',await A.isVisible('.sheet .cnote'),'server',await pub());await A.screenshot({path:S+'/close_sheet.png'});
+// --- close from the ⋯ manage menu (two taps), the roster shows the note, and the edit form switch
+await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(400);
+await A.click('.acti.lk');await A.waitForTimeout(200);log('first tap',(await A.textContent('.acti.lk')).trim());await A.click('.acti.lk');await A.waitForTimeout(1200);
+const closeToast=await A.textContent('#toast');await A.click('.ros3');await A.waitForTimeout(1000);
+log('sheet closed',closeToast,'note',await A.isVisible('.sheet .cnote'),'server',await pub());await A.screenshot({path:S+'/close_sheet.png'});
 await A.goto(B+'/trips/'+ID);await A.waitForTimeout(1500);log('form switch shown',await A.isVisible('#closedRow'),'checked',await A.isChecked('#closedNow'));
 await A.click('#closedNow');await A.click('#submit');await A.waitForTimeout(1500);log('saved with switch off: closed',await pub(),'form errors',await A.$$eval('.fe',e=>e.length));
 await A.goto(B+'/trips/'+ID);await A.waitForTimeout(1500);await A.click('#closedNow');await A.click('#submit');await A.waitForTimeout(1500);log('saved with switch on: closed',await pub());

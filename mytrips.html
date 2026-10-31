@@ -194,8 +194,6 @@ a { color: inherit; }
 .rtools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .rtools button { height: 42px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font: 600 13px var(--font-body); color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 6px; }
 .rtools button svg { width: 16px; height: 16px; flex: none; }
-.rtools button.lk { color: var(--danger); border-color: #f0c9c5; }
-.rtools button.op { color: var(--mine); border-color: color-mix(in srgb, var(--mine) 40%, var(--surface)); background: var(--tint); }
 .cnote { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.5; color: var(--danger); background: #fdf1ef; border-radius: 12px; padding: 9px 12px; }
 .cnote svg { width: 16px; height: 16px; flex: none; margin-top: 2px; }
 .cat { font-size: 12px; color: var(--muted); margin-top: -4px; }
@@ -270,6 +268,24 @@ body { background: #fff; }
 .card .ab.tl { background: var(--tint); } .card .ab.am { background: var(--amber-tint); } .card .ab.dg { background: #fbeceb; }
 .ros:active, .card .ab:active { background: #e4e9ec; }
 #meView .vb-bell { border-color: #e8ecef; }
+/* roster sheet on the standard scale: filled buttons, one border grey */
+.sheet h3{font-size:20px}
+.sheet{gap:16px}
+.rtabs{border-radius:12px}.rtabs button{font-size:14px;border-radius:8px}
+.rtools button{border-color:transparent;background:#f1f4f6;font-size:14px}
+.vchips{gap:8px}
+.vchips button{border-width:1px;border-color:#e8ecef;font-size:14px}
+.rlist{border-color:#e8ecef}
+.rrow{gap:12px;padding:12px;border-bottom-color:#e8ecef}
+.rrow .no{border-radius:12px;font-size:16px}
+.rrow .nm2 b{font-size:16px;font-weight:600}
+.rrow .ra{gap:8px}
+.rrow .ra button{border-color:transparent;background:#f1f4f6;border-radius:8px}
+.rrow .ra button.dg{border-color:transparent;background:#fbeceb}
+.bprog{gap:8px}.bprog .pl{font-size:14px}.bprog .pl b{font-size:20px}
+.miss{padding:8px 12px;font-size:14px}
+.round{gap:12px;border-radius:12px}.round .n{font-size:12px}
+.rnew{font-size:14px;gap:4px}
 </style>
 </head>
 <body>
@@ -792,14 +808,7 @@ body { background: #fff; }
       var tools = node("div", "rtools"), cpb = node("button", null); cpb.type = "button"; cpb.innerHTML = COPY_SVG; cpb.appendChild(document.createTextNode("คัดลอกรายชื่อ"));
       cpb.addEventListener("click", function () { copyText(rosterText(st.trip, st.roster, !st.closed && !st.ended), "คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย"); });
       tools.appendChild(cpb);
-      if (!st.ended) {
-        var lk = node("button", st.closed ? "op" : "lk"); lk.type = "button"; lk.innerHTML = st.closed ? OPEN_SVG : LOCK_SVG; lk.appendChild(document.createTextNode(st.closed ? "เปิดรับจอง" : "ปิดรับจอง"));
-        lk.addEventListener("click", function () {
-          if (!st.closed && lk.dataset.sure !== "1") { lk.dataset.sure = "1"; lk.lastChild.textContent = "ยืนยันปิด?"; setTimeout(function () { if (lk.isConnected) { lk.dataset.sure = ""; lk.lastChild.textContent = "ปิดรับจอง"; } }, 3500); return; }
-          setClosed(!st.closed, lk);
-        });
-        tools.appendChild(lk);
-      } else tools.style.gridTemplateColumns = "1fr";
+      tools.style.gridTemplateColumns = "1fr"; // close/reopen lives in the ⋯ manage menu
       sh.appendChild(tools);
       if (st.closed && !st.ended) { var cn = node("div", "cnote"); cn.innerHTML = LOCK_SVG; cn.appendChild(node("span", null, "ปิดรับจองอยู่ · ผู้จองจองหรือยกเลิกเองไม่ได้ คุณยังจัดการที่นั่งด้านล่างได้")); sh.appendChild(cn); }
       if (st.trip.vans.length > 1) sh.appendChild(chips(function (id) { st.van = id; draw(); }, st.van));
@@ -1019,15 +1028,7 @@ body { background: #fff; }
         copyText(L.join("\n"), "คัดลอกรายชื่อคนยังไม่มาแล้ว");
       });
     }
-    async function setClosed(close, btn) {
-      btn.disabled = true;
-      try {
-        var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body: JSON.stringify({ t: x.id, close: close }) });
-        var d = await r.json().catch(function () { return {}; });
-        if (!r.ok) throw new Error(d.error);
-        st.closed = !!d.closed; toast(close ? "ปิดรับจองแล้ว" : "เปิดรับจองแล้ว"); draw();
-      } catch (e) { btn.disabled = false; toast("ทำรายการไม่สำเร็จ ลองอีกครั้ง", true); }
-    }
+
     async function cancelOne(v, n, name, btn) {
       if (btn.dataset.sure !== "1") { btn.dataset.sure = "1"; btn.textContent = "ยืนยัน?"; setTimeout(function () { if (btn.isConnected) { btn.dataset.sure = ""; btn.textContent = "ยกเลิก"; } }, 3500); return; }
       btn.disabled = true;

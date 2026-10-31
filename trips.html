@@ -286,6 +286,25 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
 .foot .vn { position: absolute; left: 0; bottom: 4px; width: 32px; height: auto; color: var(--ink); animation: fvan 9s linear infinite; }
 @keyframes fvan { from { transform: translateX(-36px); } to { transform: translateX(124px); } }
 @media (prefers-reduced-motion: reduce) { .foot .vn { animation: none; transform: translateX(44px); } }
+/* standard scale (same as my trips): white page, soft-shadow cards, filled secondary buttons */
+body{background:#fff}
+.card{border-color:#e8ecef;box-shadow:0 8px 24px -10px rgba(20,40,50,.18);padding:16px;gap:16px}
+.hero{padding:16px}
+.hero h1{font-size:20px}
+.hero p{font-size:12px}
+.hb{gap:12px}.hb b{font-size:16px}
+label{gap:8px}
+label small,.swt small{font-size:12px}
+input[type=text],input[type=date],input[type=time],.pk,select.sel{border-color:#dde3e7!important}
+.row,.actions,.cardrow{gap:12px}
+.vcard{border-color:#e8ecef;padding:12px;gap:8px;background:#f8fafb}
+.btn.plain:not(#addVan){border-color:transparent!important;background:#f1f4f6!important}
+.x{border-color:transparent;background:#f1f4f6}
+.shrow{padding:12px;border-width:1px}
+.shrow b{font-size:16px}.shrow small{font-size:12px}
+.dz{padding:16px;border-width:1px}
+.dz b{font-size:16px}.dz span{font-size:12px}
+.dz button{font-size:14px;padding:0 16px;border-width:1px}
 </style>
 </head>
 <body>

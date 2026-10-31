@@ -376,6 +376,38 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 .foot .vn { position: absolute; left: 0; bottom: 4px; width: 32px; height: auto; color: var(--ink); animation: fvan 9s linear infinite; }
 @keyframes fvan { from { transform: translateX(-36px); } to { transform: translateX(124px); } }
 @media (prefers-reduced-motion: reduce) { .foot .vn { animation: none; transform: translateX(44px); } }
+/* standard scale (same as my trips): white page, soft-shadow cards, one border grey, filled secondary buttons */
+body{background:#fff}
+.facts,.deck{border-color:#e8ecef;box-shadow:0 8px 24px -10px rgba(20,40,50,.18)}
+.facts{padding:16px;gap:8px;font-size:14px}
+.facts div{gap:12px}
+.facts .fhead{border-bottom-color:#e8ecef;padding-bottom:12px}
+.fhead .ftitle{font-size:16px}
+.fhead .forg{font-size:12px}
+.hero{padding:16px;gap:12px}
+.hero h1{font-size:20px}
+.hero .org{font-size:12px}
+.acct{border-color:#e8ecef;gap:8px}
+.vb-bell{border-color:#e8ecef!important}
+.tlbl{gap:12px}
+.deck .tabs{gap:12px}
+.tab{border-color:#e8ecef!important}
+.tab[aria-selected="true"]{border-color:var(--mine)!important}
+.tip{padding:8px 12px;margin:12px 4px 0}
+.legend{gap:16px}
+.shbtn{font-size:16px}
+.shbtn:not(.fill){border-color:transparent;background:#f1f4f6;color:var(--ink)}
+.sheet{border-color:#e8ecef}
+.modal{padding-top:20px;gap:16px}
+.modal::before{display:none}
+.modal .actions{gap:8px}
+.modal .actions button{border-radius:12px}
+.modal .actions button.primary{font-size:16px}
+.modal .actions button.plain{border-color:transparent!important;background:#f1f4f6}
+.mtxt h2{font-size:32px!important}
+.mhead{gap:16px}
+.pill{padding:2px 8px}
+.foot .fcr{margin-top:8px}
 </style>
 </head>
 <body class="sk">
