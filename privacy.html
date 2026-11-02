@@ -12,39 +12,30 @@
   --bg: #eef1f3; --surface: #ffffff; --ink: #1b1f22; --muted: #5f6b73; --line: #c9d2d8; --edge: #dde3e7; --mine: #0e7c86; --deep: #0b5f67; --tint: #e3f3f4;
   --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif; --font-body: "Noto Sans Thai", system-ui, sans-serif; color-scheme: light;
 }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.65; -webkit-tap-highlight-color: transparent; }
-.top { background: var(--surface); border-bottom: 1px solid var(--edge); }
-.top div { max-width: 640px; margin: 0 auto; height: 52px; padding: 0 max(18px, env(safe-area-inset-left)); display: flex; align-items: center; }
-.top a { font: 600 15px var(--font-display); color: var(--deep); text-decoration: none; }
-main { max-width: 640px; margin: 0 auto; padding: 22px max(18px, env(safe-area-inset-left)) calc(28px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; }
-h1 { font: 600 24px/1.25 var(--font-display); margin: 0; }
-.upd { color: var(--muted); font-size: 13px; margin-top: -6px; }
-.sum { background: var(--tint); border-radius: 16px; padding: 14px 16px; }
+body { margin: 0; background: #fff; color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6; -webkit-tap-highlight-color: transparent; }
+.top { background: var(--surface); border-bottom: 1px solid var(--edge); border-bottom-color: #e8ecef; }
+.top div { max-width: 640px; margin: 0 auto; height: 52px; padding: 0 max(16px,env(safe-area-inset-left)); display: flex; align-items: center; }
+.top a { font: 600 15px var(--font-display); color: var(--deep); text-decoration: none; font-size: 16px; }
+main { max-width: 640px; margin: 0 auto; padding: 24px max(16px,env(safe-area-inset-left)) calc(32px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; }
+h1 { font: 600 24px/1.25 var(--font-display); margin: 0; font-size: 20px; }
+.upd { color: var(--muted); font-size: 12px; margin-top: -6px; }
+.sum { background: var(--tint); border-radius: 16px; padding: 16px; }
 .sum b { font-family: var(--font-display); font-weight: 600; }
 .sum ul { margin: 6px 0 0; padding-left: 20px; }
-section { background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 16px; }
-h2 { font: 600 17px var(--font-display); margin: 0 0 6px; }
+section { background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 16px; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
+h2 { font: 600 17px var(--font-display); margin: 0 0 8px; font-size: 16px; }
 p { margin: 6px 0; }
 ul { margin: 6px 0; padding-left: 20px; }
-li { margin: 3px 0; }
+li { margin: 4px 0; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th, td { text-align: left; vertical-align: top; padding: 8px 6px; border-bottom: 1px solid var(--edge); }
-th { font-weight: 600; color: var(--muted); font-size: 13px; }
+th, td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px solid var(--edge); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; }
 tr:last-child td { border-bottom: 0; }
 a { color: var(--mine); }
-.muted { color: var(--muted); font-size: 13px; }
-/* standard scale (same as my trips): white page, soft-shadow cards */
-body{background:#fff;line-height:1.6}
-.top{border-bottom-color:#e8ecef}
-.top div{padding:0 max(16px,env(safe-area-inset-left))}
-.top a{font-size:16px;color:#0e7c86}
-main{padding:24px max(16px,env(safe-area-inset-left)) calc(32px + env(safe-area-inset-bottom));gap:16px}
-h1{font-size:20px}h2{font-size:16px;margin:0 0 8px}
-.upd,.muted{font-size:12px}
-.sum{padding:16px}
-section{border-color:#e8ecef;box-shadow:0 8px 24px -10px rgba(20,40,50,.18)}
-th{font-size:12px}th,td{padding:8px;border-bottom-color:#e8ecef}
-li{margin:4px 0}
+.muted { color: var(--muted); font-size: 12px; }
+/* kept as late rules: they must stay after rules above to win (same element, same property) */
+.top a { color: #0e7c86; }
+th,td { border-bottom-color: #e8ecef; }
 </style>
 </head>
 <body>
