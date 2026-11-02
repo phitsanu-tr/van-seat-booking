@@ -6,7 +6,7 @@ const errs=[];const log=(...a)=>console.log(...a);const path=u=>{const x=new URL
 async function user(n,ua){const c=await b.newContext({viewport:{width:390,height:844},userAgent:ua||LINE});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2F');await p.waitForTimeout(300);return p;}
 const A=await user('Ann');
 const tr=await (await A.request.post(B+'/api/trip',{data:{name:'ทริปลิงก์',startDate:HLP.day(20),departTime:'07:00',vans:[{label:'1'}]}})).json();const ID=tr.id;
-await A.goto(B+'/');log('home organizer button',await A.getAttribute('a.path[href="/mytrips"]','href'));
+await A.goto(B+'/');log('home create button',await A.getAttribute('.hero a.cta','href'));
 await A.goto(B+'/trips');await A.waitForTimeout(800);log('/trips ->',path(A.url()));
 await A.goto(B+'/trips.html');await A.waitForTimeout(800);log('/trips.html ->',path(A.url()));
 await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);log('edit button',(await A.getAttribute('.mgb:has-text("แก้ไขทริป")','href')).replace(ID,'<id>'));

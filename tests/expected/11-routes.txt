@@ -1,4 +1,4 @@
-home organizer button /mytrips
+home create button /trips/new
 /trips -> /mytrips
 /trips.html -> /mytrips
 edit button /trips/<id>

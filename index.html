@@ -30,7 +30,8 @@ body { margin: 0; background: #fff; color: var(--ink); font-family: var(--font-b
 .top { background: var(--surface); border-bottom: 1px solid var(--edge); border-bottom-color: #e8ecef; }
 .top div { max-width: 460px; margin: 0 auto; height: 52px; padding: 0 max(16px,env(safe-area-inset-left)); display: flex; align-items: center; justify-content: space-between; gap: 10px; font: 600 15px var(--font-display); color: var(--deep); }
 .acct { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: 99px; font: 600 13px var(--font-body); text-decoration: none; white-space: nowrap; font-size: 12px; }
-.acct.out { background: #06c755; color: #fff; }
+.acct.out { background: none; color: var(--ink); border: 1px solid #e8ecef; height: 36px; padding: 0 12px 0 8px; border-radius: 12px; font: 600 14px var(--font-display); }
+.acct.out .lg { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: #06c755; color: #fff; font: 700 8px var(--font-display); letter-spacing: -.2px; }
 .acct.in { background: var(--tint); color: var(--deep); padding-left: 4px; }
 .acct .aav { width: 24px; height: 24px; border-radius: 50%; background: #06c755; color: #fff; font: 600 12px/24px var(--font-display); text-align: center; overflow: hidden; }
 .acct .aav img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -38,10 +39,13 @@ main { width: 100%; flex: 1 0 auto; max-width: 460px; margin: 0 auto; padding: 2
 h1 { font: 600 22px/1.25 var(--font-display); margin: 0; font-size: 20px; }
 h2 { font: 600 17px var(--font-display); margin: 10px 0 0; font-size: 16px; }
 p { margin: 0; color: var(--muted); font-size: 14px; }
-.hero { background: var(--tint); border-radius: 16px; padding: 16px; }
+.hero { background: linear-gradient(135deg, #0e7c86, #0b5f67); color: #fff; border-radius: 16px; padding: 20px 16px 16px; }
+.hero h1 { color: #fff; }
+.hero .cta { display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; margin-top: 16px; border-radius: 12px; background: #fff; color: var(--deep); font: 600 16px var(--font-display); text-decoration: none; }
+.hero .cta svg { width: 18px; height: 18px; }
 .hero .hr { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.hero p { margin-top: 8px; font-size: 12px; white-space: nowrap; }
-.hero svg { flex: none; width: 82px; height: auto; color: var(--ink); margin: -3.5px -2.5px 0 0; }
+.hero p { margin-top: 8px; font-size: 14px; color: #d4eaec; }
+.hero .hr > svg { flex: none; width: 82px; height: auto; color: #fff; margin: -3.5px -2.5px 0 0; }
 .path { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 16px; color: inherit; text-decoration: none; font: inherit; cursor: pointer; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
 .path .pi { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--tint); color: var(--deep); }
 .path .pi svg { width: 20px; height: 20px; }
@@ -55,16 +59,20 @@ a.path:active { background: var(--tint); }
 .code { display: flex; gap: 8px; }
 .code input { flex: 1; min-width: 0; height: 46px; font: inherit; font-size: 16px; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 0 14px; border-width: 1px; }
 .code input:focus { outline: none; border-color: var(--mine); box-shadow: 0 0 0 3px color-mix(in srgb, var(--mine) 20%, transparent); }
-.code button { flex: none; width: 46px; height: 46px; border: 0; border-radius: 12px; background: var(--ink); color: var(--bg); display: grid; place-items: center; cursor: pointer; }
+.code button { flex: none; width: 46px; height: 46px; border: 0; border-radius: 12px; background: var(--mine); color: #fff; display: grid; place-items: center; cursor: pointer; }
 .code button svg { width: 18px; height: 18px; }
 .err { display: flex; gap: 6px; align-items: center; color: var(--danger); font-size: 12px; line-height: 18px; margin-top: -4px; }
 .err[hidden] { display: none; }
 .err svg { flex: none; width: 14px; height: 14px; transform: translateY(-2px); }
 .code input[aria-invalid="true"], .code input[aria-invalid="true"]:focus { border-color: var(--danger); box-shadow: none; }
 .code input[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent); }
-.feat { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.steps { display: flex; flex-direction: column; gap: 8px; }
-.foot { margin-top: auto; text-align: center; font-size: 12px; line-height: 18px; color: var(--muted); white-space: nowrap; }
+.how { display: flex; flex-direction: column; }
+.how div { position: relative; display: flex; gap: 12px; align-items: flex-start; padding-bottom: 16px; }
+.how div:last-child { padding-bottom: 0; }
+.how div:not(:last-child)::before { content: ""; position: absolute; left: 13.5px; top: 32px; bottom: 4px; border-left: 1px dashed #c9d2d8; }
+.how i { flex: none; width: 28px; height: 28px; border-radius: 99px; background: var(--tint); color: var(--deep); display: grid; place-items: center; font: 600 14px var(--font-display); font-style: normal; }
+.how b { display: block; font: 600 16px/24px var(--font-display); color: var(--ink); }
+.how span { display: block; font-size: 14px; color: var(--muted); }.foot { margin-top: auto; text-align: center; font-size: 12px; line-height: 18px; color: var(--muted); white-space: nowrap; }
 .foot .fmsg { transition: opacity .35s ease; }
 .foot .fmsg.off { opacity: 0; }
 .foot .fcr { margin-top: 8px; }
@@ -76,14 +84,6 @@ a.path:active { background: var(--tint); }
 .foot .vn { position: absolute; left: 0; bottom: 4px; width: 32px; height: auto; color: var(--ink); animation: fvan 9s linear infinite; }
 @keyframes fvan { from { transform: translateX(-36px); } to { transform: translateX(124px); } }
 @media (prefers-reduced-motion: reduce) { .foot .vn { animation: none; transform: translateX(44px); } }
-.fc, .st { background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 10px 8px; display: flex; gap: 8px; align-items: center; color: var(--mine); border-color: #e8ecef; box-shadow: 0 6px 18px -10px rgba(20,40,50,.16); }
-.fc i, .st i { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--tint); display: grid; place-items: center; }
-.fc i svg, .st i svg { width: 16px; height: 16px; }
-.fc div, .st div { min-width: 0; }
-.fc b, .st b { display: block; color: var(--ink); font: 600 14px var(--font-display); line-height: 20px; }
-.fc span, .st span { display: block; font-size: 12px; color: var(--muted); line-height: 17px; }
-.st { padding: 12px 8px; gap: 10px; }
-@media (min-width: 380px) { .fc, .st { padding-left: 10px; padding-right: 10px; gap: 10px; } .fc i, .st i { width: 34px; height: 34px; } .fc i svg, .st i svg { width: 18px; height: 18px; } }
 /* kept as late rules: they must stay after rules above to win (same element, same property) */
 .path .tx b { font-size: 16px; }
 .path .tx span { font-size: 12px; }
@@ -107,18 +107,14 @@ a.path:active { background: var(--tint); }
           </g>
     </svg>
     </div>
-    <p>ให้เพื่อนเลือกที่นั่งเอง ใช้บัญชี LINE ได้เลย</p>
+    <p>ไม่ต้องโหลดแอป · ใช้บัญชี LINE ได้เลย</p>
+    <a class="cta" href="/trips/new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>สร้างทริป</a>
   </section>
 
-  <a class="path" href="/mytrips">
-    <div class="pi a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg></div>
-    <div class="tx"><b>ฉันเป็นผู้จัด</b><span>สร้างทริปและรับลิงก์ไปแชร์</span></div>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-  </a>
   <section class="path col">
     <div class="head">
       <div class="pi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h4a2 2 0 012 2v6a2 2 0 01-2 2H9.5a2 2 0 01-2-1.7L6 5a2 2 0 012-2z"/><path d="M7 16h11a2 2 0 010 4H7z"/></svg></div>
-      <div class="tx"><b>ฉันจะจองที่นั่ง</b><span>ใส่รหัสทริปที่ผู้จัดส่งให้</span></div>
+      <div class="tx"><b>มีรหัสทริปแล้ว?</b><span>ใส่รหัสหรือวางลิงก์ที่ผู้จัดส่งให้</span></div>
     </div>
     <form class="code" id="codeForm" autocomplete="off">
       <input type="text" id="code" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="200" placeholder="ใส่รหัสทริป หรือวางลิงก์" aria-label="รหัสทริป">
@@ -127,19 +123,11 @@ a.path:active { background: var(--tint); }
     <div class="err" id="err" role="alert" hidden></div>
   </section>
 
-  <h2>ทำไมต้องใช้</h2>
-  <div class="feat">
-    <div class="fc"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M6.5 6.5h.01M9 6.5h.01"/></svg></i><div><b>ใช้ได้เลย</b><span>ไม่ต้องโหลดแอป</span></div></div>
-    <div class="fc"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg></i><div><b>เข้าด้วย LINE</b><span>ไม่ต้องสมัครสมาชิก</span></div></div>
-    <div class="fc"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg></i><div><b>แชร์ลิงก์</b><span>หรือสแกน QR Code</span></div></div>
-    <div class="fc"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h4a2 2 0 012 2v6a2 2 0 01-2 2H9.5a2 2 0 01-2-1.7L6 5a2 2 0 012-2z"/><path d="M7 16h11a2 2 0 010 4H7z"/></svg></i><div><b>เลือกที่นั่งเอง</b><span>เห็นที่ว่าง / จองแล้ว</span></div></div>
-  </div>
-
-  <h2>ใช้งาน 3 ขั้นตอน</h2>
-  <div class="steps">
-    <div class="st"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></i><div><b>สร้างทริป</b><span>กรอกรายละเอียดทริปสั้น ๆ</span></div></div>
-    <div class="st"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg></i><div><b>แชร์ลิงก์ให้เพื่อน</b><span>เลือกที่นั่งเองได้เลย</span></div></div>
-    <div class="st"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></i><div><b>ดูว่าใครจองที่นั่งตรงไหน</b><span>ผังและรายชื่ออัปเดตเอง</span></div></div>
+  <h2>ใช้งานยังไง</h2>
+  <div class="how">
+    <div><i>1</i><p><b>สร้างทริป</b><span>วัน เวลา จุดนัด จำนวนรถ</span></p></div>
+    <div><i>2</i><p><b>ส่งลิงก์เข้ากลุ่ม LINE</b><span>เพื่อนแตะแล้วเลือกที่นั่งเอง</span></p></div>
+    <div><i>3</i><p><b>ดูผังและรายชื่อ</b><span>อัปเดตเองทันที</span></p></div>
   </div>
 
   <div class="foot"><div class="road" aria-hidden="true"><svg class="rd" viewBox="0 0 120 4" fill="none" aria-hidden="true"><path d="M2 2h116" stroke="var(--mine)" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"/></svg><svg class="vn" viewBox="4 12 88 42" fill="none" aria-hidden="true"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><g fill="color-mix(in srgb, var(--mine) 28%, var(--surface))" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g><path d="M85 36h3" stroke="var(--mine)" stroke-width="3" stroke-linecap="round"/><circle cx="26" cy="43" r="9.5" fill="var(--bg)"/><circle cx="26" cy="43" r="6.5" fill="currentColor"/><circle cx="26" cy="43" r="2.4" fill="var(--surface)"/><circle cx="70" cy="43" r="9.5" fill="var(--bg)"/><circle cx="70" cy="43" r="6.5" fill="currentColor"/><circle cx="70" cy="43" r="2.4" fill="var(--surface)"/></svg></div><div class="fmsg" id="fmsg">ขอที่นั่งริมหน้าต่างก่อนนะ</div><div class="fcr">© 2026 · <a href="/privacy">ความเป็นส่วนตัว</a> · <a href="https://github.com/phitsanu-tr" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>View on GitHub</a></div></div>
@@ -192,7 +180,7 @@ a.path:active { background: var(--tint); }
     var u=d&&d.user; a.textContent="";
     if(u){a.className="acct in";a.href="/mytrips";var av=document.createElement("span");av.className="aav";if(u.pic){var im=document.createElement("img");im.alt="";im.src=u.pic;im.referrerPolicy="no-referrer";av.appendChild(im);}else av.textContent=(u.name||"?").replace(/^[เแโใไ]/,"").slice(0,1);a.appendChild(av);a.appendChild(document.createTextNode("ของฉัน"));
       if(window.VSBBell){var h=document.createElement("span");h.style.cssText="display:flex;margin-left:auto;margin-right:8px";a.parentNode.insertBefore(h,a);VSBBell.mount(h);VSBBell.load();}}
-    else{a.className="acct out";a.href="/api/auth?start=1&r=%2Fmytrips";a.textContent="เข้าด้วย LINE";}
+    else{a.className="acct out";a.href="/api/auth?start=1&r=%2Fmytrips";a.innerHTML='<span class="lg">LINE</span>เข้าสู่ระบบ';}
     a.hidden=false;
   }).catch(function(){});
 })();</script>
