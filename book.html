@@ -168,7 +168,7 @@ body.sk main > :not(.skpage):not(.foot) { display: none; }
 .imgm .imgt small { font-size: 13px; color: var(--muted); }
 .imgm .imgx { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--bg); color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 .imgm img { align-self: center; max-width: 100%; max-height: min(470px, calc(100vh - 345px)); object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .2)); }
-.imgm .imgh { display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: 13px; }
+.imgm .imgh { display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; font-size: 14px; }
 .imgm .imgbtn { font: inherit; font-weight: 600; font-size: 16px; height: 54px; border-radius: 16px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 12px; cursor: pointer; min-width: 0; }
 .imgm .imgbtn svg { flex: none; width: 20px; height: 20px; }
 .imgm .imgbtn.primary { flex: none; width: 100%; background: var(--mine); border-color: var(--mine); color: var(--mine-ink); font-size: 18px; }
@@ -184,19 +184,20 @@ body.sk main > :not(.skpage):not(.foot) { display: none; }
 .imgonly #imgOnlyNote { display: flex; }
 #imgOnlyNote b { display: block; font: 600 20px var(--font-display); color: var(--ink); margin-bottom: 8px; }
 #imgOnlyNote button { margin-top: 20px; min-height: 44px; padding: 0 12px; border: 0; background: none; color: var(--mine); font: 600 15px var(--font-body); cursor: pointer; }
-.imgm .imgrow { display: flex; gap: 10px; }
+.imgm .imgrow { display: flex; gap: 8px; }
 .imgm .imgrow .imgbtn { flex: 1; }
 .imgm .imgbtn[hidden] { display: none; }
 /* image-save sheets: same size and look as the trips-page pass sheet */
 #imgBackdrop { align-items: center; padding: 16px !important; }
 .modal.imgm { max-width: 358px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); gap: 12px; padding: 20px; border-radius: 24px; border: 0; box-shadow: 0 18px 50px rgba(0, 0, 0, .35); box-sizing: border-box; }
 .modal.imgm::before { display: none; }
-.imgm .imgt h2 { display: flex; align-items: center; gap: 8px; font-size: 17px; }
+.imgm .imgt h2 { display: flex; align-items: center; gap: 8px; font-size: 20px; }
 .imgm .imgt h2 .tki { display: inline-flex; width: 24px; justify-content: center; color: var(--mine); }
 .imgm .imgx { width: 36px; height: 36px; margin: -6px -6px -6px 0; border-radius: 0; background: none; }
 .imgm img { -webkit-user-select: none; user-select: none; height: min(400px, calc(100vh - 340px)); width: auto; max-height: none; }
 .imgm .imgh { min-height: 36px; }
-.imgm .imgbtn { height: 50px; border-radius: 16px; }
+.imgm .imgbtn { height: 48px; border-radius: 12px; border: 0; background: #f1f4f6; }
+.imgm .imgbtn.primary { background: var(--mine); }
 .imgm .imgbtn.primary { font-size: 16px; }
 .imgm .imgbtn:not(#imgShare) svg { display: none; }
 .imgm .imgh span { text-wrap: balance; }
@@ -273,11 +274,11 @@ body.sk main > :not(.skpage):not(.foot) { display: none; }
 .modal::before { content: ""; align-self: center; width: 42px; height: 5px; border-radius: 3px; background: var(--line); }
 /* seat dialog: floating card centred a little above the middle so the keyboard does not cover it (pure CSS, no scripts moving it) */
 #backdrop { align-items: flex-start; padding: 16px 16px max(16px, 20vh) !important; overflow-y: auto; overscroll-behavior: contain; }
-#backdrop .modal { position: relative; margin: auto; max-width: 400px; padding: 22px 20px 20px; border-radius: 24px; border: 0; box-shadow: 0 18px 50px rgba(0, 0, 0, .35); }
+#backdrop .modal { position: relative; margin: auto; max-width: 400px; padding: 20px; border-radius: 24px; border: 0; box-shadow: 0 18px 50px rgba(0, 0, 0, .35); }
 #backdrop .modal::before { display: none; }
 #backdrop .modal .actions button { flex: 1 1 0; min-width: 0; }
 .mx { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
-.minfo { flex: none; height: 58px; box-sizing: border-box; padding: 0 16px; border-radius: 16px; background: var(--bg); display: flex; flex-direction: column; justify-content: center; line-height: 1.35; color: var(--ink); }
+.minfo { flex: none; height: 58px; box-sizing: border-box; padding: 0 16px; border-radius: 12px; font-size: 16px; background: var(--bg); display: flex; flex-direction: column; justify-content: center; line-height: 1.35; color: var(--ink); }
 .minfo b { font-weight: 600; }
 .minfo.warn { background: color-mix(in srgb, var(--sel) 18%, var(--surface)); border: 1px solid color-mix(in srgb, var(--sel) 55%, var(--line)); padding: 0 15px; }
 .minfo.warn .who { font-weight: 600; color: var(--ink); }
@@ -288,10 +289,10 @@ body.sk main > :not(.skpage):not(.foot) { display: none; }
 .modal .actions button.danger { padding: 0 8px; white-space: nowrap; }
 @media (max-width: 350px) { .modal .actions button.danger { font-size: 15px; } }
 .minfo span { font-size: 14px; color: var(--muted); }
-.mtt { margin: -12px 0 0; height: 40px; padding-right: 44px; display: flex; align-items: center; font: 600 17px var(--font-display); color: var(--ink); min-width: 0; }
+.mtt { margin: -12px 0 0; height: 40px; padding-right: 44px; display: flex; align-items: center; font: 600 16px var(--font-display); color: var(--ink); min-width: 0; }
 .mtt span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mhead { display: flex; gap: 16px; align-items: center; }
-.mini { flex: none; width: 64px; height: 96px; border-radius: 12px; background: var(--bg); padding: 5px; box-sizing: border-box; display: flex; justify-content: center; align-items: center; }
+.mini { flex: none; width: 64px; height: 96px; border-radius: 12px; background: var(--bg); padding: 4px; box-sizing: border-box; display: flex; justify-content: center; align-items: center; }
 .mini svg { height: 100%; width: auto; display: block; }
 .mtxt { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1; }
 #backdrop .modal { gap: 14px; min-height: 348px; }
@@ -299,10 +300,10 @@ body.sk main > :not(.skpage):not(.foot) { display: none; }
 .mtxt h2 { font-size: 28px !important; line-height: 1.1; }
 .pill { align-self: flex-start; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: color-mix(in srgb, var(--mine) 18%, transparent); color: var(--mine); }
 .pill.taken { background: var(--taken); color: var(--ink); }
-.modal input[type=text] { flex: none; width: 100%; height: 58px; font-size: 18px; border: 2px solid var(--mine); border-radius: 16px; padding: 0 18px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--mine) 18%, transparent); outline: none; }
+.modal input[type=text] { flex: none; width: 100%; height: 48px; font-size: 16px; border: 2px solid var(--mine); border-radius: 12px; padding: 0 16px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--mine) 18%, transparent); outline: none; }
 .modal .actions { flex-wrap: nowrap; gap: 10px; }
-.modal .actions button { height: 56px; border-radius: 16px; font-size: 16px; padding: 0 16px; }
-.modal .actions button.primary { flex: 1.6; font-size: 18px; }
+.modal .actions button { height: 48px; border-radius: 12px; font-size: 16px; padding: 0 16px; }
+.modal .actions button.primary { flex: 1.6; font-size: 16px; }
 .modal .actions button.plain { flex: 1; }
 .modal .actions button.danger { flex: 1.6; }
 .modal .actions button.ghost { flex: 1.6; align-self: auto; }
@@ -323,7 +324,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .nmcnt { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; pointer-events: none; }
 .nmcnt.full { color: var(--danger); }
 .modal input[type=text].bad { border-color: var(--danger); box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 16%, transparent); }
-.msg.nmmsg { display: flex; align-items: center; gap: 6px; height: 18px; margin-top: -6px; line-height: 18px; white-space: nowrap; }
+.msg.nmmsg { display: flex; align-items: center; gap: 4px; height: 18px; margin-top: -6px; line-height: 18px; white-space: nowrap; }
 .msg.nmmsg:empty { display: block; }
 .msg.nmmsg svg { flex: none; }
 .msg.nmmsg.info { color: var(--muted); }
@@ -383,7 +384,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 .tab { border-color: #e8ecef!important; }
 .tab[aria-selected="true"] { border-color: var(--mine)!important; }
 .shbtn:not(.fill) { border-color: transparent; background: #f1f4f6; color: var(--ink); }
-.modal { padding-top: 20px; gap: 16px; }
+.modal { padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px)); gap: 16px; }
 .modal::before { display: none; }
 .modal .actions { gap: 8px; }
 .modal .actions button { border-radius: 12px; }

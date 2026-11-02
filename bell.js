@@ -35,7 +35,7 @@
     ".vb-dot{position:absolute;right:10px;top:14px;width:8px;height:8px;border-radius:50%;background:#b3261e}",
     ".vb-empty{text-align:center;color:#5f6b73;font-size:14px;padding:28px 8px}",
     ".vb-ft{font-size:12px;color:#5f6b73;text-align:center;margin-top:6px}",
-    ".vb-hd .vb-close{flex:none;width:36px;height:36px;margin:-4px -8px 0 0;padding:0;border:0;border-radius:10px;background:none;color:#1b1f22;display:flex;align-items:center;justify-content:center;cursor:pointer}.vb-hd .vb-close svg{width:22px;height:22px}.vb-hd .vb-close:active{background:#f3f6f7}",
+    ".vb-hd .vb-close{flex:none;width:36px;height:36px;margin:-4px -8px 0 0;padding:0;border:0;border-radius:12px;background:none;color:#1b1f22;display:flex;align-items:center;justify-content:center;cursor:pointer}.vb-hd .vb-close svg{width:22px;height:22px}.vb-hd .vb-close:active{background:#f3f6f7}",
     /* standard scale, same as the rest of the app */
     ".vb-sh{padding:20px 20px calc(24px + env(safe-area-inset-bottom));gap:12px}",
     ".vb-hd{gap:12px}.vb-hd b{font-size:20px}.vb-hd button{font-size:14px}",
