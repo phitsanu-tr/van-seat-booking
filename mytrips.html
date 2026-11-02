@@ -92,9 +92,8 @@ a { color: inherit; }
 .mx { flex: none; width: 36px; height: 36px; margin: -6px -8px 0 0; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 12px; }
 .mx svg { width: 22px; height: 22px; }
 .mx:active { background: #f3f6f7; }
-.acchd { padding-bottom: 16px; border-bottom: 1px solid var(--edge); }
+.acchd { padding: 0; border: 0; }
 .acchd .hn { flex: 1; min-width: 0; }
-.acchd .mx { align-self: flex-start; }
 .acti { height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 6px; border: 0; background: none; border-radius: 12px; font: 500 16px var(--font-body); color: var(--ink); text-decoration: none; text-align: left; width: 100%; }
 .acti svg { width: 20px; height: 20px; color: var(--muted); flex: none; }
 .acti .c { margin-left: auto; color: #b7c1c7; font-size: 18px; }
@@ -1253,7 +1252,8 @@ a { color: inherit; }
     var head = node("div", "acchd"), avw = $("av").parentNode.cloneNode(true); avw.querySelector(".av").removeAttribute("id");
     var nm = node("div", "hn"); nm.appendChild(node("b", null, $("meName").textContent)); var sm = node("small"); sm.innerHTML = '<span class="lnb">LINE</span>เข้าสู่ระบบแล้ว'; nm.appendChild(sm);
     var xb = node("button", "mx"); xb.type = "button"; xb.setAttribute("aria-label", "ปิด"); xb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'; xb.addEventListener("click", shut);
-    head.appendChild(avw); head.appendChild(nm); head.appendChild(xb); sh.appendChild(head);
+    var top = node("div", "mhead"); top.appendChild(node("h3", null, "บัญชีของฉัน")); top.appendChild(xb); sh.appendChild(top);
+    head.appendChild(avw); head.appendChild(nm); sh.appendChild(head);
     var g1 = node("div", "agrp"), g2 = node("div", "agrp");
     function row(g, tag, icon, label, cls, act) {
       var r = node(tag, "acti" + (cls ? " " + cls : "")); if (tag === "a") r.href = act; else { r.type = "button"; r.addEventListener("click", act); }
