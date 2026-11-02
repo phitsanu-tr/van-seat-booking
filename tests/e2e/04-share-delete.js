@@ -8,12 +8,13 @@ await p.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'แอน'
 await p.goto(B+'/'+ID);await p.waitForTimeout(1200);log('mine tint',await p.locator('.seat.mine').count());
 await p.click('#shareImg');await p.waitForTimeout(2500);log('poster',await p.evaluate(()=>{const i=document.querySelector('#imgBackdrop img');return i?i.naturalWidth+'x'+i.naturalHeight:'none'}));
 const ext=await p.evaluate(()=>{const a=document.getElementById('imgExt')||document.querySelector('#imgBackdrop a[href*="img=1"]');return a?a.href:''});log('ext link',ext.replace(/mk=\w+/,'mk=…'));
-// Seat Pass from edit page
-await p.goto(B+'/trips/'+ID);await p.waitForTimeout(1500);await p.click('#shareBtn');await p.waitForTimeout(500);await p.click('#saveSeat');await p.waitForTimeout(2500);
-log('seat pass',await p.evaluate(()=>{const i=document.getElementById('cardImg');return i&&!i.hidden?i.naturalWidth+'x'+i.naturalHeight:'none'}));
-// card-only page outside LINE
-const c2=await b.newContext({viewport:{width:390,height:844}});await HLP.fonts(c2);const q=await c2.newPage();q.on('pageerror',e=>errs.push('card: '+e.message));
-await q.goto(B+'/trips/'+ID+'?card=guest&img=1');await q.waitForTimeout(2500);log('card page img',await q.evaluate(()=>{const i=document.getElementById('cardImg');return i&&!i.hidden?i.naturalWidth+'x'+i.naturalHeight:'none'}));
+// share sheet on the edit page: link, LINE and booking buttons; tapping the link box copies it
+await p.goto(B+'/trips/'+ID);await p.waitForTimeout(1500);await p.click('#shareBtn');await p.waitForTimeout(500);
+log('sheet',await p.textContent('#mState'),'|',(await p.textContent('#shareUrl')).replace(ID,'<id>').replace(ID.toUpperCase(),'<ID>'),'| line',(await p.getAttribute('#lineBtn','href')).includes(encodeURIComponent('/'+ID)),'| book',await p.getAttribute('#openShare','href')===('/'+ID));
+await p.click('#copyBox');await p.waitForTimeout(300);log('copied',await p.locator('#copyShare.ok').count());
+// the old SEAT PASS picture link now opens the booking page
+const c2=await b.newContext({viewport:{width:390,height:844}});const q=await c2.newPage();q.on('pageerror',e=>errs.push('old link: '+e.message));
+await q.goto(B+'/trips/'+ID+'?card=guest&img=1');await q.waitForTimeout(1200);log('old picture link ->',new URL(q.url()).pathname===('/'+ID)?'booking page':q.url());
 // delete from edit page (dialog in-page)
 await p.goto(B+'/trips/'+ID);await p.reload();await p.waitForTimeout(1500);await p.click('#delBtn');await p.waitForTimeout(400);
 const btns=await p.$$eval('button',bs=>bs.filter(x=>x.offsetParent&&/ลบทริป/.test(x.textContent)).map(x=>x.id||x.className));log('confirm btns',btns);

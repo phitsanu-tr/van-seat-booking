@@ -7,5 +7,5 @@ bob me [[{"van":"v1","vanLabel":"1","plate":"","seat":4,"name":"บ็อบบ�
 after cancel {"v1":{},"v2":{"5":{"name":"แคท","at":<ts>,"a":1}}}
 after self rename {"v1":{},"v2":{"5":{"name":"แคทลียา","at":<ts>,"a":1}}} แก้ชื่อที่นั่ง 5 แล้ว
 bob rename cat 403
-dots visible false
+share sheet ลิงก์ของทริปนี้ | ทริปจัดการ | qr 0
 ERR []

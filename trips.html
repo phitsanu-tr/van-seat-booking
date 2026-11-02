@@ -48,15 +48,6 @@ button { font: inherit; cursor: pointer; }
 .x { flex: none; width: 44px; height: 44px; border-radius: 12px; background: transparent; border: 1.5px solid var(--line); color: var(--danger); font-size: 20px; line-height: 1; }
 .msg { color: var(--danger); font-size: 14px; }
 .msg:empty { display: none; }
-.link { display: flex; flex-direction: column; gap: 6px; }
-.link b { font-size: 14px; }
-.link .chip { cursor: pointer; display: flex; align-items: center; gap: 4px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 6px 4px 6px 12px; }
-.link .url { flex: 1; min-width: 0; font-size: 13px; line-height: 1.4; }
-.url .code { display: block; font: 700 20px/1.2 var(--font-display); letter-spacing: 1.5px; color: var(--mine); overflow: hidden; text-overflow: clip; white-space: nowrap; }
-.url .sub { display: block; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cpbtn { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border: 0; background: transparent; color: var(--muted); border-radius: 12px; cursor: pointer; }
-.cpbtn svg { width: 18px; height: 18px; }
-.cpbtn.ok { color: var(--mine); }
 
 .back { display: inline-flex; align-items: center; gap: 2px; align-self: flex-start; color: var(--muted); text-decoration: none; font-size: 14px; margin-bottom: -6px; }
 .back svg { width: 16px; height: 16px; }
@@ -64,74 +55,37 @@ button { font: inherit; cursor: pointer; }
 .backdrop { overscroll-behavior: contain; position: fixed; inset: 0; z-index: 20; background: rgba(8, 14, 18, .6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
 .modal { width: 100%; max-width: 400px; background: var(--surface); border-radius: 24px; padding: 22px 20px 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 18px 50px rgba(0,0,0,.35); margin: auto; }
 .mt { font-family: var(--font-display); font-weight: 600; font-size: 20px; line-height: 1.2; }
-.share { display: flex; gap: 14px; align-items: center; }
-.qr { flex: none; width: 116px; height: 116px; padding: 6px; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
-.qr svg { width: 100%; height: 100%; display: block; }
-.qr:empty { display: none; }
-.share .link { min-width: 0; flex: 1; }
-.two { display: flex; gap: 10px; }
-.two > * { flex: 1 1 0; min-width: 0; white-space: nowrap; padding-left: 10px; padding-right: 10px; }
 .btn.ic { display: flex; align-items: center; justify-content: center; gap: 7px; }
 .btn.ic svg { width: 16px; height: 16px; flex: none; }
 
 a.btn { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .btn.line { background: #06c755; color: #fff; }
 
-.modal { position: relative; padding: 0; gap: 0; overflow: hidden; }
-.mband { position: relative; background: transparent; color: var(--ink); padding: 20px 56px 0 20px; display: flex; align-items: center; }
-.modal { --tint: #e5f2f3; --tint2: #d4eaec; --tint2-ink: #0b5f67; }
-.two > .btn.plain { background: var(--bg); border-color: var(--line); color: var(--ink); }
-.tcard { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 11px 13px; }
-.tcard .mt { color: var(--ink); overflow-wrap: anywhere; font-size: 18px; line-height: 1.25; }
-.trows { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
-.torg { font-size: 13px; font-weight: 600; color: var(--mine); margin-top: 2px; overflow-wrap: anywhere; }
-.trow { display: flex; gap: 9px; align-items: flex-start; font-size: 14px; line-height: 1.4; color: var(--ink); }
-.trow svg { width: 16px; height: 16px; flex: none; margin-top: 1px; color: var(--mine); }
-.trow.ti-cal svg { transform: translateY(.4px); }
-.trow.ti-pin svg { transform: translateY(.5px); }
-.trow.ti-van svg { transform: translateY(-.9px); }
-.trow span { min-width: 0; overflow-wrap: anywhere; }
-.mclose { position: absolute; right: 10px; top: 10px; width: 40px; height: 40px; border-radius: 0; border: 0; background: transparent; color: var(--ink); display: grid; place-items: center; cursor: pointer; padding: 0; }
-.mclose svg { width: 22px; height: 22px; }
-.mclose { -webkit-tap-highlight-color: transparent; outline: none; }
-.mclose:active, .mclose:focus, .mclose:focus-visible { background: transparent; outline: none; box-shadow: none; }
-.mtop { display: flex; font-family: var(--font-display); font-weight: 600; font-size: 17px; color: var(--ink); }
-#mState { display: inline-flex; align-items: center; gap: 9px; }
-#mState svg { width: 18px; height: 18px; flex: none; }
-#mState > svg { color: var(--mine); }
-#mState .okdot { flex: none; width: 26px; height: 26px; margin-left: -3px; border-radius: 50%; background: var(--mine); color: var(--mine-ink); display: inline-flex; align-items: center; justify-content: center; }
-#mState .okdot svg { width: 16px; height: 16px; }
-.mbar { display: none; }
-.mbody { padding: 14px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
-.step { display: flex; flex-direction: column; gap: 14px; }
-.steps { display: grid; grid-template-columns: minmax(0, 1fr); }
-.steps > .step { grid-area: 1 / 1; }
-.step[hidden] { display: flex !important; visibility: hidden; pointer-events: none; }
-.step > .foot { margin-top: auto; }
-.step > a.foot { height: 44px; }
-#saveSeat { width: 100%; justify-content: center; }
-.cardrow { display: flex; gap: 12px; }
-#cardHint { text-wrap: balance; min-height: 36px; display: flex; align-items: center; justify-content: center; }
-@media (max-width: 350px) { #cardHint { font-size: 12px !important; } }
-.cardrow[hidden] { display: none; }
-.cardrow .btn { flex: 1; min-width: 0; padding: 0 12px; white-space: nowrap; gap: 8px; display: inline-flex; align-items: center; justify-content: center; }
-.cardrow .btn[hidden] { display: none; }
-.passtag { display: flex; align-items: baseline; gap: 7px; line-height: 1.3; color: var(--mine); }
-.passtag b { font-family: var(--font-display); font-weight: 600; font-size: 13px; letter-spacing: 1px; }
-.passtag span { color: var(--muted); font-size: 13px; }
-.passtag .ic-t { transform: translateY(1.25px); }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 7.25px 11px 11px; display: flex; flex-direction: column; gap: 10px; }
-.panel .share { align-items: flex-start; }
-.panel .qr { width: 112.5px; height: auto; align-self: stretch; margin-top: 3.75px; }
-.panel .link { gap: 0; }
-.panel .hint { font-size: 12px; color: var(--muted); line-height: 1.3; margin: 1px 0 9px; }
-.panel .passtag { height: 17px; }
-.panel .ptitle { font-size: 15px; line-height: 1.25; display: block; margin-top: 4px; }
-.panel .chip { background: #fff; }
-.panel .url .code { font-size: 18px; letter-spacing: .5px; }
-@media (max-width: 380px) { .panel .url .code { font-size: 15px; letter-spacing: .5px; } .panel .qr { width: 100px; } }
-@media (max-width: 340px) { .panel .share { gap: 10px; } .panel .qr { width: 84px; } .panel .ptitle { font-size: 14px; } .panel .hint { font-size: 11.5px; } .panel .url .code { letter-spacing: 0; } }
-.qr.seat { border: 3px solid #0b5f67; }
+/* result sheet: shown after creating / saving a trip, and by "แชร์ลิงก์" on the edit page */
+.modal { position: relative; border-radius: 16px; padding: 20px 16px 16px; gap: 16px; }
+.mclose { position: absolute; right: 16px; top: 16px; width: 32px; height: 32px; border-radius: 99px; border: 0; background: #f1f4f6; color: var(--ink); display: grid; place-items: center; cursor: pointer; padding: 0; -webkit-tap-highlight-color: transparent; }
+.mclose svg { width: 16px; height: 16px; }
+#mState { display: flex; align-items: center; gap: 8px; font: 600 14px var(--font-display); color: var(--mine); padding-right: 40px; }
+#mState .okdot { flex: none; width: 20px; height: 20px; border-radius: 99px; background: var(--mine); color: var(--mine-ink); display: grid; place-items: center; }
+#mState .okdot svg { width: 12px; height: 12px; }
+#mState > svg { width: 20px; height: 20px; flex: none; }
+.mhead { margin-top: -8px; padding-right: 40px; }
+.mhead .mt { overflow-wrap: anywhere; line-height: 1.3; }
+.mhead .msub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.mlink { cursor: pointer; display: flex; align-items: center; gap: 12px; border: 1px solid #e8ecef; border-radius: 12px; padding: 12px; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); -webkit-tap-highlight-color: transparent; }
+.mlink .url { flex: 1; min-width: 0; }
+.url .code { display: block; font: 600 16px/1.4 var(--font-display); letter-spacing: .04em; color: #0b5f67; overflow: hidden; white-space: nowrap; }
+.url .sub { display: block; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cpbtn { flex: none; width: 40px; height: 40px; display: grid; place-items: center; background: #f1f4f6; color: var(--ink); border-radius: 12px; }
+.cpbtn svg { width: 18px; height: 18px; }
+.cpbtn.ok { color: var(--mine); }
+.macts { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.macts .btn { height: 48px; gap: 8px; white-space: nowrap; font-family: var(--font-display); font-weight: 600; }
+.macts .btn svg { width: 20px; height: 20px; flex: none; }
+.macts .btn.line { font-size: 16px; padding: 0 12px; }
+.macts .btn.plain { font-size: 14px; padding: 0 16px; background: #f1f4f6; border-color: transparent; }
+.macts .btn.plain svg { width: 18px; height: 18px; }
+@media (max-width: 360px) { .macts .btn.line .lg { display: none; } }
 
 /* create / edit form: matches the home page */
 .hero { position: relative; --hbg: color-mix(in srgb, var(--mine) 10%, var(--surface)); background: var(--hbg); border-radius: 16px; padding: 16px; }
@@ -402,26 +356,13 @@ select.sel { border-color: #dde3e7!important; }
 
 <div class="backdrop" id="backdrop" hidden>
   <div class="modal" id="result" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
-    <div class="mband" id="mband">
-      <div class="mtop"><span id="mState"></span></div>
-      <button class="mclose" id="closeX" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    </div>
-    <div class="mbar" id="mbar"></div>
-    <div class="mbody">
-      <div class="tcard"><div class="mt" id="resultTitle"></div><div class="torg" id="resultOrg" hidden></div><div class="trows" id="resultSub"></div></div>
-    <div class="steps">
-    <!-- step 1: guests -->
-    <div class="step" id="step1">
-      <div class="panel"><div class="share"><div class="qr seat" id="qr" role="img" aria-label="คิวอาร์โค้ดลิงก์จอง"></div><div class="link"><div class="passtag"><svg viewBox="2.5 5.5 19 13" width="15.2" height="10.42" class="ic-t" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg><b>SEAT PASS</b></div><b class="ptitle">สแกนเพื่อจองที่นั่ง</b><span class="hint">หรือส่งลิงก์ให้ผู้จองทริป</span><div class="chip"><div class="url" id="shareUrl"></div><button class="cpbtn" id="copyShare" type="button" aria-label="คัดลอกลิงก์"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button></div></div></div></div>
-      <div class="two">
-        <a class="btn line small ic" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span class="lb">ส่งเข้า LINE</span></a>
-      
-      <a class="btn plain ic small" id="openShare" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="lb">จองที่นั่ง</span></a>
-</div>
-      <div class="msg" id="seatMsg" role="status"></div>
-        <button class="btn primary ic small foot" id="saveSeat" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg><span class="lb">ดาวน์โหลด SEAT PASS</span></button>
-    </div>
-    </div>
+    <button class="mclose" id="closeX" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div id="mState"></div>
+    <div class="mhead"><div class="mt" id="resultTitle"></div><div class="msub">ส่งลิงก์ให้เพื่อนเพื่อจองที่นั่ง</div></div>
+    <div class="mlink" id="copyBox" role="button" tabindex="0" aria-label="คัดลอกลิงก์"><div class="url" id="shareUrl"></div><span class="cpbtn" id="copyShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span></div>
+    <div class="macts">
+      <a class="btn line" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span>ส่ง<span class="lg">ลิงก์</span>เข้า<span class="lg">กลุ่ม</span> LINE</span></a>
+      <a class="btn plain" id="openShare" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v9a2 2 0 002 2h7M7 19h10M9 15l-1 4M16 15l1 4"/></svg><span>จองที่นั่ง</span></a>
     </div>
   </div>
 </div>
@@ -578,34 +519,19 @@ select.sel { border-color: #dde3e7!important; }
   if (cd && ct) { dateField(cd, "ปิดรับจองวันที่", todayIso); timeField(ct, "ปิดรับจองเวลา"); }
 })();
 </script>
-<div class="backdrop" id="cardBd" style="z-index:30" hidden>
-  <div class="modal" id="cardM" role="dialog" aria-modal="true" aria-labelledby="cardTtl" style="padding:20px;gap:12px">
-    <div style="display:flex;align-items:center;gap:12px"><b id="cardTtl" style="flex:1;font:600 17px var(--font-display)"></b><button id="cardX" type="button" aria-label="ปิด" style="flex:none;width:36px;height:36px;margin:-6px -6px -6px 0;border:0;background:none;color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <img id="cardImg" alt="" style="-webkit-user-select:none;user-select:none;align-self:center;max-width:100%;height:min(400px,calc(100vh - 340px));width:auto;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.2))" hidden>
-    <p id="cardHint" style="margin:0;text-align:center;font-size:13px;line-height:20px;color:var(--muted)"></p>
-    <a class="btn primary" id="cardExt" target="_blank" rel="noopener" hidden>เปิดในเบราว์เซอร์เพื่อโหลดรูป</a>
-    <a class="btn primary" id="cardDl" hidden>ดาวน์โหลดรูป</a>
-    <div class="cardrow" id="cardRow" hidden>
-      <button class="btn plain" id="cardCopy" type="button">คัดลอกลิงก์</button>
-      <button class="btn plain" id="cardShare" type="button" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M8 7.5L12 3.5l4 4M6 11H5.5A1.5 1.5 0 004 12.5v6A1.5 1.5 0 005.5 20h13a1.5 1.5 0 001.5-1.5v-6a1.5 1.5 0 00-1.5-1.5H18"/></svg>แชร์รูป</button>
-    </div>
-  </div>
-</div>
 <script>
 (function () {
   "use strict";
   // links: /trips/new = create · /trips/<trip> = edit (owner or helper, checked by the LINE account)
-  //        /trips/<trip>?card=guest&img=1 = the SEAT PASS picture opened outside LINE · plain /trips is redirected to /mytrips by the server
+  //        plain /trips is redirected to /mytrips by the server · old /trips/<trip>?card=guest&img=1 links go to the booking page
   var q = new URLSearchParams(location.search);
-  var T = "", K = "o";
+  var T = "";
   var pm = /^\/trips\/([a-z0-9]{3,16})\/?$/i.exec(location.pathname);
   if (q.has("li") || q.has("le")) { try { q.delete("li"); q.delete("le"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q.toString() : "") + location.hash); } catch (e) {} }
   if (pm && pm[1].toLowerCase() !== "new") T = pm[1].toLowerCase();
   function editPath(id) { return "/trips/" + id; }
-  var UA = navigator.userAgent || "";
-  var IN_LINE = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA), IS_IOS = /iPhone|iPad|iPod/i.test(UA);
-  var CARD_ONLY = !IN_LINE && q.get("img") === "1" && q.get("card") === "guest" && !!T; // SEAT PASS picture page opened outside LINE
-  var editing = !!T && !CARD_ONLY;
+  if (T && q.get("card") === "guest") { location.replace("/" + T); return; } // the old SEAT PASS picture link: the booking page has the picture now
+  var editing = !!T;
   var closedAtLoad = false; // the trip's "closed" flag when the form was filled
   var creating = q.get("new") === "1" || /^\/trips\/new\/?$/.test(location.pathname);
   var vansEl = document.getElementById("vans");
@@ -758,47 +684,21 @@ select.sel { border-color: #dde3e7!important; }
   });
 
   function link(path) { return location.origin + path; }
-  var shown = null; // {id, token}
-  function qrSvg(text, color) {
-    try {
-      var q = qrcode(0, "M"); q.addData(text); q.make();
-      return q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }).replace(/fill="black"/g, 'fill="' + (color || "#000") + '"');
-    } catch (e) { return ""; }
-  }
-  function setStep() { $("step1").hidden = false; $("closeX").focus({ preventScroll: true }); } // one step only
-  var shareLink = "", tripName = "";
-  var SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
-  var ICON_SM = {
-    cal: SVG_OPEN + '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
-    org: SVG_OPEN + '<circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></svg>',
-    clk: SVG_OPEN + '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
-    pin: SVG_OPEN + '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0113 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>',
-    van: SVG_OPEN + '<path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg>'
-  };
-  function showResult(id, token, created, name, vanCount, startDate, endDate, departTime, meetPoint, organizer) {
-    shown = { id: id, token: token }; goList = created === true;
-    tripName = name || "";
+  var shown = null; // {id} of the trip whose link the sheet shows
+  var shareLink = "";
+  var OK_DOT = '<span class="okdot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span>';
+  var SHARE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
+  // created: true = just created · "saved" = just saved · false = "แชร์ลิงก์" on the edit page
+  function showResult(id, created, name) {
+    shown = { id: id }; goList = created === true;
     var share = shareLink = link("/" + id);
-    urlBox($("shareUrl"), id, "แตะเพื่อคัดลอกลิงก์");
+    urlBox($("shareUrl"), id, location.host + "/" + id);
     $("openShare").href = "/" + id;
-    var SHARE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
-    $("mState").innerHTML = (created ? '<span class="okdot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span>' : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปสำเร็จแล้ว" : created ? "สร้างทริปสำเร็จแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
+    $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
     $("resultTitle").textContent = name || "ทริป";
-    $("resultOrg").textContent = organizer || ""; $("resultOrg").hidden = !organizer;
-    var rowsEl = $("resultSub"); rowsEl.textContent = "";
-    function trow(icon, text) {
-      var r = document.createElement("div"); r.className = "trow ti-" + icon; r.innerHTML = ICON_SM[icon]; var t = document.createElement("span"); t.textContent = text; r.appendChild(t); rowsEl.appendChild(r);
-    }
-    if (startDate || endDate) trow("cal", dateRange(startDate, endDate));
-    if (departTime) trow("clk", departTime + " น.");
-    if (meetPoint) trow("pin", meetPoint);
-    if (vanCount) trow("van", vanCount + " คัน (" + vanCount * 10 + " ที่นั่ง)");
-    var text = (name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share;
-    $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent(text);
-    loadQR().then(function () { $("qr").innerHTML = qrSvg(share, "#0b5f67"); });
-    $("seatMsg").textContent = "";
+    $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
     $("backdrop").hidden = false; document.body.style.overflow = "hidden";
-    setStep();
+    $("closeX").focus({ preventScroll: true });
   }
   var goList = false; // right after creating a trip, closing the result sheet leads to the my-trips list
   function closeResult() {
@@ -809,7 +709,7 @@ select.sel { border-color: #dde3e7!important; }
   $("backdrop").addEventListener("click", function (e) { if (e.target === $("backdrop")) closeResult(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("backdrop").hidden) closeResult(); });
   $("shareBtn").addEventListener("click", function () {
-    if (shown) showResult(shown.id, shown.token, false, $("name").value.trim(), rows.length, $("startDate").value, $("endDate").value, $("departTime").value, $("meetPoint").value.trim(), $("organizer").value.trim());
+    if (shown) showResult(shown.id, false, $("name").value.trim());
   });
   function urlBox(el, code, sub) {
     el.textContent = "";
@@ -842,9 +742,10 @@ select.sel { border-color: #dde3e7!important; }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { flash(true); }, fallback);
     else fallback();
   }
-  $("copyShare").parentNode.addEventListener("click", function () { copy(shareLink, $("copyShare")); });
+  $("copyBox").addEventListener("click", function () { copy(shareLink, $("copyShare")); });
+  $("copyBox").addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); copy(shareLink, $("copyShare")); } });
 
-  // Draws the admin card (trip details + admin QR + guest QR) to a canvas and saves it as a PNG.
+  // Thai date range for the delete confirmation
   var MON = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
   function thDate(iso) {
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ""); if (!m) return null;
@@ -858,259 +759,6 @@ select.sel { border-color: #dde3e7!important; }
     if (x.y === y.y) return x.d + " " + MON[x.mo] + " – " + y.d + " " + MON[y.mo] + " " + y.y;
     return x.d + " " + MON[x.mo] + " " + x.y + " – " + y.d + " " + MON[y.mo] + " " + y.y;
   }
-  // the QR library (qrcode.js, ~21 KB) loads only when a QR is drawn: the result sheet and the seat-pass picture
-  var qrReady = null;
-  function loadQR() {
-    if (window.qrcode) return Promise.resolve();
-    if (!qrReady) qrReady = new Promise(function (res) {
-      var sc = document.createElement("script"); sc.src = "/qrcode.js"; sc.async = true;
-      sc.onload = function () { res(); }; sc.onerror = function () { qrReady = null; res(); };
-      document.head.appendChild(sc);
-    });
-    return qrReady;
-  }
-  function loadFonts() { return Promise.all([loadFontsOnly(), loadQR()]); } // everything the picture needs
-  function loadFontsOnly() {
-    if (!document.fonts || !document.fonts.load) return Promise.resolve();
-    var all = Promise.all(["600 15px Prompt", "500 12px Prompt", "400 12px 'Noto Sans Thai'", "500 12px 'Noto Sans Thai'", "600 12px 'Noto Sans Thai'"].map(function (f) { return document.fonts.load(f, "ก"); }));
-    return Promise.race([all, new Promise(function (r) { setTimeout(r, 2500); })]).catch(function () {});
-  }
-  function drawCard(mode) {
-    var TH = { hdr: "#0b5f67", lab: "#bfe9ed", bar: "#3fbac4", ic: "#0e7c86", rule: "#0e7c86", icon: "ticket", name: "SEAT PASS" };
-    // layout tokens (card units): spacing 8/16/32, type 18/14/12/10/8, all even
-    var S = 4, CW = 358, W = CW, CX = 0, CY = 0, P = 16, M = 24, ROW = 32, QR = 130, SEC = QR + 48, FOOT = 32, WARN = 16;
-    var org = $("organizer").value.trim(), nm = tripName || "ทริปของฉัน";
-    // title wraps (max 3 lines) across the content width; wrap-measuring context shared by all passes
-    var wm = document.createElement("canvas").getContext("2d");
-    wm.font = "600 18px " + '"Prompt","Noto Sans Thai",system-ui,sans-serif';
-    function wrapTitle(TW) {
-      var tl = [], segs = (window.Intl && Intl.Segmenter) ? Array.from(new Intl.Segmenter("th", { granularity: "word" }).segment(nm), function (x) { return x.segment; }) : Array.from(nm);
-      var cur = "";
-      segs.forEach(function (w) {
-        if (wm.measureText(cur + w).width <= TW) { cur += w; return; }
-        if (cur) { tl.push(cur.replace(/\s+$/, "")); cur = ""; }
-        w = w.replace(/^\s+/, "");
-        Array.from(w).forEach(function (ch) { if (wm.measureText(cur + ch).width <= TW) cur += ch; else { tl.push(cur); cur = ch; } });
-      });
-      if (cur) tl.push(cur);
-      if (tl.length > 3) { tl = tl.slice(0, 3); var last = tl[2]; while (last.length > 1 && wm.measureText(last + "…").width > TW) last = last.slice(0, -1); tl[2] = last + "…"; }
-      return tl;
-    }
-    // one fixed card width (386): the header shares its proportions with the picture saved from the booking page
-    var tl, HDR, TOP, H;
-    tl = wrapTitle(386 - M * 2);
-    HDR = 52 + 24 * tl.length + (org ? 18 : 0) + 16; TOP = HDR + 4 + ROW * 4; // the amber divider is the 4th row separator: sits on the row's bottom edge
-    H = CY + TOP + SEC + FOOT + CY;
-    CW = W = 386;
-    var TW = CW - M * 2;
-    var c = document.createElement("canvas"); c.width = W * S; c.height = Math.round(H * S);
-    var g = c.getContext("2d");
-    var disp = '"Prompt","Noto Sans Thai",system-ui,sans-serif', body = '"Noto Sans Thai",system-ui,sans-serif';
-    g.scale(S, S);
-    function rr(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
-    function txt(t, x, y, font, color, align, maxW) {
-      g.font = font; g.fillStyle = color; g.textAlign = align || "left"; g.textBaseline = "middle";
-      if (maxW) { var s0 = t; while (g.measureText(s0).width > maxW && s0.length > 3) s0 = s0.slice(0, -1); if (s0 !== t) t = s0.replace(/\s+$/, "") + "…"; }
-      g.fillText(t, x, y);
-    }
-    // single-line caps text centred on cy by its real cap height (independent of the font's line metrics)
-    function capTxt(t, x, cy, font, color, align, maxW) {
-      g.font = font; g.fillStyle = color; g.textAlign = align || "left"; g.textBaseline = "alphabetic";
-      var asc = g.measureText("H").actualBoundingBoxAscent || 6;
-      if (maxW) { var s0 = t; while (g.measureText(s0).width > maxW && s0.length > 3) s0 = s0.slice(0, -1); if (s0 !== t) t = s0.replace(/\s+$/, "") + "…"; }
-      g.fillText(t, x, cy + asc / 2);
-    }
-    function icon(p, x, y, col, size) {
-      g.save(); g.translate(x, y); g.scale(size / 24, size / 24);
-      g.strokeStyle = col; g.lineWidth = 1.9; g.lineCap = "round"; g.lineJoin = "round";
-      g.stroke(new Path2D(p)); g.restore();
-    }
-    var ICON = {
-      cal: "M6.5 5.5h11A2.5 2.5 0 0120 8v9.5a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 014 17.5V8a2.5 2.5 0 012.5-2.5zM4 10h16M8.5 3.5v4M15.5 3.5v4",
-      clock: "M12 3.5a8.5 8.5 0 100 17 8.5 8.5 0 000-17zM12 7.5V12l3 2",
-      pin: "M12 21s6.5-5.6 6.5-11a6.5 6.5 0 10-13 0c0 5.4 6.5 11 6.5 11zM12 7.7a2.3 2.3 0 100 4.6 2.3 2.3 0 000-4.6z",
-      van: "M3 16.5V8.5a2 2 0 012-2h9l5 4.5v5.5H3zM9.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0zM18.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0z",
-      shield: "M12 3l7 3v5.5c0 4.4-3 7.7-7 9.5-4-1.8-7-5.1-7-9.5V6l7-3zM8.8 12l2.2 2.2 4.2-4.4",
-      lock: "M7 10.5h10a2 2 0 012 2V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-5.5a2 2 0 012-2zM8.5 10.5V8a3.5 3.5 0 017 0v2.5",
-      ticket: "M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"
-    };
-    // card
-    g.save(); rr(CX, CY, CW, H - CY * 2, 0); g.fillStyle = "#fff"; g.fill(); g.clip();
-    g.translate(CX, CY);
-    // header
-    g.fillStyle = TH.hdr; g.fillRect(0, 0, CW, HDR);
-    // label row: quiet amber label + trip id, hairline, then the trip title
-    icon(ICON[TH.icon], M - 2, 16, TH.lab, 12);
-    if ("letterSpacing" in g) g.letterSpacing = "1px";
-    capTxt(TH.name, M + 14, 22, "500 10px " + body, TH.lab, "left");
-    capTxt("#" + String(shown ? shown.id : "").toUpperCase(), CW - M, 22, "500 10px " + body, TH.lab, "right");
-    if ("letterSpacing" in g) g.letterSpacing = "0px";
-    g.fillStyle = "rgba(255,255,255,.16)"; g.fillRect(M, 40, CW - M * 2, 1);
-    tl.forEach(function (ln, i) { txt(ln, M, 64 + i * 24, "600 18px " + disp, "#fff", "left"); });
-    if (org) txt(org, M, 52 + 24 * tl.length + 11, "400 10px " + body, "rgba(255,255,255,.75)", "left", TW);
-    g.fillStyle = TH.bar; g.fillRect(0, HDR, CW, 4);
-    // info rows
-    var nv = rows.length, dep = $("departTime").value, mp = $("meetPoint").value.trim();
-    var info = [
-      ["cal", "วันที่", dateRange($("startDate").value, $("endDate").value)],
-      ["clock", "รถออก", dep ? dep.replace(":", ".") + " น." : "ยังไม่ระบุ"],
-      ["pin", "นัดพบ", mp || "ยังไม่ระบุ"],
-      ["van", "รถตู้", nv + " คัน (" + nv * 10 + " ที่นั่ง)"]
-    ];
-    info.forEach(function (r, i) {
-      var y = HDR + 4 + i * ROW, cy = y + ROW / 2;
-      icon(ICON[r[0]], M, cy - 6, TH.ic, 12);
-      capTxt(r[1], M + 24, cy, "400 10px " + body, "#5f6b73", "left");
-      capTxt(r[2], M + 72, cy, "600 12px " + body, "#1b1f22", "left", CW - M * 2 - 72);
-      if (i < 3) { g.fillStyle = "#eceff1"; g.fillRect(M, y + ROW - 1, CW - M * 2, 1); }
-    });
-    function perf(y) {
-      g.strokeStyle = "#c9d2d8"; g.lineWidth = 2; g.setLineDash([5, 4]); g.beginPath(); g.moveTo(M, y); g.lineTo(CW - M, y); g.stroke(); g.setLineDash([]);
-    }
-    function qrAt(text, col, bx, by) { // frame QR x QR at (bx,by) in card units, QR drawn on whole device pixels
-      g.fillStyle = "#fff"; rr(bx + 1.5, by + 1.5, QR - 3, QR - 3, 12); g.fill();
-      g.strokeStyle = col; g.lineWidth = 3; rr(bx + 1.5, by + 1.5, QR - 3, QR - 3, 12); g.stroke();
-      var q = qrcode(0, "M"); q.addData(text); q.make();
-      var n = q.getModuleCount(), px = (QR - 18) * S, cell = Math.floor(px / n), size = cell * n;
-      var ox = Math.round((CX + bx + 9) * S + (px - size) / 2), oy = Math.round((CY + by + 9) * S + (px - size) / 2);
-      g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = col;
-      for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (q.isDark(j, i)) g.fillRect(ox + i * cell, oy + j * cell, cell, cell);
-      g.restore();
-    }
-    // QR frames and text blocks sit on the same side margin M (24) as the header, rows and footer
-    var F = { eye: "600 10px " + body, head: "600 14px " + disp, st: "600 12px " + body, sub: "400 10px " + body, num: "600 8px " + body };
-    function blockW(eyebrow, head, steps) {
-      var w = 0;
-      function m(t, f, add) { g.font = f; g.textBaseline = "middle"; var mt = g.measureText(t); w = Math.max(w, (mt.actualBoundingBoxRight || mt.width) + (add || 0)); } // ink width, so the text lands exactly on the padding
-      m(eyebrow, F.eye); m(head, F.head);
-      steps.forEach(function (st) { m(st[0], F.st, 28); m(st[1], F.sub, 28); });
-      return w;
-    }
-    function section(sy, qrLeft, col, qrCol, qrText, eyebrow, head, steps, bw) {
-      // grey panel wraps QR + text; QR sits 12 inside its edge
-      var PX = M, PI = 12;
-      g.fillStyle = qrLeft ? "#eeeff0" : "#e5f2f3"; rr(PX, sy + 12, CW - PX * 2, QR + 24, 16); g.fill();
-      var own = blockW(eyebrow, head, steps);
-      var qrX = 0, GAP = 24, avail = CW - PX * 2 - PI * 2, off = (avail - (QR + GAP + own)) / 2;
-      if (qrLeft) qrX = PX + PI + off; else qrX = CW - PX - PI - off - QR;
-      // both blocks share one width and sit centred in the space between the QR and the panel edge
-      var px0 = qrLeft ? qrX + QR + 8 : PX + PI, px1 = qrLeft ? CW - PX - PI : qrX - 8;
-      var textX = qrLeft ? qrX + QR + GAP : qrX - GAP - own;
-      qrAt(qrText, qrCol, qrX, sy + 24);
-      var T = sy + 24;
-      // text ink spans exactly the QR height: eyebrow ink top on the QR top, last subtitle ink bottom on the QR bottom
-      g.textBaseline = "middle";
-      g.font = F.eye; var asc = g.measureText(eyebrow).actualBoundingBoxAscent || 6;
-      g.font = F.sub; var dsc = g.measureText(steps[steps.length - 1][1]).actualBoundingBoxDescent || 3;
-      var yE = T + asc, yH = yE + 21, lastY = T + QR - dsc;
-      var pitch = (lastY - 23 - (yH + 12)) / (steps.length - 1);
-      pitch = Math.max(28, Math.min(36, pitch));
-      txt(eyebrow, textX, yE, F.eye, "#6b747b", "left");
-      txt(head, textX, yH, F.head, col, "left", bw + 8);
-      steps.forEach(function (st, i) {
-        var top = yH + 12 + i * pitch;
-        g.fillStyle = col; g.beginPath(); g.arc(textX + 10, top + 10, 10, 0, 7); g.fill();
-        txt(String(i + 1), textX + 10, top + 10.5, F.num, "#fff", "center");
-        txt(st[0], textX + 28, top + 8, F.st, "#1b1f22", "left", bw - 20);
-        txt(st[1], textX + 28, top + 23, F.sub, "#5f6b73", "left", bw - 20);
-      });
-    }
-    var GST = ["สำหรับผู้จองทริป", "สแกนเพื่อจองที่นั่ง", [["สแกน QR Code นี้", "ใช้กล้องมือถือหรือ LINE"], ["เลือกคันและที่นั่ง", "แตะที่นั่งว่างบนผัง"], ["กรอกชื่อและยืนยัน", "ชื่อแสดงบนผังทันที"]]];
-    g.fillStyle = TH.rule; g.fillRect(M, TOP - 1.5, CW - M * 2, 1.5); // thin teal divider
-    var gTop = TOP;
-    section(gTop, false, "#0e7c86", "#0b5f67", link("/" + (shown ? shown.id : "")), GST[0], GST[1], GST[2], blockW(GST[0], GST[1], GST[2]));
-    // footer (its grey band closes the card, so no dashed line before it)
-    var fy = gTop + SEC;
-    g.fillStyle = "#f4f6f7"; g.fillRect(0, fy, CW, FOOT + 40);
-    var now = new Date(), hh = ("0" + now.getHours()).slice(-2), mm = ("0" + now.getMinutes()).slice(-2);
-    txt("อัปเดตเมื่อ " + now.getDate() + " " + ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."][now.getMonth()] + " " + (now.getFullYear() + 543) + " · " + hh + "." + mm + " น.", M, fy + FOOT / 2, "400 10px " + body, "#5f6b73", "left");
-    g.restore();
-    return c;
-  }
-  // LINE's in-app browser can neither download files nor share them: show the picture (iPhone: long-press to save) or hand off to the system browser
-  var HAND = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a6 6 0 01-6-6V9a1.5 1.5 0 013 0v3M9 11V5.5a1.5 1.5 0 013 0V11M12 10V4.5a1.5 1.5 0 013 0V11M15 11V7.5a1.5 1.5 0 013 0V15a6 6 0 01-6 6z"/></svg>';
-  function setHint(text, hand) {
-    var h = $("cardHint"); h.innerHTML = hand ? HAND + "<span></span>" : ""; if (hand) h.lastChild.textContent = text; else h.textContent = text;
-    h.style.fontSize = ""; h.style.lineHeight = ""; h.style.display = hand ? "flex" : ""; h.style.justifyContent = "center"; h.style.alignItems = "center"; h.style.gap = "6px";
-  }
-  function h0() { var h = $("cardHint"); h.style.display = ""; }
-  var cardUrl = "";
-  function closeCard() { cardSeq++; $("cardBd").hidden = true; document.body.style.overflow = ""; if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; } }
-  function openCard(mode, blob, fileName) {
-    var guest = mode === "guest", img = $("cardImg"), ext = $("cardExt"), dl = $("cardDl"), cp = $("cardCopy"), hint = $("cardHint");
-    var TK = '<svg viewBox="2.5 5.5 19 13" width="24" height="16.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg>';
-    $("cardTtl").innerHTML = '<span style="display:inline-flex;width:24px;justify-content:center;color:' + "var(--mine)" + '">' + TK + "</span>" + "SEAT PASS";
-    $("cardTtl").style.cssText += ";display:flex;align-items:center;gap:8px";
-    if (cardUrl) { try { URL.revokeObjectURL(cardUrl); } catch (e) {} cardUrl = ""; }
-    ext.className = dl.className = "btn " + "primary";
-    var row = $("cardRow"), sh = $("cardShare"), file = null;
-    img.hidden = !blob; dl.hidden = true; ext.hidden = true; row.hidden = true; sh.hidden = true; $("cardX").hidden = CARD_ONLY;
-    if (blob) { cardUrl = URL.createObjectURL(blob); img.src = cardUrl; }
-    if (blob) { // share the picture where the device supports sharing files (shown only then)
-      try { file = new File([blob], fileName || "SEAT PASS.png", { type: "image/png" }); } catch (e) {}
-      if (file && navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
-        sh.hidden = false;
-        sh.onclick = function () {
-          navigator.share({ files: [file] }).catch(function (e) { if (!e || e.name !== "AbortError") toast("แชร์ไม่สำเร็จ ลองใหม่อีกครั้ง"); });
-        };
-      }
-    }
-    if (CARD_ONLY) {
-      row.hidden = false; cp.disabled = false;
-      var selfUrl = location.origin + "/trips/" + encodeURIComponent(T) + "?card=guest&img=1&openExternalBrowser=1";
-      cp.onclick = function () { copyPlain(selfUrl); };
-      dl.hidden = false; dl.href = cardUrl; dl.setAttribute("download", fileName || "SEAT PASS.png");
-      setHint("กดดาวน์โหลด หรือกดค้างที่รูปเพื่อบันทึก", true);
-    } else {
-      if (blob && IS_IOS) setHint("กดค้างที่รูปเพื่อบันทึก หรือใช้ปุ่มด้านล่าง", true);
-      else { h0(); hint.style.fontSize = "12px"; hint.style.lineHeight = "18px"; hint.innerHTML = "LINE บน Android บันทึกรูปโดยตรงไม่ได้<br>เปิดในเบราว์เซอร์เพื่อดาวน์โหลดรูป"; }
-      // hand the picture over to the system browser (the only way to save it on Android, a backup on iPhone)
-      ext.hidden = false; row.hidden = false; cp.disabled = true; ext.removeAttribute("href"); ext.style.opacity = ".6"; ext.textContent = "กำลังเตรียมลิงก์…";
-      var mySeq = ++cardSeq;
-      var ready = function (u) {
-        if (mySeq !== cardSeq) return;
-        ext.href = u; ext.style.opacity = ""; ext.textContent = "เปิดในเบราว์เซอร์เพื่อโหลดรูป"; cp.disabled = false; cp.onclick = function () { copyPlain(u); };
-      };
-      ready(location.origin + "/trips/" + encodeURIComponent(shown ? shown.id : "") + "?card=guest&img=1&openExternalBrowser=1");
-    }
-    $("cardBd").hidden = false; document.body.style.overflow = "hidden";
-  }
-  // plain "copy link" with a toast (no button icon swap)
-  function copyPlain(text) {
-    function ok() { toast("คัดลอกลิงก์แล้ว", false, true); }
-    function bad() { toast("คัดลอกไม่สำเร็จ ลองใหม่อีกครั้ง"); }
-    function fallback() {
-      var ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
-      document.body.appendChild(ta); ta.select();
-      var done = false; try { done = document.execCommand("copy"); } catch (e) {}
-      document.body.removeChild(ta); if (done) ok(); else bad();
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback); else fallback();
-  }
-  var cardSeq = 0;
-  $("cardX").addEventListener("click", closeCard);
-  $("cardBd").addEventListener("click", function (e) { if (e.target === $("cardBd") && !CARD_ONLY) closeCard(); });
-  function saveCard(mode, fileName, msg) {
-    msg.textContent = ""; msg.style.color = "";
-    loadFonts().then(function () {
-    var c;
-    try { c = drawCard(mode); } catch (e) { msg.textContent = "สร้างรูปไม่สำเร็จ ลองคัดลอกลิงก์แทน"; return; }
-    c.toBlob(function (blob) {
-      if (!blob) { msg.textContent = "สร้างรูปไม่สำเร็จ ลองคัดลอกลิงก์แทน"; return; }
-      if (IN_LINE) { openCard(mode, blob, fileName); return; }
-      var file; try { file = new File([blob], fileName, { type: "image/png" }); } catch (e) { file = null; }
-      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file] }).catch(function () {});
-        return;
-      }
-      var url = URL.createObjectURL(blob), a = document.createElement("a");
-      a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-      msg.style.color = "var(--muted)"; msg.textContent = "ถ้าไม่มีไฟล์ดาวน์โหลด ให้ใช้ปุ่มคัดลอกลิงก์แทน";
-    }, "image/png");
-    });
-  }
-  $("saveSeat").addEventListener("click", function () { saveCard("guest", "SEAT PASS.png", $("seatMsg")); });
 
   var ERR = {
     bad_name: "ระบุชื่อทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง",
@@ -1169,13 +817,13 @@ select.sel { border-color: #dde3e7!important; }
       dirty = false; closedAtLoad = !!(data.trip && data.trip.closed === true);
       if (editing) {
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
-        showResult(T, K, "saved", data.trip.name, data.trip.vans.length, data.trip.startDate, data.trip.endDate, data.trip.departTime, data.trip.meetPoint, data.trip.organizer);
+        showResult(T, "saved", data.trip.name);
       } else {
         T = data.id; editing = true;
         history.replaceState(null, "", editPath(T));
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
         $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "แก้ไขทริป"; $("shareBtn").hidden = false;
-        showResult(T, K, true, data.trip.name, data.trip.vans.length, data.trip.startDate, data.trip.endDate, data.trip.departTime, data.trip.meetPoint, data.trip.organizer);
+        showResult(T, true, data.trip.name);
       }
     } catch (x) {
       toast("เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง");
@@ -1219,22 +867,6 @@ select.sel { border-color: #dde3e7!important; }
     } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
   });
 
-  async function cardOnly() { // SEAT PASS picture page opened outside LINE (to save the picture)
-    var foot = document.querySelector(".foot"); if (foot) foot.hidden = true;
-    var id = T;
-    try {
-      var res = await fetch("/api/seats?t=" + encodeURIComponent(id), { cache: "no-store" });
-      var data = await res.json();
-      if (!res.ok || !data.trip) { toast("ไม่พบทริปนี้", true); return; }
-      var tr = data.trip;
-      $("organizer").value = tr.organizer || ""; $("startDate").value = tr.startDate || ""; $("endDate").value = tr.endDate || "";
-      $("departTime").value = tr.departTime || ""; $("meetPoint").value = tr.meetPoint || "";
-      rows = (tr.vans || []).map(function (v) { return { id: v.id, label: v.label }; }); tripName = tr.name || "";
-      shown = { id: id, token: "" };
-      await loadFonts();
-      drawCard("guest").toBlob(function (blob) { if (!blob) { toast("สร้างรูปไม่สำเร็จ ลองใหม่อีกครั้ง", true); return; } openCard("guest", blob, "SEAT PASS.png"); }, "image/png");
-    } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
-  }
   // signed-in state (every trip belongs to a LINE account)
   var SIGNED = false;
   var signedReady = fetch("/api/auth?me=1", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) { SIGNED = !!(d && d.user); if (SIGNED) document.documentElement.classList.add("signed"); }).catch(function () {});
@@ -1257,7 +889,6 @@ select.sel { border-color: #dde3e7!important; }
     } catch (e) { toast("คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย", true); }
   }
   async function init() {
-    if (CARD_ONLY) { cardOnly(); return; }
     $("formMain").hidden = false;
     if (editing) {
       $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตแล้วผู้จองเห็นข้อมูลใหม่ทันที";
@@ -1277,7 +908,7 @@ select.sel { border-color: #dde3e7!important; }
         (function (m) { var sel = $("maxPer"), v = String(m == null ? 4 : m); if (![].some.call(sel.options, function (o) { return o.value === v; })) { var o = document.createElement("option"); o.value = v; o.textContent = v + " ที่นั่ง"; sel.appendChild(o); } sel.value = v; })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
         fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = closedAtLoad = t.closed === true;
-        shown = { id: T, token: K }; $("shareBtn").hidden = false; $("dz").hidden = t.role === "helper"; // helpers edit, only the owner deletes
+        shown = { id: T }; $("shareBtn").hidden = false; $("dz").hidden = t.role === "helper"; // helpers edit, only the owner deletes
         booked = data.booked || 0; perVan = data.perVan || {}; loaded = t;
       } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
     } else {
@@ -1297,7 +928,6 @@ select.sel { border-color: #dde3e7!important; }
     renderVans();
   }
   init();
-  setTimeout(function () { loadFontsOnly(); }, 400); // warm the web fonts (the QR library waits until a QR is drawn) so the card sheet text shows at once
 })();
 </script>
 </body>

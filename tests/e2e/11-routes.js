@@ -17,6 +17,6 @@ await A.goto(B+'/trips/new');await A.waitForTimeout(1000);log('/trips/new title'
 await A.click('#cancelBtn');await A.waitForTimeout(1000);log('cancel new ->',path(A.url()));
 const Z=await user('Zed');await Z.goto(B+'/trips/'+ID);await Z.waitForTimeout(1500);log('not organizer: submit disabled',await Z.isDisabled('#submit'));
 const G=await user('Gus',SAFARI);await G.goto(B+'/trips/'+ID+'?card=guest&img=1');await G.waitForTimeout(2500);
-log('seat pass outside LINE: form hidden',await G.isHidden('#formMain'),'card open',await G.isVisible('#cardBd'));await G.screenshot({path:S+'/route_card.png'});
+log('old seat pass link outside LINE ->',new URL(G.url()).pathname===('/'+ID)?'booking page':G.url());
 log('book page',(await A.request.get(B+'/'+ID)).status(),'unknown edit id',(await A.request.get(B+'/trips/zzzzzzzzzzzzzzzzzz',{maxRedirects:0})).status());
 log('ERR',errs);await b.close();})();

@@ -8,6 +8,6 @@ cancel -> /mytrips
 /trips/new title สร้างทริป
 cancel new -> /mytrips
 not organizer: submit disabled true
-seat pass outside LINE: form hidden true card open true
+old seat pass link outside LINE -> booking page
 book page 200 unknown edit id 404
 ERR []
