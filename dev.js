@@ -57,6 +57,14 @@ function run(cmd) {
     case "HDEL": { const h = store.get(key); return h instanceof Map && h.delete(String(a[0])) ? 1 : 0; }
     case "HLEN": { const h = store.get(key); return h instanceof Map ? h.size : 0; }
     case "HGETALL": { const h = store.get(key); return h instanceof Map ? [].concat(...[...h.entries()]) : []; }
+    case "EVAL": { // only the app's compare-and-set script (api/_lib.js hcas), done the same way in memory
+      if (String(key).indexOf("vsb-cas") < 0) throw new Error("fake redis: unsupported script");
+      const nk = num(a[0]), keys = a.slice(1, 1 + nk), argv = a.slice(1 + nk).map(String);
+      const cur = (k, f) => { const h = store.get(k); return h instanceof Map && h.has(f) ? h.get(f) : ""; };
+      for (let i = 0; i < nk; i++) if (cur(keys[i], argv[3 * i]) !== argv[3 * i + 1]) return 0;
+      for (let i = 0; i < nk; i++) { const f = argv[3 * i], v = argv[3 * i + 2]; let h = store.get(keys[i]); if (v === "") { if (h instanceof Map) h.delete(f); } else { if (!(h instanceof Map)) { h = new Map(); store.set(keys[i], h); } h.set(f, v); } }
+      return 1;
+    }
     default: throw new Error("fake redis: unsupported command " + name);
   }
 }
@@ -65,7 +73,9 @@ const redisServer = http.createServer((req, res) => {
   req.on("end", () => {
     try {
       const out = JSON.parse(body).map((c) => { try { return { result: run(c) }; } catch (e) { return { error: e.message }; } });
-      res.setHeader("Content-Type", "application/json"); res.end(JSON.stringify(out));
+      // REDIS_JITTER=<ms> (tests only): answer after a random delay, like a real network, so simultaneous requests interleave
+      const wait = Number(process.env.REDIS_JITTER) > 0 ? Math.random() * Number(process.env.REDIS_JITTER) : 0;
+      setTimeout(() => { res.setHeader("Content-Type", "application/json"); res.end(JSON.stringify(out)); }, wait);
     } catch (e) { res.statusCode = 400; res.end("[]"); }
   });
 });
@@ -109,6 +119,8 @@ function startApp() {
       if (err) { res.statusCode = 404; return res.end("Not found"); }
       res.setHeader("Content-Type", TYPES[path.extname(file)] || "application/octet-stream");
       res.setHeader("Cache-Control", "no-store");
+      // same security headers as vercel.json
+      res.setHeader("X-Content-Type-Options", "nosniff"); res.setHeader("X-Frame-Options", "DENY"); res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
       res.end(data);
     });
   });

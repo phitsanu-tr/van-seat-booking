@@ -14,7 +14,7 @@ npx playwright install chromium # the browser, ~150 MB, once per machine
 ## Run
 
 ```sh
-node tests/run.js            # all tests (about 4 minutes)
+node tests/run.js            # all tests (about 5 minutes)
 node tests/run.js 05 08      # only files starting with 05 or 08
 ```
 
@@ -52,3 +52,4 @@ from a to b (used for counts that depend on timing).
 | 12-close-booking | close/reopen bookings, automatic closing time, what passengers and organizers can still do |
 | 13-copy-duplicate | copy the passenger list as text, duplicate a trip (upcoming and finished) |
 | 14-rounds | check-in rounds: names, new round, history, privacy, read-only summary after the trip |
+| 15-races | simultaneous actions (cancel vs rename/tick, move vs booking, swap) never bring back or lose a seat; a stale trip form keeps a close made meanwhile; security headers. Runs with a fake Redis that answers after random delays (`@jitter` on its first line) |

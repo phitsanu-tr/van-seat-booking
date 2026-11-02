@@ -55,7 +55,7 @@ module.exports = async function handler(req, res) {
       const body = L.readBody(req);
       if (body.logout === true) {
         const u = await L.currentUser(req);
-        if (u) { try { await L.redis(["DEL", "sess:" + u.sid]); } catch (e) { /* ignore */ } }
+        if (u) { try { await L.pipeline([["DEL", "sess:" + u.sid], ["SREM", "usess:" + u.id, u.sid]]); } catch (e) { /* ignore */ } } // end this session and drop it from the account's device list
         res.setHeader("Set-Cookie", [L.cookieStr(req, "vsb_s", "", 0)]);
         return L.json(res, 200, { ok: true });
       }

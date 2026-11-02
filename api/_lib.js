@@ -32,6 +32,19 @@ async function pipeline(commands) {
 }
 async function redis(command) { return (await pipeline([command]))[0]; }
 
+// Compare-and-set on hash fields, atomically (one Lua script on Redis): every (key, field) must still hold the value
+// that was read ("" = empty), then all of them are written together ("" = delete). Returns false when anything changed
+// in between (someone cancelled, booked, renamed or moved meanwhile), so the caller re-reads instead of overwriting.
+const CAS_SCRIPT = "-- vsb-cas\n" +
+  "for i = 1, #KEYS do local cur = redis.call('HGET', KEYS[i], ARGV[3*i-2]) if (cur or '') ~= ARGV[3*i-1] then return 0 end end\n" +
+  "for i = 1, #KEYS do if ARGV[3*i] == '' then redis.call('HDEL', KEYS[i], ARGV[3*i-2]) else redis.call('HSET', KEYS[i], ARGV[3*i-2], ARGV[3*i]) end end\n" +
+  "return 1";
+async function hcas(changes) { // changes: [{ key, field, expect, value }]
+  const keys = changes.map((c) => c.key), args = [];
+  changes.forEach((c) => args.push(String(c.field), c.expect || "", c.value || ""));
+  return Number(await redis(["EVAL", CAS_SCRIPT, String(keys.length)].concat(keys, args))) === 1;
+}
+
 function readBody(req) {
   let b = req.body;
   if (typeof b === "string") {
@@ -255,7 +268,7 @@ const DEFAULT_MAX_PER_PERSON = 4;
 function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); return Number.isInteger(n) && n >= 0 && n <= 50 ? n : DEFAULT_MAX_PER_PERSON; }
 
 module.exports = {
-  TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, readBody, json,
+  TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, json,
   tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, NAME_MAX, newId, crypto,
   SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };

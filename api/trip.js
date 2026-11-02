@@ -151,25 +151,25 @@ module.exports = async function handler(req, res) {
       }
       // start a new round: sum up the current one (who was missing at this moment), then clear every tick
       const all = await L.pipeline(trip.vans.map((v) => ["HGETALL", L.seatsKey(t, v.id)]));
-      const cmds = [], miss = [];
+      const clears = [], miss = [];
       let total = 0, inN = 0, first = 0, last = 0;
       const checkers = []; // who ticked people in this round (round 1 has no one who "started" it)
       trip.vans.forEach((v, i) => {
-        const flat = all[i] || [], args = [];
+        const flat = all[i] || [];
         for (let j = 0; j + 1 < flat.length; j += 2) {
           let r = null; try { r = JSON.parse(flat[j + 1]); } catch (e) { r = null; }
           if (!r || !r.name) continue;
           total++;
-          if (r.c) { inN++; first = first ? Math.min(first, r.c) : r.c; last = Math.max(last, r.c); if (r.cb && checkers.indexOf(r.cb) < 0) checkers.push(r.cb); delete r.c; delete r.cb; args.push(flat[j], JSON.stringify(r)); }
+          if (r.c) { inN++; first = first ? Math.min(first, r.c) : r.c; last = Math.max(last, r.c); if (r.cb && checkers.indexOf(r.cb) < 0) checkers.push(r.cb); delete r.c; delete r.cb; clears.push({ key: L.seatsKey(t, v.id), field: flat[j], expect: flat[j + 1], value: JSON.stringify(r) }); }
           else miss.push({ vl: v.label, s: Number(flat[j]), n: String(r.name) });
         }
-        if (args.length) cmds.push(["HSET", L.seatsKey(t, v.id)].concat(args));
       });
       miss.sort((a, b) => (a.vl === b.vl ? a.s - b.s : String(a.vl).localeCompare(String(b.vl))));
       const done = { i: board.cur.i, name: board.cur.name || "", start: board.cur.at || first, end: last, by: board.cur.by || checkers.slice(0, 3).join(", "), n: inN, total, miss: miss.slice(0, 40) };
       const hist = [done].concat(board.hist || []).slice(0, 20); // newest first, at most 20 rounds
       const next = Object.assign({}, trip, { board: { cur: { i: board.cur.i + 1, name: roundName(pb.name), at: Date.now(), by: user.name }, hist } });
-      if (cmds.length) await L.pipeline(cmds);
+      // clear each tick only if that seat is unchanged since it was read: a seat cancelled meanwhile must not come back
+      for (const c of clears) { try { await L.hcas([c]); } catch (e) { /* best effort per seat */ } }
       await saveTrip(next);
       await L.logEvent(t, { e: "board_reset", n: user.name, u: user.id, by: L.roleOf(trip, user), at: Date.now() });
       return L.json(res, 200, { ok: true, board: next.board });

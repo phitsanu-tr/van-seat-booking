@@ -1,0 +1,8 @@
+rename vs cancel: cancelled seat came back 0 of 4
+tick vs cancel: cancelled seat came back 0 of 4
+move vs booking: lost or doubled 0 of 4
+swap 200 ฉิน แพท
+form errors [] toast 
+after saving a stale form: closed true name ทริปพร้อมกันแก้ชื่อ
+headers DENY nosniff frame-ancestors 'none'
+ERR []

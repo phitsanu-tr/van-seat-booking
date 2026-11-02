@@ -609,6 +609,7 @@ input[type=text],input[type=date],input[type=time],.pk,select.sel{border-color:#
   var IN_LINE = /\bLine\//i.test(UA) && /Android|iPhone|iPad|iPod/i.test(UA), IS_IOS = /iPhone|iPad|iPod/i.test(UA);
   var CARD_ONLY = !IN_LINE && q.get("img") === "1" && q.get("card") === "guest" && !!T; // SEAT PASS picture page opened outside LINE
   var editing = !!T && !CARD_ONLY;
+  var closedAtLoad = false; // the trip's "closed" flag when the form was filled
   var creating = q.get("new") === "1" || /^\/trips\/new\/?$/.test(location.pathname);
   var vansEl = document.getElementById("vans");
   var rows = []; // [{id, label}]
@@ -1154,7 +1155,7 @@ input[type=text],input[type=date],input[type=time],.pk,select.sel{border-color:#
       maxPerPerson: Number($("maxPer").value),
       closeAt: $("closeDate").value ? $("closeDate").value + "T" + ($("closeTime").value || "23:59") : ""
     };
-    if (editing) body.closed = $("closedNow").checked;
+    if (editing && $("closedNow").checked !== closedAtLoad) body.closed = $("closedNow").checked; // only when changed here: a form left open must not undo someone else's close/reopen
     if (editing) body.t = T;
     busy = true; $("submit").disabled = true; $("cancelBtn").disabled = true; $("submit").textContent = (editing ? "กำลังแก้ไข..." : "กำลังสร้าง...");
     try {
@@ -1168,7 +1169,7 @@ input[type=text],input[type=date],input[type=time],.pk,select.sel{border-color:#
         else toast(ERR[data.error] || "บันทึกไม่สำเร็จ ลองอีกครั้ง");
         return;
       }
-      dirty = false;
+      dirty = false; closedAtLoad = !!(data.trip && data.trip.closed === true);
       if (editing) {
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
         showResult(T, K, "saved", data.trip.name, data.trip.vans.length, data.trip.startDate, data.trip.endDate, data.trip.departTime, data.trip.meetPoint, data.trip.organizer);
@@ -1278,7 +1279,7 @@ input[type=text],input[type=date],input[type=time],.pk,select.sel{border-color:#
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
         (function (m) { var sel = $("maxPer"), v = String(m == null ? 4 : m); if (![].some.call(sel.options, function (o) { return o.value === v; })) { var o = document.createElement("option"); o.value = v; o.textContent = v + " ที่นั่ง"; sel.appendChild(o); } sel.value = v; })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
-        fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = t.closed === true;
+        fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = closedAtLoad = t.closed === true;
         shown = { id: T, token: K }; $("shareBtn").hidden = false; $("dz").hidden = t.role === "helper"; // helpers edit, only the owner deletes
         booked = data.booked || 0; perVan = data.perVan || {}; loaded = t;
       } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }

@@ -78,13 +78,17 @@ module.exports = async function handler(req, res) {
       if (!isOwner) return L.json(res, 403, { error: "not_owner" });
       const seat = L.parseSeat(body.seat);
       if (seat === null) return L.json(res, 400, { error: "bad_seat" });
-      const raw = await L.redis(["HGET", key, String(seat)]);
-      let rec = null; try { rec = JSON.parse(raw); } catch (e) { rec = null; }
-      if (!rec) return L.json(res, 404, { error: "no_seat" });
-      { // c = boarded at, cb = which organizer ticked it (names the round's checker)
-        if (body.board === true) { if (!rec.c) { rec.c = Date.now(); rec.cb = String(user.name || "").slice(0, 40); } } else { delete rec.c; delete rec.cb; }
+      // read -> change -> write only if the seat is still exactly what was read (else read again; a cancelled seat stays cancelled)
+      let rec = null;
+      for (let tries = 0; ; tries++) {
+        const raw = await L.redis(["HGET", key, String(seat)]);
+        rec = null; try { rec = JSON.parse(raw); } catch (e) { rec = null; }
+        if (!rec) return L.json(res, 404, { error: "no_seat" });
+        // c = boarded at, cb = which organizer ticked it (names the round's checker)
+        if (body.board === true) { if (rec.c) break; rec.c = Date.now(); rec.cb = String(user.name || "").slice(0, 40); } else { if (!rec.c) break; delete rec.c; delete rec.cb; }
+        if (await L.hcas([{ key, field: seat, expect: raw, value: JSON.stringify(rec) }])) break;
+        if (tries >= 3) return L.json(res, 409, { error: "busy" });
       }
-      await L.redis(["HSET", key, String(seat), JSON.stringify(rec)]);
       return L.json(res, 200, { ok: true, c: rec.c || 0 });
     }
 
@@ -97,12 +101,16 @@ module.exports = async function handler(req, res) {
       const name = L.cleanName(rawName).text;
       if (!rawName.trim()) return L.json(res, 400, { error: "bad_name" });
       if (name !== rawName || !L.hasBaseLetter(name)) return L.json(res, 400, { error: "name_chars" });
-      const raw = await L.redis(["HGET", key, String(seat)]);
-      let rec = null; try { rec = JSON.parse(raw); } catch (e) { rec = null; }
-      if (!rec) return L.json(res, 404, { error: "no_seat" });
-      if (!(rec.u ? rec.u === user.id || isOwner : isOwner)) return L.json(res, 403, { error: "not_yours" });
-      const old = rec.name; rec.name = name;
-      await L.redis(["HSET", key, String(seat), JSON.stringify(rec)]);
+      let rec = null, old = "";
+      for (let tries = 0; ; tries++) {
+        const raw = await L.redis(["HGET", key, String(seat)]);
+        rec = null; try { rec = JSON.parse(raw); } catch (e) { rec = null; }
+        if (!rec) return L.json(res, 404, { error: "no_seat" });
+        if (!(rec.u ? rec.u === user.id || isOwner : isOwner)) return L.json(res, 403, { error: "not_yours" });
+        old = rec.name; rec.name = name;
+        if (await L.hcas([{ key, field: seat, expect: raw, value: JSON.stringify(rec) }])) break; // the seat may have been cancelled or re-booked meanwhile
+        if (tries >= 3) return L.json(res, 409, { error: "busy" });
+      }
       await L.logEvent(t, { e: "rename", v: van.id, s: seat, n: name, on: old, u: user.id, by: isOwner && rec.u !== user.id ? role : undefined, at: Date.now() });
       if (rec.u && rec.u !== user.id) await L.notify([rec.u], { k: "seat_renamed", t, tn: trip.name, vl: van.label, s: seat, o: old, n: name, by: role });
       return L.json(res, 200, { ok: true, name, at: rec.at });
@@ -122,17 +130,16 @@ module.exports = async function handler(req, res) {
       let a = null, b = null; try { a = JSON.parse(fr); } catch (e) { a = null; } try { b = JSON.parse(tr); } catch (e) { b = null; }
       if (!a) return L.json(res, 404, { error: "no_seat" });
       if (b && m.swap !== true) return L.json(res, 409, { error: "taken" });
-      const ref = (v, s) => t + "|" + v + "|" + s;
-      const cmds = [["HSET", tk, String(ts), JSON.stringify(a)]];
-      if (b) cmds.push(["HSET", fk, String(fs), JSON.stringify(b)]); else cmds.push(["HDEL", fk, String(fs)]);
+      // both seats change in one atomic step, and only if neither changed since they were read (no half-done move, no overwrite)
+      const moved = await L.hcas([{ key: tk, field: ts, expect: tr || "", value: fr }, { key: fk, field: fs, expect: fr, value: b ? tr : "" }]);
+      if (!moved) {
+        const [fr2, tr2] = await L.pipeline([["HGET", fk, String(fs)], ["HGET", tk, String(ts)]]);
+        return L.json(res, 409, { error: !fr2 ? "no_seat" : tr2 && m.swap !== true ? "taken" : "busy" });
+      }
+      const ref = (v, s) => t + "|" + v + "|" + s, cmds = [];
       if (a.u) cmds.push(["SREM", L.mySeatsKey(a.u), ref(fromVan.id, fs)], ["SADD", L.mySeatsKey(a.u), ref(toVan.id, ts)]);
       if (b && b.u) cmds.push(["SREM", L.mySeatsKey(b.u), ref(toVan.id, ts)], ["SADD", L.mySeatsKey(b.u), ref(fromVan.id, fs)]);
-      if (!b) { // HSETNX-style guard: the target must still be empty (someone may have booked it meanwhile)
-        const ok = await L.redis(["HSETNX", tk, String(ts), JSON.stringify(a)]);
-        if (ok !== 1) return L.json(res, 409, { error: "taken" });
-        cmds.shift();
-      }
-      await L.pipeline(cmds);
+      if (cmds.length) { try { await L.pipeline(cmds); } catch (e) { /* the move is done; the "my seats" index is best effort */ } }
       const exp = L.expireAtFor(trip);
       if (exp && exp > Math.floor(Date.now() / 1000)) { try { await L.redis(["EXPIREAT", tk, String(exp)]); } catch (e) { /* best effort */ } }
       await L.notify(a.u ? [a.u] : [], { k: "seat_moved", t, tn: trip.name, fvl: fromVan.label, fs, tvl: toVan.label, ts, by: role }, user.id);

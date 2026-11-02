@@ -1667,8 +1667,8 @@ body{background:#fff}
   backdropEl.addEventListener("click", function (e) { if (e.target === backdropEl) closeModal(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if (!imgBackdrop.hidden) closeImg(); else if (selected != null) closeModal(); } });
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") refresh(false); });
-  // Polling: every 8 s while someone is using the page, every 30 s after 2 idle minutes, every 60 s after 10;
-  // nothing while the tab/app is in the background. Any touch, key or scroll brings it back to 8 s at once.
+  // Polling: every 8 s while someone is using the page, every 30 s after 2 idle minutes, every 60 s after 10, and not at all
+  // after 30 idle minutes (a phone left open on the page); nothing while the tab/app is in the background. Any touch, key or scroll brings it back to 8 s at once.
   var lastAct = Date.now(), lastPoll = Date.now();
   ["pointerdown", "keydown", "scroll", "touchstart"].forEach(function (ev) {
     window.addEventListener(ev, function () { var idle = Date.now() - lastAct; lastAct = Date.now(); if (idle > 120000 && document.visibilityState === "visible") { lastPoll = Date.now(); refresh(false); } }, { passive: true });
@@ -1676,6 +1676,7 @@ body{background:#fff}
   setInterval(function () {
     if (document.visibilityState !== "visible") return;
     var idle = Date.now() - lastAct, every = idle < 120000 ? 8000 : idle < 600000 ? 30000 : 60000;
+    if (idle > 1800000) return; // the first touch refreshes at once (see above)
     if (Date.now() - lastPoll < every - 500) return;
     lastPoll = Date.now(); refresh(false);
   }, 8000);
