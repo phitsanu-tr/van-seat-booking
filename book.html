@@ -300,6 +300,15 @@ body.sk main > :not(.skpage):not(.foot) { display: none; }
 .modal .actions button.danger { padding: 0 8px; white-space: nowrap; }
 @media (max-width: 350px) { .modal .actions button.danger { font-size: 15px; } }
 .minfo span { font-size: 14px; color: var(--muted); }
+.minfo.byl { height: auto; padding: 12px 16px; }
+.minfo.byl > span { margin-top: 8px; }
+.minfo .bl { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.minfo .lav { flex: none; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #06c755; color: #fff; display: grid; place-items: center; font: 600 18px var(--font-display); }
+.minfo .lav img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.minfo .lc { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.minfo .lnr { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.minfo .lnr i { flex: none; display: inline-flex; align-items: center; height: 16px; padding: 0 6px; border-radius: 6px; background: #06c755; color: #fff; font: normal 700 10px/1 Arial, sans-serif; letter-spacing: .2px; }
+.minfo .lnr span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mtt { margin: -12px 0 0; height: 40px; padding-right: 44px; display: flex; align-items: center; font: 600 20px var(--font-display); color: var(--ink); min-width: 0; }
 .mtt span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mhead { display: flex; gap: 16px; align-items: center; }
@@ -894,7 +903,14 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       var info = el("div", "minfo");
       var who = el("div", "who", "จองโดย ");
       who.appendChild(el("b", null, s.name));
-      info.appendChild(who);
+      if (s.ln) { // organizer team: who pressed "book" (LINE photo + name), to match them in the LINE group
+        info.classList.add("byl");
+        var bl = el("div", "bl"), lav = el("span", "lav"), lc = el("div", "lc"), lr = el("div", "lnr");
+        if (s.lp) { var li = document.createElement("img"); li.alt = ""; li.src = s.lp; li.referrerPolicy = "no-referrer"; li.onerror = function () { li.remove(); lav.textContent = s.ln.replace(/^[เแโใไ]/, "").slice(0, 1); }; lav.appendChild(li); }
+        else lav.textContent = s.ln.replace(/^[เแโใไ]/, "").slice(0, 1);
+        lr.appendChild(el("i", null, "LINE")); lr.appendChild(el("span", null, s.ln));
+        lc.appendChild(who); lc.appendChild(lr); bl.appendChild(lav); bl.appendChild(lc); info.appendChild(bl);
+      } else info.appendChild(who);
       var when = s.at ? fmtAt(s.at) : "";
       if (when) info.appendChild(el("span", null, when));
       panelEl.appendChild(info);
@@ -1202,7 +1218,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       var src = (r.data && r.data.seats) || {};
       Object.keys(src).forEach(function (k) {
         var n = Number(k);
-        if (n >= 1 && n <= TOTAL && src[k] && src[k].name) next[n] = { name: String(src[k].name), at: src[k].at, m: !!src[k].m, a: !!src[k].a };
+        if (n >= 1 && n <= TOTAL && src[k] && src[k].name) next[n] = { name: String(src[k].name), at: src[k].at, m: !!src[k].m, a: !!src[k].a, ln: src[k].ln ? String(src[k].ln) : "", lp: /^https:\/\//.test(src[k].lp || "") ? String(src[k].lp) : "" };
       });
       var snap = JSON.stringify(next);
       var changed = snap !== lastSnapshot || !loaded || JSON.stringify(counts) !== lastCounts || JSON.stringify(trip) + ended + closed !== lastTrip;

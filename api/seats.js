@@ -38,7 +38,8 @@ module.exports = async function handler(req, res) {
         try {
           const v = JSON.parse(flat[i + 1]);
           // m = booked by the signed-in visitor, a = booked by someone signed in (only they or the organizer can cancel it)
-          if (v && v.name) seats[n] = Object.assign({ name: String(v.name), at: v.at }, v.u ? { a: 1 } : {}, v.u && user && v.u === user.id ? { m: 1 } : {});
+          if (v && v.name) seats[n] = Object.assign({ name: String(v.name), at: v.at }, v.u ? { a: 1 } : {}, v.u && user && v.u === user.id ? { m: 1 } : {},
+            isOwner && v.u && v.ln ? { ln: String(v.ln), lp: String(v.lp || "") } : {}); // the organizer team sees the booker's LINE name and photo
         } catch (e) { /* skip a damaged entry */ }
       }
       const counts = {};
@@ -109,6 +110,7 @@ module.exports = async function handler(req, res) {
         if (!rec) return L.json(res, 404, { error: "no_seat" });
         if (!(rec.u ? rec.u === user.id || isOwner : isOwner)) return L.json(res, 403, { error: "not_yours" });
         old = rec.name; rec.name = name;
+        if (rec.u === user.id) { rec.ln = user.name || ""; rec.lp = user.pic || ""; } // the booker's own rename refreshes their LINE name
         if (await L.hcas([{ key, field: seat, expect: raw, value: JSON.stringify(rec) }])) break; // the seat may have been cancelled or re-booked meanwhile
         if (tries >= 3) return L.json(res, 409, { error: "busy" });
       }
@@ -170,7 +172,7 @@ module.exports = async function handler(req, res) {
       if (holder && holder !== String(body.hold || "")) return L.json(res, 409, { error: "held" }); // someone is signing in to book it
       const at = Date.now();
       // HSETNX only writes when the seat is still empty, so two people can never take the same seat.
-      const rec = { name, at, u: user.id };
+      const rec = { name, at, u: user.id, ln: user.name || "", lp: user.pic || "" }; // LINE name + photo: shown to the organizer team only
       const created = await L.redis(["HSETNX", key, String(seat), JSON.stringify(rec)]);
       if (created !== 1) return L.json(res, 409, { error: "taken" });
       if (holder) { try { await L.redis(["DEL", hk]); } catch (e) { /* expires anyway */ } }

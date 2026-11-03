@@ -45,7 +45,7 @@ async function deleteAll(req, res, user, dropTrips) {
     try { rec = JSON.parse(recs[i]); } catch (e) { rec = null; }
     if (!rec || rec.u !== uid) return;
     const key = L.seatsKey(p[0], p[1]);
-    if (L.tripEnded(trips[p[0]])) { delete rec.u; cmds.push(["HSET", key, p[2], JSON.stringify(rec)]); kept++; }
+    if (L.tripEnded(trips[p[0]])) { delete rec.u; delete rec.ln; delete rec.lp; cmds.push(["HSET", key, p[2], JSON.stringify(rec)]); kept++; }
     else { cmds.push(["HDEL", key, p[2]]); cancelled++; gone.push([p[0], p[1], Number(p[2]), String(rec.name || "")]); }
     touched.add(p[0]);
   });
