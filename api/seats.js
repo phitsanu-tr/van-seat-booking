@@ -101,6 +101,7 @@ module.exports = async function handler(req, res) {
       const name = L.cleanName(rawName).text;
       if (!rawName.trim()) return L.json(res, 400, { error: "bad_name" });
       if (name !== rawName || !L.hasBaseLetter(name)) return L.json(res, 400, { error: "name_chars" });
+      if (L.reservedName(name, isOwner)) return L.json(res, 400, { error: "name_reserved" });
       let rec = null, old = "";
       for (let tries = 0; ; tries++) {
         const raw = await L.redis(["HGET", key, String(seat)]);
@@ -156,6 +157,7 @@ module.exports = async function handler(req, res) {
       if (!rawName.trim()) return L.json(res, 400, { error: "bad_name" });
       const name = L.cleanName(rawName).text;
       if (name !== rawName || !L.hasBaseLetter(name)) return L.json(res, 400, { error: "name_chars" });
+      if (L.reservedName(name, isOwner)) return L.json(res, 400, { error: "name_reserved" });
       if (closed && !isOwner) return L.json(res, 403, { error: "closed" });
       const limit = L.maxPerPerson(trip);
       if (user && !isOwner && limit > 0) { // count this account's seats in every van of the trip

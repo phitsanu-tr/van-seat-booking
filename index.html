@@ -88,6 +88,7 @@ a.path:active { background: var(--tint); }
 .path .tx b { font-size: 16px; }
 .path .tx span { font-size: 12px; }
 .code input { border-color: #dde3e7; }
+.toast { position: fixed; left: 50%; top: calc(14px + env(safe-area-inset-top)); transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 14px; padding: 10px 16px; border-radius: 12px; z-index: 30; max-width: calc(100% - 32px); text-align: center; }
 </style>
 </head>
 <body>
@@ -180,9 +181,14 @@ a.path:active { background: var(--tint); }
     var u=d&&d.user; a.textContent="";
     if(u){a.className="acct in";a.href="/mytrips";var av=document.createElement("span");av.className="aav";if(u.pic){var im=document.createElement("img");im.alt="";im.src=u.pic;im.referrerPolicy="no-referrer";av.appendChild(im);}else av.textContent=(u.name||"?").replace(/^[เแโใไ]/,"").slice(0,1);a.appendChild(av);a.appendChild(document.createTextNode("ของฉัน"));
       if(window.VSBBell){var h=document.createElement("span");h.style.cssText="display:flex;margin-left:auto;margin-right:8px";a.parentNode.insertBefore(h,a);VSBBell.mount(h);VSBBell.load();}}
-    else{a.className="acct out";a.href="/api/auth?start=1&r=%2Fmytrips";a.innerHTML='<span class="lg">LINE</span>เข้าสู่ระบบ';}
+    else{a.className="acct out";a.href="/api/auth?start=1&r=%2Fmytrips";a.innerHTML='<span class="lg">LINE</span>เข้าสู่ระบบด้วย LINE';}
     a.hidden=false;
   }).catch(function(){});
+})();</script>
+<script>(function(){ // toast after signing out / deleting my data (set by /mytrips)
+  var m=""; try{m=sessionStorage.getItem("vsb_home_flash")||"";sessionStorage.removeItem("vsb_home_flash");}catch(e){}
+  if(!m)return; var t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status"); t.textContent=m; document.body.appendChild(t);
+  setTimeout(function(){t.remove();},2800);
 })();</script>
 </body>
 </html>

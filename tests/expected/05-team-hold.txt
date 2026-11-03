@@ -1,5 +1,5 @@
 invite url http://localhost:8765/mytrips?join=…
-B sees login true เข้าด้วย LINE ก่อน แล้วระบบจะพาเข้าทีมผู้จัดให้
+B sees login true เพื่อเข้าทีมผู้จัด
 B toast เข้าร่วมเป็นผู้ช่วยจัด ทริปทีม แล้ว url http://localhost:8765/mytrips
 B role line คุณเป็นผู้ช่วยจัดทริปนี้
 B cancel Cat seat 200

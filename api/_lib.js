@@ -142,6 +142,17 @@ async function logEvent(t, ev, tripExpSec) {
 // Booking names: Thai + English letters only, up to 16, no spaces/digits/symbols.
 // Thai vowel/tone marks must follow a consonant (or another mark); leading vowels (เ แ โ ใ ไ) may start a name.
 const NAME_MAX = 16;
+// Reserved words a booking name can't use (case- and Thai tone/marks-insensitive). The organizer and helpers may use
+// the staff words (e.g. "staff" on a crew seat); the exact-match words are blocked for everyone.
+const RESERVED_IN = ["admin", "แอดมิน", "แอดมิ้น", "staff", "สตาฟ", "สตาฟฟ์", "สต๊าฟ", "สตาป", "owner", "organizer", "ผู้ดูแล", "ผู้จัด"];
+const RESERVED_EQ = ["driver", "คนขับ", "ว่าง", "จองแล้ว", "ที่นั่ง", "system", "ระบบ"];
+function foldName(s) { return String(s || "").normalize("NFC").toLowerCase().replace(/[\u0E47-\u0E4C]/g, ""); }
+const RES_IN = RESERVED_IN.map(foldName), RES_EQ = RESERVED_EQ.map(foldName);
+function reservedName(name, organizer) {
+  const f = foldName(name);
+  if (RES_EQ.includes(f)) return true;
+  return !organizer && RES_IN.some((w) => f.includes(w));
+}
 function cleanName(input) {
   const src = Array.from(String(input == null ? "" : input).normalize("NFC"));
   let out = "", prev = "", marks = 0, removed = false, truncated = false;
@@ -269,6 +280,6 @@ function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); retur
 
 module.exports = {
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, json,
-  tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, NAME_MAX, newId, crypto,
+  tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
   SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };

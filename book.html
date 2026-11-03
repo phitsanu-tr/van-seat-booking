@@ -74,7 +74,8 @@ header.trip { display: block; }
 .acct .aav img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .acct span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .acct.in { padding-left: 4px; }
-.acct.out { padding: 0 12px; background: #06c755; border-color: #06c755; color: #fff; }
+.acct.out { height: 36px; padding: 0 12px 0 8px; border-radius: 12px; background: none; border-color: #e8ecef; color: var(--ink); font: 600 14px var(--font-display); }
+.acct.out .lg { flex: none; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: #06c755; color: #fff; font: 700 8px var(--font-display); letter-spacing: -.2px; }
 .lgin { display: flex; flex-direction: column; gap: 8px; margin: 2px 0 4px; }
 .lgbtn { height: 50px; border-radius: 16px; background: #06c755; color: #fff; font: 600 15px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; }
 .lgbtn i { width: 24px; height: 24px; border-radius: 7px; background: #fff; color: #06c755; font: 800 7px/24px sans-serif; font-style: normal; text-align: center; }
@@ -115,6 +116,9 @@ header.trip { display: block; }
 .deck.isended .seat:hover { background: transparent; }
 .deck.isended .seat.taken:hover { background: color-mix(in srgb, var(--taken) 94%, transparent); }
 .deck.isended .seat.mine:hover { background: var(--mine); }
+.deck.isended .seat.seat:not(.taken):not(.mine):hover, .deck.isended .seat.seat:not(.taken):not(.mine):active { background: transparent; box-shadow: none; transform: none; }
+.deck.isended .seat.seat:not(.taken):not(.mine):hover .no { color: inherit; }
+.deck.isended .seat.seat:not(.taken):not(.mine):hover::after { background: var(--bfree); }
 #notice:empty { display: none; }
 .tip { margin: 12px 4px 0; background: color-mix(in srgb, var(--mine) 10%, var(--surface)); border-radius: 12px; padding: 8px 12px; display: flex; gap: 8px; align-items: center; font-size: 14px; line-height: 1.4; }
 .tip svg { flex: none; width: 16px; height: 16px; color: var(--mine); }
@@ -243,7 +247,12 @@ body.sk main > :not(.skpage):not(.foot) { display: none; }
 .seat .who { font-size: 11px; font-size: clamp(13px, 4.9cqw, 40px); line-height: 1.25; font-weight: 500; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; max-width: 100%; }
 .seat .who.s2 { font-size: 11px; font-size: clamp(11px, 3.9cqw, 32px); }
 .seat .who.s3 { font-size: 10px; font-size: clamp(10px, 3.3cqw, 27px); }
-.seat:hover { background: color-mix(in srgb, var(--mine) 12%, transparent); }
+@media (hover: hover) {
+  .seat:not(.taken):not(.mine):hover { background: color-mix(in srgb, var(--mine) 14%, transparent); box-shadow: inset 0 0 0 2px var(--mine); }
+  .seat:not(.taken):not(.mine):hover .no { color: var(--mine); }
+  .seat:not(.taken):not(.mine):hover::after { background: var(--mine); }
+}
+.seat:not(.taken):not(.mine):active { background: color-mix(in srgb, var(--mine) 14%, transparent); box-shadow: inset 0 0 0 2px var(--mine); transform: scale(.97); }
 .seat.taken { background: color-mix(in srgb, var(--taken) 94%, transparent); cursor: default; }
 .seat.taken .no { color: var(--ink); }
 .seat.mine { background: var(--mine); color: var(--mine-ink); cursor: pointer; }
@@ -252,9 +261,11 @@ body.sk main > :not(.skpage):not(.foot) { display: none; }
 .seat:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--sel); outline-offset: 1px; }
 .driver {
   position: absolute; border-radius: 1.22cqw; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(160deg, var(--tka), var(--tkb)); color: var(--driver-ink);
+  flex-direction: column; gap: 2%; background: #fdeff1; color: var(--driver-ink);
   font-family: var(--font-display); font-weight: 500; font-size: 14px; font-size: clamp(14px, 3.9cqw, 32px);
 }
+.driver svg { position: static; display: block; width: 36%; height: auto; }
+.driver span { font-size: .8em; line-height: 1.2; }
 .legend { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin: 4px 0 2px; font-size: 12px; color: var(--muted); }
 .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid var(--ink); vertical-align: -1px; margin-right: 5px; }
 .legend .l-free { background: transparent; } .legend .l-taken { background: var(--taken); } .legend .l-mine { background: var(--mine); border-color: var(--mine); }
@@ -353,7 +364,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .list li .n { color: var(--muted); font-variant-numeric: tabular-nums; }
 .list li .w { overflow-wrap: anywhere; }
 .list li.empty .w { color: var(--muted); }
-@media (prefers-reduced-motion: no-preference) { .seat { transition: background .15s; } }
+@media (prefers-reduced-motion: no-preference) { .seat { transition: background .15s, transform .1s; } }
 .toast {
   position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 30;
   max-width: min(92vw, 360px); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 16px;
@@ -432,13 +443,12 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         <path class="ln" d="M612 119 V99 M605.1 131 L587.8 141 M618.9 131 L636.2 141" style="stroke-width:6"/><circle class="solid" cx="612" cy="127" r="8"/>
         <rect class="solid" x="76" y="410" width="14" height="60"/><rect class="solid" x="76" y="872" width="14" height="60"/><rect class="solid" x="730" y="410" width="14" height="60"/><rect class="solid" x="730" y="872" width="14" height="60"/>
         <rect class="ln" x="113" y="212" width="190" height="174" rx="12"/><rect class="ln" x="517" y="212" width="190" height="174" rx="12"/>
-        <rect class="ln" x="90" y="398" width="640" height="84" rx="24"/><path class="ln thin" d="M290 406 V474 M530 406 V474"/>
-        <rect class="ln" x="354" y="415.0" width="112" height="50" rx="6"/>
-        <circle class="ln" cx="328" cy="425.0" r="10"/><circle class="ln" cx="328" cy="455.0" r="10"/><circle class="ln" cx="492" cy="425.0" r="10"/><circle class="ln" cx="492" cy="455.0" r="10"/>
+        <rect class="ln" x="90" y="398" width="640" height="84" rx="24"/>
+        <rect class="ln" x="158" y="414" width="100" height="52" rx="8"/><path class="ln thin" d="M168 429.6 H248 M168 440 H248 M168 450.4 H248"/><rect class="ln" x="360" y="414" width="100" height="52" rx="8"/><path class="ln thin" d="M370 429.6 H450 M370 440 H450 M370 450.4 H450"/><rect class="ln" x="562" y="414" width="100" height="52" rx="8"/><path class="ln thin" d="M572 429.6 H652 M572 440 H652 M572 450.4 H652"/>
         <path class="ln" d="M90 490 L96.3 498 Q104 502 104 518 V754 Q104 776 96.3 782 L90 790"/>
         <g class="ln"><rect x="113" y="542" width="190" height="200" rx="12"/><rect x="315" y="542" width="190" height="200" rx="12"/><rect x="517" y="542" width="190" height="200" rx="12"/><rect x="113" y="802" width="190" height="200" rx="12"/><rect x="315" y="802" width="190" height="200" rx="12"/><rect x="517" y="802" width="190" height="200" rx="12"/><rect x="113" y="1062" width="190" height="200" rx="12"/><rect x="315" y="1062" width="190" height="200" rx="12"/><rect x="517" y="1062" width="190" height="200" rx="12"/></g>
         <path class="ln" d="M82 456 H58 V796" style="stroke-dasharray:3 5"/><path class="solid" d="M58 812 L51 792 L65 792 Z"/><rect class="ln fillp" x="52" y="812" width="16" height="356"/>
-        <text class="lbl" transform="translate(38 990) rotate(-90)" text-anchor="middle">ประตูเลื่อน</text><rect class="ln thin" x="351" y="216" width="118" height="166" rx="14" style="opacity:1"/><rect class="ln" x="374" y="230" width="72" height="106" rx="10"/><circle class="ln" cx="395" cy="357" r="11"/><circle class="ln" cx="425" cy="357" r="11"/><text class="lbl" transform="translate(410 90)" text-anchor="middle">หน้ารถ</text><text class="lbl" transform="translate(410 1306)" text-anchor="middle">ท้ายรถ</text></svg>
+        <text class="lbl" transform="translate(38 990) rotate(-90)" text-anchor="middle">ประตูเลื่อน</text><rect class="ln" x="361" y="220" width="98" height="158" rx="20"/><path class="ln" d="M385 248 V300 M435 248 V300 M385 274 H435 M410 248 V300" style="stroke-width:3.5"/><circle class="solid" cx="385" cy="250" r="9"/><circle class="ln" cx="394" cy="342" r="10"/><circle class="ln" cx="426" cy="342" r="10"/><text class="lbl" transform="translate(410 90)" text-anchor="middle">หน้ารถ</text><text class="lbl" transform="translate(410 1306)" text-anchor="middle">ท้ายรถ</text></svg>
       <div id="overlay"></div>
     </div>
     <div class="legend">
@@ -559,7 +569,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       a.appendChild(av); a.appendChild(el("span", null, "ของฉัน"));
       var mt = document.getElementById("myTrips"); if (isOwner && mt) { mt.hidden = false; mt.href = "/mytrips"; }
       startBell();
-    } else { a.className = "acct out"; a.href = loginHref(0); a.appendChild(el("span", null, "เข้าด้วย LINE")); }
+    } else { a.className = "acct out"; a.href = loginHref(0); a.appendChild(el("span", "lg", "LINE")); a.appendChild(el("span", null, "เข้าสู่ระบบด้วย LINE")); }
   }
   // ---- notifications: bell in the header, banner + highlighted facts for unread changes of this trip ----
   var CHG = {}, bellOn = false, lastIb = null;
@@ -683,6 +693,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
     if (code === "held") return "มีคนกำลังจองที่นั่งนี้อยู่ เลือกที่นั่งอื่น หรือรอสักครู่";
     if (code === "bad_name") return "ใส่ชื่อก่อนจอง";
     if (code === "name_chars") return "ใช้ได้เฉพาะภาษาไทยและอังกฤษ";
+    if (code === "name_reserved") return "ใช้ชื่อนี้ไม่ได้ ลองชื่ออื่น";
     if (code === "ended") return "ทริปนี้สิ้นสุดแล้ว ปิดรับจอง";
     if (code === "closed") return "ปิดรับจองแล้ว ติดต่อผู้จัดทริปถ้าต้องการเปลี่ยน";
     if (code === "login_required") return "เข้าสู่ระบบด้วย LINE ก่อน";
@@ -697,7 +708,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 
   function renderGrid() {
     overlayEl.textContent = "";
-    overlayEl.appendChild(frame(el("div", "driver", "คนขับ"), [525, 220, 174, 158]));
+    var drv = el("div", "driver"); drv.innerHTML = '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="32" cy="22" r="10"/><path d="M12 56c2-11 10-18 20-18s18 7 20 18"/></svg><span>คนขับ</span>';
+    overlayEl.appendChild(frame(drv, [525, 220, 174, 158]));
 
     for (var n = 1; n <= TOTAL; n++) {
       (function (n) {
@@ -889,7 +901,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       if (!me) { // signed out: managing a seat needs the account first
         var lg2 = el("div", "lgin"), lb2 = el("a", "lgbtn");
         lb2.href = loginHref(n);
-        lb2.appendChild(el("i", null, "LINE")); lb2.appendChild(document.createTextNode("เข้าด้วย LINE เพื่อจัดการที่นั่ง"));
+        lb2.appendChild(el("i", null, "LINE")); lb2.appendChild(document.createTextNode("เข้าสู่ระบบด้วย LINE เพื่อจัดการที่นั่ง"));
         lg2.appendChild(lb2); panelEl.appendChild(lg2);
         actions.appendChild(plainBtn("ปิด", closeModal));
       } else if (!s.a || mine(n) || isOwner) { // a seat booked with an account: only its owner or the trip's organizer may cancel it
@@ -916,9 +928,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         var lg = el("div", "lgin"), lb = el("a", "lgbtn");
         lb.href = loginHref(n);
         lb.addEventListener("click", function (e) { e.preventDefault(); holdAndLogin(n, lb); });
-        lb.appendChild(el("i", null, "LINE")); lb.appendChild(document.createTextNode("เข้าด้วย LINE แล้วจองเลย"));
+        lb.appendChild(el("i", null, "LINE")); lb.appendChild(document.createTextNode("เข้าสู่ระบบด้วย LINE แล้วจองเลย"));
         lg.appendChild(lb);
-        var ln = el("div", "lgnote", "เข้าด้วย LINE ครั้งเดียว ที่นั่งเป็นของคุณทุกเครื่อง · "); var pl = el("a", null, "ความเป็นส่วนตัว"); pl.href = "/privacy"; pl.style.color = "inherit"; ln.appendChild(pl); lg.appendChild(ln);
+        var ln = el("div", "lgnote", "เข้าสู่ระบบครั้งเดียว ที่นั่งเป็นของคุณทุกเครื่อง · "); var pl = el("a", null, "ความเป็นส่วนตัว"); pl.href = "/privacy"; pl.style.color = "inherit"; ln.appendChild(pl); lg.appendChild(ln);
         panelEl.appendChild(lg);
         actions.appendChild(plainBtn("ปิด", closeModal)); panelEl.appendChild(actions); return;
       }
@@ -1405,12 +1417,15 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       lines.forEach(function (ln, i) { fillC(ctx, ln, bx + bw / 2, first + i * step); });
     }
     var dx = PX + 525 * k, dy = PY + 220 * k, dw = 174 * k, dh = 158 * k;
-    var gr = ctx.createLinearGradient(dx, dy, dx + dw * 0.35, dy + dh); gr.addColorStop(0, "#e9edf0"); gr.addColorStop(1, "#d9e0e5");
-    rrect(ctx, dx, dy, dw, dh, 10 * k); ctx.fillStyle = gr; ctx.fill();
+    rrect(ctx, dx, dy, dw, dh, 10 * k); ctx.fillStyle = "#fdeff1"; ctx.fill();
+    var dz = Math.max(32 * k, PW * 0.05) * 0.8, ic = dw * 0.36, gap = dh * 0.02, tot = ic + gap + dz * 1.2, top = dy + (dh - tot) / 2;
+    ctx.save(); ctx.translate(dx + (dw - ic) / 2, top); ctx.scale(ic / 64, ic / 64);
+    ctx.strokeStyle = "#d8344f"; ctx.lineWidth = 4.5; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.beginPath(); ctx.arc(32, 22, 10, 0, Math.PI * 2); ctx.stroke(); ctx.stroke(new Path2D("M12 56c2-11 10-18 20-18s18 7 20 18"));
+    ctx.restore();
     ctx.fillStyle = "#d8344f"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-    var dz = Math.max(32 * k, PW * 0.05);
     ctx.font = '500 ' + dz + 'px Prompt, "Noto Sans Thai", sans-serif';
-    fillC(ctx, "คนขับ", dx + dw / 2, dy + dh / 2 + 0.34 * dz);
+    fillC(ctx, "คนขับ", dx + dw / 2, top + ic + gap + dz * 0.6 + 0.34 * dz);
   }
   // "Seat pass" picture: dark-teal header like the admin pass. With a seat booked on this device it leads with
   // "my seat"; the date/time/meeting facts sit under the header and a QR code sits at the bottom.

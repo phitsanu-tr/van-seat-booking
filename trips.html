@@ -72,6 +72,10 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 #mState > svg { width: 24px; height: 24px; flex: none; color: var(--mine); }
 .mhead { margin-top: -12px; padding-right: 40px; }
 .mhead .msub { font-size: 14px; color: var(--muted); }
+.msum { background: #f1f4f6; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.msum b { font: 600 16px/24px var(--font-display); color: var(--ink); overflow-wrap: anywhere; }
+.msum div { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 20px; color: var(--muted); overflow-wrap: anywhere; }
+.msum div svg { flex: none; width: 16px; height: 16px; margin-top: 2px; color: var(--mine); }
 .mlink { cursor: pointer; display: flex; align-items: center; gap: 12px; border: 1px solid #e8ecef; border-radius: 12px; padding: 12px; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); -webkit-tap-highlight-color: transparent; }
 .mlink .url { flex: 1; min-width: 0; }
 .url .code { display: block; font: 600 16px/1.4 var(--font-display); letter-spacing: .04em; color: #0b5f67; overflow: hidden; white-space: nowrap; }
@@ -89,7 +93,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 /* create / edit form: matches the home page */
 .hero { position: relative; --hbg: color-mix(in srgb, var(--mine) 10%, var(--surface)); background: var(--hbg); border-radius: 16px; padding: 16px; }
 .hero h1 { font-size: 20px; }
-.hero p { font-size: 12px; line-height: 19px; margin-top: 4px; white-space: nowrap; }
+.hero p { font-size: 12px; line-height: 19px; margin-top: 4px; padding-right: 84px; } /* wraps before the van picture */
 .hero svg { position: absolute; top: 17.2px; right: 15.8px; width: 68px; height: auto; color: var(--ink); }
 @media (max-width: 350px) { .hero svg { width: 56px; top: 18px; right: 15px; } }
 form label { display: block; font-size: 14px; }
@@ -359,6 +363,7 @@ select.sel { border-color: #dde3e7!important; }
     <button class="mclose" id="closeX" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div id="mState"></div>
     <div class="mhead"><div class="msub">ส่งลิงก์ให้เพื่อน แล้วเพื่อนเลือกที่นั่งเองได้เลย</div></div>
+    <div class="msum" id="mSum"></div>
     <div class="mlink" id="copyBox" role="button" tabindex="0" aria-label="คัดลอกลิงก์"><div class="url" id="shareUrl"></div><span class="cpbtn" id="copyShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span></div>
     <div class="macts">
       <a class="btn line" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span>ส่งเข้า LINE</span></a>
@@ -696,9 +701,46 @@ select.sel { border-color: #dde3e7!important; }
     $("openShare").href = "/" + id;
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
+    fillSummary(name);
+    backToList = created === true || created === "saved";
     $("backdrop").hidden = false; document.body.style.overflow = "hidden";
     $("closeX").focus({ preventScroll: true });
   }
+  // trip summary above the link: name, then date, time, meeting point and vans (one line each)
+  var SUM_IC = {
+    cal: '<path d="M6.5 5.5h11A2.5 2.5 0 0120 8v9.5a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 014 17.5V8a2.5 2.5 0 012.5-2.5zM4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
+    clk: '<path d="M12 3.5a8.5 8.5 0 100 17 8.5 8.5 0 000-17zM12 7.5V12l3 2"/>',
+    pin: '<path d="M12 21s6.5-5.6 6.5-11a6.5 6.5 0 10-13 0c0 5.4 6.5 11 6.5 11zM12 7.7a2.3 2.3 0 100 4.6 2.3 2.3 0 000-4.6z"/>',
+    van: '<path d="M3 16.5V8.5a2 2 0 012-2h9l5 4.5v5.5H3zM9.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0zM18.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0z"/>'
+  };
+  function fillSummary(name) {
+    var box = $("mSum"); box.textContent = "";
+    box.appendChild(Object.assign(document.createElement("b"), { textContent: name || $("name").value.trim() || "ทริปของฉัน" }));
+    function line(ic, text) {
+      if (!text) return;
+      var d = document.createElement("div");
+      d.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + SUM_IC[ic] + "</svg>";
+      d.appendChild(Object.assign(document.createElement("span"), { textContent: text })); box.appendChild(d);
+    }
+    var sd = $("startDate").value, ed = $("endDate").value, tm = $("departTime").value, mp = $("meetPoint").value.trim();
+    line("cal", sd ? dateRange(sd, ed || sd) : "");
+    line("clk", tm ? "ออกเดินทาง " + tm.replace(":", ".") + " น." : "");
+    line("pin", mp);
+    var vs = rows.map(function (r) { return r.label; }).filter(Boolean);
+    line("van", vs.length ? "รถตู้ " + vs.length + " คัน (" + vs.join(", ") + ")" : "");
+  }
+  // "จองที่นั่ง" right after creating or saving: Back from the booking page lands on my trips, not this form
+  var backToList = false;
+  $("openShare").addEventListener("click", function (e) {
+    if (!backToList || !shown) return;
+    e.preventDefault();
+    try { sessionStorage.setItem("vsb_back_list", "1"); history.replaceState(null, "", "/mytrips"); } catch (x) {}
+    location.href = "/" + shown.id;
+  });
+  window.addEventListener("pageshow", function () { // came Back to this page (bfcache): go on to my trips
+    var f = null; try { f = sessionStorage.getItem("vsb_back_list"); sessionStorage.removeItem("vsb_back_list"); } catch (x) {}
+    if (f && location.pathname === "/mytrips") location.replace("/mytrips");
+  });
   var goList = false; // right after creating a trip, closing the result sheet leads to the my-trips list
   function closeResult() {
     if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = "/mytrips"; return; }
@@ -761,7 +803,7 @@ select.sel { border-color: #dde3e7!important; }
 
   var ERR = {
     bad_name: "ระบุชื่อทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง",
-    bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
+    bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าสู่ระบบด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
     quota_month: "เดือนนี้คุณสร้างทริปครบ 30 ทริปแล้ว ลองใหม่เดือนหน้านะ",
     too_many: "ใส่รหัสผิดหลายครั้งเกินไป รอสักครู่แล้วลองใหม่"
@@ -821,7 +863,7 @@ select.sel { border-color: #dde3e7!important; }
         T = data.id; editing = true;
         history.replaceState(null, "", editPath(T));
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
-        $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "แก้ไขทริป"; $("shareBtn").hidden = false;
+        $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "แก้ไขทริป"; $("shareBtn").hidden = false; document.title = "แก้ไขทริป · จองที่นั่งรถตู้";
         showResult(T, true, data.trip.name);
       }
     } catch (x) {
@@ -883,14 +925,24 @@ select.sel { border-color: #dde3e7!important; }
       $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
       (function (m) { var sel = $("maxPer"), v = String(m == null ? 4 : m); if (![].some.call(sel.options, function (o) { return o.value === v; })) { var o = document.createElement("option"); o.value = v; o.textContent = v + " ที่นั่ง"; sel.appendChild(o); } sel.value = v; })(t.maxPerPerson);
       rows = t.vans.map(function (v) { return { id: "", label: v.label, plate: v.plate || "" }; });
-      $("lead").textContent = "คัดลอกจาก \u201c" + (t.name || "ทริปเดิม") + "\u201d แล้ว · เลือกวันเดินทางใหม่ แก้ส่วนอื่นได้ตามต้องการ";
+      $("lead").textContent = "คัดลอกจากทริปเดิมแล้ว เลือกวันเดินทางใหม่ได้เลย";
       setTimeout(function () { try { $("startDate").focus({ preventScroll: true }); } catch (e) {} }, 0);
     } catch (e) { toast("คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย", true); }
   }
   async function init() {
+    if (!editing) { // creating a trip needs a LINE account: signed out -> the sign-in screen, which comes back here
+      try {
+        var who3 = await (await fetch("/api/auth?me=1", { cache: "no-store" })).json();
+        if (!who3 || !who3.user) {
+          var q3 = new URLSearchParams(location.search); q3.delete("le"); q3.delete("li");
+          location.replace("/mytrips?for=new" + (q.has("le") ? "&le=" + encodeURIComponent(q.get("le")) : "") + "&r=" + encodeURIComponent("/trips/new" + (q3.toString() ? "?" + q3 : "")));
+          return;
+        }
+      } catch (e) {}
+    }
     $("formMain").hidden = false;
     if (editing) {
-      $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตแล้วผู้จองเห็นข้อมูลใหม่ทันที";
+      $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตแล้วผู้จองเห็นข้อมูลใหม่ทันที"; document.title = "แก้ไขทริป · จองที่นั่งรถตู้";
       $("submit").textContent = "แก้ไขทริป";
       try {
         var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store" });
@@ -913,16 +965,6 @@ select.sel { border-color: #dde3e7!important; }
     } else {
       rows = [{ id: "", label: "A" }];
       if (COPY) await copyFrom(COPY);
-      // creating a trip needs a LINE account (the trip then belongs to it on every device)
-      try {
-        var who3 = await (await fetch("/api/auth?me=1", { cache: "no-store" })).json();
-        if (!who3 || !who3.user) {
-          if (!q.has("le") && !sessionStorage.getItem("vsb_login_try")) { sessionStorage.setItem("vsb_login_try", "1"); location.replace("/api/auth?start=1&r=" + encodeURIComponent("/trips/new" + location.search)); return; }
-          toast("เข้าด้วย LINE ก่อนสร้างทริป", true);
-          $("submit").textContent = "เข้าด้วย LINE ก่อนสร้างทริป";
-          $("submit").addEventListener("click", function (e) { e.preventDefault(); e.stopImmediatePropagation(); location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new" + location.search); }, true);
-        } else { try { sessionStorage.removeItem("vsb_login_try"); } catch (e) {} }
-      } catch (e) {}
     }
     renderVans();
   }

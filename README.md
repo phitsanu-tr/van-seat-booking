@@ -81,7 +81,7 @@
 
 - LINE Login แบบเว็บ (ไม่ใช้ LIFF) ขอแค่ `openid profile` · ตรวจ state/nonce และให้ LINE ตรวจ ID token · คุกกี้ `HttpOnly; Secure; SameSite=Lax`
 - รหัสบัญชี LINE ไม่ถูกส่งให้ผู้จองคนอื่น · เวลาขึ้นรถและรอบเช็กชื่อเห็นเฉพาะทีมผู้จัด
-- Header: `X-Frame-Options: DENY`, `frame-ancestors 'none'`, `nosniff` ทุกหน้า · หน้าทริปเป็น `noindex`
+- Header: `X-Frame-Options: DENY`, `frame-ancestors 'none'`, `nosniff` ทุกหน้า · ให้ Google เก็บแค่หน้าแรกกับ `/privacy` (หน้าอื่นและ `/api` เป็น `noindex, nofollow` + `robots.txt`) · ชื่อจองห้ามใช้คำสงวน (admin, staff, คนขับ ฯลฯ)
 - หน้า `/owner` ต้องมี `OWNER_KEY` (ไม่ตั้ง = API ตอบ 404) เปิดด้วย `/owner#คีย์` แล้วคีย์ถูกลบออกจากแถบ URL ทันที
 
 ## รันในเครื่อง

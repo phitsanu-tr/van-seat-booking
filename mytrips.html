@@ -128,19 +128,24 @@ a { color: inherit; }
 @keyframes sk { to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
 
-/* sign-in screen */
-.login { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 8px 6px 24px; }
-.logo { width: 84px; height: 84px; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; color: var(--mine); border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
-.login h1 { font: 600 24px var(--font-display); margin: 0; font-size: 20px; }
-.login p { margin: -8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
-.pts { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; text-align: left; font-size: 14px; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
-.pts div { display: flex; gap: 12px; align-items: center; }
-.pts b { width: 26px; height: 26px; border-radius: 50%; background: var(--tint); color: var(--mine); display: grid; place-items: center; font-size: 13px; font-weight: 600; flex: none; }
-.lg { height: 52px; border-radius: 12px; background: var(--lg); color: #fff; font: 600 16px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; text-decoration: none; border: 0; }
-.lg i { width: 26px; height: 26px; border-radius: 8px; background: #fff; color: var(--lg); font: 800 8px/26px sans-serif; font-style: normal; text-align: center; }
-.note { font-size: 12px; color: var(--muted); line-height: 1.6; }
-.alt { font-size: 14px; color: var(--mine); font-weight: 600; text-decoration: none; }
-.err { color: var(--danger); font-size: 12px; }
+/* sign-in screen: dark banner like the home page, then one card with what you get and the LINE button */
+.login { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 0 0 24px; }
+.login .hero { background: linear-gradient(135deg, #0e7c86, #0b5f67); color: #fff; border-radius: 16px; padding: 20px 16px 16px; }
+.login .hero .hr { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.login .hero h1 { color: #fff; font: 600 20px/1.25 var(--font-display); margin: 0; }
+.login .hero .hr > svg { flex: none; width: 73px; height: auto; color: #fff; margin: -3px -2px 0 0; }
+.login .hero p { margin: 8px 0 0; color: #d4eaec; font-size: 14px; }
+.login .lcard { background: var(--surface); border: 1px solid #e8ecef; border-radius: 16px; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+.login .ck { display: flex; flex-direction: column; gap: 12px; }
+.login .ck div { display: flex; gap: 12px; align-items: center; font-size: 16px; color: var(--ink); }
+.login .ck i { flex: none; width: 28px; height: 28px; border-radius: 99px; background: var(--tint); color: var(--deep); display: grid; place-items: center; }
+.login .ck i svg { width: 14px; height: 14px; }
+.lg { height: 48px; border-radius: 12px; background: var(--lg); color: #fff; font: 600 16px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; text-decoration: none; border: 0; }
+.lg i { width: 24px; height: 24px; border-radius: 6px; background: #fff; color: var(--lg); font: 800 8px/24px sans-serif; font-style: normal; text-align: center; }
+.note { font-size: 12px; color: var(--muted); line-height: 1.6; text-align: center; }
+.note a { color: inherit; }
+.alt { align-self: center; font: 600 14px var(--font-display); color: var(--mine); text-decoration: none; }
+.err { color: var(--danger); font-size: 14px; text-align: center; margin: -4px 0; }
 
 /* confirm sheet + toast */
 .bd { position: fixed; inset: 0; background: rgba(27,31,34,.4); display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
@@ -285,14 +290,29 @@ a { color: inherit; }
 <div class="top"><div><a href="/">จองที่นั่งรถตู้</a></div></div>
 <main>
   <section class="login" id="loginView" hidden>
-    <div class="logo"><svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16.5V8.5a2 2 0 012-2h9l5 4.5v5.5H3zM9.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0zM18.3 17.5a1.8 1.8 0 10-3.6 0 1.8 1.8 0 003.6 0z"/></svg></div>
-    <h1>จองที่นั่งรถตู้</h1>
-    <p>เข้าสู่ระบบครั้งเดียว<br>ทริปและที่นั่งของคุณจะอยู่ทุกเครื่อง</p>
-    <div class="pts"><div><b>1</b>ดูทริปที่สร้างไว้ได้ทั้งมือถือและคอม</div><div><b>2</b>ยกเลิกได้เฉพาะที่นั่งของตัวเอง</div><div><b>3</b>ไม่ต้องพิมพ์ชื่อทุกครั้ง</div></div>
-    <a class="lg" id="loginBtn" href="/api/auth?start=1&amp;r=%2Fmytrips"><i>LINE</i>เข้าสู่ระบบด้วย LINE</a>
+    <div class="hero">
+      <div class="hr">
+        <h1>เข้าสู่ระบบ<br><span id="loginFor">ครั้งเดียวจบ</span></h1>
+        <svg viewBox="1 0 92 60" fill="none" aria-hidden="true">
+      <path d="M4 58h88" stroke="#9fd3d8" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>
+      <g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="#e5484d"/><circle cx="12" cy="10" r="3" fill="var(--surface)"/></g>
+      <g transform="translate(-2 3) scale(.82)">
+      <path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+      <g fill="color-mix(in srgb, var(--mine) 28%, var(--surface))" stroke="#1b1f22" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g>
+      <path d="M85 36h3" stroke="#9fd3d8" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="26" cy="43" r="9.5" fill="var(--line)"/><circle cx="26" cy="43" r="6.5" fill="var(--ink)"/><circle cx="26" cy="43" r="2.4" fill="var(--surface)"/><circle cx="70" cy="43" r="9.5" fill="var(--line)"/><circle cx="70" cy="43" r="6.5" fill="var(--ink)"/><circle cx="70" cy="43" r="2.4" fill="var(--surface)"/>
+          </g>
+    </svg>
+      </div>
+      <p>ใช้บัญชี LINE ไม่ต้องสมัครสมาชิก</p>
+    </div>
     <div class="err" id="loginErr" hidden></div>
-    <div class="note">เราใช้แค่ชื่อและรูปโปรไฟล์ LINE<br>ไม่เก็บเบอร์โทร อีเมล หรือแชทของคุณ · <a href="/privacy">นโยบายความเป็นส่วนตัว</a></div>
-    <a class="alt" href="/">กลับหน้าแรก →</a>
+    <div class="lcard">
+      <div class="ck"><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></i>ดูทริปและที่นั่งของคุณได้ทุกเครื่อง</div><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></i>ที่นั่งของคุณ คนอื่นยกเลิกไม่ได้</div><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></i>ครั้งหน้าไม่ต้องพิมพ์ชื่อใหม่</div></div>
+      <a class="lg" id="loginBtn" href="/api/auth?start=1&amp;r=%2Fmytrips"><i>LINE</i>เข้าสู่ระบบด้วย LINE</a>
+    </div>
+    <div class="note">เราใช้แค่ชื่อและรูปโปรไฟล์ LINE ไม่เก็บเบอร์โทร อีเมล หรือแชท · <a href="/privacy">นโยบายความเป็นส่วนตัว</a></div>
+    <a class="alt" href="/">← กลับหน้าแรก</a>
   </section>
 
   <section id="meView" hidden>
@@ -696,7 +716,7 @@ a { color: inherit; }
     return out;
   }
   function when(ts) { if (!ts) return ""; var d = new Date(Number(ts) + 7 * 3600 * 1000); return d.getUTCDate() + " " + MON[d.getUTCMonth()] + " " + String(d.getUTCHours()).padStart(2, "0") + "." + String(d.getUTCMinutes()).padStart(2, "0") + " น."; }
-  function apiErr(d) { var e = d && d.error; return e === "taken" ? "ที่นั่งนั้นมีคนจองแล้ว" : e === "ended" ? "ทริปนี้สิ้นสุดแล้ว" : e === "closed" ? "ปิดรับจองแล้ว ติดต่อผู้จัดทริป" : e === "too_many" ? "ทำรายการถี่เกินไป รอสักครู่" : e === "name_chars" ? "ชื่อใช้ได้เฉพาะภาษาไทยและอังกฤษ" : e === "not_owner" || e === "not_yours" ? "ไม่มีสิทธิ์ทำรายการนี้" : "ทำรายการไม่สำเร็จ ลองอีกครั้ง"; }
+  function apiErr(d) { var e = d && d.error; return e === "taken" ? "ที่นั่งนั้นมีคนจองแล้ว" : e === "ended" ? "ทริปนี้สิ้นสุดแล้ว" : e === "closed" ? "ปิดรับจองแล้ว ติดต่อผู้จัดทริป" : e === "too_many" ? "ทำรายการถี่เกินไป รอสักครู่" : e === "name_chars" ? "ชื่อใช้ได้เฉพาะภาษาไทยและอังกฤษ" : e === "name_reserved" ? "ใช้ชื่อนี้ไม่ได้ ลองชื่ออื่น" : e === "not_owner" || e === "not_yours" ? "ไม่มีสิทธิ์ทำรายการนี้" : "ทำรายการไม่สำเร็จ ลองอีกครั้ง"; }
   async function seatApi(method, id, v, body) {
     var r = await fetch("/api/seats?t=" + encodeURIComponent(id) + "&v=" + encodeURIComponent(v), { method: method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ t: id, v: v }, body)) });
     var d = {}; try { d = await r.json(); } catch (e) {}
@@ -1210,7 +1230,7 @@ a { color: inherit; }
       try {
         var r = await fetch("/api/me", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trips: chk && chk.checked ? "delete" : "keep" }) });
         if (!r.ok) throw new Error();
-        close(); showLogin(); toast("ลบข้อมูลของคุณแล้ว");
+        close(); goHome("ลบข้อมูลของคุณแล้ว");
       } catch (e) { toast("ลบไม่สำเร็จ ลองอีกครั้ง", true); go.disabled = false; go.textContent = "ลบถาวร"; }
     });
     acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
@@ -1241,8 +1261,8 @@ a { color: inherit; }
     var le = new URLSearchParams(location.search).get("le");
     var msg = { cancel: "ยกเลิกการเข้าสู่ระบบแล้ว", setup: "ระบบเข้าสู่ระบบยังไม่ได้ตั้งค่า (ติดต่อเจ้าของแอป)", busy: "ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่" }[le] || (le ? "เข้าสู่ระบบไม่สำเร็จ ลองอีกครั้ง" : "");
     if (msg) { $("loginErr").textContent = msg; $("loginErr").hidden = false; }
-    $("loginBtn").href = loginHref("/mytrips" + (JOIN ? "?join=" + JOIN : "") + (location.hash || ""));
-    if (JOIN) { $("loginErr").textContent = "เข้าด้วย LINE ก่อน แล้วระบบจะพาเข้าทีมผู้จัดให้"; $("loginErr").hidden = false; $("loginErr").style.color = "var(--amber)"; }
+    $("loginBtn").href = loginHref(FOR_NEW ? FOR_NEW : "/mytrips" + (JOIN ? "?join=" + JOIN : "") + (location.hash || ""));
+    $("loginFor").textContent = FOR_NEW ? "ก่อนสร้างทริป" : JOIN ? "เพื่อเข้าทีมผู้จัด" : "ครั้งเดียวจบ";
   }
   // account menu (tap the photo or name): privacy policy, sign out, delete my data (last, in red)
   function openAccount() {
@@ -1270,17 +1290,26 @@ a { color: inherit; }
   $("acctBtn").addEventListener("click", openAccount);
   async function logout() {
     try { await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ logout: true }) }); } catch (e) {}
-    showLogin();
+    goHome("ออกจากระบบแล้ว");
+  }
+  function goHome(msg) { // signed out or data deleted: back to the home page, which shows msg as a toast
+    forgetRosters();
+    try { localStorage.removeItem("vsb_name"); } catch (e) {}
+    try { sessionStorage.setItem("vsb_home_flash", msg); } catch (e) {}
+    location.replace("/");
   }
 
   var JOIN = (function () { var j = new URLSearchParams(location.search).get("join") || ""; return /^[a-z0-9]{10}$/.test(j) ? j : ""; })();
+  // ?for=new&r=/trips/new...: sent here from "สร้างทริป" while signed out; after LINE it goes back to r
+  var FOR_NEW = (function () { var q0 = new URLSearchParams(location.search); if (q0.get("for") !== "new") return ""; var r = q0.get("r") || "/trips/new"; return /^\/trips\/new(?:[?#][^\s]*)?$/.test(r) ? r : "/trips/new"; })();
   (async function init() {
     var q = new URLSearchParams(location.search);
-    if (q.has("li") || q.has("le")) { try { history.replaceState(null, "", "/mytrips" + (location.hash || "")); } catch (e) {} }
+    if (q.has("li") || q.has("le")) { var q2 = new URLSearchParams(location.search); q2.delete("li"); q2.delete("le"); try { history.replaceState(null, "", "/mytrips" + (q2.toString() ? "?" + q2 : "") + (location.hash || "")); } catch (e) {} }
     if (q.has("le")) { showLogin(); var le = q.get("le"); $("loginErr").textContent = { cancel: "ยกเลิกการเข้าสู่ระบบแล้ว", setup: "ระบบเข้าสู่ระบบยังไม่ได้ตั้งค่า (ติดต่อเจ้าของแอป)", busy: "ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่" }[le] || "เข้าสู่ระบบไม่สำเร็จ ลองอีกครั้ง"; $("loginErr").hidden = false; return; }
     var me = null;
     try { me = (await (await fetch("/api/auth?me=1", { cache: "no-store" })).json()).user; } catch (e) {}
     if (!me) { showLogin(); return; }
+    if (FOR_NEW) { location.replace(FOR_NEW); return; }
     $("meView").hidden = false; setTab(tab); skeleton();
     try { var fl = sessionStorage.getItem("van-flash"); if (fl) { sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); setTimeout(function () { toast(fl); }, 300); } } catch (e) {}
     $("meName").textContent = me.name || "ผู้ใช้ LINE";

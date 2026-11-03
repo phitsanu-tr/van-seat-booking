@@ -1,0 +1,6 @@
+# Only the home page and the privacy page are meant for search engines.
+User-agent: *
+Disallow: /api/
+Disallow: /owner
+Disallow: /mytrips
+Disallow: /trips/

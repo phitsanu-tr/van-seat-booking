@@ -10,7 +10,7 @@ await C.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:4,name:'แคท'
 await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);await A.click('.mgb:has-text("ผู้ช่วยจัดทริป")');await A.waitForTimeout(700);await A.screenshot({path:S+'/t1.png'});
 await A.click('.sheet .b-amber');await A.waitForTimeout(700);const url=await A.textContent('.ilink code');log('invite url',url.replace(/join=\w+/,'join=…'));await A.screenshot({path:S+'/t2.png'});
 // B (not signed in) opens invite link -> login view -> sign in -> joined
-const Bp=await ctx('Bob');await Bp.goto(url);await Bp.waitForTimeout(800);log('B sees login',await Bp.isVisible('#loginView'),await Bp.textContent('#loginErr'));
+const Bp=await ctx('Bob');await Bp.goto(url);await Bp.waitForTimeout(800);log('B sees login',await Bp.isVisible('#loginView'),await Bp.textContent('#loginFor'));
 const href=await Bp.getAttribute('#loginBtn','href');await Bp.goto(B+href.replace('start=1','start=1&as=Bob'));await Bp.waitForTimeout(1500);log('B toast',await Bp.textContent('#toast'),'url',Bp.url());
 await Bp.screenshot({path:S+'/t3.png'});log('B role line',await Bp.textContent('.rolep').catch(()=>'none'));
 // helper rights

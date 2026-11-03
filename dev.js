@@ -81,7 +81,7 @@ const redisServer = http.createServer((req, res) => {
 });
 
 // ---- app server ----
-const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon" };
+const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon", ".txt": "text/plain; charset=utf-8" };
 
 function route(pathname, query) {
   if (pathname === "/") return "/index.html";
@@ -113,7 +113,7 @@ function startApp() {
     }
     const rel = route(u.pathname, u.searchParams);
     // only plain static assets at the project root (never dev.js, api/, vercel.json, .git ...)
-    if (rel !== "/qrcode.js" && rel !== "/bell.js" && !/^\/[A-Za-z0-9_-]+\.(html|css|svg|png|ico|webmanifest)$/.test(rel)) { res.statusCode = 404; return res.end("Not found"); }
+    if (rel !== "/qrcode.js" && rel !== "/bell.js" && rel !== "/robots.txt" && !/^\/[A-Za-z0-9_-]+\.(html|css|svg|png|ico|webmanifest)$/.test(rel)) { res.statusCode = 404; return res.end("Not found"); }
     const file = path.join(ROOT, rel);
     fs.readFile(file, (err, data) => {
       if (err) { res.statusCode = 404; return res.end("Not found"); }
