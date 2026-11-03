@@ -262,7 +262,7 @@ body.sk main > :not(.skpage):not(.foot) { display: none; }
 .seat.sel { outline: 3px solid var(--sel); outline-offset: -2px; }
 .seat:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--sel); outline-offset: 1px; }
 .driver {
-  position: absolute; border-radius: 1.22cqw; display: flex; align-items: center; justify-content: center;
+  position: absolute; border-radius: 1.46cqw; display: flex; align-items: center; justify-content: center;
   flex-direction: column; gap: 2%; background: #fdeff1; color: var(--driver-ink);
   font-family: var(--font-display); font-weight: 500; font-size: 14px; font-size: clamp(14px, 3.9cqw, 32px);
 }
@@ -453,13 +453,13 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
         <circle class="ln fillp" cx="612" cy="127" r="32" style="stroke-width:4"/>
         <path class="ln" d="M612 119 V99 M605.1 131 L587.8 141 M618.9 131 L636.2 141" style="stroke-width:6"/><circle class="solid" cx="612" cy="127" r="8"/>
         <rect class="solid" x="76" y="410" width="14" height="60"/><rect class="solid" x="76" y="872" width="14" height="60"/><rect class="solid" x="730" y="410" width="14" height="60"/><rect class="solid" x="730" y="872" width="14" height="60"/>
-        <rect class="ln" x="113" y="212" width="190" height="174" rx="12"/><rect class="ln" x="517" y="212" width="190" height="174" rx="12"/>
+        <rect class="ln" x="113" y="186" width="190" height="200" rx="12"/><rect class="ln" x="517" y="186" width="190" height="200" rx="12"/>
         <rect class="ln" x="90" y="398" width="640" height="84" rx="24"/>
         <rect class="ln" x="158" y="414" width="100" height="52" rx="8"/><path class="ln thin" d="M168 429.6 H248 M168 440 H248 M168 450.4 H248"/><rect class="ln" x="360" y="414" width="100" height="52" rx="8"/><path class="ln thin" d="M370 429.6 H450 M370 440 H450 M370 450.4 H450"/><rect class="ln" x="562" y="414" width="100" height="52" rx="8"/><path class="ln thin" d="M572 429.6 H652 M572 440 H652 M572 450.4 H652"/>
         <path class="ln" d="M90 490 L96.3 498 Q104 502 104 518 V754 Q104 776 96.3 782 L90 790"/>
         <g class="ln"><rect x="113" y="542" width="190" height="200" rx="12"/><rect x="315" y="542" width="190" height="200" rx="12"/><rect x="517" y="542" width="190" height="200" rx="12"/><rect x="113" y="802" width="190" height="200" rx="12"/><rect x="315" y="802" width="190" height="200" rx="12"/><rect x="517" y="802" width="190" height="200" rx="12"/><rect x="113" y="1062" width="190" height="200" rx="12"/><rect x="315" y="1062" width="190" height="200" rx="12"/><rect x="517" y="1062" width="190" height="200" rx="12"/></g>
         <path class="ln" d="M82 456 H58 V796" style="stroke-dasharray:3 5"/><path class="solid" d="M58 812 L51 792 L65 792 Z"/><rect class="ln fillp" x="52" y="812" width="16" height="356"/>
-        <text class="lbl" transform="translate(38 990) rotate(-90)" text-anchor="middle">ประตูเลื่อน</text><rect class="ln" x="361" y="220" width="98" height="158" rx="20"/><path class="ln" d="M385 248 V300 M435 248 V300 M385 274 H435 M410 248 V300" style="stroke-width:3.5"/><circle class="solid" cx="385" cy="250" r="9"/><circle class="ln" cx="394" cy="342" r="10"/><circle class="ln" cx="426" cy="342" r="10"/><text class="lbl" transform="translate(410 90)" text-anchor="middle">หน้ารถ</text><text class="lbl" transform="translate(410 1306)" text-anchor="middle">ท้ายรถ</text></svg>
+        <text class="lbl" transform="translate(38 990) rotate(-90)" text-anchor="middle">ประตูเลื่อน</text><rect class="ln" x="361" y="194" width="98" height="184" rx="20"/><path class="ln" d="M385 228 V286 M435 228 V286 M385 257 H435 M410 228 V286" style="stroke-width:3.5"/><circle class="solid" cx="385" cy="230" r="9"/><circle class="ln" cx="394" cy="336" r="10"/><circle class="ln" cx="426" cy="336" r="10"/><text class="lbl" transform="translate(410 90)" text-anchor="middle">หน้ารถ</text><text class="lbl" transform="translate(410 1306)" text-anchor="middle">ท้ายรถ</text></svg>
       <div id="overlay"></div>
     </div>
     <div class="legend">
@@ -532,7 +532,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   }
   // Seat boxes in the plan's own coordinate space (x, y, w, h in a 820 x 1384 drawing).
   var RECT = {
-    1: [113, 212, 190, 174],
+    1: [113, 186, 190, 200],
     4: [113, 542, 190, 200], 3: [315, 542, 190, 200], 2: [517, 542, 190, 200],
     7: [113, 802, 190, 200], 6: [315, 802, 190, 200], 5: [517, 802, 190, 200],
     10: [113, 1062, 190, 200], 9: [315, 1062, 190, 200], 8: [517, 1062, 190, 200]
@@ -720,7 +720,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
   function renderGrid() {
     overlayEl.textContent = "";
     var drv = el("div", "driver"); drv.innerHTML = '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="32" cy="22" r="10"/><path d="M12 56c2-11 10-18 20-18s18 7 20 18"/></svg><span>คนขับ</span>';
-    overlayEl.appendChild(frame(drv, [525, 220, 174, 158]));
+    overlayEl.appendChild(frame(drv, [517, 186, 190, 200]));
 
     for (var n = 1; n <= TOTAL; n++) {
       (function (n) {
@@ -810,7 +810,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 
   function miniSvg(sel, isTaken) {
     var out = '<svg viewBox="40 20 740 1345" aria-hidden="true"><path d="M74 1306 V160 Q74 62 205 46 Q410 22 615 46 Q746 62 746 160 V1306 Q746 1350 702 1350 H118 Q74 1350 74 1306 Z" fill="none" stroke="currentColor" stroke-width="22" stroke-linejoin="round" style="color:var(--ink)"/>';
-    out += '<rect x="517" y="212" width="190" height="174" fill="var(--taken)" stroke="var(--line)" stroke-width="12"/>';
+    out += '<rect x="517" y="186" width="190" height="200" fill="var(--taken)" stroke="var(--line)" stroke-width="12"/>';
     for (var k in RECT) {
       var r = RECT[k], me = Number(k) === sel;
       var fill = me ? (isTaken ? "var(--ink)" : "var(--mine)") : (seats[k] ? "var(--taken)" : "var(--surface)");
@@ -1434,8 +1434,8 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
       var step = nameSize * 1.25, first = by + bh / 2 - (lines.length - 1) * step / 2 + nameSize * 0.32;
       lines.forEach(function (ln, i) { fillC(ctx, ln, bx + bw / 2, first + i * step); });
     }
-    var dx = PX + 525 * k, dy = PY + 220 * k, dw = 174 * k, dh = 158 * k;
-    rrect(ctx, dx, dy, dw, dh, 10 * k); ctx.fillStyle = "#fdeff1"; ctx.fill();
+    var dx = PX + 517 * k, dy = PY + 186 * k, dw = 190 * k, dh = 200 * k;
+    rrect(ctx, dx, dy, dw, dh, 12 * k); ctx.fillStyle = "#fdeff1"; ctx.fill();
     var dz = Math.max(32 * k, PW * 0.05) * 0.8, ic = dw * 0.36, gap = dh * 0.02, tot = ic + gap + dz * 1.2, top = dy + (dh - tot) / 2;
     ctx.save(); ctx.translate(dx + (dw - ic) / 2, top); ctx.scale(ic / 64, ic / 64);
     ctx.strokeStyle = "#d8344f"; ctx.lineWidth = 4.5; ctx.lineCap = "round"; ctx.lineJoin = "round";

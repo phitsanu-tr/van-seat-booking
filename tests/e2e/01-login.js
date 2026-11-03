@@ -10,7 +10,8 @@ const sc=await fetch(B+'/api/seats?t='+ID+'&v=v1',{method:'POST',headers:{'conte
 const cN=await ctx();const N=await pg(cN,'N');await N.goto(B+'/'+ID);await N.waitForTimeout(1000);log('chip',await N.textContent('#acct'));
 await N.click('.seat >> nth=1');await N.waitForTimeout(300);log('anon panel: lg',await N.locator('.lgbtn').count(),'input',await N.locator('#nameInput').count(),'note',await N.textContent('.lgnote'));await N.screenshot({path:S+'/7_forced.png'});
 // anon /trips/new -> redirected to login -> back logged in
-const cT=await ctx();const T=await pg(cT,'T');await T.goto(B+'/trips/new');await T.waitForTimeout(2000);log('trips/new ->',T.url(),'submit',await T.textContent('#submit'));
+const cT=await ctx();const T=await pg(cT,'T');await T.goto(B+'/trips/new');await T.waitForTimeout(2000);log('trips/new ->',T.url(),'login for',await T.textContent('#loginFor'));
+await T.click('#loginBtn');await T.waitForTimeout(2000);log('after LINE ->',new URL(T.url()).pathname,'submit',await T.textContent('#submit'));
 await T.goto(B+'/');await T.waitForTimeout(800);log('index chip logged',await T.textContent('#acct'));
 const cH=await ctx();const H=await pg(cH,'H');await H.goto(B+'/');await H.waitForTimeout(800);log('index chip anon',await H.textContent('#acct'));await H.screenshot({path:S+'/8_home.png'});
 log('ERR',errs);await b.close();})();

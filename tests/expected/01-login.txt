@@ -3,7 +3,8 @@ A create ok true
 anon book: 401
 chip LINEเข้าสู่ระบบด้วย LINE
 anon panel: lg 1 input 0 note เข้าสู่ระบบครั้งเดียว ที่นั่งเป็นของคุณทุกเครื่อง · ความเป็นส่วนตัว
-trips/new -> http://localhost:8765/trips/new submit สร้างทริป
+trips/new -> http://localhost:8765/mytrips?for=new&r=%2Ftrips%2Fnew login for ก่อนสร้างทริป
+after LINE -> /trips/new submit สร้างทริป
 index chip logged ผทริปของฉัน›
 index chip anon LINEเข้าสู่ระบบด้วย LINE
 ERR []
