@@ -70,6 +70,7 @@
     if (h < 24 * 7) return Math.floor(h / 24) + " วันก่อน";
     return x.getUTCDate() + " " + MON[x.getUTCMonth()] + " · " + hm;
   }
+  function dayMs(ms) { var x = new Date(Number(ms) + 7 * 3600e3); return x.getUTCDate() + " " + MON[x.getUTCMonth()]; }
   function byTxt(it) { return it.by === "helper" ? " · โดยผู้ช่วยจัด" : it.by === "owner" ? " · โดยผู้จัด" : ""; }
   var FIELD = { name: ["เปลี่ยนชื่อทริป", "edit"], date: ["เปลี่ยนวันเดินทาง", "cal"], time: ["เปลี่ยนเวลารถออก", "clock"], meet: ["เปลี่ยนจุดนัดพบ", "pin"] };
   function chLine(c) {
@@ -93,6 +94,8 @@
       case "seat_renamed": return { title: "ชื่อบนผังถูกแก้", body: tn + " · " + esc(it.o) + " → <em>" + esc(it.n) + "</em>", tone: "grey", icon: "pen" };
       case "became_owner": return { title: "คุณเป็นเจ้าของทริปแล้ว", body: tn + (it.n ? " · " + esc(it.n) + " โอนทริปให้คุณ" : ""), tone: "green", icon: "shield" };
       case "removed_team": return { title: "คุณถูกนำออกจากทีมผู้จัด", body: tn, tone: "grey", icon: "shield" };
+      case "plan_paid": return { title: "ชำระเงินสำเร็จ", body: tn + (it.amt ? " · " + Number(it.amt).toLocaleString("th-TH") + "฿" : ""), tone: "green", icon: "shield" };
+      case "plan_expiring": return { title: "แพ็กเกจใกล้หมดอายุ", body: "แพ็กเกจ " + tn + " ใช้ได้ถึง " + esc(dayMs(it.until)) + " · แตะเพื่อต่ออายุ", tone: "amber", icon: "clock" };
       case "helper_joined": return { title: "มีผู้ช่วยจัดเข้าร่วม", body: tn + " · " + esc(it.n), tone: "green", icon: "shield" };
       default: return { title: "มีการเปลี่ยนแปลง", body: tn, tone: "grey", icon: "bell" };
     }
@@ -145,7 +148,8 @@
         b.innerHTML = '<div class="vb-ic t-' + tx.tone + '">' + svg(IC[tx.icon] || IC.bell) + '</div><div class="vb-tx"><b>' + tx.title + "</b>" + tx.body + "<small>" + when(it.at) + byTxt(it) + "</small></div>" + (it.r ? "" : '<span class="vb-dot"></span>');
         b.addEventListener("click", function () {
           B.read({ id: it.id });
-          if (it.t && !(it.k in linkable) && location.pathname !== "/" + it.t) location.href = "/" + it.t; else { stay(); }
+          if (/^plan_/.test(it.k)) location.href = "/plans";
+          else if (it.t && !(it.k in linkable) && location.pathname !== "/" + it.t) location.href = "/" + it.t; else { stay(); }
         });
         box.appendChild(b);
       });

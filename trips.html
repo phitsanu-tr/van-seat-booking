@@ -645,8 +645,10 @@ select.sel { border-color: #dde3e7!important; }
     });
   }
   var MAX_VANS = 5, vanCap = MAX_VANS; // trips made earlier with more vans keep their count
+  // packages (api/_plans.js): PL = { on, tier, passes, vans (limit for this trip), plus (trip uses a pass) }
+  var PL = { on: false, vans: MAX_VANS, passes: 0, tier: "", plus: false }, usePass = false;
   function renderVans() {
-    vanCap = Math.max(MAX_VANS, vanCap, rows.length);
+    vanCap = PL.on ? Math.max(PL.vans, rows.length) : Math.max(MAX_VANS, vanCap, rows.length);
     var oldFe = vansEl.nextElementSibling; if (oldFe && oldFe.classList.contains("fe")) oldFe.remove();
     vansEl.textContent = "";
     rows.forEach(function (r, i) {
@@ -681,11 +683,51 @@ select.sel { border-color: #dde3e7!important; }
       two.appendChild(l1); two.appendChild(l2); d.appendChild(two);
       vansEl.appendChild(d);
     });
-    var add = $("addVan"), full = rows.length >= vanCap;
-    add.disabled = full; add.textContent = full ? "เพิ่มรถได้สูงสุด " + vanCap + " คัน" : "+ เพิ่มรถอีกคัน";
+    var add = $("addVan"), full = rows.length >= vanCap, canUp = PL.on && PL.tier !== "premium";
+    add.disabled = full && !canUp; add.textContent = full ? (canUp ? "รถสูงสุด " + vanCap + " คัน · อัปเกรดเพื่อเพิ่ม" : "เพิ่มรถได้สูงสุด " + vanCap + " คัน") : "+ เพิ่มรถอีกคัน";
+  }
+  // the package doesn't allow this: explain, then packages / a per-trip pass
+  function planSheet(kind) {
+    var back = document.createElement("div"); back.className = "pk-back";
+    var sheet = document.createElement("div"); sheet.className = "pk-sheet"; sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true");
+    var h = document.createElement("h2"); h.className = "cf-title";
+    var p = document.createElement("p"); p.className = "cf-text";
+    var TN = { free: "Free", standard: "Standard", premium: "Premium" }[PL.tier] || "Free";
+    if (kind === "trips") { h.textContent = "เปิดทริปครบ " + (PL.trips || 0) + " ทริปแล้ว"; p.textContent = "แพ็กเกจ " + TN + " เปิดทริปพร้อมกันได้ " + (PL.trips || 0) + " ทริป รอให้ทริปเก่าจบ ลบทริปที่ไม่ใช้ หรืออัปเกรดเพื่อสร้างเพิ่ม"; }
+    else { h.textContent = "เพิ่มรถได้สูงสุด " + vanCap + " คัน"; p.textContent = "แพ็กเกจ " + TN + " ใช้รถได้ " + vanCap + " คันต่อทริป อัปเกรด หรือใช้ตั๋วรายทริปกับทริปนี้เพื่อเพิ่มได้ถึง 5 คัน"; }
+    var act = document.createElement("div"); act.className = "pk-act"; act.style.cssText = "display:flex;flex-direction:column;gap:8px";
+    function done() { back.remove(); document.body.style.overflow = ""; }
+    function btn(cls, label, fn) { var b = document.createElement("button"); b.type = "button"; b.className = "btn " + cls; b.textContent = label; b.style.width = "100%"; b.addEventListener("click", fn); act.appendChild(b); return b; }
+    var next = editing ? editPath(T) : "/trips/new";
+    if (PL.passes > 0 && !PL.plus) {
+      btn("primary", "ใช้ตั๋วรายทริป 1 ใบ (มี " + PL.passes + " ใบ)", async function (e) {
+        var b = e.currentTarget; b.disabled = true;
+        if (!editing) { usePass = true; PL.plus = true; PL.vans = Math.max(PL.vans, 5); done(); renderVans(); passNote(); return; }
+        try {
+          var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: T, usePass: true }) });
+          var d = await r.json();
+          if (r.ok) { PL.plus = true; PL.passes--; PL.vans = d.limits ? d.limits.vans : 5; done(); renderVans(); passNote(); toast("ใช้ตั๋วกับทริปนี้แล้ว"); return; }
+          toast(d.error === "no_pass" ? "ตั๋วรายทริปหมดแล้ว" : "ใช้ตั๋วไม่สำเร็จ ลองอีกครั้ง");
+        } catch (x) { toast("เชื่อมต่อไม่ได้ ลองอีกครั้ง"); }
+        b.disabled = false;
+      });
+      btn("plain", "ดูแพ็กเกจ", function () { location.href = "/plans?next=" + encodeURIComponent(next); });
+    } else {
+      btn("primary", "ดูแพ็กเกจ", function () { location.href = "/plans?next=" + encodeURIComponent(next); });
+      if (!PL.plus) btn("plain", "ซื้อตั๋วรายทริป 39฿", function () { location.href = "/plans?next=" + encodeURIComponent(next) + "#pass"; });
+    }
+    btn("plain", "ไว้ก่อน", done);
+    sheet.appendChild(h); sheet.appendChild(p); sheet.appendChild(act); back.appendChild(sheet);
+    back.addEventListener("click", function (e) { if (e.target === back) done(); });
+    document.body.appendChild(back); document.body.style.overflow = "hidden";
+  }
+  function passNote() { // small line under the title when this trip uses a pass
+    var n = $("passNote");
+    if (!n) { n = document.createElement("div"); n.id = "passNote"; n.style.cssText = "font-size:13px;color:#8a5400;background:#fdf0dd;border-radius:12px;padding:8px 12px;margin-top:4px"; $("lead").insertAdjacentElement("afterend", n); }
+    n.textContent = editing ? "🎟 ทริปนี้ใช้ตั๋วรายทริป: ได้สิทธิ์ระดับ Standard" : "🎟 ทริปนี้จะใช้ตั๋วรายทริป 1 ใบ: ได้สิทธิ์ระดับ Standard และไม่นับรวมจำนวนทริปที่เปิด";
   }
   $("addVan").addEventListener("click", function () {
-    if (rows.length >= vanCap) return;
+    if (rows.length >= vanCap) { if (PL.on) planSheet("vans"); return; }
     rows.push({ id: "", label: letter(rows.length) }); renderVans();
   });
 
@@ -807,6 +849,7 @@ select.sel { border-color: #dde3e7!important; }
     bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าสู่ระบบด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
     quota_month: "เดือนนี้คุณสร้างทริปครบ 30 ทริปแล้ว ลองใหม่เดือนหน้านะ",
+    plan_vans: "แพ็กเกจของคุณเพิ่มรถได้ไม่เกินนี้", plan_trips: "เปิดทริปครบตามแพ็กเกจแล้ว", no_pass: "ตั๋วรายทริปหมดแล้ว",
     too_many: "ใส่รหัสผิดหลายครั้งเกินไป รอสักครู่แล้วลองใหม่"
   };
 
@@ -844,6 +887,7 @@ select.sel { border-color: #dde3e7!important; }
     };
     if (editing && $("closedNow").checked !== closedAtLoad) body.closed = $("closedNow").checked; // only when changed here: a form left open must not undo someone else's close/reopen
     if (editing) body.t = T;
+    if (!editing && usePass) body.usePass = true;
     busy = true; $("submit").disabled = true; $("cancelBtn").disabled = true; $("submit").textContent = (editing ? "กำลังแก้ไข..." : "กำลังสร้าง...");
     try {
       var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -853,6 +897,9 @@ select.sel { border-color: #dde3e7!important; }
         if (map[data.error]) { focusFirst(fieldErr($(map[data.error]), ERR[data.error])); }
         else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input.vn"); if (v0) { fieldErr(v0, ERR.bad_vans, v0.closest(".vf")); focusFirst(v0); } else toast(ERR.bad_vans); }
         else if (data.error === "login_required") location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new");
+        else if (data.error === "plan_trips") { PL.trips = data.limit; if (data.passes !== undefined) PL.passes = data.passes; planSheet("trips"); }
+        else if (data.error === "plan_vans") planSheet("vans");
+        else if (data.error === "no_pass") { usePass = false; PL.plus = false; PL.passes = 0; var pn = $("passNote"); if (pn) pn.remove(); planSheet("trips"); }
         else toast(ERR[data.error] || "บันทึกไม่สำเร็จ ลองอีกครั้ง");
         return;
       }
@@ -962,10 +1009,25 @@ select.sel { border-color: #dde3e7!important; }
         fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = closedAtLoad = t.closed === true;
         shown = { id: T }; $("shareBtn").hidden = false; $("dz").hidden = t.role === "helper"; // helpers edit, only the owner deletes
         booked = data.booked || 0; perVan = data.perVan || {}; loaded = t;
+        if (data.limits && data.limits.on) { PL = { on: true, tier: data.limits.tier, vans: data.limits.vans, plus: !!data.limits.plus, passes: 0, trips: data.limits.trips }; if (PL.plus) passNote(); }
+        if (PL.on && t.role === "owner" && !PL.plus) fetch("/api/pay", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.plan) PL.passes = d.plan.passes; }).catch(function () {});
       } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
     } else {
       rows = [{ id: "", label: "A" }];
       if (COPY) await copyFrom(COPY);
+      try { // the package: van limit, and whether another open trip is allowed
+        var pr = await fetch("/api/pay", { cache: "no-store" });
+        var pd = pr.ok ? await pr.json() : null;
+        if (pd && pd.on) {
+          var tl = pd.tiers[pd.plan.tier] || pd.tiers.free;
+          PL = { on: true, tier: pd.plan.tier, vans: tl.vans, passes: pd.plan.passes, plus: false, trips: tl.trips };
+          if (tl.trips && pd.plan.open >= tl.trips) {
+            if (PL.passes > 0) { usePass = true; PL.plus = true; PL.vans = Math.max(PL.vans, pd.tiers.standard.vans); passNote(); }
+            else setTimeout(function () { planSheet("trips"); }, 300);
+          }
+          if (rows.length > PL.vans) rows = rows.slice(0, PL.vans); // copied from a bigger trip
+        }
+      } catch (x) { /* packages unknown: the server still checks */ }
     }
     renderVans();
   }

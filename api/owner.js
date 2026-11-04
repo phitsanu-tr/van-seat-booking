@@ -1,9 +1,11 @@
 // Vercel serverless function: /api/owner   (developer/owner console, not for organizers)
 //   GET             list every trip with booking counts
 //   DELETE ?t=      delete a trip and its bookings
+//   GET ?orders=1   payments (newest first) + totals        POST {grant: {t, tier, days} | {t, passes}}  package for a trip's owner
 // Needs the OWNER_KEY environment variable (>= 16 chars) and the same value in the x-owner-key header.
 // Without OWNER_KEY the endpoint answers 404, as if it did not exist.
 const L = require("./_lib");
+const P = require("./_plans");
 
 const MAX_BAD = 10;
 const MAX_KEYS = 1000;
@@ -63,6 +65,38 @@ module.exports = async function handler(req, res) {
     if (typeof sent !== "string" || !sent || sent.length > 200 || !safeEq(sent, key)) {
       await L.pipeline([["INCR", fk], ["EXPIRE", fk, "7200"]]);
       return L.json(res, 403, { error: "bad_key" });
+    }
+
+    if (req.method === "GET" && req.query && req.query.orders !== undefined) {
+      const ids = ((await L.redis(["LRANGE", "orders:all", "0", "299"])) || []).filter((x) => /^[a-z0-9]{12}$/.test(x));
+      const raws = ids.length ? await L.pipeline(ids.map((id) => ["GET", "order:" + id])) : [];
+      const orders = [];
+      let paid = 0, paidN = 0, month = 0;
+      const ym = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 7);
+      raws.forEach((r) => {
+        let o = null; try { o = JSON.parse(r); } catch (e) { o = null; }
+        if (!o) return;
+        if (o.status === "paid") { paid += o.amount; paidN++; if (new Date((o.paidAt || o.at) + 7 * 3600e3).toISOString().slice(0, 7) === ym) month += o.amount; }
+        orders.push({ id: o.id, name: o.name || "", tag: String(o.uid || "").slice(-6), sku: o.sku, label: (P.SKUS[o.sku] || {}).label || o.sku, amount: o.amount, status: o.status, at: o.at, paidAt: o.paidAt || 0 });
+      });
+      return L.json(res, 200, { orders, totals: { paid, paidN, month }, on: P.enabled(), stripe: /^sk_(test|live)_/.test(process.env.STRIPE_SECRET_KEY || ""), mode: /^sk_live_/.test(process.env.STRIPE_SECRET_KEY || "") ? "live" : "test" });
+    }
+    if (req.method === "POST") {
+      const g = (L.readBody(req) || {}).grant || {};
+      const t = L.tripId(g.t);
+      const trip = t ? await L.loadTrip(t) : null;
+      if (!trip || !trip.owner) return L.json(res, 404, { error: "no_trip" });
+      if (g.passes !== undefined) {
+        const n = Number(g.passes);
+        if (!Number.isInteger(n) || n < 1 || n > 50) return L.json(res, 400, { error: "bad_passes" });
+        await L.redis(["INCRBY", P.passKey(trip.owner), String(n)]);
+      } else {
+        const days = Number(g.days);
+        if (!P.TIERS[g.tier] || (g.tier !== "free" && (!Number.isInteger(days) || days < 1 || days > 3660))) return L.json(res, 400, { error: "bad_grant" });
+        await P.setPlan(trip.owner, g.tier, days);
+      }
+      const plan = await P.getPlan(trip.owner);
+      return L.json(res, 200, { ok: true, owner: trip.ownerName || "", plan: P.publicPlan(plan) });
     }
 
     if (req.method === "GET") {

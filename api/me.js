@@ -6,6 +6,7 @@
 // GET ?inbox=1 -> { items, unread }   in-app notifications (newest first)
 // POST { read: "all" | { t } | { id } } -> marks notifications read (all / one trip / one item)
 const L = require("./_lib");
+const P = require("./_plans");
 const MAX = 60;
 
 function summary(trip, perVan) {
@@ -164,7 +165,7 @@ module.exports = async function handler(req, res) {
     if (goneTrips.length) clean.push(["SREM", L.myTripsKey(user.id)].concat(goneTrips));
     if (clean.length) { try { await L.pipeline(clean); } catch (e) { /* best effort */ } }
 
-    const myTrips = owned.map((id) => Object.assign(summary(trips[id], perVan[id] || {}), { role: L.roleOf(trips[id], user), helpers: (trips[id].helpers || []).length }));
+    const myTrips = owned.map((id) => Object.assign(summary(trips[id], perVan[id] || {}), { role: L.roleOf(trips[id], user), helpers: (trips[id].helpers || []).length, plus: !!trips[id].plus }));
     const mySeats = Object.keys(mine).map((id) => {
       const t = trips[id];
       const list = mine[id].sort((a, b) => a.s - b.s).map((x) => {
@@ -175,7 +176,19 @@ module.exports = async function handler(req, res) {
     });
     const byDate = (a, b) => (a.ended - b.ended) || String(a.startDate || "9").localeCompare(String(b.startDate || "9"));
     myTrips.sort(byDate); mySeats.sort(byDate);
-    return L.json(res, 200, { user: L.publicUser(user), trips: myTrips, seats: mySeats });
+    let plan = null;
+    if (P.enabled()) {
+      try {
+        const p = await P.getPlan(user.id);
+        plan = P.publicPlan(p, { open: myTrips.filter((x) => x.role === "owner" && !x.ended && !x.plus).length });
+        // a few days before a package runs out: one reminder in the bell (PromptPay can't renew by itself)
+        if (p.tier !== "free" && p.until - Date.now() < 3 * P.DAY) {
+          const first = await L.redis(["SET", "planrem:" + user.id + ":" + p.until, "1", "NX", "EX", String(10 * 86400)]);
+          if (first === "OK") await L.notify([user.id], { k: "plan_expiring", tn: (P.TIERS[p.tier] || {}).name || "", until: p.until });
+        }
+      } catch (e) { plan = null; }
+    }
+    return L.json(res, 200, { user: L.publicUser(user), trips: myTrips, seats: mySeats, plan });
   } catch (e) {
     return L.json(res, 502, { error: "storage_error" });
   }

@@ -61,7 +61,7 @@ function run(cmd, argv, env, timeoutMs) {
     // a fresh server per test: the fake Redis lives in memory, so every test starts empty
     // a test whose first line has "@jitter" runs against a fake Redis that answers after random network-like delays
     const jitter = /@jitter/.test(fs.readFileSync(path.join(DIR, f), "utf8").split("\n")[0]) ? "25" : "";
-    const server = spawn(process.execPath, ["dev.js"], { cwd: ROOT, env: Object.assign({}, process.env, { PORT: String(PORT), OWNER_KEY: "test-owner-key-1234567", REDIS_JITTER: jitter }), stdio: "ignore" });
+    const server = spawn(process.execPath, ["dev.js"], { cwd: ROOT, env: Object.assign({}, process.env, { PORT: String(PORT), OWNER_KEY: "test-owner-key-1234567", REDIS_JITTER: jitter, PLANS_ON: process.env.PLANS_ON || "0" }), stdio: "ignore" });
     const t0 = Date.now();
     let r;
     if (!(await portUp())) r = { code: 1, out: "[dev server did not start]" };

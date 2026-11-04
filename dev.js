@@ -26,6 +26,8 @@ function run(cmd) {
       const exi = a.findIndex((x) => String(x).toUpperCase() === "EX"); if (exi > 0) ttl.set(key, Date.now() + num(a[exi + 1]) * 1000);
       return "OK";
     }
+    case "EXISTS": return store.has(key) ? 1 : 0;
+    case "INCRBY": { const n = num(store.get(key)) + num(a[0]); store.set(key, String(n)); return n; }
     case "INCR": { const n = num(store.get(key)) + 1; store.set(key, String(n)); return n; }
     case "DECR": { const n = num(store.get(key)) - 1; store.set(key, String(n)); return n; }
     case "EXPIRE": if (!store.has(key)) return 0; ttl.set(key, Date.now() + num(a[0]) * 1000); return 1;
@@ -89,6 +91,7 @@ function route(pathname, query) {
   if (pathname === "/owner") return "/owner.html";
   if (pathname === "/mytrips") return "/mytrips.html";
   if (pathname === "/privacy") return "/privacy.html";
+  if (pathname === "/plans") return "/plans.html";
   if (/^\/[a-hj-km-np-z2-9]{6,8}$/.test(pathname)) return "/book.html";
   return pathname;
 }
@@ -96,9 +99,9 @@ function route(pathname, query) {
 function startApp() {
   const app = http.createServer((req, res) => {
     const u = new URL(req.url, "http://localhost");
-    const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/mytrips", "/trips": "/mytrips", "/owner.html": "/owner", "/mytrips.html": "/mytrips", "/privacy.html": "/privacy", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
+    const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/mytrips", "/trips": "/mytrips", "/owner.html": "/owner", "/mytrips.html": "/mytrips", "/privacy.html": "/privacy", "/plans.html": "/plans", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
     if (RD[u.pathname]) { res.writeHead(302, { Location: RD[u.pathname] }); return res.end(); }
-    if (u.pathname === "/api/trip" || u.pathname === "/api/seats" || u.pathname === "/api/owner" || u.pathname === "/api/mark" || u.pathname === "/api/auth" || u.pathname === "/api/me") {
+    if (u.pathname === "/api/trip" || u.pathname === "/api/seats" || u.pathname === "/api/owner" || u.pathname === "/api/mark" || u.pathname === "/api/auth" || u.pathname === "/api/me" || u.pathname === "/api/pay") {
       let raw = ""; req.on("data", (c) => (raw += c));
       req.on("end", async () => {
         req.query = Object.fromEntries(u.searchParams);

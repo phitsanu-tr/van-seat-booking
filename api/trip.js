@@ -9,9 +9,12 @@
 //   POST {t, removeHelper: i}          owner: remove helper #i      POST {t, leave: true}   helper: leave the trip
 //   POST {t, transfer: i}              owner: helper #i becomes the owner, the old owner becomes a helper
 // Closing bookings: POST {t, close: true | false} (owner or helper) closes / reopens at once; trip.closeAt closes it on time.
+// Packages (api/_plans.js): the owner's package limits open trips, vans, helpers and check-in rounds; POST {..., usePass: true}
+//   on create spends a per-trip pass (Standard limits for that trip); POST {t, usePass: true} upgrades an existing trip.
 // Check-in rounds: POST {t, resetBoard: true, name?} (owner or helper) saves a summary of the current round and clears every
 //   boarded tick for the next one (e.g. the way back); POST {t, boardName} renames the current round. Passengers never see trip.board.
 const L = require("./_lib");
+const P = require("./_plans");
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
@@ -32,7 +35,7 @@ async function refundQuota(user) {
   try { await L.redis(["DECR", "quota:" + month + ":u:" + user.id]); } catch (e) { /* best effort */ }
 }
 
-function clean(body, vanCap) {
+function clean(body, vanCap, planVans) {
   const s = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
   const name = s(body.name, 80);
   if (!name) return { error: "bad_name" };
@@ -41,7 +44,8 @@ function clean(body, vanCap) {
   if (endDate && !DATE_RE.test(endDate)) return { error: "bad_date" };
   if (departTime && !TIME_RE.test(departTime)) return { error: "bad_time" };
   const vans = Array.isArray(body.vans) ? body.vans : [];
-  if (vans.length < 1 || vans.length > Math.max(MAX_VANS, vanCap || 0)) return { error: "bad_vans" };
+  if (vans.length < 1) return { error: "bad_vans" };
+  if (vans.length > Math.max(planVans || MAX_VANS, vanCap || 0)) return { error: planVans ? "plan_vans" : "bad_vans", limit: planVans || MAX_VANS };
   const seen = new Set();
   const outVans = [];
   for (const v of vans) {
@@ -85,6 +89,7 @@ function assignVanIds(vans, taken) {
 function isManager(trip, user) { return !!L.roleOf(trip, user); }
 function isOwner(trip, user) { return L.roleOf(trip, user) === "owner"; }
 function deny(res, user) { return user ? L.json(res, 403, { error: "not_owner" }) : L.json(res, 401, { error: "login_required" }); }
+async function limitsOf(trip) { return P.limitsFor(trip && trip.owner ? await P.getPlan(trip.owner) : null, trip); } // the owner's package decides
 function tripSummary(trip, user) { return Object.assign(L.publicTrip(trip), { mine: isOwner(trip, user), role: L.roleOf(trip, user), closedNow: L.bookingClosed(trip) }); }
 // what the managers see about the team: names only (account ids never leave the server)
 function team(trip, user) {
@@ -125,7 +130,8 @@ module.exports = async function handler(req, res) {
       if (!trip || !trip.invite || trip.invite.c !== code) return L.json(res, 404, { error: "bad_invite" });
       if (L.roleOf(trip, user)) return L.json(res, 200, { ok: true, id: t, name: trip.name, already: true });
       const helpers = Array.isArray(trip.helpers) ? trip.helpers.slice() : [];
-      if (helpers.length >= L.MAX_HELPERS) return L.json(res, 409, { error: "helpers_full", max: L.MAX_HELPERS });
+      const hl = (await limitsOf(trip)).helpers;
+      if (helpers.length >= hl) return L.json(res, 409, { error: hl < L.MAX_HELPERS || hl === 0 ? "plan_helpers" : "helpers_full", max: hl });
       helpers.push({ u: user.id, n: user.name, at: Date.now() });
       const next = Object.assign({}, trip, { helpers });
       delete next.invite; // one person per invite link: it stops working once used
@@ -144,6 +150,7 @@ module.exports = async function handler(req, res) {
       if (!isManager(trip, user)) return deny(res, user);
       if (L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
       const board = Object.assign({ cur: { i: 1, name: "", at: 0, by: "" }, hist: [] }, trip.board || {});
+      if (pb.resetBoard === true) { const rl = (await limitsOf(trip)).rounds; if (rl && board.cur.i >= rl) return L.json(res, 402, { error: "plan_rounds", limit: rl }); }
       if (pb.resetBoard !== true) { // rename the current round
         const next = Object.assign({}, trip, { board: Object.assign({}, board, { cur: Object.assign({}, board.cur, { name: roundName(pb.boardName) }) }) });
         await saveTrip(next);
@@ -186,6 +193,18 @@ module.exports = async function handler(req, res) {
       await L.logEvent(t, { e: pb.close ? "close" : "reopen", n: user.name, u: user.id, by: L.roleOf(trip, user), at: Date.now() });
       return L.json(res, 200, { ok: true, closed: L.bookingClosed(next), trip: tripSummary(next, user) });
     }
+    if (req.method === "POST" && pb.usePass === true && pb.t !== undefined) { // spend a pass on an existing trip
+      const t = L.tripId(pb.t);
+      const trip = t ? await L.loadTrip(t) : null;
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      if (!isOwner(trip, user)) return isManager(trip, user) ? L.json(res, 403, { error: "owner_only" }) : deny(res, user);
+      if (trip.plus) return L.json(res, 200, { ok: true, already: true, limits: await limitsOf(trip) });
+      if (!P.enabled()) return L.json(res, 403, { error: "plans_off" });
+      if (!(await P.usePass(user.id))) return L.json(res, 402, { error: "no_pass" });
+      const next = Object.assign({}, trip, { plus: true, updatedAt: Date.now() });
+      await saveTrip(next);
+      return L.json(res, 200, { ok: true, limits: await limitsOf(next), trip: tripSummary(next, user) });
+    }
     if (req.method === "POST" && (pb.invite !== undefined || pb.removeHelper !== undefined || pb.leave !== undefined || pb.transfer !== undefined)) {
       const t = L.tripId(pb.t);
       const trip = t ? await L.loadTrip(t) : null;
@@ -201,6 +220,7 @@ module.exports = async function handler(req, res) {
         return L.json(res, 200, { ok: true });
       }
       if (role !== "owner") return L.json(res, 403, { error: "owner_only" });
+      if (pb.invite === true) { const hl = (await limitsOf(trip)).helpers; if (!hl || helpers.length >= hl) return L.json(res, 402, { error: "plan_helpers", max: hl }); }
       if (pb.invite === "revoke" || pb.invite === true) {
         const cmds = [];
         if (trip.invite && trip.invite.c) cmds.push(["DEL", "inv:" + trip.invite.c]);
@@ -237,16 +257,25 @@ module.exports = async function handler(req, res) {
     }
     if (req.method === "POST") {
       if (!user) return L.json(res, 401, { error: "login_required" }); // a trip always has an owner account
-      const c = clean(L.readBody(req));
-      if (c.error) return L.json(res, 400, { error: c.error });
+      const plan = await P.getPlan(user.id);
+      let plus = false;
+      const lim0 = P.limitsFor(plan, null);
+      const vl = P.limitsFor(plan, pb.usePass === true && lim0.on ? { plus: true } : null);
+      const c = clean(pb, 0, vl.on ? vl.vans : 0);
+      if (c.error) return L.json(res, c.error === "plan_vans" ? 402 : 400, { error: c.error, limit: c.limit });
+      if (lim0.on) {
+        if (pb.usePass === true) { if (!(await P.usePass(user.id))) return L.json(res, 402, { error: "no_pass" }); plus = true; }
+        else if (lim0.trips && (await P.openTripCount(user.id)) >= lim0.trips) return L.json(res, 402, { error: "plan_trips", limit: lim0.trips, passes: plan.passes, tier: plan.tier });
+      }
       const over = await takeQuota(user);
+      if (over && plus) await P.refundPass(user.id);
       if (over) return L.json(res, 429, { error: over, limit: TRIPS_PER_MONTH });
       const id = L.newId(8);
       const now = Date.now();
-      const trip = Object.assign({ id, schemaVersion: 1, createdAt: now, updatedAt: now, owner: user.id, ownerName: user.name }, c.value);
+      const trip = Object.assign({ id, schemaVersion: 1, createdAt: now, updatedAt: now, owner: user.id, ownerName: user.name }, c.value, plus ? { plus: true } : {});
       trip.vans = assignVanIds(trip.vans, []);
       const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
-      if (ok !== "OK") { await refundQuota(user); return L.json(res, 502, { error: "storage_error" }); }
+      if (ok !== "OK") { await refundQuota(user); if (plus) await P.refundPass(user.id); return L.json(res, 502, { error: "storage_error" }); }
       await L.applyExpiry(trip);
       { try { await L.pipeline([["SADD", L.myTripsKey(user.id), id], ["EXPIRE", L.myTripsKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* best effort */ } }
       return L.json(res, 200, { id, trip: tripSummary(trip, user) });
@@ -280,8 +309,10 @@ module.exports = async function handler(req, res) {
       trip.vans.forEach((v, i) => { perVan[v.id] = counts[i]; });
       const booked = counts.reduce((a, n) => a + n, 0);
       let roster;
-      if (wantRoster) return L.json(res, 200, rosterPayload(trip, user, all));
-      return L.json(res, 200, { trip: tripSummary(trip, user), booked, perVan, roster, ended: L.tripEnded(trip), team: team(trip, user) });
+      const limits = await limitsOf(trip);
+      const tm = Object.assign(team(trip, user), { max: limits.helpers });
+      if (wantRoster) return L.json(res, 200, Object.assign(rosterPayload(trip, user, all), { limits, team: tm }));
+      return L.json(res, 200, { trip: tripSummary(trip, user), booked, perVan, roster, ended: L.tripEnded(trip), team: tm, limits });
     }
 
     if (req.method === "DELETE") {
@@ -306,8 +337,9 @@ module.exports = async function handler(req, res) {
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (!isManager(trip, user)) return deny(res, user);
-      const c = clean(body, trip.vans.length);
-      if (c.error) return L.json(res, 400, { error: c.error });
+      const lt = await limitsOf(trip);
+      const c = clean(body, trip.vans.length, lt.on ? lt.vans : 0);
+      if (c.error) return L.json(res, c.error === "plan_vans" ? 402 : 400, { error: c.error, limit: c.limit });
       const oldIds = trip.vans.map((v) => v.id);
       const next = assignVanIds(c.value.vans.map((v) => ({ id: oldIds.includes(v.id) ? v.id : "", label: v.label, plate: v.plate })), oldIds);
       const kept = new Set(next.map((v) => v.id));

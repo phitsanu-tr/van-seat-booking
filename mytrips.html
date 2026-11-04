@@ -26,6 +26,10 @@ body.signed .top .ltl{display:block;min-width:0;flex:1}
 .stg-stat b{display:block;font:700 20px var(--font-display);color:var(--deep)}
 .stg-stat span{font-size:11.5px;color:var(--muted)}
 .stg-stat div+div{border-left:1px solid #e8ecef}
+.plc{display:flex;flex-direction:column;gap:2px;border-radius:24px;padding:16px;color:#fff;text-decoration:none;background:linear-gradient(150deg,#0E7C86,#0B5F67)}
+.plc .k{font-size:12px;color:#cfeaec}.plc b{font:700 20px var(--font-display)}.plc .u{font-size:13px;color:#d4ecee}
+.plc .rw{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.plc .rw span{background:rgba(255,255,255,.14);border-radius:12px;padding:8px;font-size:12px;color:#d9eff1}.plc .rw b{display:block;font-size:16px;color:#fff}
+.plc .go{margin-top:10px;height:40px;border-radius:12px;background:#fff;color:var(--deep);font:600 14px/40px var(--font-display);text-align:center}
 .stg-h{font-size:13px;font-weight:600;color:var(--muted);margin:6px 2px -6px}
 #paneAcct .acchd .av{width:56px;height:56px;font-size:22px}
 #paneAcct .acchd .hn b{font-size:19px}
@@ -1108,7 +1112,7 @@ body.signed .top .bell-wrap { display: none; }
           st.pending--; shut(); st.boardView = "cur";
           toast(isNew ? "เริ่ม" + roundTitle(dd.board.cur) + " แล้ว" : "ตั้งชื่อรอบแล้ว");
           fetchRoster(true);
-        } catch (e) { st.pending--; go.disabled = false; toast(e && e.message === "ended" ? "ทริปนี้จบแล้ว" : "ทำรายการไม่สำเร็จ ลองอีกครั้ง", true); }
+        } catch (e) { st.pending--; go.disabled = false; toast(e && e.message === "ended" ? "ทริปนี้จบแล้ว" : e && e.message === "plan_rounds" ? "แพ็กเกจ Free เช็กชื่อได้ 1 รอบ อัปเกรดหรือใช้ตั๋วรายทริปในหน้าแพ็กเกจ" : "ทำรายการไม่สำเร็จ ลองอีกครั้ง", true); }
       });
       inp.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.isComposing) go.click(); });
       acts.appendChild(no); acts.appendChild(go); d.appendChild(acts);
@@ -1293,7 +1297,11 @@ body.signed .top .bell-wrap { display: none; }
       sh.appendChild(list);
       if (!T.helpers.length) sh.appendChild(node("div", "rfree", "ยังไม่มีผู้ช่วย"));
       if (owner) {
-        if (T.helpers.length >= T.max) sh.appendChild(node("div", "rfree", "ผู้ช่วยครบ " + T.max + " คนแล้ว"));
+        if (T.max === 0 && !T.helpers.length) { // package without helpers
+          var up = node("div", "rfree"); up.appendChild(document.createTextNode("แพ็กเกจ Free ยังเพิ่มผู้ช่วยไม่ได้ · "));
+          var ul = node("a", null, "ดูแพ็กเกจ"); ul.href = "/plans?next=" + encodeURIComponent("/mytrips#trips"); ul.style.cssText = "color:var(--mine);font-weight:600"; up.appendChild(ul); sh.appendChild(up);
+        }
+        else if (T.helpers.length >= T.max) sh.appendChild(node("div", "rfree", "ผู้ช่วยครบ " + T.max + " คนแล้ว"));
         else if (T.invite) {
           var box = node("div", "ilink"), u = inviteUrl(T.invite.code);
           box.appendChild(node("b", null, "ลิงก์เชิญผู้ช่วย (ใช้ได้ 1 คน)"));
@@ -1322,7 +1330,7 @@ body.signed .top .bell-wrap { display: none; }
       var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ join: code }) });
       var d = {}; try { d = await r.json(); } catch (e) {}
       if (r.ok) toast(d.already ? "คุณอยู่ในทีมของทริปนี้แล้ว" : "เข้าร่วมเป็นผู้ช่วยจัด " + (d.name || "ทริป") + " แล้ว");
-      else toast(d.error === "helpers_full" ? "ทริปนี้มีผู้ช่วยครบแล้ว" : d.error === "bad_invite" ? "ลิงก์เชิญนี้ใช้ไม่ได้แล้ว ขอลิงก์ใหม่จากเจ้าของทริป" : "เข้าร่วมไม่สำเร็จ", true);
+      else toast(d.error === "helpers_full" ? "ทริปนี้มีผู้ช่วยครบแล้ว" : d.error === "plan_helpers" ? "แพ็กเกจของเจ้าของทริปเพิ่มผู้ช่วยไม่ได้แล้ว" : d.error === "bad_invite" ? "ลิงก์เชิญนี้ใช้ไม่ได้แล้ว ขอลิงก์ใหม่จากเจ้าของทริป" : "เข้าร่วมไม่สำเร็จ", true);
     } catch (e) { toast("เชื่อมต่อไม่ได้", true); }
   }
 
@@ -1524,7 +1532,21 @@ body.signed .top .bell-wrap { display: none; }
       [[(D.trips || []).length, "ทริปที่จัด"], [booked, "คนที่จองกับเรา"], [(D.seats || []).length, "ทริปที่จองไว้"]].forEach(function (x) { var c = node("div"); c.appendChild(node("b", null, String(x[0]))); c.appendChild(node("span", null, x[1])); st.appendChild(c); });
       p.appendChild(st);
     }
+    if (D && D.plan && D.plan.on) p.appendChild(planCard(D.plan));
     p.appendChild(node("div", "stg-h", "บัญชี")); p.appendChild(parts[1]); p.appendChild(parts[2]);
+  }
+  function planCard(pl) { // profile: current package, what it allows, and the packages page
+    var MON2 = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+    var dt = function (ms) { var d = new Date(ms + 7 * 3600e3); return d.getUTCDate() + " " + MON2[d.getUTCMonth()] + " " + String((d.getUTCFullYear() + 543) % 100).padStart(2, "0"); };
+    var c = node("a", "plc"); c.href = "/plans";
+    c.appendChild(node("span", "k", "แพ็กเกจของคุณ"));
+    c.appendChild(node("b", null, pl.name));
+    c.appendChild(node("span", "u", pl.tier === "free" ? "ใช้ฟรี · แตะเพื่อดูแพ็กเกจ" : "ใช้ได้ถึง " + dt(pl.until) + (pl.src === "gift" ? " · ของขวัญผู้ใช้เดิม" : "")));
+    var rw = node("div", "rw"), L = pl.limits || {};
+    [[pl.open + (L.trips ? "/" + L.trips : ""), "ทริปที่เปิด"], [String(L.vans), "รถต่อทริป"], [String(pl.passes || 0), "ตั๋วรายทริป"]].forEach(function (x) { var s = node("span"); s.appendChild(node("b", null, x[0])); s.appendChild(document.createTextNode(x[1])); rw.appendChild(s); });
+    c.appendChild(rw);
+    c.appendChild(node("span", "go", pl.tier === "free" ? "ดูแพ็กเกจ" : "จัดการแพ็กเกจ"));
+    return c;
   }
   function acctParts(shut) {
     var head = node("div", "acchd"), avw = $("av").parentNode.cloneNode(true); avw.querySelector(".av").removeAttribute("id");

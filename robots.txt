@@ -4,3 +4,4 @@ Disallow: /api/
 Disallow: /owner
 Disallow: /mytrips
 Disallow: /trips/
+Disallow: /plans
