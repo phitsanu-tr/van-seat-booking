@@ -3,7 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<style>html { touch-action: manipulation; }</style>
+<style>html { touch-action: manipulation; }
+/* LIFF full screen (body.lift): bottom tab bar replaces the top tabs; LINE draws the title bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;height:72px;padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #e8ecef;display:none;justify-content:space-around;z-index:50;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
+body.lift.is-in .tabbar,body.lift.signed .tabbar{display:flex}
+.tabbar a,.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;padding:0;font:500 11px var(--font-display);color:#8a949a;text-decoration:none;cursor:pointer;position:relative}
+.tabbar svg{width:24px;height:24px}
+.tabbar .on{color:var(--deep);font-weight:700}
+.tabbar .on::before{content:"";position:absolute;top:0;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--deep)}
+body.lift main{padding-bottom:96px !important}
+body.lift .top > div > span:first-child,body.lift .top > div > a:first-child,body.lift .top .acct,body.lift .top .acct-pill{display:none !important}
+body.lift .seg{display:none !important}
+</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <title>ทริปของฉัน · จองที่นั่งรถตู้</title>
 <meta name="robots" content="noindex, nofollow">
@@ -305,7 +316,7 @@ body.signed .top .bell-wrap { display: flex; }
   window.__liffReady = new Promise(function(resolve){
     if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
-      if (!liff.isInClient()) { resolve(false); return; }
+      if (!liff.isInClient()) { resolve(false); return; } document.body.classList.add("lift");
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
       fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){
@@ -363,6 +374,7 @@ body.signed .top .bell-wrap { display: flex; }
     </div>
   </section>
   <div class="foot">© 2026</div>
+<nav class="tabbar" aria-label="เมนูหลัก"><a href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>หน้าหลัก</a><button id="navTrips" class="on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>ทริปที่จัด</button><button id="navSeats" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h7a3 3 0 0 1 3 3v6H7z"/><path d="M5 13h14v4H5zM7 17v3M17 17v3"/></svg>ที่นั่งของฉัน</button><button id="navAcct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>บัญชี</button></nav>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <script src="/bell.js"></script>
@@ -1231,7 +1243,11 @@ body.signed .top .bell-wrap { display: flex; }
     $("tabSeats").setAttribute("aria-selected", t === "seats" ? "true" : "false");
     $("paneTrips").hidden = t !== "trips"; $("paneSeats").hidden = t !== "seats";
     try { history.replaceState(null, "", "/mytrips" + (t === "seats" ? "#seats" : "")); } catch (e) {}
+    $("navTrips").classList.toggle("on", t === "trips"); $("navSeats").classList.toggle("on", t === "seats");
   }
+  $("navTrips").addEventListener("click", function () { setTab("trips"); });
+  $("navSeats").addEventListener("click", function () { setTab("seats"); });
+  $("navAcct").addEventListener("click", openAccount);
   $("tabTrips").addEventListener("click", function () { setTab("trips"); });
   $("tabSeats").addEventListener("click", function () { setTab("seats"); });
 
@@ -1361,6 +1377,7 @@ body.signed .top .bell-wrap { display: flex; }
     $("acctBtn2").hidden = false;
     if (JOIN) { try { history.replaceState(null, "", "/mytrips"); } catch (e) {} await joinTeam(JOIN); JOIN = ""; setTab("trips"); }
     if (window.VSBBell) { VSBBell.mount($("bellHost")); VSBBell.onChange(function () { if (D) { renderTrips(D.trips); renderSeats(D.seats); } }); VSBBell.load(); }
+    if (new URLSearchParams(location.search).get("acct") === "1") { try { history.replaceState(null, "", "/mytrips" + (location.hash || "")); } catch (e) {} openAccount(); }
     load();
   })();
 })();
