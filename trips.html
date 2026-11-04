@@ -693,7 +693,7 @@ select.sel { border-color: #dde3e7!important; }
     var h = document.createElement("h2"); h.className = "cf-title";
     var p = document.createElement("p"); p.className = "cf-text";
     var TN = { free: "Free", standard: "Standard", premium: "Premium" }[PL.tier] || "Free";
-    if (kind === "trips") { h.textContent = "เปิดทริปครบ " + (PL.trips || 0) + " ทริปแล้ว"; p.textContent = "แพ็กเกจ " + TN + " เปิดทริปพร้อมกันได้ " + (PL.trips || 0) + " ทริป รอให้ทริปเก่าจบ ลบทริปที่ไม่ใช้ หรืออัปเกรดเพื่อสร้างเพิ่ม"; }
+    if (kind === "trips") { h.textContent = "เดือนนี้สร้างทริปครบ " + (PL.trips || 0) + " ทริปแล้ว"; p.textContent = "แพ็กเกจ " + TN + " สร้างทริปได้ " + (PL.trips || 0) + " ทริปต่อเดือน รอเดือนหน้า อัปเกรด หรือใช้ตั๋วรายทริป (ทริปที่ลบภายใน 24 ชม. และยังไม่มีคนจอง ได้โควตาคืน)"; }
     else { h.textContent = "เพิ่มรถได้สูงสุด " + vanCap + " คัน"; p.textContent = "แพ็กเกจ " + TN + " ใช้รถได้ " + vanCap + " คันต่อทริป อัปเกรด หรือใช้ตั๋วรายทริปกับทริปนี้เพื่อเพิ่มได้ถึง 5 คัน"; }
     var act = document.createElement("div"); act.className = "pk-act"; act.style.cssText = "display:flex;flex-direction:column;gap:8px";
     function done() { back.remove(); document.body.style.overflow = ""; }
@@ -724,7 +724,7 @@ select.sel { border-color: #dde3e7!important; }
   function passNote() { // small line under the title when this trip uses a pass
     var n = $("passNote");
     if (!n) { n = document.createElement("div"); n.id = "passNote"; n.style.cssText = "font-size:13px;color:#8a5400;background:#fdf0dd;border-radius:12px;padding:8px 12px;margin-top:4px"; $("lead").insertAdjacentElement("afterend", n); }
-    n.textContent = editing ? "🎟 ทริปนี้ใช้ตั๋วรายทริป: ได้สิทธิ์ระดับ Standard" : "🎟 ทริปนี้จะใช้ตั๋วรายทริป 1 ใบ: ได้สิทธิ์ระดับ Standard และไม่นับรวมจำนวนทริปที่เปิด";
+    n.textContent = editing ? "🎟 ทริปนี้ใช้ตั๋วรายทริป: ได้สิทธิ์ระดับ Standard" : "🎟 ทริปนี้จะใช้ตั๋วรายทริป 1 ใบ: ได้สิทธิ์ระดับ Standard และไม่นับรวมโควตาทริปของเดือน";
   }
   $("addVan").addEventListener("click", function () {
     if (rows.length >= vanCap) { if (PL.on) planSheet("vans"); return; }
@@ -1021,7 +1021,7 @@ select.sel { border-color: #dde3e7!important; }
         if (pd && pd.on) {
           var tl = pd.tiers[pd.plan.tier] || pd.tiers.free;
           PL = { on: true, tier: pd.plan.tier, vans: tl.vans, passes: pd.plan.passes, plus: false, trips: tl.trips };
-          if (tl.trips && pd.plan.open >= tl.trips) {
+          if (tl.trips && pd.plan.used >= tl.trips) {
             if (PL.passes > 0) { usePass = true; PL.plus = true; PL.vans = Math.max(PL.vans, pd.tiers.standard.vans); passNote(); }
             else setTimeout(function () { planSheet("trips"); }, 300);
           }

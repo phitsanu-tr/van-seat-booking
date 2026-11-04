@@ -114,9 +114,9 @@ module.exports = async function handler(req, res) {
     }
     if (req.method === "GET") {
       const plan = await P.getPlan(user.id);
-      const open = P.enabled() ? await P.openTripCount(user.id) : 0;
+      const used = P.enabled() ? await P.monthUsed(user.id) : 0;
       const catalog = Object.keys(P.SKUS).map((k) => Object.assign({ sku: k }, P.SKUS[k]));
-      return L.json(res, 200, { on: P.enabled(), ready: !!stripeKey() || DEV, dev: DEV, plan: P.publicPlan(plan, { open }), tiers: P.TIERS, catalog });
+      return L.json(res, 200, { on: P.enabled(), ready: !!stripeKey() || DEV, dev: DEV, plan: P.publicPlan(plan, { used }), tiers: P.TIERS, catalog });
     }
 
     if (req.method === "POST") {

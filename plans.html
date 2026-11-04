@@ -95,9 +95,8 @@ details ol { margin: 8px 0 0; padding-left: 18px; }
   b.addEventListener("click", function (e) { var r = ""; try { r = new URL(document.referrer).origin; } catch (x) {} if (r === location.origin && history.length > 1) { e.preventDefault(); history.back(); } });
   var yearly = false, S = null;
 
-  function lim(n, unit, none) { return n === 0 ? none : n + " " + unit; }
   function feats(t) {
-    return [lim(t.trips, "ทริปที่เปิดพร้อมกัน", "ไม่จำกัดจำนวนทริป"), "รถสูงสุด " + t.vans + " คันต่อทริป", t.helpers ? "ผู้ช่วยจัด " + t.helpers + " คน" : "ไม่มีผู้ช่วยจัด", t.rounds ? "เช็กชื่อขึ้นรถ " + t.rounds + " รอบ" : "เช็กชื่อขึ้นรถไม่จำกัดรอบ"];
+    return [t.trips ? "สร้างทริปได้ " + t.trips + " ทริปต่อเดือน" : "สร้างทริปได้ไม่จำกัด", "รถสูงสุด " + t.vans + " คันต่อทริป", t.helpers ? "ผู้ช่วยจัด " + t.helpers + " คน" : "ไม่มีผู้ช่วยจัด", t.rounds ? "เช็กชื่อขึ้นรถ " + t.rounds + " รอบ" : "เช็กชื่อขึ้นรถไม่จำกัดรอบ"];
   }
   function buy(sku, btn) {
     btn.disabled = true;
@@ -117,7 +116,7 @@ details ol { margin: 8px 0 0; padding-left: 18px; }
     var T = d.tiers[p.tier] || d.tiers.free;
     var cur = '<div class="cur"><span class="k">แพ็กเกจของคุณ</span><span class="t">' + esc(T.name) + '</span><span class="u">' +
       (p.tier === "free" ? "ใช้ฟรี ไม่มีวันหมดอายุ" : "ใช้ได้ถึง " + day(p.until) + (p.src === "gift" ? " · ของขวัญสำหรับผู้ใช้เดิม" : "")) + '</span>' +
-      '<div class="rw"><span><b>' + p.open + (T.trips ? "/" + T.trips : "") + '</b>ทริปที่เปิด</span><span><b>' + T.vans + '</b>รถต่อทริป</span><span><b>' + p.passes + '</b>ตั๋วรายทริป</span></div></div>';
+      '<div class="rw"><span><b>' + p.used + (T.trips ? "/" + T.trips : "") + '</b>ทริปเดือนนี้</span><span><b>' + T.vans + '</b>รถต่อทริป</span><span><b>' + p.passes + '</b>ตั๋วรายทริป</span></div></div>';
     wrap.insertAdjacentHTML("beforeend", cur);
     if (!d.ready) wrap.insertAdjacentHTML("beforeend", '<div class="note">ระบบชำระเงินกำลังจะเปิด ตอนนี้ยังซื้อไม่ได้</div>');
     var seg = document.createElement("div"); seg.className = "seg";
@@ -139,13 +138,14 @@ details ol { margin: 8px 0 0; padding-left: 18px; }
       wrap.appendChild(card);
     });
     var ps = price.pass, pass = document.createElement("div"); pass.className = "pass"; pass.id = "pass";
-    pass.innerHTML = "<b>🎟 ตั๋วรายทริป " + baht(ps.amount) + "</b><span>ปลดล็อกระดับ Standard ให้ทริปเดียว และไม่นับรวมกับจำนวนทริปที่เปิดอยู่ ใช้ตอนสร้างทริป หรือกับทริปที่มีอยู่แล้วก็ได้" + (p.passes ? " · ตอนนี้มี " + p.passes + " ใบ" : "") + "</span>";
+    pass.innerHTML = "<b>🎟 ตั๋วรายทริป " + baht(ps.amount) + "</b><span>ปลดล็อกระดับ Standard ให้ทริปเดียว และไม่นับรวมกับโควตาทริปของเดือน ใช้ตอนสร้างทริป หรือกับทริปที่มีอยู่แล้วก็ได้" + (p.passes ? " · ตอนนี้มี " + p.passes + " ใบ" : "") + "</span>";
     var pb = document.createElement("button"); pb.type = "button"; pb.className = "btn sm"; pb.textContent = "ซื้อตั๋วรายทริป"; pb.disabled = !d.ready;
     pb.addEventListener("click", function () { buy("pass", pb); }); pass.appendChild(pb); wrap.appendChild(pass);
     wrap.insertAdjacentHTML("beforeend", '<div class="note">จ่ายด้วย PromptPay (สแกนจากแอปธนาคาร) หรือบัตร ผ่าน Stripe · ไม่ตัดเงินอัตโนมัติ หมดอายุแล้วซื้อต่อเองได้</div>');
     wrap.insertAdjacentHTML("beforeend", '<details><summary>เงื่อนไขและการคืนเงิน</summary><ol>' +
       "<li>แพ็กเกจรายเดือนใช้ได้ 30 วัน รายปี 365 วัน นับจากวันที่ชำระ ซื้อแพ็กเกจเดิมซ้ำจะต่อเวลาจากวันหมดอายุเดิม</li>" +
       "<li>อัปเกรดเป็นแพ็กเกจที่สูงกว่า แพ็กเกจใหม่เริ่มนับทันที</li>" +
+      "<li>จำนวนทริปนับตามเดือน (เวลาไทย) ลบทริปแล้วไม่ได้โควตาคืน ยกเว้นลบภายใน 24 ชั่วโมงหลังสร้างและยังไม่มีใครจอง</li>" +
       "<li>เมื่อหมดอายุ ทริปและที่นั่งเดิมยังอยู่ครบ แต่จะสร้างทริป เพิ่มรถ หรือเพิ่มผู้ช่วยได้ตามสิทธิ์ของแพ็กเกจ Free</li>" +
       "<li>ตั๋วรายทริปไม่มีวันหมดอายุ ใช้แล้วผูกกับทริปนั้นถาวร</li>" +
       "<li>ขอคืนเงินได้ภายใน 7 วันหลังชำระ หากยังไม่ได้ใช้สิทธิ์ ติดต่อ phitsanu.tr@outlook.com</li>" +

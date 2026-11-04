@@ -180,7 +180,7 @@ module.exports = async function handler(req, res) {
     if (P.enabled()) {
       try {
         const p = await P.getPlan(user.id);
-        plan = P.publicPlan(p, { open: myTrips.filter((x) => x.role === "owner" && !x.ended && !x.plus).length });
+        plan = P.publicPlan(p, { used: await P.monthUsed(user.id) });
         // a few days before a package runs out: one reminder in the bell (PromptPay can't renew by itself)
         if (p.tier !== "free" && p.until - Date.now() < 3 * P.DAY) {
           const first = await L.redis(["SET", "planrem:" + user.id + ":" + p.until, "1", "NX", "EX", String(10 * 86400)]);

@@ -1543,7 +1543,7 @@ body.signed .top .bell-wrap { display: none; }
     c.appendChild(node("b", null, pl.name));
     c.appendChild(node("span", "u", pl.tier === "free" ? "ใช้ฟรี · แตะเพื่อดูแพ็กเกจ" : "ใช้ได้ถึง " + dt(pl.until) + (pl.src === "gift" ? " · ของขวัญผู้ใช้เดิม" : "")));
     var rw = node("div", "rw"), L = pl.limits || {};
-    [[pl.open + (L.trips ? "/" + L.trips : ""), "ทริปที่เปิด"], [String(L.vans), "รถต่อทริป"], [String(pl.passes || 0), "ตั๋วรายทริป"]].forEach(function (x) { var s = node("span"); s.appendChild(node("b", null, x[0])); s.appendChild(document.createTextNode(x[1])); rw.appendChild(s); });
+    [[(pl.used || 0) + (L.trips ? "/" + L.trips : ""), "ทริปเดือนนี้"], [String(L.vans), "รถต่อทริป"], [String(pl.passes || 0), "ตั๋วรายทริป"]].forEach(function (x) { var s = node("span"); s.appendChild(node("b", null, x[0])); s.appendChild(document.createTextNode(x[1])); rw.appendChild(s); });
     c.appendChild(rw);
     c.appendChild(node("span", "go", pl.tier === "free" ? "ดูแพ็กเกจ" : "จัดการแพ็กเกจ"));
     return c;

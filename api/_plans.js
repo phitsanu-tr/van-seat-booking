@@ -5,7 +5,8 @@
 // Redis:
 //   plan:<uid>    = {tier, until (ms), src}     no key / expired -> Free
 //   passes:<uid>  = number of unused per-trip passes
-//   trip.plus     = true on a trip that used a pass (that trip gets Standard limits and doesn't count toward "open trips")
+//   trip.plus     = true on a trip that used a pass (that trip gets Standard limits and doesn't count toward the monthly trips)
+//   trip.qm       = the month whose counter the trip was counted in (so a mistaken trip can be given back)
 //   order:<id>    = {id, uid, name, sku, amount, status ("open"|"paid"|"expired"), at, paidAt, sess}   kept 400 days
 //   orders:<uid>  = list of the account's order ids (newest first)     orders:all = every order id (owner console)
 //
@@ -17,9 +18,9 @@ const DAY = 86400 * 1000;
 const LAUNCH_GIFT_DAYS = 90; // accounts that already organized trips before packages started get Standard for free this long
 
 const TIERS = {
-  free: { name: "Free", trips: 2, vans: 1, helpers: 0, rounds: 1 },
+  free: { name: "Free", trips: 2, vans: 1, helpers: 0, rounds: 1 },         // trips = new trips per calendar month
   standard: { name: "Standard", trips: 20, vans: 5, helpers: 2, rounds: 0 },
-  premium: { name: "Premium", trips: 0, vans: 10, helpers: 5, rounds: 0 }, // 0 = no limit
+  premium: { name: "Premium", trips: 0, vans: 10, helpers: 5, rounds: 0 }, // 0 = no limit (trips: up to SPAM_CAP a month)
 };
 // while packages are off: the limits the app always had
 const LEGACY = { name: "", trips: 0, vans: 5, helpers: 2, rounds: 0 };
@@ -72,15 +73,16 @@ function limitsFor(plan, trip) {
   return lim;
 }
 
-// the owner's trips that are still open (not finished) and don't use a pass: they count toward the package's limit
-async function openTripCount(uid) {
-  const ids = ((await L.redis(["SMEMBERS", L.myTripsKey(uid)])) || []).map(String).filter((x) => L.tripId(x));
-  if (!ids.length) return 0;
-  const raws = await L.pipeline(ids.map((id) => ["GET", L.tripKey(id)]));
-  let n = 0;
-  raws.forEach((raw) => { try { const t = JSON.parse(raw); if (t && t.owner === uid && !t.plus && !L.tripEnded(t)) n++; } catch (e) { /* skip */ } });
-  return n;
-}
+// Trips created this calendar month (Thai time) by the account: the same counter api/trip.js uses ("quota:<YYYY-MM>:u:<uid>").
+// It lives apart from the account's data, so deleting trips or "delete my data" doesn't give the trips back;
+// only a trip deleted within REFUND_HOURS of creating it, with nobody booked, is given back (made by mistake).
+const SPAM_CAP = 100;   // "no limit" packages still stop at this many trips a month
+const LEGACY_MONTH = 30; // while packages are off
+const REFUND_HOURS = 24;
+function monthNow() { return new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 7); }
+function quotaKey(uid, month) { return "quota:" + (month || monthNow()) + ":u:" + uid; }
+async function monthUsed(uid) { return Math.max(0, Number(await L.redis(["GET", quotaKey(uid)])) || 0); }
+function monthCap(lim) { return !lim || !lim.on ? LEGACY_MONTH : lim.trips || SPAM_CAP; }
 
 async function usePass(uid) { // takes one pass; false when there is none
   const n = Number(await L.redis(["DECR", passKey(uid)]));
@@ -118,4 +120,4 @@ function publicPlan(plan, extra) {
   return Object.assign({ on: enabled(), tier: plan.tier, name: t.name, until: plan.until, src: plan.src, passes: plan.passes, limits: { trips: t.trips, vans: t.vans, helpers: t.helpers, rounds: t.rounds } }, extra || {});
 }
 
-module.exports = { TIERS, SKUS, LEGACY, DAY, enabled, getPlan, limitsFor, openTripCount, usePass, refundPass, grant, setPlan, publicPlan, planKey, passKey };
+module.exports = { TIERS, SKUS, LEGACY, DAY, enabled, getPlan, limitsFor, monthUsed, monthCap, monthNow, quotaKey, REFUND_HOURS, usePass, refundPass, grant, setPlan, publicPlan, planKey, passKey };

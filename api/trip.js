@@ -19,20 +19,18 @@ const P = require("./_plans");
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
 const MAX_VANS = 5;           // vans per trip (a trip created earlier with more keeps its count when edited)
-const TRIPS_PER_MONTH = 30; // per LINE account, calendar month in Thai time (UTC+7)
 
-// Counts a creation against this month's quota for the account. Returns the error code when over the limit.
-async function takeQuota(user) {
-  const month = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 7);
-  const key = "quota:" + month + ":u:" + user.id;
+// Counts a creation against this month's trips for the account (cap: the package's trips a month, or 30 while packages
+// are off). Returns null, or the month counted in, plus the error when over.
+async function takeQuota(user, cap) {
+  const month = P.monthNow(), key = P.quotaKey(user.id, month);
   const out = await L.pipeline([["INCR", key], ["EXPIRE", key, String(40 * 86400)]]);
-  if (Number(out[0]) > TRIPS_PER_MONTH) { try { await L.redis(["DECR", key]); } catch (e) { /* best effort */ } return "quota_month"; }
-  return null;
+  if (Number(out[0]) > cap) { try { await L.redis(["DECR", key]); } catch (e) { /* best effort */ } return { over: true, month }; }
+  return { over: false, month };
 }
-async function refundQuota(user) {
+async function refundQuota(user, month) {
   if (!user) return;
-  const month = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 7);
-  try { await L.redis(["DECR", "quota:" + month + ":u:" + user.id]); } catch (e) { /* best effort */ }
+  try { await L.redis(["DECR", P.quotaKey(user.id, month)]); } catch (e) { /* best effort */ }
 }
 
 function clean(body, vanCap, planVans) {
@@ -263,19 +261,19 @@ module.exports = async function handler(req, res) {
       const vl = P.limitsFor(plan, pb.usePass === true && lim0.on ? { plus: true } : null);
       const c = clean(pb, 0, vl.on ? vl.vans : 0);
       if (c.error) return L.json(res, c.error === "plan_vans" ? 402 : 400, { error: c.error, limit: c.limit });
-      if (lim0.on) {
-        if (pb.usePass === true) { if (!(await P.usePass(user.id))) return L.json(res, 402, { error: "no_pass" }); plus = true; }
-        else if (lim0.trips && (await P.openTripCount(user.id)) >= lim0.trips) return L.json(res, 402, { error: "plan_trips", limit: lim0.trips, passes: plan.passes, tier: plan.tier });
+      if (lim0.on && pb.usePass === true) { if (!(await P.usePass(user.id))) return L.json(res, 402, { error: "no_pass" }); plus = true; }
+      let qm = "";
+      if (!plus) { // a trip on a pass doesn't count toward the month
+        const cap = P.monthCap(lim0), q = await takeQuota(user, cap);
+        if (q.over) return lim0.on && lim0.trips ? L.json(res, 402, { error: "plan_trips", limit: lim0.trips, passes: plan.passes, tier: plan.tier }) : L.json(res, 429, { error: "quota_month", limit: cap });
+        qm = q.month;
       }
-      const over = await takeQuota(user);
-      if (over && plus) await P.refundPass(user.id);
-      if (over) return L.json(res, 429, { error: over, limit: TRIPS_PER_MONTH });
       const id = L.newId(8);
       const now = Date.now();
-      const trip = Object.assign({ id, schemaVersion: 1, createdAt: now, updatedAt: now, owner: user.id, ownerName: user.name }, c.value, plus ? { plus: true } : {});
+      const trip = Object.assign({ id, schemaVersion: 1, createdAt: now, updatedAt: now, owner: user.id, ownerName: user.name }, c.value, plus ? { plus: true } : {}, qm ? { qm } : {});
       trip.vans = assignVanIds(trip.vans, []);
       const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
-      if (ok !== "OK") { await refundQuota(user); if (plus) await P.refundPass(user.id); return L.json(res, 502, { error: "storage_error" }); }
+      if (ok !== "OK") { if (qm) await refundQuota(user, qm); if (plus) await P.refundPass(user.id); return L.json(res, 502, { error: "storage_error" }); }
       await L.applyExpiry(trip);
       { try { await L.pipeline([["SADD", L.myTripsKey(user.id), id], ["EXPIRE", L.myTripsKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* best effort */ } }
       return L.json(res, 200, { id, trip: tripSummary(trip, user) });
@@ -321,6 +319,12 @@ module.exports = async function handler(req, res) {
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (!isOwner(trip, user)) return isManager(trip, user) ? L.json(res, 403, { error: "owner_only" }) : deny(res, user);
       const bookers = await L.tripBookers(trip); // read before the seats are gone
+      // made by mistake (deleted within a day, nobody booked): the month's trip is given back
+      let refunded = false;
+      if (trip.qm && !trip.plus && Date.now() - (trip.createdAt || 0) < P.REFUND_HOURS * 3600 * 1000) {
+        const lens = await L.pipeline(trip.vans.map((v) => ["HLEN", L.seatsKey(t, v.id)]));
+        if (lens.every((n) => !Number(n))) { await refundQuota({ id: trip.owner }, trip.qm); refunded = true; }
+      }
       const cmds = [["DEL", L.tripKey(t)], ["DEL", L.logKey(t)]];
       if (trip.owner) cmds.push(["SREM", L.myTripsKey(trip.owner), t]);
       (trip.helpers || []).forEach((h) => cmds.push(["SREM", L.myTripsKey(h.u), t]));
@@ -328,7 +332,7 @@ module.exports = async function handler(req, res) {
       trip.vans.forEach((v) => cmds.push(["DEL", L.seatsKey(t, v.id)]));
       await L.pipeline(cmds);
       await L.notify([].concat(...Object.values(bookers), L.teamIds(trip)), { k: "trip_deleted", t, tn: trip.name, by: "owner" }, user.id);
-      return L.json(res, 200, { ok: true });
+      return L.json(res, 200, { ok: true, refunded });
     }
 
     if (req.method === "PUT") {
