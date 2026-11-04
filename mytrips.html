@@ -415,7 +415,7 @@ body.signed .top .bell-wrap { display: none; }
 </script>
 </head>
 <body>
-<div class="top"><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="ltl" id="ltl"><b id="ltT">ทริปที่จัด</b><small id="ltS"></small></span><a class="mkp" id="mkTrip" href="/trips/new">＋ สร้างทริป</a><button class="mkr" id="mkRead" type="button">อ่านทั้งหมด</button><span class="bell-wrap" id="bellHost"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
+<div class="top"><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="ltl" id="ltl"><b id="ltT">ทริปของฉัน</b><small id="ltS"></small></span><a class="mkp" id="mkTrip" href="/trips/new">＋ สร้างทริป</a><button class="mkr" id="mkRead" type="button">อ่านทั้งหมด</button><span class="bell-wrap" id="bellHost"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
 <main>
   <section class="login" id="loginView" hidden>
     <div class="hero">
@@ -469,7 +469,7 @@ body.signed .top .bell-wrap { display: none; }
     </div>
   </section>
   <div class="foot">© 2026</div>
-<nav class="tabbar" aria-label="เมนูหลัก"><button id="navHome" class="on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>หน้าหลัก</button><button id="navTrips" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>ทริปที่จัด</button><button id="navSeats" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h7a3 3 0 0 1 3 3v6H7z"/><path d="M5 13h14v4H5zM7 17v3M17 17v3"/></svg>ที่นั่งของฉัน</button><button id="navNotif" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg><span class="nb" id="navBadge" hidden></span>แจ้งเตือน</button><button id="navAcct" type="button"><span class="navav" id="navAv"></span>โปรไฟล์</button></nav>
+<nav class="tabbar" aria-label="เมนูหลัก"><button id="navHome" class="on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>หน้าหลัก</button><button id="navTrips" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>ทริปของฉัน</button><button id="navSeats" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h7a3 3 0 0 1 3 3v6H7z"/><path d="M5 13h14v4H5zM7 17v3M17 17v3"/></svg>ที่นั่งของฉัน</button><button id="navNotif" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg><span class="nb" id="navBadge" hidden></span>แจ้งเตือน</button><button id="navAcct" type="button"><span class="navav" id="navAv"></span>โปรไฟล์</button></nav>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <script src="/bell.js"></script>
@@ -1355,7 +1355,7 @@ body.signed .top .bell-wrap { display: none; }
     var ml=document.getElementById("hList");
     ml.textContent="";
     if(trips.length){
-      var hd=el("div","hd");hd.appendChild(el("b",null,"ทริปที่จัด"));var all=el("a",null,"ดูทั้งหมด ›");all.href="/mytrips#trips";all.addEventListener("click",function(e){e.preventDefault();setTab("trips");});hd.appendChild(all);ml.appendChild(hd);
+      var hd=el("div","hd");hd.appendChild(el("b",null,"ทริปของฉัน"));var all=el("a",null,"ดูทั้งหมด ›");all.href="/mytrips#trips";all.addEventListener("click",function(e){e.preventDefault();setTab("trips");});hd.appendChild(all);ml.appendChild(hd);
       trips.forEach(function(x){
         var c=el("a","tc");c.href="/mytrips#trips";c.addEventListener("click",function(e){e.preventDefault();setTab("trips");});c.appendChild(el("b",null,x.name||"ทริปไม่มีชื่อ"));
         c.appendChild(el("span",null,[fmt(x.startDate),tm(x.departTime)].filter(Boolean).join(" · ")+" · จองแล้ว "+(x.booked||0)+"/"+(x.total||0)));
@@ -1418,7 +1418,7 @@ body.signed .top .bell-wrap { display: none; }
   function updateHead() { // page title + one small line under it (style A); the "สร้างทริป" capsule only on the trips page
     var nm = $("meName").textContent || "", T = "", S = "";
     if (tab === "home") { T = "สวัสดี " + nm; if (D && !D.trips.length && !D.seats.length) S = "จองที่นั่งรถตู้ ผ่านลิงก์เดียว"; }
-    else if (tab === "trips") { T = "ทริปที่จัด"; if (D && D.trips.length) { var bk = D.trips.reduce(function (n, x) { return n + (x.booked || 0); }, 0); S = D.trips.length + " ทริป · คนจองรวม " + bk + " คน"; } }
+    else if (tab === "trips") { T = "ทริปของฉัน"; if (D && D.trips.length) { var bk = D.trips.reduce(function (n, x) { return n + (x.booked || 0); }, 0); S = D.trips.length + " ทริป · คนจองรวม " + bk + " คน"; } }
     else if (tab === "seats") { T = "ที่นั่งของฉัน"; if (D && D.seats.length) S = "จองไว้ " + D.seats.length + " ทริป"; }
     else if (tab === "notif") { T = "แจ้งเตือน"; if (window.VSBBell && VSBBell.ready) S = unreadN() ? "ยังไม่อ่าน " + unreadN() + " รายการ" : "อ่านครบแล้ว"; }
     else T = "โปรไฟล์";
