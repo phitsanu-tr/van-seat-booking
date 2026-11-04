@@ -20,7 +20,7 @@ html, body { overscroll-behavior: none; }
 }
 body { margin: 0; background: #fff; color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; -webkit-tap-highlight-color: transparent; display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
 .top { background: var(--surface); border-bottom: 1px solid var(--edge); border-bottom-color: #e8ecef; }
-.top div { max-width: 460px; margin: 0 auto; height: 52px; padding: 0 max(16px, env(safe-area-inset-left)); display: flex; align-items: center; }
+.top div { max-width: 460px; margin: 0 auto; height: 52px; padding: 0 max(16px, env(safe-area-inset-left)); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .top a { font: 600 16px var(--font-display); color: var(--mine); text-decoration: none; }
 main { width: 100%; flex: 1 0 auto; max-width: 460px; margin: 0 auto; padding: 18px max(16px, env(safe-area-inset-left)) calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; }
 button { font: inherit; cursor: pointer; }
@@ -40,14 +40,19 @@ a { color: inherit; }
 .chv { font-size: 14px; line-height: 1; margin-left: -2px; position: relative; top: -.25px; }
 .lnb { flex: none; display: inline-flex; align-items: center; box-sizing: border-box; height: 16px; padding: .25px 5.95px 0 6px; position: relative; top: 0; border-radius: 6px; background: var(--lg); color: #fff; font: 700 10px/1 Arial, sans-serif; letter-spacing: .2px; }
 .wr { display: flex; align-items: center; gap: 8px; flex: none; }
-/* signed in: one header row (photo + LINE name › opens the account sheet, bell on the right) instead of the site bar + profile row */
-body.signed .top { display: none; }
-body.signed main { padding-top: 8px; }
+/* signed in: show the site bar with bell + pill (same as other pages) */
+#meView .who { display: none; }
 #meView .who .av { width: 36px; height: 36px; font-size: 15px; }
 #meView .who .hi { gap: 8px; }
 #meView .who .nmr { display: flex; align-items: center; gap: 4px; min-width: 0; }
 #meView .who .nmr b { min-width: 0; }
 #meView .who .nmr .chv { flex: none; color: var(--muted); font-size: 18px; top: 0; margin: 0; }
+/* pill chip in top bar */
+.top .acct-pill { display: none; }
+body.signed .top .acct-pill { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px 0 4px; border-radius: 99px; background: #ecf9fa; border: 1px solid #cdeef0; color: var(--deep); font: 600 13px var(--font-display); text-decoration: none; white-space: nowrap; cursor: pointer; border: 0; }
+body.signed .top .acct-pill .av { width: 28px; height: 28px; font-size: 12px; }
+body.signed .top .bell-wrap { display: flex; }
+.top .bell-wrap { display: none; }
 .ntag { align-self: flex-start; font-size: 11px; font-weight: 600; color: var(--amber); background: var(--amber-tint); border: 1px solid var(--amber-edge); border-radius: 99px; padding: 1px 9px; }
 .out { flex: none; height: 36px; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--line); background: transparent; font-size: 13px; font-weight: 500; color: var(--muted); }
 .seg { display: grid; grid-template-columns: 1fr 1fr; background: #f1f4f6; border-radius: 16px; padding: 4px; gap: 4px; }
@@ -295,7 +300,7 @@ body.signed main { padding-top: 8px; }
 </style>
 </head>
 <body>
-<div class="top"><div><a href="/">จองที่นั่งรถตู้</a></div></div>
+<div class="top"><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="bell-wrap" id="bellHost" style="margin-left:auto"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
 <main>
   <section class="login" id="loginView" hidden>
     <div class="hero">
@@ -325,7 +330,7 @@ body.signed main { padding-top: 8px; }
 
   <section id="meView" hidden>
     <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="who"><button class="hi acct" id="acctBtn" type="button" aria-haspopup="dialog" aria-label="เมนูบัญชี"><span class="avw"><span class="av" id="av"></span></span><span class="hn"><span class="nmr"><b id="meName"></b><span class="chv" aria-hidden="true">›</span></span></span></button><div class="wr"><span id="bellHost" style="display:flex"></span></div></div>
+      <div class="who"><button class="hi acct" id="acctBtn" type="button" aria-haspopup="dialog" aria-label="เมนูบัญชี"><span class="avw"><span class="av" id="av"></span></span><span class="hn"><span class="nmr"><b id="meName"></b><span class="chv" aria-hidden="true">›</span></span></span></button></div>
       <div class="seg" role="tablist"><button id="tabTrips" role="tab" aria-selected="false" type="button">ทริปของฉัน <span class="n" id="nTrips">0</span></button><button id="tabSeats" role="tab" aria-selected="false" type="button">ที่นั่งของฉัน <span class="n" id="nSeats">0</span></button></div>
       <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px"></div>
       <div id="paneSeats" style="display:flex;flex-direction:column;gap:12px" hidden></div>
@@ -1296,6 +1301,7 @@ body.signed main { padding-top: 8px; }
     document.body.appendChild(bd);
   }
   $("acctBtn").addEventListener("click", openAccount);
+  $("acctBtn2").addEventListener("click", openAccount);
   async function logout() {
     try { await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ logout: true }) }); } catch (e) {}
     goHome("ออกจากระบบแล้ว");
@@ -1321,6 +1327,12 @@ body.signed main { padding-top: 8px; }
     $("meView").hidden = false; document.body.classList.add("signed"); setTab(tab); skeleton();
     try { var fl = sessionStorage.getItem("van-flash"); if (fl) { sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); setTimeout(function () { toast(fl); }, 300); } } catch (e) {}
     $("meName").textContent = me.name || "ผู้ใช้ LINE";
+    // top bar pill (old-style header)
+    var topAv = $("topAv"); topAv.textContent = "";
+    if (me.pic) { var tim = node("img"); tim.alt = ""; tim.src = me.pic; tim.referrerPolicy = "no-referrer"; tim.onerror = function () { topAv.textContent = (me.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1); }; topAv.appendChild(tim); }
+    else topAv.textContent = (me.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
+    $("topName").textContent = "ของฉัน";
+    $("acctBtn2").hidden = false;
     if (JOIN) { try { history.replaceState(null, "", "/mytrips"); } catch (e) {} await joinTeam(JOIN); JOIN = ""; setTab("trips"); }
     if (window.VSBBell) { VSBBell.mount($("bellHost")); VSBBell.onChange(function () { if (D) { renderTrips(D.trips); renderSeats(D.seats); } }); VSBBell.load(); }
     load();

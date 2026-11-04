@@ -32,8 +32,7 @@ body { margin: 0; background: #fff; color: var(--ink); font-family: var(--font-b
 .acct { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: 99px; font: 600 13px var(--font-body); text-decoration: none; white-space: nowrap; font-size: 12px; }
 .acct.out { background: none; color: var(--ink); border: 1px solid #e8ecef; height: 36px; padding: 0 12px 0 8px; border-radius: 12px; font: 600 14px var(--font-display); }
 .acct.out .lg { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: #06c755; color: #fff; font: 700 8px var(--font-display); letter-spacing: -.2px; }
-.acct.in { background: none; color: var(--ink); padding: 0; gap: 8px; font: 600 16px var(--font-display); } /* signed in: photo + "ทริปของฉัน ›" on the left, bell on the right */
-.acct.in .chv { color: var(--muted); font-size: 18px; margin-left: -2px; }
+.acct.in { background: var(--tint,#ecf9fa); color: var(--deep); border: 1px solid #cdeef0; padding: 0 10px 0 4px; gap: 6px; height: 36px; border-radius: 99px; font: 600 13px var(--font-display); } /* signed in: pill with photo + "ของฉัน" on the right */
 .acct.in .aav { width: 28px; height: 28px; line-height: 28px; font-size: 13px; }
 .acct .aav { width: 24px; height: 24px; border-radius: 50%; background: #06c755; color: #fff; font: 600 12px/24px var(--font-display); text-align: center; overflow: hidden; }
 .acct .aav img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -94,7 +93,7 @@ a.path:active { background: var(--tint); }
 </style>
 </head>
 <body>
-<div class="top"><div><span>จองที่นั่งรถตู้</span><a class="acct" id="acct" href="/mytrips" hidden></a></div></div>
+<div class="top"><div><span>จองที่นั่งรถตู้</span><span id="bellHost" style="display:flex;margin-left:auto"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div></div>
 <main>
   <section class="hero">
     <div class="hr">
@@ -181,9 +180,8 @@ a.path:active { background: var(--tint); }
   var a=document.getElementById("acct"); if(!a)return;
   fetch("/api/auth?me=1",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
     var u=d&&d.user; a.textContent="";
-    if(u){a.className="acct in";a.href="/mytrips";var av=document.createElement("span");av.className="aav";if(u.pic){var im=document.createElement("img");im.alt="";im.src=u.pic;im.referrerPolicy="no-referrer";av.appendChild(im);}else av.textContent=(u.name||"?").replace(/^[เแโใไ]/,"").slice(0,1);a.appendChild(av);a.appendChild(document.createTextNode("ทริปของฉัน"));a.insertAdjacentHTML("beforeend",'<span class="chv" aria-hidden="true">›</span>');
-      var row=a.parentNode,br=row.querySelector("span");if(br&&br!==a)br.hidden=true;row.insertBefore(a,row.firstChild);
-      if(window.VSBBell){var h=document.createElement("span");h.style.cssText="display:flex;margin-left:auto";row.appendChild(h);VSBBell.mount(h);VSBBell.load();}}
+    if(u){a.className="acct in";a.href="/mytrips";var av=document.createElement("span");av.className="aav";if(u.pic){var im=document.createElement("img");im.alt="";im.src=u.pic;im.referrerPolicy="no-referrer";av.appendChild(im);}else av.textContent=(u.name||"?").replace(/^[เแโใไ]/,"").slice(0,1);a.appendChild(av);a.appendChild(document.createTextNode("ของฉัน"));
+      if(window.VSBBell){var bh=document.getElementById("bellHost");if(bh){VSBBell.mount(bh);VSBBell.load();}}}
     else{a.className="acct out";a.href="/api/auth?start=1&r=%2Fmytrips";a.innerHTML='<span class="lg">LINE</span>เข้าสู่ระบบด้วย LINE';}
     a.hidden=false;
   }).catch(function(){});
