@@ -10,8 +10,8 @@
 //   order:<id>    = {id, uid, name, sku, amount, status ("open"|"paid"|"expired"), at, paidAt, sess}   kept 400 days
 //   orders:<uid>  = list of the account's order ids (newest first)     orders:all = every order id (owner console)
 //
-// Switched on with PLANS_ON=1 (production) — always on for previews and local dev. Before that, accounts in the Redis set
-// "plans:testers" (added from /owner) already get packages on production, so the owner can try everything first. While off nothing is limited
+// On by default (production too); PLANS_ON=0 switches it off. While off, accounts in the Redis set "plans:testers"
+// (added from /owner) still get packages, so the owner can try everything first. While off nothing is limited
 // (the limits are the old fixed ones) and the app hides every package screen.
 const L = require("./_lib");
 
@@ -35,10 +35,8 @@ const SKUS = {
 };
 
 const DEV = process.env.VSB_DEV_AUTH === "1" && !process.env.VERCEL;
-function enabled() {
-  if (process.env.PLANS_ON === "1") return true;
-  if (process.env.PLANS_ON === "0") return false;
-  return DEV || process.env.VERCEL_ENV === "preview";
+function enabled() { // on everywhere; PLANS_ON=0 switches packages off (the old test suite runs that way)
+  return process.env.PLANS_ON !== "0";
 }
 
 const TESTERS = "plans:testers";
