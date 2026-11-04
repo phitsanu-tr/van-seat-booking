@@ -14,6 +14,12 @@ html.lift body.is-in .tabbar,html.lift body.signed .tabbar{display:flex}
 html.lift main{padding-bottom:96px !important}
 html.lift .top > div > span:first-child,html.lift .top > div > a:first-child,html.lift .top .acct,html.lift .top .acct-pill{display:none !important}
 html.lift .seg{display:none !important}
+
+/* LIFF: page title + bell share one row (no separate brand bar) */
+.top .ltl{display:none}
+html.lift .top{border-bottom:0 !important;background:transparent !important}
+html.lift .top > div{height:64px !important}
+html.lift .top .ltl{display:block;font:700 24px var(--font-display);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 </style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <title>ทริปของฉัน · จองที่นั่งรถตู้</title>
@@ -338,7 +344,7 @@ body.signed .top .bell-wrap { display: flex; }
 </script>
 </head>
 <body>
-<div class="top"><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="bell-wrap" id="bellHost" style="margin-left:auto"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
+<div class="top"><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="ltl" id="ltl">ทริปที่จัด</span><span class="bell-wrap" id="bellHost" style="margin-left:auto"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
 <main>
   <section class="login" id="loginView" hidden>
     <div class="hero">
@@ -372,6 +378,7 @@ body.signed .top .bell-wrap { display: flex; }
       <div class="seg" role="tablist"><button id="tabTrips" role="tab" aria-selected="false" type="button">ทริปของฉัน <span class="n" id="nTrips">0</span></button><button id="tabSeats" role="tab" aria-selected="false" type="button">ที่นั่งของฉัน <span class="n" id="nSeats">0</span></button></div>
       <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px"></div>
       <div id="paneSeats" style="display:flex;flex-direction:column;gap:12px" hidden></div>
+      <div id="paneAcct" style="display:flex;flex-direction:column;gap:14px" hidden></div>
     </div>
   </section>
   <div class="foot">© 2026</div>
@@ -1237,18 +1244,22 @@ body.signed .top .bell-wrap { display: flex; }
   // an old edit link (/trips#<trip>-o) arrives here through the /trips redirect: send it on to the edit page
   var oldEdit = /^#([a-z0-9]{3,16})-o$/i.exec(location.hash || "");
   if (oldEdit) { location.replace("/trips/" + oldEdit[1].toLowerCase()); return; }
-  var tab = location.hash === "#seats" ? "seats" : "trips";
+  var tab = location.hash === "#seats" ? "seats" : location.hash === "#account" ? "acct" : "trips";
+  var wantAcct = false;
   function setTab(t) {
+    if (t === "acct" && !document.documentElement.classList.contains("lift")) { wantAcct = true; setTab("trips"); return; } // account is a page only in LIFF; elsewhere the sheet, once the profile has loaded
     tab = t;
     $("tabTrips").setAttribute("aria-selected", t === "trips" ? "true" : "false");
     $("tabSeats").setAttribute("aria-selected", t === "seats" ? "true" : "false");
-    $("paneTrips").hidden = t !== "trips"; $("paneSeats").hidden = t !== "seats";
-    try { history.replaceState(null, "", "/mytrips" + (t === "seats" ? "#seats" : "")); } catch (e) {}
-    $("navTrips").classList.toggle("on", t === "trips"); $("navSeats").classList.toggle("on", t === "seats");
+    $("paneTrips").hidden = t !== "trips"; $("paneSeats").hidden = t !== "seats"; $("paneAcct").hidden = t !== "acct";
+    if (t === "acct") renderAcctPane();
+    try { history.replaceState(null, "", "/mytrips" + (t === "seats" ? "#seats" : t === "acct" ? "#account" : "")); } catch (e) {}
+    $("navTrips").classList.toggle("on", t === "trips"); $("navSeats").classList.toggle("on", t === "seats"); $("navAcct").classList.toggle("on", t === "acct");
+    $("ltl").textContent = t === "seats" ? "ที่นั่งของฉัน" : t === "acct" ? "บัญชี" : "ทริปที่จัด";
   }
   $("navTrips").addEventListener("click", function () { setTab("trips"); });
   $("navSeats").addEventListener("click", function () { setTab("seats"); });
-  $("navAcct").addEventListener("click", openAccount);
+  $("navAcct").addEventListener("click", function () { setTab("acct"); });
   $("tabTrips").addEventListener("click", function () { setTab("trips"); });
   $("tabSeats").addEventListener("click", function () { setTab("seats"); });
 
@@ -1305,7 +1316,8 @@ body.signed .top .bell-wrap { display: flex; }
       if (d.user.pic) { var im = node("img"); im.alt = ""; im.src = d.user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1); }; av.appendChild(im); }
       else av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
       $("nTrips").textContent = d.trips.length; $("nSeats").textContent = d.seats.length;
-      renderTrips(d.trips); renderSeats(d.seats);
+      renderTrips(d.trips); renderSeats(d.seats); if (tab === "acct") renderAcctPane();
+      if (wantAcct) { wantAcct = false; openAccount(); }
       setTimeout(function () { preloadRosters(d.trips); }, 300); // after the page has drawn
       if (!location.hash && !d.trips.length && d.seats.length) setTab("seats");
     } catch (e) { toast("โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า", true); }
@@ -1325,11 +1337,16 @@ body.signed .top .bell-wrap { display: flex; }
     var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
     var shut = function () { bd.remove(); };
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
-    var head = node("div", "acchd"), avw = $("av").parentNode.cloneNode(true); avw.querySelector(".av").removeAttribute("id");
-    var nm = node("div", "hn"); nm.appendChild(node("b", null, $("meName").textContent)); var sm = node("small"); sm.innerHTML = '<span class="lnb">LINE</span>เข้าสู่ระบบแล้ว'; nm.appendChild(sm);
     var xb = node("button", "mx"); xb.type = "button"; xb.setAttribute("aria-label", "ปิด"); xb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'; xb.addEventListener("click", shut);
     var top = node("div", "mhead"); top.appendChild(node("h3", null, "บัญชีของฉัน")); top.appendChild(xb); sh.appendChild(top);
-    head.appendChild(avw); head.appendChild(nm); sh.appendChild(head);
+    acctParts(shut).forEach(function (n) { sh.appendChild(n); });
+    document.body.appendChild(bd);
+  }
+  function renderAcctPane() { var p = $("paneAcct"); p.textContent = ""; acctParts(function () {}).forEach(function (n) { p.appendChild(n); }); }
+  function acctParts(shut) {
+    var head = node("div", "acchd"), avw = $("av").parentNode.cloneNode(true); avw.querySelector(".av").removeAttribute("id");
+    var nm = node("div", "hn"); nm.appendChild(node("b", null, $("meName").textContent)); var sm = node("small"); sm.innerHTML = '<span class="lnb">LINE</span>เข้าสู่ระบบแล้ว'; nm.appendChild(sm);
+    head.appendChild(avw); head.appendChild(nm);
     var g1 = node("div", "agrp"), g2 = node("div", "agrp");
     function row(g, tag, icon, label, cls, act) {
       var r = node(tag, "acti" + (cls ? " " + cls : "")); if (tag === "a") r.href = act; else { r.type = "button"; r.addEventListener("click", act); }
@@ -1340,8 +1357,7 @@ body.signed .top .bell-wrap { display: flex; }
     row(g1, "a", SV0 + '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', "นโยบายความเป็นส่วนตัว", "", "/privacy");
     row(g1, "button", SV0 + '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>', "ออกจากระบบ", "", function () { shut(); logout(); });
     row(g2, "button", SV0 + '<path d="M4 7h16M10 7V4h4v3M6 7l1 13h10l1-13"/></svg>', "ลบข้อมูลของฉัน", "dg", function () { shut(); askWipe(); });
-    sh.appendChild(g1); sh.appendChild(g2);
-    document.body.appendChild(bd);
+    return [head, g1, g2];
   }
   $("acctBtn").addEventListener("click", openAccount);
   $("acctBtn2").addEventListener("click", openAccount);
