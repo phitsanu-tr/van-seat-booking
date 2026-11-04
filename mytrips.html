@@ -20,6 +20,18 @@ body.signed .top{border-bottom:0 !important;background:transparent !important}
 body.signed .top > div{height:64px !important}
 body.signed .top .ltl{display:block;font:700 24px var(--font-display);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 
+
+.tabbar .fab{color:var(--deep);font-weight:600}
+.tabbar .fab i{width:54px;height:54px;border-radius:18px;background:linear-gradient(150deg,#0E7C86,#0B5F67);color:#fff;display:flex;align-items:center;justify-content:center;margin-top:-26px;border:4px solid #fff;box-shadow:0 8px 18px -6px rgba(11,95,103,.6)}
+.tabbar .fab i svg{width:26px;height:26px}
+.tabbar a,.tabbar button{font-size:10.5px}
+.stg-stat{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #e8ecef;border-radius:18px;padding:12px 6px;text-align:center}
+.stg-stat b{display:block;font:700 20px var(--font-display);color:var(--deep)}
+.stg-stat span{font-size:11.5px;color:var(--muted)}
+.stg-stat div+div{border-left:1px solid #e8ecef}
+.stg-h{font-size:13px;font-weight:600;color:var(--muted);margin:6px 2px -6px}
+#paneAcct .acchd .av{width:56px;height:56px;font-size:22px}
+#paneAcct .acchd .hn b{font-size:19px}
 /* home tab */
 .hp { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 16px; color: inherit; text-decoration: none; font: inherit; cursor: pointer; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
 .hp .pi { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--tint); color: var(--deep); }
@@ -440,7 +452,7 @@ body.signed .top .bell-wrap { display: flex; }
     </div>
   </section>
   <div class="foot">© 2026</div>
-<nav class="tabbar" aria-label="เมนูหลัก"><button id="navHome" class="on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>หน้าหลัก</button><button id="navTrips" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>ทริปที่จัด</button><button id="navSeats" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h7a3 3 0 0 1 3 3v6H7z"/><path d="M5 13h14v4H5zM7 17v3M17 17v3"/></svg>ที่นั่งของฉัน</button><button id="navAcct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>บัญชี</button></nav>
+<nav class="tabbar" aria-label="เมนูหลัก"><button id="navHome" class="on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>หน้าหลัก</button><button id="navTrips" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>ทริปที่จัด</button><a class="fab" href="/trips/new" aria-label="สร้างทริป"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></i>สร้างทริป</a><button id="navSeats" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h7a3 3 0 0 1 3 3v6H7z"/><path d="M5 13h14v4H5zM7 17v3M17 17v3"/></svg>ที่นั่งของฉัน</button><button id="navAcct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>ตั้งค่า</button></nav>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <script src="/bell.js"></script>
@@ -1320,7 +1332,7 @@ body.signed .top .bell-wrap { display: flex; }
       var card=el("div","nx"),k=el("div","k","ทริปถัดไป · "+(n<=0?"วันนี้":"อีก "+n+" วัน"));
       var sb=el("div","sb");var nums=sr.map(function(s){return s.seat;});sb.appendChild(document.createTextNode(nums.length>2?nums.slice(0,2).join(", ")+" +"+(nums.length-2):nums.join(", ")));if(nums.length>1)sb.classList.add("many");sb.appendChild(el("small",null,"คัน "+(sr[0].vanLabel||"")));
       var m=el("div","m");m.appendChild(el("span",null,[fmt(x.startDate),tm(x.departTime)].filter(Boolean).join(" · ")));
-      var bt=el("div","bt2");var a1=el("a","w","ดูผังที่นั่ง");a1.href="/"+encodeURIComponent(x.id)+"?v="+encodeURIComponent(sr[0].van);var a2=el("a",null,"รายละเอียด");a2.href="/mytrips";bt.appendChild(a1);bt.appendChild(a2);
+      var bt=el("div","bt2");var a1=el("a","w","ดูผังที่นั่ง");a1.href="/"+encodeURIComponent(x.id)+"?v="+encodeURIComponent(sr[0].van);var a2=el("a",null,"รายละเอียด");a2.href="/mytrips#seats";a2.addEventListener("click",function(e){e.preventDefault();setTab("seats");});bt.appendChild(a1);bt.appendChild(a2);
       card.appendChild(k);card.appendChild(el("h3",null,x.name||"จองที่นั่งรถตู้"));card.appendChild(m);card.appendChild(sb);card.appendChild(bt);
       nx.appendChild(card);
     }
@@ -1328,9 +1340,9 @@ body.signed .top .bell-wrap { display: flex; }
     var ml=document.getElementById("hList");
     ml.textContent="";
     if(trips.length){
-      var hd=el("div","hd");hd.appendChild(el("b",null,"ทริปที่จัด"));var all=el("a",null,"+ สร้างทริป");all.href="/trips/new";hd.appendChild(all);ml.appendChild(hd);
+      var hd=el("div","hd");hd.appendChild(el("b",null,"ทริปที่จัด"));var all=el("a",null,"ดูทั้งหมด ›");all.href="/mytrips#trips";all.addEventListener("click",function(e){e.preventDefault();setTab("trips");});hd.appendChild(all);ml.appendChild(hd);
       trips.forEach(function(x){
-        var c=el("a","tc");c.href="/mytrips";c.appendChild(el("b",null,x.name||"ทริปไม่มีชื่อ"));
+        var c=el("a","tc");c.href="/mytrips#trips";c.addEventListener("click",function(e){e.preventDefault();setTab("trips");});c.appendChild(el("b",null,x.name||"ทริปไม่มีชื่อ"));
         c.appendChild(el("span",null,[fmt(x.startDate),tm(x.departTime)].filter(Boolean).join(" · ")+" · จองแล้ว "+(x.booked||0)+"/"+(x.total||0)));
         var bar=el("div","bar"),bi=el("i");bi.style.width=(x.total?Math.min(100,Math.round(x.booked/x.total*100)):0)+"%";bar.appendChild(bi);c.appendChild(bar);
         ml.appendChild(c);
@@ -1366,7 +1378,7 @@ body.signed .top .bell-wrap { display: flex; }
     try { history.replaceState(null, "", "/mytrips" + ({ trips: "#trips", seats: "#seats", acct: "#account" }[t] || "")); } catch (e) {}
     window.scrollTo(0, 0);
     $("navHome").classList.toggle("on", t === "home"); $("navTrips").classList.toggle("on", t === "trips"); $("navSeats").classList.toggle("on", t === "seats"); $("navAcct").classList.toggle("on", t === "acct");
-    $("ltl").textContent = t === "home" ? "สวัสดี " + ($("meName").textContent || "") : t === "seats" ? "ที่นั่งของฉัน" : t === "acct" ? "บัญชี" : "ทริปที่จัด";
+    $("ltl").textContent = t === "home" ? "สวัสดี " + ($("meName").textContent || "") : t === "seats" ? "ที่นั่งของฉัน" : t === "acct" ? "ตั้งค่า" : "ทริปที่จัด";
   }
   $("navHome").addEventListener("click", function () { setTab("home"); });
   $("navTrips").addEventListener("click", function () { setTab("trips"); });
@@ -1455,7 +1467,16 @@ body.signed .top .bell-wrap { display: flex; }
     acctParts(shut).forEach(function (n) { sh.appendChild(n); });
     document.body.appendChild(bd);
   }
-  function renderAcctPane() { var p = $("paneAcct"); p.textContent = ""; acctParts(function () {}).forEach(function (n) { p.appendChild(n); }); }
+  function renderAcctPane() { // settings page: profile, a few numbers, account actions
+    var p = $("paneAcct"), parts = acctParts(function () {}); p.textContent = "";
+    p.appendChild(parts[0]);
+    if (D) {
+      var st = node("div", "stg-stat"), booked = (D.trips || []).reduce(function (n, x) { return n + (x.booked || 0); }, 0);
+      [[(D.trips || []).length, "ทริปที่จัด"], [booked, "คนที่จองกับเรา"], [(D.seats || []).length, "ทริปที่จองไว้"]].forEach(function (x) { var c = node("div"); c.appendChild(node("b", null, String(x[0]))); c.appendChild(node("span", null, x[1])); st.appendChild(c); });
+      p.appendChild(st);
+    }
+    p.appendChild(node("div", "stg-h", "บัญชี")); p.appendChild(parts[1]); p.appendChild(parts[2]);
+  }
   function acctParts(shut) {
     var head = node("div", "acchd"), avw = $("av").parentNode.cloneNode(true); avw.querySelector(".av").removeAttribute("id");
     var nm = node("div", "hn"); nm.appendChild(node("b", null, $("meName").textContent)); var sm = node("small"); sm.innerHTML = '<span class="lnb">LINE</span>เข้าสู่ระบบแล้ว'; nm.appendChild(sm);
