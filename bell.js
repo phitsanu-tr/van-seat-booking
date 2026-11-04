@@ -134,6 +134,30 @@
     B.unread = B.items.filter(function (x) { return !x.r; }).length; paint(); emit();
     return fetch("/api/me", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ read: sel }) }).catch(function () {});
   };
+  // the grouped list of notifications ("ใหม่" / "ก่อนหน้านี้"); stay() runs after a tap that doesn't leave the page
+  function fillItems(box, stay) {
+    var groups = [["ใหม่", B.items.filter(function (x) { return !x.r; })], ["ก่อนหน้านี้", B.items.filter(function (x) { return x.r; })]];
+    groups.forEach(function (g) {
+      if (!g[1].length) return;
+      box.insertAdjacentHTML("beforeend", '<div class="vb-grp">' + g[0] + "</div>");
+      g[1].forEach(function (it) {
+        var tx = text(it), b = document.createElement("button"); b.type = "button"; b.className = "vb-it" + (it.r ? "" : " new");
+        b.innerHTML = '<div class="vb-ic t-' + tx.tone + '">' + svg(IC[tx.icon] || IC.bell) + '</div><div class="vb-tx"><b>' + tx.title + "</b>" + tx.body + "<small>" + when(it.at) + byTxt(it) + "</small></div>" + (it.r ? "" : '<span class="vb-dot"></span>');
+        b.addEventListener("click", function () {
+          B.read({ id: it.id });
+          if (it.t && !(it.k in linkable) && location.pathname !== "/" + it.t) location.href = "/" + it.t; else { stay(); }
+        });
+        box.appendChild(b);
+      });
+    });
+  }
+  // the same list as a page (the app's notifications tab); redraws itself after every load / read
+  B.page = function (host) {
+    injectCss(); host.textContent = "";
+    if (!B.items.length) host.insertAdjacentHTML("beforeend", '<div class="vb-empty">' + (B.ready ? "ยังไม่มีการแจ้งเตือน<br>ถ้าผู้จัดเปลี่ยนเวลา ย้ายที่นั่ง หรือยกเลิกทริป จะแจ้งที่นี่" : "กำลังโหลด…") + "</div>");
+    fillItems(host, function () {});
+    if (B.items.length) host.insertAdjacentHTML("beforeend", '<div class="vb-ft">เก็บการแจ้งเตือนล่าสุด 50 รายการ · ลบเองหลัง 60 วัน</div>');
+  };
   B.open = function () {
     injectCss();
     var bd = document.createElement("div"); bd.className = "vb-bd";
@@ -147,20 +171,7 @@
       sh.insertAdjacentHTML("beforeend", '<div class="vb-hd"><b>การแจ้งเตือน</b><button type="button" class="vb-all"' + (B.unread ? "" : " disabled") + '>อ่านทั้งหมด</button><button type="button" class="vb-close" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>');
       sh.querySelector(".vb-all").addEventListener("click", function () { B.read("all"); draw(); });
       if (!B.items.length) sh.insertAdjacentHTML("beforeend", '<div class="vb-empty">ยังไม่มีการแจ้งเตือน<br>ถ้าผู้จัดเปลี่ยนเวลา ย้ายที่นั่ง หรือยกเลิกทริป จะแจ้งที่นี่</div>');
-      var groups = [["ใหม่", B.items.filter(function (x) { return !x.r; })], ["ก่อนหน้านี้", B.items.filter(function (x) { return x.r; })]];
-      groups.forEach(function (g) {
-        if (!g[1].length) return;
-        sh.insertAdjacentHTML("beforeend", '<div class="vb-grp">' + g[0] + "</div>");
-        g[1].forEach(function (it) {
-          var tx = text(it), b = document.createElement("button"); b.type = "button"; b.className = "vb-it" + (it.r ? "" : " new");
-          b.innerHTML = '<div class="vb-ic t-' + tx.tone + '">' + svg(IC[tx.icon] || IC.bell) + '</div><div class="vb-tx"><b>' + tx.title + "</b>" + tx.body + "<small>" + when(it.at) + byTxt(it) + "</small></div>" + (it.r ? "" : '<span class="vb-dot"></span>');
-          b.addEventListener("click", function () {
-            B.read({ id: it.id });
-            if (it.t && !(it.k in linkable) && location.pathname !== "/" + it.t) location.href = "/" + it.t; else { close(); }
-          });
-          sh.appendChild(b);
-        });
-      });
+      fillItems(sh, close);
       sh.insertAdjacentHTML("beforeend", '<div class="vb-ft">เก็บการแจ้งเตือนล่าสุด 50 รายการ · ลบเองหลัง 60 วัน</div>');
       sh.querySelector(".vb-close").addEventListener("click", close);
     }

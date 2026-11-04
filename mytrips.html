@@ -5,26 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>html { touch-action: manipulation; }
 /* app (signed in): page title + bell on top, 4-tab bar at the bottom, the same in LINE and in any browser */
-.tabbar{position:fixed;left:0;right:0;bottom:0;height:72px;padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #e8ecef;display:none;justify-content:space-around;z-index:15;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
+.tabbar{position:fixed;left:0;right:0;bottom:0;height:84px;padding-bottom:env(safe-area-inset-bottom);background:#fff;display:none;justify-content:space-around;z-index:15;box-shadow:0 -6px 24px rgba(0,0,0,.07)}
 body.signed .tabbar{display:flex}
-.tabbar a,.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;padding:0;font:500 11px var(--font-display);color:#8a949a;text-decoration:none;cursor:pointer;position:relative}
-.tabbar svg{width:24px;height:24px}
+.tabbar a,.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:0;padding:0;font:500 11.5px var(--font-display);color:#8a949a;text-decoration:none;cursor:pointer;position:relative;white-space:nowrap}
+.tabbar svg{width:27px;height:27px;stroke-width:1.8}
 .tabbar .on{color:var(--deep);font-weight:700}
-.tabbar .on::before{content:"";position:absolute;top:0;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--deep)}
+.tabbar .on svg{stroke-width:2.4}
 body.signed main{padding-bottom:96px !important}
 body.signed .top > div > span:first-child,body.signed .top > div > a:first-child,body.signed .top .acct,body.signed .top .acct-pill{display:none !important}
 body.signed .seg{display:none !important}
 
 .top .ltl{display:none}
 body.signed .top{border-bottom:0 !important;background:transparent !important}
-body.signed .top > div{height:64px !important}
-body.signed .top .ltl{display:block;font:700 24px var(--font-display);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+body.signed .top > div{height:auto !important;min-height:72px;padding-top:14px !important;padding-bottom:6px !important}
+body.signed .top .ltl{display:block;min-width:0;flex:1;min-height:50px}
 
 
-.tabbar .fab{color:var(--deep);font-weight:600}
-.tabbar .fab i{width:54px;height:54px;border-radius:18px;background:linear-gradient(150deg,#0E7C86,#0B5F67);color:#fff;display:flex;align-items:center;justify-content:center;margin-top:-26px;border:4px solid #fff;box-shadow:0 8px 18px -6px rgba(11,95,103,.6)}
-.tabbar .fab i svg{width:26px;height:26px}
-.tabbar a,.tabbar button{font-size:10.5px}
 .stg-stat{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #e8ecef;border-radius:18px;padding:12px 6px;text-align:center}
 .stg-stat b{display:block;font:700 20px var(--font-display);color:var(--deep)}
 .stg-stat span{font-size:11.5px;color:var(--muted)}
@@ -33,6 +29,20 @@ body.signed .top .ltl{display:block;font:700 24px var(--font-display);color:var(
 #paneAcct .acchd .av{width:56px;height:56px;font-size:22px}
 #paneAcct .acchd .hn b{font-size:19px}
 .tabbar{padding-left:max(0px,calc((100% - 460px) / 2));padding-right:max(0px,calc((100% - 460px) / 2))} /* on a computer: same width as the page column */
+.navav{width:27px;height:27px;border-radius:50%;background:var(--mine);color:#fff;font:700 13px/27px var(--font-display);text-align:center;overflow:hidden;display:block;box-sizing:border-box}
+.navav img{width:100%;height:100%;object-fit:cover;display:block}
+.tabbar .on .navav{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--deep)}
+.tabbar .nb{position:absolute;top:10px;left:50%;margin-left:6px;min-width:17px;height:17px;padding:0 5px;border-radius:9px;background:#e5484d;color:#fff;font:700 10.5px/17px var(--font-body);text-align:center;box-sizing:border-box}
+.tabbar .nb[hidden]{display:none}
+.top .ltl b{display:block;font:700 26px/1.2 var(--font-display);color:var(--ink);overflow:hidden;text-overflow:ellipsis}
+.top .ltl small{display:block;font:400 13px/1.3 var(--font-body);color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis}
+.top .ltl small:empty{display:none}
+body.signed .top a.mkp{display:none;flex:none;height:38px;padding:0 14px;border-radius:19px;background:var(--deep);color:#fff;font:600 13px/38px var(--font-display);text-decoration:none;white-space:nowrap}
+body.signed .top a.mkp.show{display:inline-block}
+body.signed .top button.mkr{display:none;flex:none;border:0;background:none;color:var(--mine);font:600 14px var(--font-display);padding:6px 0;cursor:pointer}
+body.signed .top button.mkr.show{display:inline-block}
+body.signed .top button.mkr:disabled{color:#9aa6ad}
+#paneNotif .vb-it{padding:12px 6px}
 /* home tab */
 .hp { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 16px; color: inherit; text-decoration: none; font: inherit; cursor: pointer; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
 .hp .pi { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--tint); color: var(--deep); }
@@ -125,7 +135,7 @@ a { color: inherit; }
 .top .acct-pill { display: none; }
 body.signed .top .acct-pill { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px 0 4px; border-radius: 99px; background: #ecf9fa; border: 1px solid #cdeef0; color: var(--deep); font: 600 13px var(--font-display); text-decoration: none; white-space: nowrap; cursor: pointer; border: 0; }
 body.signed .top .acct-pill .av { width: 28px; height: 28px; font-size: 12px; }
-body.signed .top .bell-wrap { display: flex; }
+body.signed .top .bell-wrap { display: none; }
 .top .bell-wrap { display: none; }
 .ntag { align-self: flex-start; font-size: 11px; font-weight: 600; color: var(--amber); background: var(--amber-tint); border: 1px solid var(--amber-edge); border-radius: 99px; padding: 1px 9px; }
 .out { flex: none; height: 36px; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--line); background: transparent; font-size: 13px; font-weight: 500; color: var(--muted); }
@@ -400,7 +410,7 @@ body.signed .top .bell-wrap { display: flex; }
 </script>
 </head>
 <body>
-<div class="top"><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="ltl" id="ltl">ทริปที่จัด</span><span class="bell-wrap" id="bellHost" style="margin-left:auto"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
+<div class="top"><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="ltl" id="ltl"><b id="ltT">ทริปที่จัด</b><small id="ltS"></small></span><a class="mkp" id="mkTrip" href="/trips/new">＋ สร้างทริป</a><button class="mkr" id="mkRead" type="button">อ่านทั้งหมด</button><span class="bell-wrap" id="bellHost"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
 <main>
   <section class="login" id="loginView" hidden>
     <div class="hero">
@@ -449,11 +459,12 @@ body.signed .top .bell-wrap { display: flex; }
       </div>
       <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px" hidden></div>
       <div id="paneSeats" style="display:flex;flex-direction:column;gap:12px" hidden></div>
+      <div id="paneNotif" style="display:flex;flex-direction:column;gap:4px" hidden></div>
       <div id="paneAcct" style="display:flex;flex-direction:column;gap:14px" hidden></div>
     </div>
   </section>
   <div class="foot">© 2026</div>
-<nav class="tabbar" aria-label="เมนูหลัก"><button id="navHome" class="on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>หน้าหลัก</button><button id="navTrips" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>ทริปที่จัด</button><a class="fab" href="/trips/new" aria-label="สร้างทริป"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></i>สร้างทริป</a><button id="navSeats" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h7a3 3 0 0 1 3 3v6H7z"/><path d="M5 13h14v4H5zM7 17v3M17 17v3"/></svg>ที่นั่งของฉัน</button><button id="navAcct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>ตั้งค่า</button></nav>
+<nav class="tabbar" aria-label="เมนูหลัก"><button id="navHome" class="on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>หน้าหลัก</button><button id="navTrips" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>ทริปที่จัด</button><button id="navSeats" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h7a3 3 0 0 1 3 3v6H7z"/><path d="M5 13h14v4H5zM7 17v3M17 17v3"/></svg>ที่นั่งของฉัน</button><button id="navNotif" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg><span class="nb" id="navBadge" hidden></span>แจ้งเตือน</button><button id="navAcct" type="button"><span class="navav" id="navAv"></span>โปรไฟล์</button></nav>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <script src="/bell.js"></script>
@@ -632,18 +643,10 @@ body.signed .top .bell-wrap { display: flex; }
     w.appendChild(grid);
     return w;
   }
-  function newBar() { // only the button is a link; the bar itself isn't tappable
-    var a = node("div", "wslim");
-    var tx = node("span", "tx"); tx.appendChild(node("b", null, "จัดทริปใหม่")); tx.appendChild(node("span", null, "แชร์ลิงก์ เพื่อนเลือกที่นั่งเอง"));
-    var go = node("a", "go", "＋ สร้างทริป"); go.href = "/trips/new";
-    a.appendChild(tx); a.appendChild(go);
-    return a;
-  }
   function renderTrips(list) {
     var pane = $("paneTrips"); pane.textContent = "";
     var up = list.filter(function (x) { return !x.ended; }), done = list.filter(function (x) { return x.ended; });
     if (!list.length) { pane.appendChild(welcome()); return; } // first visit: what the app does + one big button
-    pane.appendChild(newBar()); // with trips: the same card, slimmed to one row at the top
     if (up.length) section(pane, "กำลังจะถึง", "", up.length);
     up.forEach(function (x) {
       var c = node("div", "card"), r1 = node("div", "row1");
@@ -1315,7 +1318,7 @@ body.signed .top .bell-wrap { display: flex; }
   // an old edit link (/trips#<trip>-o) arrives here through the /trips redirect: send it on to the edit page
   var oldEdit = /^#([a-z0-9]{3,16})-o$/i.exec(location.hash || "");
   if (oldEdit) { location.replace("/trips/" + oldEdit[1].toLowerCase()); return; }
-  var tab = { "#trips": "trips", "#seats": "seats", "#account": "acct" }[location.hash] || "home";
+  var tab = { "#trips": "trips", "#seats": "seats", "#account": "acct", "#notify": "notif" }[location.hash] || "home";
   // ---- home tab: next seat + trip-code box + trips I organise
   var HM = (function () {
   var MON=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
@@ -1374,23 +1377,40 @@ body.signed .top .bell-wrap { display: flex; }
     tab = t;
     $("tabTrips").setAttribute("aria-selected", t === "trips" ? "true" : "false");
     $("tabSeats").setAttribute("aria-selected", t === "seats" ? "true" : "false");
-    $("paneHome").hidden = t !== "home"; $("paneTrips").hidden = t !== "trips"; $("paneSeats").hidden = t !== "seats"; $("paneAcct").hidden = t !== "acct";
+    $("paneHome").hidden = t !== "home"; $("paneTrips").hidden = t !== "trips"; $("paneSeats").hidden = t !== "seats"; $("paneAcct").hidden = t !== "acct"; $("paneNotif").hidden = t !== "notif";
     if (t === "acct") renderAcctPane();
-    try { history.replaceState(null, "", "/mytrips" + ({ trips: "#trips", seats: "#seats", acct: "#account" }[t] || "")); } catch (e) {}
+    if (t === "notif") renderNotif();
+    try { history.replaceState(null, "", "/mytrips" + ({ trips: "#trips", seats: "#seats", acct: "#account", notif: "#notify" }[t] || "")); } catch (e) {}
     window.scrollTo(0, 0);
     if (D && Date.now() - loadedAt > 15000) load(); // single page: refresh stale lists when switching tabs
-    $("navHome").classList.toggle("on", t === "home"); $("navTrips").classList.toggle("on", t === "trips"); $("navSeats").classList.toggle("on", t === "seats"); $("navAcct").classList.toggle("on", t === "acct");
-    $("ltl").textContent = t === "home" ? "สวัสดี " + ($("meName").textContent || "") : t === "seats" ? "ที่นั่งของฉัน" : t === "acct" ? "ตั้งค่า" : "ทริปที่จัด";
+    $("navHome").classList.toggle("on", t === "home"); $("navTrips").classList.toggle("on", t === "trips"); $("navSeats").classList.toggle("on", t === "seats"); $("navAcct").classList.toggle("on", t === "acct"); $("navNotif").classList.toggle("on", t === "notif");
+    updateHead();
   }
   $("navHome").addEventListener("click", function () { setTab("home"); });
   document.addEventListener("visibilitychange", function () { if (!document.hidden && D && Date.now() - loadedAt > 15000) load(); }); // back to the app after a while
   window.addEventListener("hashchange", function () { // a link to /mytrips#seats etc. while already in the app
-    var t = { "#trips": "trips", "#seats": "seats", "#account": "acct" }[location.hash] || "home";
+    var t = { "#trips": "trips", "#seats": "seats", "#account": "acct", "#notify": "notif" }[location.hash] || "home";
     if (t !== tab && document.body.classList.contains("signed")) setTab(t);
   });
   $("navTrips").addEventListener("click", function () { setTab("trips"); });
   $("navSeats").addEventListener("click", function () { setTab("seats"); });
   $("navAcct").addEventListener("click", function () { setTab("acct"); });
+  $("navNotif").addEventListener("click", function () { setTab("notif"); });
+  $("mkRead").addEventListener("click", function () { if (window.VSBBell) VSBBell.read("all"); });
+  function unreadN() { return window.VSBBell && VSBBell.ready ? VSBBell.unread : 0; }
+  function updateHead() { // page title + one small line under it (style A); the "สร้างทริป" capsule only on the trips page
+    var nm = $("meName").textContent || "", T = "", S = "";
+    if (tab === "home") T = "สวัสดี " + nm;
+    else if (tab === "trips") { T = "ทริปที่จัด"; if (D && D.trips.length) { var bk = D.trips.reduce(function (n, x) { return n + (x.booked || 0); }, 0); S = D.trips.length + " ทริป · คนจองรวม " + bk + " คน"; } }
+    else if (tab === "seats") { T = "ที่นั่งของฉัน"; if (D && D.seats.length) S = "จองไว้ " + D.seats.length + " ทริป"; }
+    else if (tab === "notif") { T = "แจ้งเตือน"; if (window.VSBBell && VSBBell.ready) S = unreadN() ? "ยังไม่อ่าน " + unreadN() + " รายการ" : "อ่านครบแล้ว"; }
+    else T = "โปรไฟล์";
+    $("ltT").textContent = T; $("ltS").textContent = S;
+    $("mkTrip").classList.toggle("show", tab === "trips" && !!(D && D.trips.length));
+    var rd = $("mkRead"); rd.classList.toggle("show", tab === "notif"); rd.disabled = !unreadN();
+    var b = $("navBadge"), n = unreadN(); b.hidden = !n; b.textContent = n > 99 ? "99+" : String(n);
+  }
+  function renderNotif() { if (window.VSBBell) VSBBell.page($("paneNotif")); }
   $("tabTrips").addEventListener("click", function () { setTab("trips"); });
   $("tabSeats").addEventListener("click", function () { setTab("seats"); });
 
@@ -1446,8 +1466,10 @@ body.signed .top .bell-wrap { display: flex; }
       var av = $("av"); av.textContent = "";
       if (d.user.pic) { var im = node("img"); im.alt = ""; im.src = d.user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1); }; av.appendChild(im); }
       else av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
+      var nv = $("navAv"); nv.textContent = ""; var ini = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
+      if (d.user.pic) { var ni = node("img"); ni.alt = ""; ni.src = d.user.pic; ni.referrerPolicy = "no-referrer"; ni.onerror = function () { nv.textContent = ini; }; nv.appendChild(ni); } else nv.textContent = ini;
       $("nTrips").textContent = d.trips.length; $("nSeats").textContent = d.seats.length;
-      renderTrips(d.trips); renderSeats(d.seats); HM.render(d); if (tab === "acct") renderAcctPane();
+      renderTrips(d.trips); renderSeats(d.seats); HM.render(d); if (tab === "acct") renderAcctPane(); updateHead();
       try { localStorage.setItem("vsb_in", "1"); } catch (e) {}
       if (wantAcct) { wantAcct = false; openAccount(); }
       setTimeout(function () { preloadRosters(d.trips); }, 300); // after the page has drawn
@@ -1528,7 +1550,7 @@ body.signed .top .bell-wrap { display: flex; }
     $("meView").hidden = false; document.body.classList.add("signed"); setTab(tab); skeleton();
     try { var fl = sessionStorage.getItem("van-flash"); if (fl) { sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); setTimeout(function () { toast(fl); }, 300); } } catch (e) {}
     $("meName").textContent = me.name || "ผู้ใช้ LINE";
-    if (tab === "home") $("ltl").textContent = "สวัสดี " + (me.name || "");
+    updateHead();
     // top bar pill (old-style header)
     var topAv = $("topAv"); topAv.textContent = "";
     if (me.pic) { var tim = node("img"); tim.alt = ""; tim.src = me.pic; tim.referrerPolicy = "no-referrer"; tim.onerror = function () { topAv.textContent = (me.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1); }; topAv.appendChild(tim); }
@@ -1536,7 +1558,7 @@ body.signed .top .bell-wrap { display: flex; }
     $("topName").textContent = "ของฉัน";
     $("acctBtn2").hidden = false;
     if (JOIN) { try { history.replaceState(null, "", "/mytrips"); } catch (e) {} await joinTeam(JOIN); JOIN = ""; setTab("trips"); }
-    if (window.VSBBell) { VSBBell.mount($("bellHost")); VSBBell.onChange(function () { if (D) { renderTrips(D.trips); renderSeats(D.seats); HM.render(D); } }); VSBBell.load(); }
+    if (window.VSBBell) { VSBBell.onChange(function () { if (D) { renderTrips(D.trips); renderSeats(D.seats); HM.render(D); } if (tab === "notif") renderNotif(); updateHead(); }); VSBBell.load(); }
     if (new URLSearchParams(location.search).get("acct") === "1") { try { history.replaceState(null, "", "/mytrips" + (location.hash || "")); } catch (e) {} openAccount(); }
     load();
   })();
