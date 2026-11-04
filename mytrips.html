@@ -43,6 +43,11 @@ body.signed .top button.mkr{display:none;flex:none;border:0;background:none;colo
 body.signed .top button.mkr.show{display:inline-block}
 body.signed .top button.mkr:disabled{color:#9aa6ad}
 #paneNotif .vb-it{padding:12px 6px}
+.hsteps{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.hsteps .hsh{font:700 16px var(--font-display);color:var(--ink)}
+.hst{display:flex;gap:12px;align-items:flex-start}
+.hst i{flex:none;width:28px;height:28px;border-radius:50%;background:var(--tint);color:var(--deep);font:700 14px/28px var(--font-display);text-align:center;font-style:normal}
+.hst div{display:flex;flex-direction:column;min-width:0}.hst b{font:600 15px var(--font-display);color:var(--ink)}.hst span{font-size:13px;color:var(--muted)}
 /* home tab */
 .hp { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 16px; color: inherit; text-decoration: none; font: inherit; cursor: pointer; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
 .hp .pi { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--tint); color: var(--deep); }
@@ -629,11 +634,7 @@ body.signed .top .bell-wrap { display: none; }
 
   // no trips yet: a welcome card (create button) and four tiles saying what organizers get
   function welcome() {
-    var w = node("div", "wel"), big = node("div", "wbig");
-    big.innerHTML = '<svg class="wvan" viewBox="0 0 96 50" fill="currentColor" aria-hidden="true"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/></svg>';
-    var h = node("h2"); h.appendChild(document.createTextNode("จัดทริปรถตู้")); h.appendChild(node("br")); h.appendChild(document.createTextNode("ไม่ต้องจดชื่อในแชทอีกต่อไป"));
-    big.appendChild(h); big.appendChild(node("p", null, "สร้างทริป แชร์ลิงก์ เพื่อนเลือกที่นั่งเอง"));
-    var go = node("a", "wgo", "＋ สร้างทริปแรก"); go.href = "/trips/new"; big.appendChild(go);
+    var w = node("div", "wel"), big = wBanner();
     w.appendChild(big);
     var grid = node("div", "wfeat");
     [["🪑", "เพื่อนเลือกที่นั่งเอง", "ผังรถอัปเดตทันที ไม่จองซ้ำ"], ["👥", "มีผู้ช่วยได้ 2 คน", "ช่วยกันจัดการทริป"],
@@ -642,6 +643,14 @@ body.signed .top .bell-wrap { display: none; }
     });
     w.appendChild(grid);
     return w;
+  }
+  function wBanner() { // the green "จัดทริปรถตู้" banner with one big button (trips tab and home when there is nothing yet)
+    var big = node("div", "wbig");
+    big.innerHTML = '<svg class="wvan" viewBox="0 0 96 50" fill="currentColor" aria-hidden="true"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/></svg>';
+    var h = node("h2"); h.appendChild(document.createTextNode("จัดทริปรถตู้")); h.appendChild(node("br")); h.appendChild(document.createTextNode("ไม่ต้องจดชื่อในแชทอีกต่อไป"));
+    big.appendChild(h); big.appendChild(node("p", null, "ส่งลิงก์เข้ากลุ่ม เพื่อนเลือกที่นั่งเอง"));
+    var go = node("a", "wgo", "＋ สร้างทริปแรก"); go.href = "/trips/new"; big.appendChild(go);
+    return big;
   }
   function renderTrips(list) {
     var pane = $("paneTrips"); pane.textContent = "";
@@ -1331,6 +1340,8 @@ body.signed .top .bell-wrap { display: none; }
     var up=(d.seats||[]).filter(function(x){return !x.ended && x.startDate && x.seats && x.seats.length;}).sort(function(a,b){return (a.startDate+(a.departTime||"")).localeCompare(b.startDate+(b.departTime||""));});
     var nx=document.getElementById("hNext");
     nx.textContent="";
+    var fresh=!(d.trips||[]).length&&!(d.seats||[]).length; // nothing yet: say what the app does
+    if(fresh){var wb=wBanner();wb.style.marginBottom="14px";nx.appendChild(wb);}
     if(up.length){
       var x=up[0],n=days(x.startDate),sr=x.seats.slice().sort(function(a,b){return a.seat-b.seat;});
       var card=el("div","nx"),k=el("div","k","ทริปถัดไป · "+(n<=0?"วันนี้":"อีก "+n+" วัน"));
@@ -1351,6 +1362,12 @@ body.signed .top .bell-wrap { display: none; }
         var bar=el("div","bar"),bi=el("i");bi.style.width=(x.total?Math.min(100,Math.round(x.booked/x.total*100)):0)+"%";bar.appendChild(bi);c.appendChild(bar);
         ml.appendChild(c);
       });
+    } else if(fresh){
+      var hs=el("div","hsteps");hs.appendChild(el("b","hsh","ง่าย ๆ 3 ขั้นตอน"));
+      [["สร้างทริป","กรอกวัน เวลา จุดนัด และจำนวนรถ"],["ส่งลิงก์เข้ากลุ่ม LINE","เพื่อนไม่ต้องโหลดแอป แตะแล้วจองได้เลย"],["ดูผังและรายชื่อ","อัปเดตทันที เช็กชื่อขึ้นรถได้ด้วย"]].forEach(function(f,i){
+        var r=el("div","hst");r.appendChild(el("i",null,String(i+1)));var tx=el("div");tx.appendChild(el("b",null,f[0]));tx.appendChild(el("span",null,f[1]));r.appendChild(tx);hs.appendChild(r);
+      });
+      ml.appendChild(hs);
     } else {
       var mk=el("a","tc","+ สร้างทริปใหม่");mk.href="/trips/new";mk.style.textAlign="center";mk.style.fontWeight="600";mk.style.color="var(--deep)";ml.appendChild(mk);
     }
@@ -1400,7 +1417,7 @@ body.signed .top .bell-wrap { display: none; }
   function unreadN() { return window.VSBBell && VSBBell.ready ? VSBBell.unread : 0; }
   function updateHead() { // page title + one small line under it (style A); the "สร้างทริป" capsule only on the trips page
     var nm = $("meName").textContent || "", T = "", S = "";
-    if (tab === "home") T = "สวัสดี " + nm;
+    if (tab === "home") { T = "สวัสดี " + nm; if (D && !D.trips.length && !D.seats.length) S = "จองที่นั่งรถตู้ ผ่านลิงก์เดียว"; }
     else if (tab === "trips") { T = "ทริปที่จัด"; if (D && D.trips.length) { var bk = D.trips.reduce(function (n, x) { return n + (x.booked || 0); }, 0); S = D.trips.length + " ทริป · คนจองรวม " + bk + " คน"; } }
     else if (tab === "seats") { T = "ที่นั่งของฉัน"; if (D && D.seats.length) S = "จองไว้ " + D.seats.length + " ทริป"; }
     else if (tab === "notif") { T = "แจ้งเตือน"; if (window.VSBBell && VSBBell.ready) S = unreadN() ? "ยังไม่อ่าน " + unreadN() + " รายการ" : "อ่านครบแล้ว"; }
