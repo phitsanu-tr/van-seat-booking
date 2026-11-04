@@ -96,21 +96,23 @@ a.path:active { background: var(--tint); }
 (function(){
   var LIFF_ID = "2012285472-FvtYKx00";
   window.__liffReady = new Promise(function(resolve){
+    if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
       if (!liff.isInClient()) { resolve(false); return; }
-      if (liff.isLoggedIn()) {
+      if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
+      // session cookie is HttpOnly, so ask the server whether we are signed in
+      fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){
+        if (me && me.user) { try { sessionStorage.removeItem("vsb_liff"); } catch (e) {} resolve(true); return; }
+        var tried = ""; try { tried = sessionStorage.getItem("vsb_liff"); } catch (e) {}
         var token = liff.getIDToken();
-        if (!token) { resolve(false); return; }
-        // already have a vsb_s cookie? skip
-        if (document.cookie.indexOf("vsb_s=") >= 0) { resolve(true); return; }
-        fetch("/api/auth", { method:"POST", headers:{"Content-Type":"application/json"},
+        if (tried || !token) { resolve(false); return; } // one try per tab: never loop
+        try { sessionStorage.setItem("vsb_liff", "1"); } catch (e) {}
+        fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ liff_token: token, r: location.pathname + location.search + location.hash }) })
           .then(function(r){ return r.json(); })
-          .then(function(d){ if(d.ok){ location.replace(d.r||"/"); } else { resolve(true); } })
-          .catch(function(){ resolve(true); });
-      } else {
-        liff.login({ redirectUri: location.href });
-      }
+          .then(function(d){ if (d && d.ok) location.replace(d.r || "/"); else resolve(false); })
+          .catch(function(){ resolve(false); });
+      });
     }).catch(function(){ resolve(false); });
   });
 })();
