@@ -3,7 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<style>html { touch-action: manipulation; }</style>
+<style>html { touch-action: manipulation; }
+/* signed in (H1): next trip card + my trips list replace the landing copy */
+.next,.mylist{display:none}
+body.is-in .next,body.is-in .mylist{display:block}
+body.is-in .hero,body.is-in .how,body.is-in h2,body.is-in .foot{display:none !important}
+.nx{background:linear-gradient(150deg,#0E7C86,#0B5F67);color:#fff;border-radius:22px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 14px 30px -14px rgba(11,95,103,.6)}
+.nx .k{font-size:12px;opacity:.85}
+.nx h3{font-size:18px;line-height:1.35;margin:6px 0 10px;padding-right:76px;font-family:var(--font-display)}
+.nx .m{font-size:13px;opacity:.95;display:flex;flex-wrap:wrap;gap:4px 14px}
+.nx .sb{position:absolute;right:14px;top:14px;width:64px;height:64px;border-radius:18px;background:rgba(255,255,255,.16);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:24px;line-height:1;text-align:center}
+.nx .sb small{font-size:10px;font-weight:500;margin-top:4px;opacity:.9}
+.nx .bt2{margin-top:12px;display:flex;gap:8px}
+.nx .bt2 a{flex:1;height:42px;border-radius:12px;background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:600;text-decoration:none}
+.nx .bt2 a.w{background:#fff;color:var(--deep)}
+.mylist{margin:18px 0 8px}
+.mylist .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.mylist .hd b{font-size:16px;font-family:var(--font-display)}
+.mylist .hd a{font-size:13px;color:var(--deep);font-weight:600;text-decoration:none}
+.tc{display:block;background:var(--surface);border:1px solid var(--edge);border-radius:16px;padding:14px;margin-bottom:10px;color:inherit;text-decoration:none}
+.tc b{display:block;font-size:15px;line-height:1.35}
+.tc span{display:block;font-size:12.5px;color:var(--muted);margin-top:4px}
+.tc .bar{height:6px;border-radius:9px;background:var(--line);margin-top:10px;overflow:hidden}
+.tc .bar i{display:block;height:100%;background:var(--deep)}
+</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <title>จองที่นั่งรถตู้</title>
 <meta name="description" content="สร้างทริปรถตู้แล้วแชร์ลิงก์ให้เพื่อนเลือกที่นั่งเอง ใช้บัญชี LINE ได้เลย ไม่ต้องสมัคร">
@@ -121,6 +144,7 @@ a.path:active { background: var(--tint); }
 <body>
 <div class="top"><div><span>จองที่นั่งรถตู้</span><span id="bellHost" style="display:flex;margin-left:auto"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div></div>
 <main>
+  <section class="next" id="next" aria-live="polite"></section>
   <section class="hero">
     <div class="hr">
       <h1>จองที่นั่งรถตู้<br>ผ่านลิงก์เดียว</h1>
@@ -151,6 +175,7 @@ a.path:active { background: var(--tint); }
     <div class="err" id="err" role="alert" hidden></div>
   </section>
 
+  <section class="mylist" id="myList"></section>
   <h2>ง่าย ๆ 3 ขั้นตอน</h2>
   <div class="how">
     <div><i>1</i><p><b>สร้างทริป</b><span>กรอกวัน เวลา จุดนัด และจำนวนรถ</span></p></div>
@@ -171,6 +196,43 @@ a.path:active { background: var(--tint); }
     e.classList.add("off");
     setTimeout(function(){e.textContent=next();e.classList.remove("off");},350);
   });
+})();</script>
+<script>(function(){ // signed in: show my next seat and my trips in place of the landing copy
+  var MON=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+  function ymd(s){var p=String(s||"").split("-");return p.length===3?[+p[0],+p[1],+p[2]]:null;}
+  function fmt(s){var p=ymd(s);return p?p[2]+" "+MON[p[1]-1]+" "+String((p[0]+543)%100).padStart(2,"0"):"";}
+  function days(s){var p=ymd(s);if(!p)return 0;var t=new Date(Date.now()+7*3600e3);return Math.round((Date.UTC(p[0],p[1]-1,p[2])-Date.UTC(t.getUTCFullYear(),t.getUTCMonth(),t.getUTCDate()))/864e5);}
+  function tm(s){return s?String(s).replace(":",".")+" น.":"";}
+  function render(d){
+    document.body.classList.add("is-in");
+    var up=(d.seats||[]).filter(function(x){return !x.ended && x.startDate && x.seats && x.seats.length;}).sort(function(a,b){return (a.startDate+(a.departTime||"")).localeCompare(b.startDate+(b.departTime||""));});
+    var nx=document.getElementById("next");
+    if(up.length){
+      var x=up[0],n=days(x.startDate),sr=x.seats.slice().sort(function(a,b){return a.seat-b.seat;});
+      var card=el("div","nx"),k=el("div","k","ทริปถัดไป · "+(n<=0?"วันนี้":"อีก "+n+" วัน"));
+      var sb=el("div","sb");sb.appendChild(document.createTextNode(sr.map(function(s){return s.seat;}).join(", ")));sb.appendChild(el("small",null,"คัน "+(sr[0].vanLabel||"")));
+      var m=el("div","m");m.appendChild(el("span",null,[fmt(x.startDate),tm(x.departTime)].filter(Boolean).join(" · ")));
+      var bt=el("div","bt2");var a1=el("a","w","ดูผังที่นั่ง");a1.href="/"+encodeURIComponent(x.id)+"?v="+encodeURIComponent(sr[0].van);var a2=el("a",null,"รายละเอียด");a2.href="/mytrips";bt.appendChild(a1);bt.appendChild(a2);
+      card.appendChild(k);card.appendChild(el("h3",null,x.name||"จองที่นั่งรถตู้"));card.appendChild(m);card.appendChild(sb);card.appendChild(bt);
+      nx.textContent="";nx.appendChild(card);nx.hidden=false;
+    }
+    var trips=(d.trips||[]).filter(function(x){return !x.ended;});
+    var ml=document.getElementById("myList");
+    ml.textContent="";
+    if(trips.length){
+      var hd=el("div","hd");hd.appendChild(el("b",null,"ทริปที่จัด"));var all=el("a",null,"+ สร้างทริป");all.href="/trips/new";hd.appendChild(all);ml.appendChild(hd);
+      trips.forEach(function(x){
+        var c=el("a","tc");c.href="/mytrips";c.appendChild(el("b",null,x.name||"ทริปไม่มีชื่อ"));
+        c.appendChild(el("span",null,[fmt(x.startDate),tm(x.departTime)].filter(Boolean).join(" · ")+" · จองแล้ว "+(x.booked||0)+"/"+(x.total||0)));
+        var bar=el("div","bar"),bi=el("i");bi.style.width=(x.total?Math.min(100,Math.round(x.booked/x.total*100)):0)+"%";bar.appendChild(bi);c.appendChild(bar);
+        ml.appendChild(c);
+      });
+    } else {
+      var mk=el("a","tc","+ สร้างทริปใหม่");mk.href="/trips/new";mk.style.textAlign="center";mk.style.fontWeight="600";mk.style.color="var(--deep)";ml.appendChild(mk);
+    }
+  }
+  fetch("/api/me",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(d){if(d&&d.user)render(d);}).catch(function(){});
 })();</script>
 </main>
 <script>
