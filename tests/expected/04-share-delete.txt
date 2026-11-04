@@ -6,5 +6,5 @@ sheet ลิงก์ของทริปนี้ | <ID>localhost:8765/<id> | 
 copied 1
 old picture link -> booking page
 confirm btns [ 'btn danger' ]
-after delete url http://localhost:8765/mytrips status 404
+after delete url http://localhost:8765/mytrips#trips status 404
 ERR []

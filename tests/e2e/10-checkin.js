@@ -1,7 +1,7 @@
 const HLP=require('../helpers');const {chromium}=require(HLP.PW);const S=HLP.OUT;const B=HLP.BASE;
 const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Line/14.0';const errs=[];const log=(...a)=>console.log(...a);
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
-async function user(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2,hasTouch:true,permissions:['clipboard-read','clipboard-write']});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2F');await p.waitForTimeout(300);return p;}
+async function user(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2,hasTouch:true,permissions:['clipboard-read','clipboard-write']});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),Bo=await user('Bob'),P=await user('Pat'),Q=await user('Qin'),R=await user('Rin');
 const tr=await (await A.request.post(B+'/api/trip',{data:{name:'เขาใหญ่ชิล ๆ',startDate:HLP.day(10),departTime:'07:00',vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;
 const inv=await (await A.request.post(B+'/api/trip',{data:{t:ID,invite:true}})).json();await Bo.request.post(B+'/api/trip',{data:{join:inv.invite.code}});
@@ -23,10 +23,10 @@ ro=await roster();log('boarded follows the move',!!(ro.v2['7']&&ro.v2['7'].c),'o
 await patch(A,'v2',{seat:7,board:false});
 let lim=0;for(let i=0;i<12;i++){const r=await patch(A,'v1',{seat:5,board:i%2===0});if(r.status()===429)lim++;}log('12 quick ticks, rate limited',lim);
 await patch(A,'v1',{seat:5,board:false});
-await A.goto(B+'/mytrips');await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);
+await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);
 log('tabs',await A.$$eval('.rtabs button',e=>e.map(x=>x.textContent)));
 // --- check-in tab, two organizers at once
-await Bo.goto(B+'/mytrips');await Bo.waitForTimeout(1200);await Bo.click('.ros3');await Bo.waitForTimeout(800);await Bo.click('.rtabs button:nth-child(2)');await Bo.waitForTimeout(600);
+await Bo.goto(B+'/mytrips?f='+Date.now()+'#trips');await Bo.waitForTimeout(1200);await Bo.click('.ros3');await Bo.waitForTimeout(800);await Bo.click('.rtabs button:nth-child(2)');await Bo.waitForTimeout(600);
 await A.click('.rtabs button:nth-child(2)');await A.waitForTimeout(600);
 const prog=p=>p.$eval('.bprog .pl span:last-child',e=>e.textContent);
 log('board start A',await prog(A),'miss',await A.textContent('.miss'));

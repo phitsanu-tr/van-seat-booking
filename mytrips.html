@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>html { touch-action: manipulation; }
 /* app (signed in): page title + bell on top, 4-tab bar at the bottom, the same in LINE and in any browser */
-.tabbar{position:fixed;left:0;right:0;bottom:0;height:72px;padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #e8ecef;display:none;justify-content:space-around;z-index:50;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
+.tabbar{position:fixed;left:0;right:0;bottom:0;height:72px;padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #e8ecef;display:none;justify-content:space-around;z-index:15;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
 body.signed .tabbar{display:flex}
 .tabbar a,.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;padding:0;font:500 11px var(--font-display);color:#8a949a;text-decoration:none;cursor:pointer;position:relative}
 .tabbar svg{width:24px;height:24px}
@@ -32,6 +32,7 @@ body.signed .top .ltl{display:block;font:700 24px var(--font-display);color:var(
 .stg-h{font-size:13px;font-weight:600;color:var(--muted);margin:6px 2px -6px}
 #paneAcct .acchd .av{width:56px;height:56px;font-size:22px}
 #paneAcct .acchd .hn b{font-size:19px}
+.tabbar{padding-left:max(0px,calc((100% - 460px) / 2));padding-right:max(0px,calc((100% - 460px) / 2))} /* on a computer: same width as the page column */
 /* home tab */
 .hp { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 16px; color: inherit; text-decoration: none; font: inherit; cursor: pointer; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
 .hp .pi { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--tint); color: var(--deep); }
@@ -1368,7 +1369,7 @@ body.signed .top .bell-wrap { display: flex; }
     form.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.parse(input.value); if (!id) { showErr(input.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); input.focus(); return; } location.href = "/" + id; });
     input.addEventListener("input", function () { showErr(""); });
   })();
-  var wantAcct = false;
+  var wantAcct = false, loadedAt = 0;
   function setTab(t) {
     tab = t;
     $("tabTrips").setAttribute("aria-selected", t === "trips" ? "true" : "false");
@@ -1377,10 +1378,16 @@ body.signed .top .bell-wrap { display: flex; }
     if (t === "acct") renderAcctPane();
     try { history.replaceState(null, "", "/mytrips" + ({ trips: "#trips", seats: "#seats", acct: "#account" }[t] || "")); } catch (e) {}
     window.scrollTo(0, 0);
+    if (D && Date.now() - loadedAt > 15000) load(); // single page: refresh stale lists when switching tabs
     $("navHome").classList.toggle("on", t === "home"); $("navTrips").classList.toggle("on", t === "trips"); $("navSeats").classList.toggle("on", t === "seats"); $("navAcct").classList.toggle("on", t === "acct");
     $("ltl").textContent = t === "home" ? "สวัสดี " + ($("meName").textContent || "") : t === "seats" ? "ที่นั่งของฉัน" : t === "acct" ? "ตั้งค่า" : "ทริปที่จัด";
   }
   $("navHome").addEventListener("click", function () { setTab("home"); });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden && D && Date.now() - loadedAt > 15000) load(); }); // back to the app after a while
+  window.addEventListener("hashchange", function () { // a link to /mytrips#seats etc. while already in the app
+    var t = { "#trips": "trips", "#seats": "seats", "#account": "acct" }[location.hash] || "home";
+    if (t !== tab && document.body.classList.contains("signed")) setTab(t);
+  });
   $("navTrips").addEventListener("click", function () { setTab("trips"); });
   $("navSeats").addEventListener("click", function () { setTab("seats"); });
   $("navAcct").addEventListener("click", function () { setTab("acct"); });
@@ -1434,7 +1441,7 @@ body.signed .top .bell-wrap { display: flex; }
       if (r.status === 401) { showLogin(); return; }
       var d = await r.json();
       if (!r.ok) throw new Error();
-      D = d;
+      D = d; loadedAt = Date.now();
       $("meName").textContent = d.user.name || "ผู้ใช้ LINE";
       var av = $("av"); av.textContent = "";
       if (d.user.pic) { var im = node("img"); im.alt = ""; im.src = d.user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1); }; av.appendChild(im); }

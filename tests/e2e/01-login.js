@@ -12,6 +12,6 @@ await N.click('.seat >> nth=1');await N.waitForTimeout(300);log('anon panel: lg'
 // anon /trips/new -> redirected to login -> back logged in
 const cT=await ctx();const T=await pg(cT,'T');await T.goto(B+'/trips/new');await T.waitForTimeout(2000);log('trips/new ->',T.url(),'login for',await T.textContent('#loginFor'));
 await T.click('#loginBtn');await T.waitForTimeout(2000);log('after LINE ->',new URL(T.url()).pathname,'submit',await T.textContent('#submit'));
-await T.goto(B+'/');await T.waitForTimeout(800);log('index chip logged',await T.textContent('#acct'));
+await T.goto(B+'/');await T.waitForTimeout(1500);log('index logged ->',new URL(T.url()).pathname,'title',await T.textContent('#ltl'));
 const cH=await ctx();const H=await pg(cH,'H');await H.goto(B+'/');await H.waitForTimeout(800);log('index chip anon',await H.textContent('#acct'));await H.screenshot({path:S+'/8_home.png'});
 log('ERR',errs);await b.close();})();
