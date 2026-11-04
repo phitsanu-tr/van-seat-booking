@@ -678,6 +678,7 @@ body.signed .top .bell-wrap { display: none; }
       sh.insertAdjacentHTML("beforeend", MG.share); sh.appendChild(document.createTextNode(x.closed ? "แชร์ผัง" : "แชร์ลิงก์")); sh.setAttribute("aria-label", x.closed ? "แชร์ผังที่นั่ง" : "แชร์ลิงก์จอง");
       sh.addEventListener("click", function () { shareTrip(x); });
       acts.appendChild(ros); acts.appendChild(vmap); acts.appendChild(sh); c.appendChild(acts);
+      c.style.cursor = "pointer"; c.addEventListener("click", function (e) { if (!e.target.closest("button, a")) location.href = "/" + x.id; }); // tap the card: open the seat plan (buttons keep their own action)
       pane.appendChild(c);
     });
     if (done.length) {
