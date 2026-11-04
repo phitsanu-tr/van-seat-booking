@@ -26,6 +26,7 @@ function run(cmd) {
       const exi = a.findIndex((x) => String(x).toUpperCase() === "EX"); if (exi > 0) ttl.set(key, Date.now() + num(a[exi + 1]) * 1000);
       return "OK";
     }
+    case "SISMEMBER": { const st = store.get(key); return st instanceof Set && st.has(String(a[0])) ? 1 : 0; }
     case "EXISTS": return store.has(key) ? 1 : 0;
     case "INCRBY": { const n = num(store.get(key)) + num(a[0]); store.set(key, String(n)); return n; }
     case "INCR": { const n = num(store.get(key)) + 1; store.set(key, String(n)); return n; }

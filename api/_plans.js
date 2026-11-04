@@ -10,7 +10,8 @@
 //   order:<id>    = {id, uid, name, sku, amount, status ("open"|"paid"|"expired"), at, paidAt, sess}   kept 400 days
 //   orders:<uid>  = list of the account's order ids (newest first)     orders:all = every order id (owner console)
 //
-// Switched on with PLANS_ON=1 (production) — always on for previews and local dev. While off nothing is limited
+// Switched on with PLANS_ON=1 (production) — always on for previews and local dev. Before that, accounts in the Redis set
+// "plans:testers" (added from /owner) already get packages on production, so the owner can try everything first. While off nothing is limited
 // (the limits are the old fixed ones) and the app hides every package screen.
 const L = require("./_lib");
 
@@ -40,28 +41,30 @@ function enabled() {
   return DEV || process.env.VERCEL_ENV === "preview";
 }
 
+const TESTERS = "plans:testers";
 function planKey(uid) { return "plan:" + uid; }
 function passKey(uid) { return "passes:" + uid; }
 
 // {tier, until, src, passes} for one account; gives the launch gift once to accounts that already had trips
 async function getPlan(uid) {
-  if (!uid) return { tier: "free", until: 0, passes: 0 };
-  const [raw, passes, hadTrips] = await L.pipeline([["GET", planKey(uid)], ["GET", passKey(uid)], ["EXISTS", L.myTripsKey(uid)]]);
+  if (!uid) return { tier: "free", until: 0, passes: 0, on: enabled() };
+  const [raw, passes, hadTrips, tester] = await L.pipeline([["GET", planKey(uid)], ["GET", passKey(uid)], ["EXISTS", L.myTripsKey(uid)], ["SISMEMBER", TESTERS, uid]]);
+  const on = enabled() || Number(tester) === 1;
   let p = null;
   try { p = raw ? JSON.parse(raw) : null; } catch (e) { p = null; }
-  if (!p && Number(hadTrips) === 1 && enabled()) {
+  if (!p && Number(hadTrips) === 1 && on) {
     p = { tier: "standard", until: Date.now() + LAUNCH_GIFT_DAYS * DAY, src: "gift" };
     try { await L.redis(["SET", planKey(uid), JSON.stringify(p), "NX"]); } catch (e) { /* best effort */ }
   }
   if (!p) p = { tier: "free", until: 0, src: "" }; // first look: remember "free" so a later first trip doesn't count as an old account
-  if (!raw && p.tier === "free" && enabled()) { try { await L.redis(["SET", planKey(uid), JSON.stringify(p), "NX"]); } catch (e) { /* best effort */ } }
+  if (!raw && p.tier === "free" && on) { try { await L.redis(["SET", planKey(uid), JSON.stringify(p), "NX"]); } catch (e) { /* best effort */ } }
   const live = p.tier !== "free" && p.until > Date.now();
-  return { tier: live ? p.tier : "free", until: live ? p.until : 0, src: live ? p.src || "" : "", lastTier: p.tier, lastUntil: p.until || 0, passes: Math.max(0, Number(passes) || 0) };
+  return { tier: live ? p.tier : "free", until: live ? p.until : 0, src: live ? p.src || "" : "", lastTier: p.tier, lastUntil: p.until || 0, passes: Math.max(0, Number(passes) || 0), on };
 }
 
 // limits for one trip: the owner's package, or Standard when the trip used a pass (whichever is bigger)
 function limitsFor(plan, trip) {
-  if (!enabled()) return Object.assign({ tier: "", on: false }, LEGACY);
+  if (!(plan ? plan.on : enabled())) return Object.assign({ tier: "", on: false }, LEGACY);
   const own = TIERS[plan && plan.tier] || TIERS.free;
   const lim = Object.assign({ tier: (plan && plan.tier) || "free", on: true }, own);
   if (trip && trip.plus) {
@@ -117,7 +120,7 @@ async function setPlan(uid, tier, days) {
 
 function publicPlan(plan, extra) {
   const t = TIERS[plan.tier] || TIERS.free;
-  return Object.assign({ on: enabled(), tier: plan.tier, name: t.name, until: plan.until, src: plan.src, passes: plan.passes, limits: { trips: t.trips, vans: t.vans, helpers: t.helpers, rounds: t.rounds } }, extra || {});
+  return Object.assign({ on: !!plan.on, tier: plan.tier, name: t.name, until: plan.until, src: plan.src, passes: plan.passes, limits: { trips: t.trips, vans: t.vans, helpers: t.helpers, rounds: t.rounds } }, extra || {});
 }
 
-module.exports = { TIERS, SKUS, LEGACY, DAY, enabled, getPlan, limitsFor, monthUsed, monthCap, monthNow, quotaKey, REFUND_HOURS, usePass, refundPass, grant, setPlan, publicPlan, planKey, passKey };
+module.exports = { TESTERS, TIERS, SKUS, LEGACY, DAY, enabled, getPlan, limitsFor, monthUsed, monthCap, monthNow, quotaKey, REFUND_HOURS, usePass, refundPass, grant, setPlan, publicPlan, planKey, passKey };

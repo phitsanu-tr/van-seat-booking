@@ -197,7 +197,7 @@ module.exports = async function handler(req, res) {
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (!isOwner(trip, user)) return isManager(trip, user) ? L.json(res, 403, { error: "owner_only" }) : deny(res, user);
       if (trip.plus) return L.json(res, 200, { ok: true, already: true, limits: await limitsOf(trip) });
-      if (!P.enabled()) return L.json(res, 403, { error: "plans_off" });
+      if (!(await P.getPlan(user.id)).on) return L.json(res, 403, { error: "plans_off" });
       if (!(await P.usePass(user.id))) return L.json(res, 402, { error: "no_pass" });
       const next = Object.assign({}, trip, { plus: true, updatedAt: Date.now() });
       await saveTrip(next);

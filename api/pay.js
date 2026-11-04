@@ -114,9 +114,9 @@ module.exports = async function handler(req, res) {
     }
     if (req.method === "GET") {
       const plan = await P.getPlan(user.id);
-      const used = P.enabled() ? await P.monthUsed(user.id) : 0;
+      const used = plan.on ? await P.monthUsed(user.id) : 0;
       const catalog = Object.keys(P.SKUS).map((k) => Object.assign({ sku: k }, P.SKUS[k]));
-      return L.json(res, 200, { on: P.enabled(), ready: !!stripeKey() || DEV, dev: DEV, plan: P.publicPlan(plan, { used }), tiers: P.TIERS, catalog });
+      return L.json(res, 200, { on: plan.on, ready: !!stripeKey() || DEV, dev: DEV, plan: P.publicPlan(plan, { used }), tiers: P.TIERS, catalog });
     }
 
     if (req.method === "POST") {
@@ -126,7 +126,7 @@ module.exports = async function handler(req, res) {
         if (!o || o.uid !== user.id) return L.json(res, 404, { error: "no_order" });
         return L.json(res, 200, { order: publicOrder(await fulfil(o)) });
       }
-      if (!P.enabled()) return L.json(res, 403, { error: "plans_off" });
+      if (!(await P.getPlan(user.id)).on) return L.json(res, 403, { error: "plans_off" });
       const s = P.SKUS[body.sku];
       if (!s) return L.json(res, 400, { error: "bad_sku" });
       if (!stripeKey() && !DEV) return L.json(res, 503, { error: "pay_not_ready" });

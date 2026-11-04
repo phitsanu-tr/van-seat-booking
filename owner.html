@@ -71,7 +71,7 @@ button { font:inherit; cursor:pointer; }
       <div class="stats"><div class="stat"><b id="pMonth">0</b><span>รายรับเดือนนี้ (฿)</span></div><div class="stat"><b id="pAll">0</b><span>รายรับทั้งหมด (฿)</span></div><div class="stat"><b id="pN">0</b><span>รายการที่จ่ายแล้ว</span></div></div>
       <form id="grantForm" autocomplete="off" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
         <input id="gTrip" placeholder="รหัสทริป (ให้สิทธิ์เจ้าของทริป)" style="flex:1 1 180px;height:44px;border:1px solid var(--line);border-radius:12px;padding:0 12px;font:inherit">
-        <select id="gTier" style="height:44px;border:1px solid var(--line);border-radius:12px;padding:0 8px;font:inherit"><option value="standard">Standard</option><option value="premium">Premium</option><option value="free">Free (ยกเลิก)</option><option value="passes">ตั๋วรายทริป</option></select>
+        <select id="gTier" style="height:44px;border:1px solid var(--line);border-radius:12px;padding:0 8px;font:inherit"><option value="standard">Standard</option><option value="premium">Premium</option><option value="free">Free (ยกเลิก)</option><option value="passes">ตั๋วรายทริป</option><option value="tester1">เปิดแพ็กเกจให้บัญชีนี้ (ทดสอบ)</option><option value="tester0">ปิดทดสอบ</option></select>
         <input id="gDays" type="number" value="30" min="1" max="3660" style="width:88px;height:44px;border:1px solid var(--line);border-radius:12px;padding:0 8px;font:inherit" aria-label="จำนวนวัน หรือจำนวนตั๋ว">
         <button class="btn primary" type="submit">ให้สิทธิ์</button>
       </form>
@@ -198,10 +198,10 @@ button { font:inherit; cursor:pointer; }
   $("grantForm").addEventListener("submit", function (e) {
     e.preventDefault();
     var tier = $("gTier").value, n = Number($("gDays").value), g = { t: $("gTrip").value.trim().toLowerCase() };
-    if (tier === "passes") g.passes = n; else { g.tier = tier; g.days = n; }
+    if (tier === "passes") g.passes = n; else if (/^tester/.test(tier)) g.tester = tier === "tester1"; else { g.tier = tier; g.days = n; }
     fetch("/api/owner", { method: "POST", cache: "no-store", headers: { "x-owner-key": KEY, "Content-Type": "application/json" }, body: JSON.stringify({ grant: g }) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-      .then(function (x) { say(x.ok ? "ให้สิทธิ์ " + (x.j.owner || "") + " แล้ว: " + x.j.plan.name + (x.j.plan.until ? " ถึง " + fmtDay(x.j.plan.until) : "") + " · ตั๋ว " + x.j.plan.passes + " ใบ" : "ไม่สำเร็จ: " + (x.j.error || "")); });
+      .then(function (x) { say(x.ok ? (x.j.tester ? "[แพ็กเกจเปิด] " : "[แพ็กเกจปิด] ") + "ให้สิทธิ์ " + (x.j.owner || "") + " แล้ว: " + x.j.plan.name + (x.j.plan.until ? " ถึง " + fmtDay(x.j.plan.until) : "") + " · ตั๋ว " + x.j.plan.passes + " ใบ" : "ไม่สำเร็จ: " + (x.j.error || "")); });
   });
   function load() {
     say(""); loadPay();

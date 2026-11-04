@@ -86,7 +86,9 @@ module.exports = async function handler(req, res) {
       const t = L.tripId(g.t);
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip || !trip.owner) return L.json(res, 404, { error: "no_trip" });
-      if (g.passes !== undefined) {
+      if (g.tester !== undefined) { // packages on for this account only (before PLANS_ON=1)
+        await L.redis([g.tester ? "SADD" : "SREM", P.TESTERS, trip.owner]);
+      } else if (g.passes !== undefined) {
         const n = Number(g.passes);
         if (!Number.isInteger(n) || n < 1 || n > 50) return L.json(res, 400, { error: "bad_passes" });
         await L.redis(["INCRBY", P.passKey(trip.owner), String(n)]);
@@ -96,7 +98,7 @@ module.exports = async function handler(req, res) {
         await P.setPlan(trip.owner, g.tier, days);
       }
       const plan = await P.getPlan(trip.owner);
-      return L.json(res, 200, { ok: true, owner: trip.ownerName || "", plan: P.publicPlan(plan) });
+      return L.json(res, 200, { ok: true, owner: trip.ownerName || "", plan: P.publicPlan(plan), tester: plan.on });
     }
 
     if (req.method === "GET") {

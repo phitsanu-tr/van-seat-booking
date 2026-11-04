@@ -177,9 +177,10 @@ module.exports = async function handler(req, res) {
     const byDate = (a, b) => (a.ended - b.ended) || String(a.startDate || "9").localeCompare(String(b.startDate || "9"));
     myTrips.sort(byDate); mySeats.sort(byDate);
     let plan = null;
-    if (P.enabled()) {
+    {
       try {
         const p = await P.getPlan(user.id);
+        if (!p.on) throw new Error("off");
         plan = P.publicPlan(p, { used: await P.monthUsed(user.id) });
         // a few days before a package runs out: one reminder in the bell (PromptPay can't renew by itself)
         if (p.tier !== "free" && p.until - Date.now() < 3 * P.DAY) {
