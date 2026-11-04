@@ -59,6 +59,26 @@ module.exports = async function handler(req, res) {
         res.setHeader("Set-Cookie", [L.cookieStr(req, "vsb_s", "", 0)]);
         return L.json(res, 200, { ok: true });
       }
+      // LIFF login: front-end sends { liff_token, r } when running inside LINE
+      if (body.liff_token && typeof body.liff_token === "string") {
+        if (await L.rateLimited(req, null, "login", 30, 600)) return L.json(res, 429, { error: "busy" });
+        const id = env("LINE_CHANNEL_ID");
+        if (!id) return L.json(res, 500, { error: "not_configured" });
+        // verify the LIFF ID token (no nonce needed for LIFF tokens)
+        const vr = await fetch(VERIFY_URL, {
+          method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ id_token: body.liff_token, client_id: id }).toString(),
+        });
+        const prof = await vr.json().catch(() => ({}));
+        if (!vr.ok || !prof.sub || !/^U[0-9a-f]{32}$/.test(prof.sub)) return L.json(res, 401, { error: "verify_failed" });
+        const back = safeReturn(body.r);
+        const sid = L.newId(32);
+        const sess = { u: prof.sub, n: String(prof.name || "").slice(0, 60), p: /^https:\/\//.test(prof.picture || "") ? String(prof.picture).slice(0, 300) : "", at: Date.now() };
+        await L.pipeline([["SET", "sess:" + sid, JSON.stringify(sess), "EX", String(L.SESSION_DAYS * 86400)],
+          ["SADD", "usess:" + prof.sub, sid], ["EXPIRE", "usess:" + prof.sub, String(L.SESSION_DAYS * 86400)]]);
+        res.setHeader("Set-Cookie", [L.cookieStr(req, "vsb_s", sid, L.SESSION_DAYS * 86400)]);
+        return L.json(res, 200, { ok: true, r: back });
+      }
       return L.json(res, 400, { error: "bad_request" });
     }
     if (req.method !== "GET") { res.setHeader("Allow", "GET, POST"); return L.json(res, 405, { error: "method_not_allowed" }); }

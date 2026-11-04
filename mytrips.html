@@ -298,6 +298,29 @@ body.signed .top .bell-wrap { display: flex; }
 .sgrid button { border-width: 1px; border-color: transparent; background: #f1f4f6; }
 .sgrid button small { font-size: 10px; }
 </style>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+(function(){
+  var LIFF_ID = "2012285472-FvtYKx00";
+  window.__liffReady = new Promise(function(resolve){
+    liff.init({ liffId: LIFF_ID }).then(function(){
+      if (!liff.isInClient()) { resolve(false); return; }
+      if (liff.isLoggedIn()) {
+        var token = liff.getIDToken();
+        if (!token) { resolve(false); return; }
+        if (document.cookie.indexOf("vsb_s=") >= 0) { resolve(true); return; }
+        fetch("/api/auth", { method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ liff_token: token, r: location.pathname + location.search + location.hash }) })
+          .then(function(r){ return r.json(); })
+          .then(function(d){ if(d.ok){ location.replace(d.r||"/"); } else { resolve(true); } })
+          .catch(function(){ resolve(true); });
+      } else {
+        liff.login({ redirectUri: location.href });
+      }
+    }).catch(function(){ resolve(false); });
+  });
+})();
+</script>
 </head>
 <body>
 <div class="top"><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="bell-wrap" id="bellHost" style="margin-left:auto"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>

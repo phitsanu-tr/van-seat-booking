@@ -414,6 +414,29 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 .modal .actions button.plain { border-color: transparent!important; background: #f1f4f6; }
 .mtxt h2 { font-size: 32px!important; }
 </style>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+(function(){
+  var LIFF_ID = "2012285472-FvtYKx00";
+  window.__liffReady = new Promise(function(resolve){
+    liff.init({ liffId: LIFF_ID }).then(function(){
+      if (!liff.isInClient()) { resolve(false); return; }
+      if (liff.isLoggedIn()) {
+        var token = liff.getIDToken();
+        if (!token) { resolve(false); return; }
+        if (document.cookie.indexOf("vsb_s=") >= 0) { resolve(true); return; }
+        fetch("/api/auth", { method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ liff_token: token, r: location.pathname + location.search + location.hash }) })
+          .then(function(r){ return r.json(); })
+          .then(function(d){ if(d.ok){ location.replace(d.r||"/"); } else { resolve(true); } })
+          .catch(function(){ resolve(true); });
+      } else {
+        liff.login({ redirectUri: location.href });
+      }
+    }).catch(function(){ resolve(false); });
+  });
+})();
+</script>
 </head>
 <body class="sk">
 <main>
