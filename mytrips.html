@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>html { touch-action: manipulation; }
-/* LIFF full screen (body.lift): bottom tab bar replaces the top tabs; LINE draws the title bar */
+/* LIFF full screen (html.lift): bottom tab bar replaces the top tabs; LINE draws the title bar */
 .tabbar{position:fixed;left:0;right:0;bottom:0;height:72px;padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #e8ecef;display:none;justify-content:space-around;z-index:50;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
-body.lift.is-in .tabbar,body.lift.signed .tabbar{display:flex}
+html.lift body.is-in .tabbar,html.lift body.signed .tabbar{display:flex}
 .tabbar a,.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;padding:0;font:500 11px var(--font-display);color:#8a949a;text-decoration:none;cursor:pointer;position:relative}
 .tabbar svg{width:24px;height:24px}
 .tabbar .on{color:var(--deep);font-weight:700}
 .tabbar .on::before{content:"";position:absolute;top:0;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--deep)}
-body.lift main{padding-bottom:96px !important}
-body.lift .top > div > span:first-child,body.lift .top > div > a:first-child,body.lift .top .acct,body.lift .top .acct-pill{display:none !important}
-body.lift .seg{display:none !important}
+html.lift main{padding-bottom:96px !important}
+html.lift .top > div > span:first-child,html.lift .top > div > a:first-child,html.lift .top .acct,html.lift .top .acct-pill{display:none !important}
+html.lift .seg{display:none !important}
 </style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <title>ทริปของฉัน · จองที่นั่งรถตู้</title>
@@ -309,6 +309,7 @@ body.signed .top .bell-wrap { display: flex; }
 .sgrid button { border-width: 1px; border-color: transparent; background: #f1f4f6; }
 .sgrid button small { font-size: 10px; }
 </style>
+<script>try{if(sessionStorage.getItem("vsb_lift"))document.documentElement.classList.add("lift")}catch(e){}</script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 (function(){
@@ -316,7 +317,7 @@ body.signed .top .bell-wrap { display: flex; }
   window.__liffReady = new Promise(function(resolve){
     if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
-      if (!liff.isInClient()) { resolve(false); return; } document.body.classList.add("lift");
+      if (!liff.isInClient()) { resolve(false); return; } document.documentElement.classList.add("lift"); try { sessionStorage.setItem("vsb_lift", "1"); } catch (e) {}
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
       fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){

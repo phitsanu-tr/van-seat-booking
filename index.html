@@ -17,6 +17,7 @@ body.is-in .hero,body.is-in .how,body.is-in h2,body.is-in .foot{display:none !im
 .nx .bt2{margin-top:12px;display:flex;gap:8px}
 .nx .bt2 a{flex:1;height:42px;border-radius:12px;background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:600;text-decoration:none}
 .nx .bt2 a.w{background:#fff;color:var(--deep)}
+.hi2{margin:2px 0 14px}.hi2 small{display:block;font-size:13px;color:var(--muted)}.hi2 b{font-size:22px;font-family:var(--font-display)}
 .mylist{margin:18px 0 8px}
 .mylist .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
 .mylist .hd b{font-size:16px;font-family:var(--font-display)}
@@ -27,16 +28,16 @@ body.is-in .hero,body.is-in .how,body.is-in h2,body.is-in .foot{display:none !im
 .tc .bar{height:6px;border-radius:9px;background:var(--line);margin-top:10px;overflow:hidden}
 .tc .bar i{display:block;height:100%;background:var(--deep)}
 
-/* LIFF full screen (body.lift): bottom tab bar replaces the top tabs; LINE draws the title bar */
+/* LIFF full screen (html.lift): bottom tab bar replaces the top tabs; LINE draws the title bar */
 .tabbar{position:fixed;left:0;right:0;bottom:0;height:72px;padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #e8ecef;display:none;justify-content:space-around;z-index:50;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
-body.lift.is-in .tabbar,body.lift.signed .tabbar{display:flex}
+html.lift body.is-in .tabbar,html.lift body.signed .tabbar{display:flex}
 .tabbar a,.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;padding:0;font:500 11px var(--font-display);color:#8a949a;text-decoration:none;cursor:pointer;position:relative}
 .tabbar svg{width:24px;height:24px}
 .tabbar .on{color:var(--deep);font-weight:700}
 .tabbar .on::before{content:"";position:absolute;top:0;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--deep)}
-body.lift main{padding-bottom:96px !important}
-body.lift .top > div > span:first-child,body.lift .top > div > a:first-child,body.lift .top .acct,body.lift .top .acct-pill{display:none !important}
-body.lift .seg{display:none !important}
+html.lift main{padding-bottom:96px !important}
+html.lift .top > div > span:first-child,html.lift .top > div > a:first-child,html.lift .top .acct,html.lift .top .acct-pill{display:none !important}
+html.lift .seg{display:none !important}
 </style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <title>จองที่นั่งรถตู้</title>
@@ -125,6 +126,7 @@ a.path:active { background: var(--tint); }
 .code input { border-color: #dde3e7; }
 .toast { position: fixed; left: 50%; top: calc(14px + env(safe-area-inset-top)); transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 14px; padding: 10px 16px; border-radius: 12px; z-index: 30; max-width: calc(100% - 32px); text-align: center; }
 </style>
+<script>try{if(sessionStorage.getItem("vsb_lift"))document.documentElement.classList.add("lift")}catch(e){}</script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 (function(){
@@ -132,7 +134,7 @@ a.path:active { background: var(--tint); }
   window.__liffReady = new Promise(function(resolve){
     if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
-      if (!liff.isInClient()) { resolve(false); return; } document.body.classList.add("lift");
+      if (!liff.isInClient()) { resolve(false); return; } document.documentElement.classList.add("lift"); try { sessionStorage.setItem("vsb_lift", "1"); } catch (e) {}
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
       fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){
@@ -217,6 +219,7 @@ a.path:active { background: var(--tint); }
   function tm(s){return s?String(s).replace(":",".")+" น.":"";}
   function render(d){
     document.body.classList.add("is-in");
+    var nx0=document.getElementById("next"),hi=el("div","hi2");hi.appendChild(el("small",null,"สวัสดี"));hi.appendChild(el("b",null,(d.user&&d.user.name)||"ผู้ใช้ LINE"));nx0.textContent="";nx0.appendChild(hi);
     var up=(d.seats||[]).filter(function(x){return !x.ended && x.startDate && x.seats && x.seats.length;}).sort(function(a,b){return (a.startDate+(a.departTime||"")).localeCompare(b.startDate+(b.departTime||""));});
     var nx=document.getElementById("next");
     if(up.length){
@@ -226,7 +229,7 @@ a.path:active { background: var(--tint); }
       var m=el("div","m");m.appendChild(el("span",null,[fmt(x.startDate),tm(x.departTime)].filter(Boolean).join(" · ")));
       var bt=el("div","bt2");var a1=el("a","w","ดูผังที่นั่ง");a1.href="/"+encodeURIComponent(x.id)+"?v="+encodeURIComponent(sr[0].van);var a2=el("a",null,"รายละเอียด");a2.href="/mytrips";bt.appendChild(a1);bt.appendChild(a2);
       card.appendChild(k);card.appendChild(el("h3",null,x.name||"จองที่นั่งรถตู้"));card.appendChild(m);card.appendChild(sb);card.appendChild(bt);
-      nx.textContent="";nx.appendChild(card);nx.hidden=false;
+      nx.appendChild(card);
     }
     var trips=(d.trips||[]).filter(function(x){return !x.ended;});
     var ml=document.getElementById("myList");
