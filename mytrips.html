@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>html { touch-action: manipulation; }</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
-<title>ของฉัน · จองที่นั่งรถตู้</title>
+<title>ทริปของฉัน · จองที่นั่งรถตู้</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
 <style>
@@ -40,6 +40,14 @@ a { color: inherit; }
 .chv { font-size: 14px; line-height: 1; margin-left: -2px; position: relative; top: -.25px; }
 .lnb { flex: none; display: inline-flex; align-items: center; box-sizing: border-box; height: 16px; padding: .25px 5.95px 0 6px; position: relative; top: 0; border-radius: 6px; background: var(--lg); color: #fff; font: 700 10px/1 Arial, sans-serif; letter-spacing: .2px; }
 .wr { display: flex; align-items: center; gap: 8px; flex: none; }
+/* signed in: one header row (photo + LINE name › opens the account sheet, bell on the right) instead of the site bar + profile row */
+body.signed .top { display: none; }
+body.signed main { padding-top: 8px; }
+#meView .who .av { width: 36px; height: 36px; font-size: 15px; }
+#meView .who .hi { gap: 8px; }
+#meView .who .nmr { display: flex; align-items: center; gap: 4px; min-width: 0; }
+#meView .who .nmr b { min-width: 0; }
+#meView .who .nmr .chv { flex: none; color: var(--muted); font-size: 18px; top: 0; margin: 0; }
 .ntag { align-self: flex-start; font-size: 11px; font-weight: 600; color: var(--amber); background: var(--amber-tint); border: 1px solid var(--amber-edge); border-radius: 99px; padding: 1px 9px; }
 .out { flex: none; height: 36px; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--line); background: transparent; font-size: 13px; font-weight: 500; color: var(--muted); }
 .seg { display: grid; grid-template-columns: 1fr 1fr; background: #f1f4f6; border-radius: 16px; padding: 4px; gap: 4px; }
@@ -317,7 +325,7 @@ a { color: inherit; }
 
   <section id="meView" hidden>
     <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="who"><button class="hi acct" id="acctBtn" type="button" aria-haspopup="dialog" aria-label="เมนูบัญชี"><span class="avw"><span class="av" id="av"></span></span><span class="hn"><b id="meName"></b><small><span class="lnb">LINE</span>บัญชีของฉัน<span class="chv" aria-hidden="true">›</span></small></span></button><div class="wr"><span id="bellHost" style="display:flex"></span></div></div>
+      <div class="who"><button class="hi acct" id="acctBtn" type="button" aria-haspopup="dialog" aria-label="เมนูบัญชี"><span class="avw"><span class="av" id="av"></span></span><span class="hn"><span class="nmr"><b id="meName"></b><span class="chv" aria-hidden="true">›</span></span></span></button><div class="wr"><span id="bellHost" style="display:flex"></span></div></div>
       <div class="seg" role="tablist"><button id="tabTrips" role="tab" aria-selected="false" type="button">ทริปของฉัน <span class="n" id="nTrips">0</span></button><button id="tabSeats" role="tab" aria-selected="false" type="button">ที่นั่งของฉัน <span class="n" id="nSeats">0</span></button></div>
       <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px"></div>
       <div id="paneSeats" style="display:flex;flex-direction:column;gap:12px" hidden></div>
@@ -1257,7 +1265,7 @@ a { color: inherit; }
   function showLogin() {
     forgetRosters(); // signed out or another account: drop the lists kept in this tab
     try { localStorage.removeItem("vsb_name"); } catch (e) {} // and the booking name remembered on this device
-    $("meView").hidden = true; $("loginView").hidden = false;
+    $("meView").hidden = true; $("loginView").hidden = false; document.body.classList.remove("signed");
     var le = new URLSearchParams(location.search).get("le");
     var msg = { cancel: "ยกเลิกการเข้าสู่ระบบแล้ว", setup: "ระบบเข้าสู่ระบบยังไม่ได้ตั้งค่า (ติดต่อเจ้าของแอป)", busy: "ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่" }[le] || (le ? "เข้าสู่ระบบไม่สำเร็จ ลองอีกครั้ง" : "");
     if (msg) { $("loginErr").textContent = msg; $("loginErr").hidden = false; }
@@ -1310,7 +1318,7 @@ a { color: inherit; }
     try { me = (await (await fetch("/api/auth?me=1", { cache: "no-store" })).json()).user; } catch (e) {}
     if (!me) { showLogin(); return; }
     if (FOR_NEW) { location.replace(FOR_NEW); return; }
-    $("meView").hidden = false; setTab(tab); skeleton();
+    $("meView").hidden = false; document.body.classList.add("signed"); setTab(tab); skeleton();
     try { var fl = sessionStorage.getItem("van-flash"); if (fl) { sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); setTimeout(function () { toast(fl); }, 300); } } catch (e) {}
     $("meName").textContent = me.name || "ผู้ใช้ LINE";
     if (JOIN) { try { history.replaceState(null, "", "/mytrips"); } catch (e) {} await joinTeam(JOIN); JOIN = ""; setTab("trips"); }
