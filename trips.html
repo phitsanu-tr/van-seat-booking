@@ -264,7 +264,7 @@ select.sel { border-color: #dde3e7!important; }
 </head>
 <body>
 <main id="formMain" hidden>
-  <a class="back" href="/mytrips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>ทริปของฉัน</a>
+  <a class="back" id="backLink" href="/mytrips#trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>กลับ</a>
   <section class="hero">
     <div class="hr">
       <h1 id="title">สร้างทริป</h1>
@@ -591,7 +591,7 @@ select.sel { border-color: #dde3e7!important; }
   var dirty = false;
   ["input", "change"].forEach(function (ev) { $("form").addEventListener(ev, function () { dirty = true; }); });
   $("cancelBtn").addEventListener("click", async function () {
-    var dest = "/mytrips";
+    var dest = "/mytrips#trips";
     if (dirty && !(await askConfirm(editing ? "ออกโดยไม่บันทึก?" : "ยกเลิกการสร้างทริป?", "ข้อมูลที่กรอกไว้จะไม่ถูกบันทึก", "ออกจากหน้านี้", $("cancelBtn")))) return;
     location.href = dest;
   });
@@ -734,16 +734,16 @@ select.sel { border-color: #dde3e7!important; }
   $("openShare").addEventListener("click", function (e) {
     if (!backToList || !shown) return;
     e.preventDefault();
-    try { sessionStorage.setItem("vsb_back_list", "1"); history.replaceState(null, "", "/mytrips"); } catch (x) {}
+    try { sessionStorage.setItem("vsb_back_list", "1"); history.replaceState(null, "", "/mytrips#trips"); } catch (x) {}
     location.href = "/" + shown.id;
   });
   window.addEventListener("pageshow", function () { // came Back to this page (bfcache): go on to my trips
     var f = null; try { f = sessionStorage.getItem("vsb_back_list"); sessionStorage.removeItem("vsb_back_list"); } catch (x) {}
-    if (f && location.pathname === "/mytrips") location.replace("/mytrips");
+    if (f && location.pathname === "/mytrips") location.replace("/mytrips#trips");
   });
   var goList = false; // right after creating a trip, closing the result sheet leads to the my-trips list
   function closeResult() {
-    if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = "/mytrips"; return; }
+    if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = "/mytrips#trips"; return; }
     $("backdrop").hidden = true; document.body.style.overflow = "";
   }
   $("closeX").addEventListener("click", closeResult);
@@ -904,7 +904,7 @@ select.sel { border-color: #dde3e7!important; }
       var r = await fetch("/api/trip?t=" + encodeURIComponent(T), { method: "DELETE" });
       if (!r.ok && r.status !== 404) { var d = {}; try { d = await r.json(); } catch (e) {} toast(ERR[d.error] || "ลบไม่สำเร็จ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; return; }
       try { sessionStorage.setItem("van-flash", "ลบทริปแล้ว"); } catch (e) {}
-      location.href = "/mytrips";
+      location.href = "/mytrips#trips";
     } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
   });
 
@@ -971,5 +971,6 @@ select.sel { border-color: #dde3e7!important; }
   init();
 })();
 </script>
+<script>(function(){var b=document.getElementById("backLink");if(!b)return;b.addEventListener("click",function(e){var r="";try{r=new URL(document.referrer).origin;}catch(x){}if(r===location.origin&&history.length>1&&!/\/trips\//.test(document.referrer)){e.preventDefault();history.back();}});})();</script>
 </body>
 </html>

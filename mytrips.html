@@ -4,22 +4,66 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>html { touch-action: manipulation; }
-/* LIFF full screen (html.lift): bottom tab bar replaces the top tabs; LINE draws the title bar */
+/* app (signed in): page title + bell on top, 4-tab bar at the bottom, the same in LINE and in any browser */
 .tabbar{position:fixed;left:0;right:0;bottom:0;height:72px;padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #e8ecef;display:none;justify-content:space-around;z-index:50;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
-html.lift body.is-in .tabbar,html.lift body.signed .tabbar{display:flex}
+body.signed .tabbar{display:flex}
 .tabbar a,.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;padding:0;font:500 11px var(--font-display);color:#8a949a;text-decoration:none;cursor:pointer;position:relative}
 .tabbar svg{width:24px;height:24px}
 .tabbar .on{color:var(--deep);font-weight:700}
 .tabbar .on::before{content:"";position:absolute;top:0;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--deep)}
-html.lift main{padding-bottom:96px !important}
-html.lift .top > div > span:first-child,html.lift .top > div > a:first-child,html.lift .top .acct,html.lift .top .acct-pill{display:none !important}
-html.lift .seg{display:none !important}
+body.signed main{padding-bottom:96px !important}
+body.signed .top > div > span:first-child,body.signed .top > div > a:first-child,body.signed .top .acct,body.signed .top .acct-pill{display:none !important}
+body.signed .seg{display:none !important}
 
-/* LIFF: page title + bell share one row (no separate brand bar) */
 .top .ltl{display:none}
-html.lift .top{border-bottom:0 !important;background:transparent !important}
-html.lift .top > div{height:64px !important}
-html.lift .top .ltl{display:block;font:700 24px var(--font-display);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+body.signed .top{border-bottom:0 !important;background:transparent !important}
+body.signed .top > div{height:64px !important}
+body.signed .top .ltl{display:block;font:700 24px var(--font-display);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+
+/* home tab */
+.hp { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 16px; color: inherit; text-decoration: none; font: inherit; cursor: pointer; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
+.hp .pi { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--tint); color: var(--deep); }
+.hp .pi svg { width: 20px; height: 20px; }
+.hp .tx { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.hp .tx b { font: 600 15px var(--font-display); }
+.hp .tx span { font-size: 13px; color: var(--muted); }
+.hp > svg { flex: none; width: 18px; height: 18px; color: var(--muted); }
+.hp.col { flex-direction: column; align-items: stretch; gap: 12px; cursor: default; }
+.hp .head { display: flex; gap: 12px; align-items: center; }
+.hcf { display: flex; gap: 8px; }
+.hcf input { flex: 1; min-width: 0; height: 46px; font: inherit; font-size: 16px; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 0 14px; border-width: 1px; }
+.hcf input:focus { outline: none; border-color: var(--mine); box-shadow: 0 0 0 3px color-mix(in srgb, var(--mine) 20%, transparent); }
+.hcf button { flex: none; width: 46px; height: 46px; border: 0; border-radius: 12px; background: var(--mine); color: #fff; display: grid; place-items: center; cursor: pointer; }
+.hcf button svg { width: 18px; height: 18px; }
+.herr { display: flex; gap: 6px; align-items: center; color: var(--danger); font-size: 12px; line-height: 18px; margin-top: -4px; }
+.herr[hidden] { display: none; }
+.herr svg { flex: none; width: 14px; height: 14px; transform: translateY(-2px); }
+.hcf input[aria-invalid="true"], .hcf input[aria-invalid="true"]:focus { border-color: var(--danger); box-shadow: none; }
+.hcf input[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent); }
+.hp .tx b { font-size: 16px; }
+.hp .tx span { font-size: 12px; }
+.hcf input { border-color: #dde3e7; }
+.nx{background:linear-gradient(150deg,#0E7C86,#0B5F67);color:#fff;border-radius:22px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 14px 30px -14px rgba(11,95,103,.6)}
+.nx .k{font-size:12px;opacity:.85}
+.nx h3{font-size:18px;line-height:1.35;margin:6px 0 10px;padding-right:76px;font-family:var(--font-display)}
+.nx .m{font-size:13px;opacity:.95;display:flex;flex-wrap:wrap;gap:4px 14px}
+.nx .sb{position:absolute;right:14px;top:14px;width:64px;height:64px;border-radius:18px;background:rgba(255,255,255,.16);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:24px;line-height:1;text-align:center}
+.nx .sb.many{font-size:17px;width:auto;min-width:64px;padding:0 10px}
+.nx .sb small{font-size:10px;font-weight:500;margin-top:4px;opacity:.9}
+.nx .bt2{margin-top:12px;display:flex;gap:8px}
+.nx .bt2 a{flex:1;height:42px;border-radius:12px;background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:600;text-decoration:none}
+.nx .bt2 a.w{background:#fff;color:var(--deep)}
+
+.mylist{margin:18px 0 8px}
+.mylist .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.mylist .hd b{font-size:16px;font-family:var(--font-display)}
+.mylist .hd a{font-size:13px;color:var(--deep);font-weight:600;text-decoration:none}
+.tc{display:block;background:var(--surface);border:1px solid var(--edge);border-radius:16px;padding:14px;margin-bottom:10px;color:inherit;text-decoration:none}
+.tc b{display:block;font-size:15px;line-height:1.35}
+.tc span{display:block;font-size:12.5px;color:var(--muted);margin-top:4px}
+.tc .bar{height:6px;border-radius:9px;background:var(--line);margin-top:10px;overflow:hidden}
+.tc .bar i{display:block;height:100%;background:var(--deep)}
+.hp{margin-top:2px}
 </style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <title>ทริปของฉัน · จองที่นั่งรถตู้</title>
@@ -315,7 +359,6 @@ body.signed .top .bell-wrap { display: flex; }
 .sgrid button { border-width: 1px; border-color: transparent; background: #f1f4f6; }
 .sgrid button small { font-size: 10px; }
 </style>
-<script>try{if(sessionStorage.getItem("vsb_lift"))document.documentElement.classList.add("lift")}catch(e){}</script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 (function(){
@@ -323,7 +366,7 @@ body.signed .top .bell-wrap { display: flex; }
   window.__liffReady = new Promise(function(resolve){
     if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
-      if (!liff.isInClient()) { resolve(false); return; } document.documentElement.classList.add("lift"); try { sessionStorage.setItem("vsb_lift", "1"); } catch (e) {}
+      if (!liff.isInClient()) { resolve(false); return; }
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
       fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){
@@ -376,13 +419,28 @@ body.signed .top .bell-wrap { display: flex; }
     <div style="display:flex;flex-direction:column;gap:14px">
       <div class="who"><button class="hi acct" id="acctBtn" type="button" aria-haspopup="dialog" aria-label="เมนูบัญชี"><span class="avw"><span class="av" id="av"></span></span><span class="hn"><span class="nmr"><b id="meName"></b><span class="chv" aria-hidden="true">›</span></span></span></button></div>
       <div class="seg" role="tablist"><button id="tabTrips" role="tab" aria-selected="false" type="button">ทริปของฉัน <span class="n" id="nTrips">0</span></button><button id="tabSeats" role="tab" aria-selected="false" type="button">ที่นั่งของฉัน <span class="n" id="nSeats">0</span></button></div>
-      <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px"></div>
+      <div id="paneHome" hidden>
+        <div id="hNext"></div>
+  <section class="hp col">
+    <div class="head">
+      <div class="pi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h4a2 2 0 012 2v6a2 2 0 01-2 2H9.5a2 2 0 01-2-1.7L6 5a2 2 0 012-2z"/><path d="M7 16h11a2 2 0 010 4H7z"/></svg></div>
+      <div class="tx"><b>มีรหัสทริปแล้ว?</b><span>ใส่รหัสหรือวางลิงก์ที่ผู้จัดส่งให้</span></div>
+    </div>
+    <form class="hcf" id="hCodeForm" autocomplete="off">
+      <input type="text" id="hCode" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="200" placeholder="ใส่รหัสทริป หรือวางลิงก์" aria-label="รหัสทริป">
+      <button type="submit" aria-label="ไปหน้าจอง"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </form>
+    <div class="herr" id="hErr" role="alert" hidden></div>
+  </section>
+        <div class="mylist" id="hList"></div>
+      </div>
+      <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px" hidden></div>
       <div id="paneSeats" style="display:flex;flex-direction:column;gap:12px" hidden></div>
       <div id="paneAcct" style="display:flex;flex-direction:column;gap:14px" hidden></div>
     </div>
   </section>
   <div class="foot">© 2026</div>
-<nav class="tabbar" aria-label="เมนูหลัก"><a href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>หน้าหลัก</a><button id="navTrips" class="on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>ทริปที่จัด</button><button id="navSeats" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h7a3 3 0 0 1 3 3v6H7z"/><path d="M5 13h14v4H5zM7 17v3M17 17v3"/></svg>ที่นั่งของฉัน</button><button id="navAcct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>บัญชี</button></nav>
+<nav class="tabbar" aria-label="เมนูหลัก"><button id="navHome" class="on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>หน้าหลัก</button><button id="navTrips" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>ทริปที่จัด</button><button id="navSeats" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h7a3 3 0 0 1 3 3v6H7z"/><path d="M5 13h14v4H5zM7 17v3M17 17v3"/></svg>ที่นั่งของฉัน</button><button id="navAcct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>บัญชี</button></nav>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <script src="/bell.js"></script>
@@ -1244,19 +1302,73 @@ body.signed .top .bell-wrap { display: flex; }
   // an old edit link (/trips#<trip>-o) arrives here through the /trips redirect: send it on to the edit page
   var oldEdit = /^#([a-z0-9]{3,16})-o$/i.exec(location.hash || "");
   if (oldEdit) { location.replace("/trips/" + oldEdit[1].toLowerCase()); return; }
-  var tab = location.hash === "#seats" ? "seats" : location.hash === "#account" ? "acct" : "trips";
+  var tab = { "#trips": "trips", "#seats": "seats", "#account": "acct" }[location.hash] || "home";
+  // ---- home tab: next seat + trip-code box + trips I organise
+  var HM = (function () {
+  var MON=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+  function ymd(s){var p=String(s||"").split("-");return p.length===3?[+p[0],+p[1],+p[2]]:null;}
+  function fmt(s){var p=ymd(s);return p?p[2]+" "+MON[p[1]-1]+" "+String((p[0]+543)%100).padStart(2,"0"):"";}
+  function days(s){var p=ymd(s);if(!p)return 0;var t=new Date(Date.now()+7*3600e3);return Math.round((Date.UTC(p[0],p[1]-1,p[2])-Date.UTC(t.getUTCFullYear(),t.getUTCMonth(),t.getUTCDate()))/864e5);}
+  function tm(s){return s?String(s).replace(":",".")+" น.":"";}
+    function render(d) {
+    var up=(d.seats||[]).filter(function(x){return !x.ended && x.startDate && x.seats && x.seats.length;}).sort(function(a,b){return (a.startDate+(a.departTime||"")).localeCompare(b.startDate+(b.departTime||""));});
+    var nx=document.getElementById("hNext");
+    nx.textContent="";
+    if(up.length){
+      var x=up[0],n=days(x.startDate),sr=x.seats.slice().sort(function(a,b){return a.seat-b.seat;});
+      var card=el("div","nx"),k=el("div","k","ทริปถัดไป · "+(n<=0?"วันนี้":"อีก "+n+" วัน"));
+      var sb=el("div","sb");var nums=sr.map(function(s){return s.seat;});sb.appendChild(document.createTextNode(nums.length>2?nums.slice(0,2).join(", ")+" +"+(nums.length-2):nums.join(", ")));if(nums.length>1)sb.classList.add("many");sb.appendChild(el("small",null,"คัน "+(sr[0].vanLabel||"")));
+      var m=el("div","m");m.appendChild(el("span",null,[fmt(x.startDate),tm(x.departTime)].filter(Boolean).join(" · ")));
+      var bt=el("div","bt2");var a1=el("a","w","ดูผังที่นั่ง");a1.href="/"+encodeURIComponent(x.id)+"?v="+encodeURIComponent(sr[0].van);var a2=el("a",null,"รายละเอียด");a2.href="/mytrips";bt.appendChild(a1);bt.appendChild(a2);
+      card.appendChild(k);card.appendChild(el("h3",null,x.name||"จองที่นั่งรถตู้"));card.appendChild(m);card.appendChild(sb);card.appendChild(bt);
+      nx.appendChild(card);
+    }
+    var trips=(d.trips||[]).filter(function(x){return !x.ended;});
+    var ml=document.getElementById("hList");
+    ml.textContent="";
+    if(trips.length){
+      var hd=el("div","hd");hd.appendChild(el("b",null,"ทริปที่จัด"));var all=el("a",null,"+ สร้างทริป");all.href="/trips/new";hd.appendChild(all);ml.appendChild(hd);
+      trips.forEach(function(x){
+        var c=el("a","tc");c.href="/mytrips";c.appendChild(el("b",null,x.name||"ทริปไม่มีชื่อ"));
+        c.appendChild(el("span",null,[fmt(x.startDate),tm(x.departTime)].filter(Boolean).join(" · ")+" · จองแล้ว "+(x.booked||0)+"/"+(x.total||0)));
+        var bar=el("div","bar"),bi=el("i");bi.style.width=(x.total?Math.min(100,Math.round(x.booked/x.total*100)):0)+"%";bar.appendChild(bi);c.appendChild(bar);
+        ml.appendChild(c);
+      });
+    } else {
+      var mk=el("a","tc","+ สร้างทริปใหม่");mk.href="/trips/new";mk.style.textAlign="center";mk.style.fontWeight="600";mk.style.color="var(--deep)";ml.appendChild(mk);
+    }
+    }
+  function parse(v) {
+    v = String(v || "").trim().toLowerCase();
+    if (!v) return "";
+    var m = /[?&]t=([a-z0-9]+)/.exec(v);                       // old style ...?t=code
+    if (m) v = m[1];
+    else { v = v.split("#")[0].split("?")[0].replace(/\/+$/, ""); v = v.slice(v.lastIndexOf("/") + 1); }
+    return /^[a-hj-km-np-z2-9]{6,8}$/.test(v) ? v : "";
+  }
+    return { render: render, parse: parse };
+  })();
+  (function () { // trip-code box on the home tab
+    var form = $("hCodeForm"), input = $("hCode"), err = $("hErr");
+    var ERR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>';
+    function showErr(t) { err.textContent = ""; if (t) { err.insertAdjacentHTML("beforeend", ERR_ICON); var sp = document.createElement("span"); sp.textContent = t; err.appendChild(sp); } err.hidden = !t; if (t) input.setAttribute("aria-invalid", "true"); else input.removeAttribute("aria-invalid"); }
+    form.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.parse(input.value); if (!id) { showErr(input.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); input.focus(); return; } location.href = "/" + id; });
+    input.addEventListener("input", function () { showErr(""); });
+  })();
   var wantAcct = false;
   function setTab(t) {
-    if (t === "acct" && !document.documentElement.classList.contains("lift")) { wantAcct = true; setTab("trips"); return; } // account is a page only in LIFF; elsewhere the sheet, once the profile has loaded
     tab = t;
     $("tabTrips").setAttribute("aria-selected", t === "trips" ? "true" : "false");
     $("tabSeats").setAttribute("aria-selected", t === "seats" ? "true" : "false");
-    $("paneTrips").hidden = t !== "trips"; $("paneSeats").hidden = t !== "seats"; $("paneAcct").hidden = t !== "acct";
+    $("paneHome").hidden = t !== "home"; $("paneTrips").hidden = t !== "trips"; $("paneSeats").hidden = t !== "seats"; $("paneAcct").hidden = t !== "acct";
     if (t === "acct") renderAcctPane();
-    try { history.replaceState(null, "", "/mytrips" + (t === "seats" ? "#seats" : t === "acct" ? "#account" : "")); } catch (e) {}
-    $("navTrips").classList.toggle("on", t === "trips"); $("navSeats").classList.toggle("on", t === "seats"); $("navAcct").classList.toggle("on", t === "acct");
-    $("ltl").textContent = t === "seats" ? "ที่นั่งของฉัน" : t === "acct" ? "บัญชี" : "ทริปที่จัด";
+    try { history.replaceState(null, "", "/mytrips" + ({ trips: "#trips", seats: "#seats", acct: "#account" }[t] || "")); } catch (e) {}
+    window.scrollTo(0, 0);
+    $("navHome").classList.toggle("on", t === "home"); $("navTrips").classList.toggle("on", t === "trips"); $("navSeats").classList.toggle("on", t === "seats"); $("navAcct").classList.toggle("on", t === "acct");
+    $("ltl").textContent = t === "home" ? "สวัสดี " + ($("meName").textContent || "") : t === "seats" ? "ที่นั่งของฉัน" : t === "acct" ? "บัญชี" : "ทริปที่จัด";
   }
+  $("navHome").addEventListener("click", function () { setTab("home"); });
   $("navTrips").addEventListener("click", function () { setTab("trips"); });
   $("navSeats").addEventListener("click", function () { setTab("seats"); });
   $("navAcct").addEventListener("click", function () { setTab("acct"); });
@@ -1316,14 +1428,15 @@ body.signed .top .bell-wrap { display: flex; }
       if (d.user.pic) { var im = node("img"); im.alt = ""; im.src = d.user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1); }; av.appendChild(im); }
       else av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
       $("nTrips").textContent = d.trips.length; $("nSeats").textContent = d.seats.length;
-      renderTrips(d.trips); renderSeats(d.seats); if (tab === "acct") renderAcctPane();
+      renderTrips(d.trips); renderSeats(d.seats); HM.render(d); if (tab === "acct") renderAcctPane();
+      try { localStorage.setItem("vsb_in", "1"); } catch (e) {}
       if (wantAcct) { wantAcct = false; openAccount(); }
       setTimeout(function () { preloadRosters(d.trips); }, 300); // after the page has drawn
-      if (!location.hash && !d.trips.length && d.seats.length) setTab("seats");
     } catch (e) { toast("โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า", true); }
   }
   function showLogin() {
     forgetRosters(); // signed out or another account: drop the lists kept in this tab
+    try { localStorage.removeItem("vsb_in"); } catch (e) {}
     try { localStorage.removeItem("vsb_name"); } catch (e) {} // and the booking name remembered on this device
     $("meView").hidden = true; $("loginView").hidden = false; document.body.classList.remove("signed");
     var le = new URLSearchParams(location.search).get("le");
@@ -1367,6 +1480,7 @@ body.signed .top .bell-wrap { display: flex; }
   }
   function goHome(msg) { // signed out or data deleted: back to the home page, which shows msg as a toast
     forgetRosters();
+    try { localStorage.removeItem("vsb_in"); } catch (e) {}
     try { localStorage.removeItem("vsb_name"); } catch (e) {}
     try { sessionStorage.setItem("vsb_home_flash", msg); } catch (e) {}
     location.replace("/");
@@ -1386,6 +1500,7 @@ body.signed .top .bell-wrap { display: flex; }
     $("meView").hidden = false; document.body.classList.add("signed"); setTab(tab); skeleton();
     try { var fl = sessionStorage.getItem("van-flash"); if (fl) { sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); setTimeout(function () { toast(fl); }, 300); } } catch (e) {}
     $("meName").textContent = me.name || "ผู้ใช้ LINE";
+    if (tab === "home") $("ltl").textContent = "สวัสดี " + (me.name || "");
     // top bar pill (old-style header)
     var topAv = $("topAv"); topAv.textContent = "";
     if (me.pic) { var tim = node("img"); tim.alt = ""; tim.src = me.pic; tim.referrerPolicy = "no-referrer"; tim.onerror = function () { topAv.textContent = (me.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1); }; topAv.appendChild(tim); }
@@ -1393,7 +1508,7 @@ body.signed .top .bell-wrap { display: flex; }
     $("topName").textContent = "ของฉัน";
     $("acctBtn2").hidden = false;
     if (JOIN) { try { history.replaceState(null, "", "/mytrips"); } catch (e) {} await joinTeam(JOIN); JOIN = ""; setTab("trips"); }
-    if (window.VSBBell) { VSBBell.mount($("bellHost")); VSBBell.onChange(function () { if (D) { renderTrips(D.trips); renderSeats(D.seats); } }); VSBBell.load(); }
+    if (window.VSBBell) { VSBBell.mount($("bellHost")); VSBBell.onChange(function () { if (D) { renderTrips(D.trips); renderSeats(D.seats); HM.render(D); } }); VSBBell.load(); }
     if (new URLSearchParams(location.search).get("acct") === "1") { try { history.replaceState(null, "", "/mytrips" + (location.hash || "")); } catch (e) {} openAccount(); }
     load();
   })();
