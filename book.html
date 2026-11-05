@@ -56,7 +56,7 @@ header.trip { display: block; }
 .mytrips[hidden] { display: none; }
 .hbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 0; }
 .hbar .mytrips { margin-bottom: 8px; }
-.hbar .brand { font: 700 16px var(--font-display); color: #0f6e75; margin-bottom: 8px; flex: 1; }
+.hbar .brand { font: 700 16px var(--font-display); color: #0f6e75; text-decoration: none; margin-bottom: 8px; flex: 1; }
 .acct { margin: 0 0 8px auto; display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px 0 4px; border-radius: 99px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); font: 600 13px var(--font-body); text-decoration: none; max-width: 60%; border-color: #e8ecef; }
 .acct[hidden] { display: none; }
 .bellhost { margin: 0 0 8px auto; display: flex; }
@@ -449,7 +449,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
 <body class="sk">
 <main>
   <header class="trip" id="tripHdr">
-    <div class="hbar"><a class="lback" id="lback" href="/mytrips" aria-label="กลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><span class="brand">จองที่นั่งรถตู้</span><span class="bellhost" id="bellHost"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div>
+    <div class="hbar"><a class="lback" id="lback" href="/mytrips" aria-label="กลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><a class="brand" href="/mytrips">จองที่นั่งรถตู้</a><span class="bellhost" id="bellHost"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div>
     <div class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht"><h1>เลือกที่นั่ง</h1>
     <div class="org"><span>แตะที่ว่าง</span> <span>ใส่ชื่อ</span> <span>แล้วจองได้เลย</span></div></div></div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
