@@ -146,7 +146,7 @@ a { color: inherit; }
 .top .acct-pill { display: none; }
 body.signed .top .acct-pill { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px 0 4px; border-radius: 99px; background: #ecf9fa; border: 1px solid #cdeef0; color: var(--deep); font: 600 13px var(--font-display); text-decoration: none; white-space: nowrap; cursor: pointer; border: 0; }
 body.signed .top .acct-pill .av { width: 28px; height: 28px; font-size: 12px; }
-body.signed .top .bell-wrap { display: flex; }
+body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (แจ้งเตือน tab); the host stays mounted so unread data keeps loading */
 .top .bell-wrap { display: none; }
 .ntag { align-self: flex-start; font-size: 11px; font-weight: 600; color: var(--amber); background: var(--amber-tint); border: 1px solid var(--amber-edge); border-radius: 99px; padding: 1px 9px; }
 .out { flex: none; height: 36px; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--line); background: transparent; font-size: 13px; font-weight: 500; color: var(--muted); }
@@ -1434,7 +1434,7 @@ body.signed .top .bell-wrap { display: flex; }
     else if (tab === "trips") { T = "ทริปที่จัด"; if (D && D.trips.length) { var bk = D.trips.reduce(function (n, x) { return n + (x.booked || 0); }, 0); S = D.trips.length + " ทริป · คนจองรวม " + bk + " คน"; } }
     else if (tab === "seats") { T = "ที่นั่งที่จอง"; if (D && D.seats.length) S = "จองไว้ " + D.seats.length + " ทริป"; }
     else if (tab === "notif") { T = "แจ้งเตือน"; if (window.VSBBell && VSBBell.ready) S = unreadN() ? "ยังไม่อ่าน " + unreadN() + " รายการ" : "อ่านครบแล้ว"; }
-    else T = "โปรไฟล์";
+    else { T = "โปรไฟล์"; S = "บัญชีและแพ็กเกจของคุณ"; }
     $("ltT").textContent = T; $("ltS").textContent = S;
     $("mkTrip").classList.toggle("show", tab === "trips" && !!(D && D.trips.length));
     var rd = $("mkRead"); rd.classList.toggle("show", tab === "notif"); rd.disabled = !unreadN();
