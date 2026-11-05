@@ -467,7 +467,7 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
 
 /* ===== redesign (exact): one trip card, seat grid, inline name + confirm bar, success page ===== */
 .hero, .tip, #invite { display: none !important; }
-#sheetView .plan, #sheetView .legend { display: none; }
+#seatGrid, .vleg { display: none !important; }
 .facts { grid-template-columns: 1fr 1fr; column-gap: 12px; row-gap: 10px; }
 .facts .fhead { grid-column: 1 / -1; position: relative; padding-right: 76px; }
 .facts .span2 { grid-column: 1 / -1; }
@@ -499,6 +499,7 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
 #pickBox { margin: 14px 4px 4px; }
 #pickBox label { display: block; font: 600 14px var(--font-display); margin-bottom: 6px; }
 #pickBox .nmwrap { position: relative; }
+#pickBox input:focus, #pickBox input:focus-visible { outline: none; box-shadow: 0 0 0 4px color-mix(in srgb, var(--mine) 22%, transparent); }
 #pickBox input { width: 100%; height: 48px; font-size: 16px; border: 2px solid var(--mine); border-radius: 12px; padding: 0 52px 0 14px; background: var(--surface); color: var(--ink); }
 #pickBox .nmcnt { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--muted); }
 #pickBox .pm { min-height: 20px; margin-top: 6px; font-size: 13px; color: var(--danger); }
@@ -865,8 +866,16 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
         } else {
           b.setAttribute("aria-label", "ที่นั่ง " + n + " ว่าง");
         }
-        if (selected === n) { b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
-        b.addEventListener("click", function () { if (locked()) return; selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll(); });
+        if (selected === n || pick === n) { b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
+        b.addEventListener("click", function () {
+          if (locked()) return;
+          if (!seats[n] && !heldByOther(n)) { // free seat: pick it, the name field and confirm bar below take over
+            pick = pick === n ? null : n; renderAll();
+            if (pick != null && me) setTimeout(function () { var bx = document.getElementById("pickBox"), inp = document.getElementById("pickInput"); if (bx) try { bx.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} if (inp && !inp.value) try { inp.focus({ preventScroll: true }); } catch (e) {} }, 60);
+            return;
+          }
+          selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll();
+        });
         overlayEl.appendChild(frame(b, RECT[n]));
       })(n);
     }
