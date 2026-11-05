@@ -1,0 +1,13 @@
+/* Shared look of the app. STANDARD: every font size and picture size is an EVEN number of px.
+   Page header = title + van picture on one row, a short line under both (one line, never beside the van).
+   Sizes step with the screen width, so the van keeps the same proportion to the title. */
+:root { --pg-title: 28px; --pg-sub: 16px; --pg-van: 98px; }
+@media (max-width: 413px) { :root { --pg-title: 26px; --pg-sub: 14px; --pg-van: 92px; } }
+@media (max-width: 374px) { :root { --pg-title: 24px; --pg-sub: 14px; --pg-van: 84px; } }
+@media (max-width: 340px) { :root { --pg-title: 22px; --pg-sub: 14px; --pg-van: 76px; } }
+
+.hero { --hbg: var(--surface); position: static; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; align-items: end; background: none; border-radius: 0; padding: 4px 4px 6px; }
+.hero .ht, .hero .hr { display: contents; }
+.hero h1 { grid-column: 1; grid-row: 1; min-width: 0; font-size: var(--pg-title); line-height: 1.25; margin: 0 0 4px; white-space: nowrap; overflow-wrap: normal; }
+.hero > svg { grid-column: 2; grid-row: 1; position: static; width: var(--pg-van); height: auto; color: var(--ink); }
+.hero .org, .hero p { grid-column: 1 / -1; grid-row: 2; font-size: var(--pg-sub); line-height: 1.5; margin: 2px 0 0; padding: 0; color: var(--muted); font-weight: 400; }

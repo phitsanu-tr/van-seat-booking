@@ -141,3 +141,8 @@ node dev.js
 | ความสูง | 48 ปุ่มหลักในหน้าต่าง/ช่องกรอก · 40 ปุ่มบนการ์ด · 36 ปุ่มไอคอน (ไอคอน 20–22) |
 | สี | ตัวอักษร `#1B1F22` / รอง `#5F6B73` · หลัก `#0E7C86` / เข้ม `#0B5F67` / อ่อน `#E5F2F3` · เส้น `#E8ECEF` · ปุ่มรอง `#F1F4F6` · อันตราย `#B3261E` · เตือน `#B86E00` · LINE `#06C755` |
 | หน้าต่าง | โค้ง 24 · ขอบใน 20 · ระหว่างส่วน 16 · หัวข้อ 20 ชิดซ้าย · ปุ่ม X ไม่มีวงกลม มุมขวาบน · ปุ่มท้ายสูง 48 โค้ง 12 สองปุ่มกว้างเท่ากัน ปุ่มรองซ้าย ปุ่มหลักขวา |
+
+## UI standard
+- All font sizes and picture sizes are **even px** (22, 24, 26, 28 …). See `ui.css`.
+- Page header (booking, create / edit trip): title + red-pin van on one row, one short line under both. Sizes step with the screen width: 28/16/98 (≥414px), 26/14/92, 24/14/84, 22/14/76 (title / line / van).
+- Top bar on every page: back arrow (sub-pages) · app name · bell.
