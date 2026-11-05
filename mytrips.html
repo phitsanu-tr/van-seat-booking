@@ -20,15 +20,19 @@ body.signed .top{border-bottom:0 !important;background:transparent !important}
 body.signed .top > div{height:auto !important;min-height:0;padding-top:12px !important;padding-bottom:4px !important}
 body.signed main{padding-top:12px !important}
 body.signed .top .ltl{display:block;min-width:0;flex:1}
-/* page header (E1): tinted full-width band, same fixed height on every tab; big faint icon on the right unless the tab has a button */
-body.signed .top{background:#e5f1f2 !important}
+/* page header (E3): dark teal band with rounded bottom, same fixed height on every tab; big faint icon on the right unless the tab has a button */
+body.signed .top{background:linear-gradient(135deg,#2f7a84,#1f5a63) !important;border-radius:0 0 20px 20px}
 body.signed .top > div{height:84px !important;padding-top:0 !important;padding-bottom:0 !important}
 body.signed main{padding-top:16px !important}
-.top .hic{display:none;flex:none;width:36px;height:36px;color:#0e7c86;opacity:.9}
+.top .hic{display:none;flex:none;width:36px;height:36px;color:#fff;opacity:.6}
 .top .hic svg{width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 body.signed .top .hic.on{display:block}
 body.signed .top .ltl b{font-size:26px;line-height:32px}
-body.signed .top .ltl small{font-size:14px;line-height:20px;margin-top:0}
+body.signed .top .ltl small{font-size:14px;line-height:20px;margin-top:0;color:#cfe6e8}
+body.signed .top .ltl b{color:#fff}
+body.signed .top a.mkp{background:#fff !important;color:#1f5a63 !important}
+body.signed .top button.mkr{color:#fff !important}
+body.signed .top button.mkr:disabled{color:#ffffff80 !important}
 
 
 .stg-stat{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #e8ecef;border-radius:18px;padding:12px 6px;text-align:center}
