@@ -97,6 +97,7 @@ a.path:active { background: var(--tint); }
 (function(){
   var LIFF_ID = "2012285472-FvtYKx00";
   window.__liffReady = new Promise(function(resolve){
+    var dg=function(c){try{navigator.sendBeacon("/api/auth",new Blob([JSON.stringify({diag:c})],{type:"application/json"}));}catch(e){}};
     if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
       if (!liff.isInClient()) { resolve(false); return; }
@@ -106,15 +107,15 @@ a.path:active { background: var(--tint); }
         if (me && me.user) { try { sessionStorage.removeItem("vsb_liff"); } catch (e) {} resolve(true); return; }
         var tried = ""; try { tried = sessionStorage.getItem("vsb_liff"); } catch (e) {}
         var token = liff.getIDToken();
-        if (tried || !token) { resolve(false); return; } // one try per tab: never loop
+        if (tried || !token) { dg(tried ? "retry_blocked" : "no_token"); resolve(false); return; } // one try per tab: never loop
         try { sessionStorage.setItem("vsb_liff", "1"); } catch (e) {}
         fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ liff_token: token, r: "/mytrips" }) })
           .then(function(r){ return r.json(); })
-          .then(function(d){ if (d && d.ok) location.replace(d.r || "/"); else resolve(false); })
-          .catch(function(){ resolve(false); });
+          .then(function(d){ if (d && d.ok) location.replace(d.r || "/"); else { dg("login_" + ((d && d.error) || "fail")); resolve(false); } })
+          .catch(function(){ dg("login_net"); resolve(false); });
       });
-    }).catch(function(){ resolve(false); });
+    }).catch(function(){ dg("init_fail"); resolve(false); });
   });
 })();
 </script>

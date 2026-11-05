@@ -53,6 +53,10 @@ module.exports = async function handler(req, res) {
   try {
     if (req.method === "POST") {
       const body = L.readBody(req);
+      if (typeof body.diag === "string") { // why the automatic LINE sign-in failed on someone's phone (a short code, never a token)
+        if (!(await L.rateLimited(req, null, "diag", 20, 600))) console.error("liff-diag", body.diag.replace(/[^a-z_]/g, "").slice(0, 30), String(req.headers["user-agent"] || "").slice(0, 120));
+        return L.json(res, 200, { ok: true });
+      }
       if (body.logout === true) {
         const u = await L.currentUser(req);
         if (u) { try { await L.pipeline([["DEL", "sess:" + u.sid], ["SREM", "usess:" + u.id, u.sid]]); } catch (e) { /* ignore */ } } // end this session and drop it from the account's device list
@@ -70,7 +74,7 @@ module.exports = async function handler(req, res) {
           body: new URLSearchParams({ id_token: body.liff_token, client_id: id }).toString(),
         });
         const prof = await vr.json().catch(() => ({}));
-        if (!vr.ok || !prof.sub || !/^U[0-9a-f]{32}$/.test(prof.sub)) return L.json(res, 401, { error: "verify_failed" });
+        if (!vr.ok || !prof.sub || !/^U[0-9a-f]{32}$/.test(prof.sub)) { console.error("liff-verify-failed", vr.status, String(prof.error || "").slice(0, 40), String(prof.error_description || "").slice(0, 120)); return L.json(res, 401, { error: "verify_failed" }); }
         const back = safeReturn(body.r);
         const sid = L.newId(32);
         const sess = { u: prof.sub, n: String(prof.name || "").slice(0, 60), p: /^https:\/\//.test(prof.picture || "") ? String(prof.picture).slice(0, 300) : "", at: Date.now() };

@@ -597,6 +597,13 @@ select.sel { border-color: #dde3e7!important; }
     location.href = dest;
   });
 
+  var topBack = document.querySelector(".vb-back"); // the arrow in the top bar asks first too
+  if (topBack) topBack.addEventListener("click", async function (e) {
+    e.preventDefault(); e.stopImmediatePropagation();
+    if (dirty && !(await askConfirm(editing ? "ออกโดยไม่บันทึก?" : "ยกเลิกการสร้างทริป?", "ข้อมูลที่กรอกไว้จะไม่ถูกบันทึก", "ออก"))) return;
+    location.href = "/mytrips#trips";
+  }, true);
+
   // in-app confirm dialog (replaces the browser's English "localhost says" box); resolves true / false
   function askConfirm(title, text, okLabel, returnFocus, sum) {
     return new Promise(function (resolve) {
