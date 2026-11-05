@@ -6,7 +6,7 @@
   document.addEventListener("touchstart", function () {}, { passive: true }); // lets iOS apply :active (card press effect)
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<style>html { touch-action: manipulation; }</style>
+<style>html { touch-action: manipulation; } .vb-bar { padding: 0 !important; margin: -8px auto 8px !important; }</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
@@ -264,6 +264,7 @@ select.sel { border-color: #dde3e7!important; }
 <script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("inline")}catch(e){}</script><style>.inline .lback,.inline .back{display:none !important}</style>
 </head>
 <body>
+<script src="/bell.js"></script><script>VSBBell.bar();</script>
 <main id="formMain" hidden>
   <a class="back" id="backLink" href="/mytrips#trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>กลับ</a>
   <section class="hero">

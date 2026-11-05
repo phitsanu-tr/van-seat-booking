@@ -11,6 +11,8 @@
   var MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   var CSS = [
     ".vb-bell{position:relative;flex:none;width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid #c9d2d8;display:inline-grid;place-items:center;color:#1b1f22;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}",
+    ".vb-bar{display:flex;align-items:center;gap:8px;width:100%;max-width:560px;margin:0 auto;padding:10px 16px 0;box-sizing:border-box;min-height:46px}",
+    ".vb-bar a.vb-brand{flex:1;min-width:0;font:700 16px 'Noto Sans Thai',system-ui,sans-serif;color:#0f6e75;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
     ".vb-bell[hidden]{display:none}",
     ".vb-bell svg{width:18px;height:18px}",
     ".vb-bell .vb-n{position:absolute;top:-5px;right:-6px;min-width:19px;height:19px;padding:0 5px;border-radius:99px;background:#b3261e;color:#fff;font:600 11px/15px 'Noto Sans Thai',system-ui,sans-serif;text-align:center;border:2px solid #eef1f3;box-sizing:border-box}",
@@ -123,6 +125,16 @@
     b.addEventListener("click", function (e) { e.preventDefault(); B.open(); });
     host.appendChild(b); B.btn = b; paint();
     return b;
+  };
+  // same top row on every page: app name on the left, bell on the right
+  B.bar = function () {
+    if (document.querySelector(".vb-bar")) return;
+    injectCss();
+    var bar = document.createElement("div"); bar.className = "vb-bar";
+    var a = document.createElement("a"); a.className = "vb-brand"; a.href = "/mytrips"; a.textContent = "จองที่นั่งรถตู้";
+    var h = document.createElement("span"); h.style.display = "flex"; bar.appendChild(a); bar.appendChild(h);
+    document.body.insertBefore(bar, document.body.firstChild);
+    B.mount(h); B.load();
   };
   B.load = function () {
     return fetch("/api/me?inbox=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
