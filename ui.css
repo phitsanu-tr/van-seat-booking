@@ -1,14 +1,14 @@
 /* Shared look of the app. STANDARD: every font size, line height and picture height is an EVEN number of px.
-   Page header = title (row 1) + one short line (row 2) on the left; the van on the right is exactly as tall as
-   those two lines together (pin touches the top of the title, road line sits on the bottom of the short line).
+   Page header = title (row 1) + one short line (row 2) on the left; the van on the right is sized by its drawn
+   ink (measured): pin top = top of the title letters, road line = bottom of the short line.
    Sizes step with the screen width. Van width = height x 92/60 (the picture's own proportion). */
-:root { --pg-t: 28px; --pg-tl: 36px; --pg-s: 16px; --pg-sl: 24px; }
-@media (max-width: 413px) { :root { --pg-t: 26px; --pg-tl: 34px; --pg-s: 14px; --pg-sl: 20px; } }
-@media (max-width: 374px) { :root { --pg-t: 24px; --pg-tl: 32px; --pg-s: 14px; --pg-sl: 20px; } }
-@media (max-width: 340px) { :root { --pg-t: 22px; --pg-tl: 28px; --pg-s: 12px; --pg-sl: 16px; } }
+:root { --pg-t: 28px; --pg-tl: 36px; --pg-s: 16px; --pg-sl: 24px; --pg-v: 62px; }
+@media (max-width: 413px) { :root { --pg-t: 26px; --pg-tl: 34px; --pg-s: 14px; --pg-sl: 20px; --pg-v: 56px; } }
+@media (max-width: 374px) { :root { --pg-t: 24px; --pg-tl: 32px; --pg-s: 14px; --pg-sl: 20px; --pg-v: 52px; } }
+@media (max-width: 340px) { :root { --pg-t: 22px; --pg-tl: 28px; --pg-s: 12px; --pg-sl: 16px; --pg-v: 48px; } }
 
 .hero { --hbg: var(--surface); position: static; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; align-items: start; background: none; border-radius: 0; padding: 4px 4px 6px; }
 .hero .ht, .hero .hr { display: contents; }
 .hero h1 { grid-column: 1; grid-row: 1; min-width: 0; font-size: var(--pg-t); line-height: var(--pg-tl); margin: 0; white-space: nowrap; overflow-wrap: normal; }
 .hero .org, .hero p { grid-column: 1; grid-row: 2; font-size: var(--pg-s); line-height: var(--pg-sl); margin: 0; padding: 0; color: var(--muted); font-weight: 400; }
-.hero > svg { grid-column: 2; grid-row: 1 / span 2; position: static; margin-top: 2px; height: calc(var(--pg-tl) + var(--pg-sl)); width: calc((var(--pg-tl) + var(--pg-sl)) * 92 / 60); color: var(--ink); }
+.hero > svg { grid-column: 2; grid-row: 1 / span 2; position: static; margin-top: -4px; height: var(--pg-v); width: calc(var(--pg-v) * 92 / 60); color: var(--ink); }
