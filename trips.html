@@ -267,22 +267,12 @@ select.sel { border-color: #dde3e7!important; }
 <body>
 <script src="/bell.js"></script><script>VSBBell.bar("/mytrips#trips");</script>
 <main id="formMain" hidden>
-  <section class="hero">
+  <section class="hero"><span class="pgi" aria-hidden="true"><svg class="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><svg class="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/></svg></span><div class="ht">
     <div class="hr">
       <h1 id="title">สร้างทริป</h1>
       
     </div>
-    <p id="lead">กรอกรายละเอียด แล้วแชร์ลิงก์ให้เพื่อน</p>
-    <svg viewBox="1 0 92 60" fill="none" aria-hidden="true">
-      <path d="M4 58h88" stroke="var(--mine)" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>
-      <g transform="translate(60 0)"><path d="M12 22s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z" fill="#e5484d"/><circle cx="12" cy="10" r="3" fill="var(--surface)"/></g>
-      <g transform="translate(-2 3) scale(.82)">
-      <path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
-      <g fill="color-mix(in srgb, var(--mine) 28%, var(--surface))" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g>
-      <path d="M85 36h3" stroke="var(--mine)" stroke-width="3" stroke-linecap="round"/>
-      <circle cx="26" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="26" cy="43" r="6.5" fill="var(--ink)"/><circle cx="26" cy="43" r="2.4" fill="var(--surface)"/><circle cx="70" cy="43" r="9.5" fill="var(--hbg)"/><circle cx="70" cy="43" r="6.5" fill="var(--ink)"/><circle cx="70" cy="43" r="2.4" fill="var(--surface)"/>
-          </g>
-    </svg>
+    <p id="lead">กรอกรายละเอียด แล้วแชร์ลิงก์ให้เพื่อน</p></div>
   </section>
 
   <button type="button" class="shrow" id="shareBtn" hidden>
@@ -919,7 +909,7 @@ select.sel { border-color: #dde3e7!important; }
         T = data.id; editing = true;
         history.replaceState(null, "", editPath(T));
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
-        $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "แก้ไขทริป"; $("shareBtn").hidden = false; document.title = "แก้ไขทริป · จองที่นั่งรถตู้";
+        document.querySelector(".hero").classList.add("is-edit"); $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "แก้ไขทริป"; $("shareBtn").hidden = false; document.title = "แก้ไขทริป · จองที่นั่งรถตู้";
         showResult(T, true, data.trip.name);
       }
     } catch (x) {
@@ -998,7 +988,7 @@ select.sel { border-color: #dde3e7!important; }
     }
     $("formMain").hidden = false;
     if (editing) {
-      $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตแล้วผู้จองเห็นข้อมูลใหม่ทันที"; document.title = "แก้ไขทริป · จองที่นั่งรถตู้";
+      document.querySelector(".hero").classList.add("is-edit"); $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตแล้วผู้จองเห็นข้อมูลใหม่ทันที"; document.title = "แก้ไขทริป · จองที่นั่งรถตู้";
       $("submit").textContent = "แก้ไขทริป";
       try {
         var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store" });

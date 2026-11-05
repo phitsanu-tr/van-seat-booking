@@ -1,14 +1,17 @@
-/* Shared look of the app. STANDARD: every font size, line height and picture height is an EVEN number of px.
-   Page header = title (row 1) + one short line (row 2) on the left; the van on the right is sized by its drawn
-   ink (measured): pin top = top of the title letters, road line = bottom of the short line.
-   Sizes step with the screen width. Van width = height x 92/60 (the picture's own proportion). */
-:root { --pg-t: 28px; --pg-tl: 36px; --pg-s: 16px; --pg-sl: 24px; --pg-v: 62px; }
-@media (max-width: 413px) { :root { --pg-t: 26px; --pg-tl: 34px; --pg-s: 14px; --pg-sl: 20px; --pg-v: 56px; } }
-@media (max-width: 374px) { :root { --pg-t: 24px; --pg-tl: 32px; --pg-s: 14px; --pg-sl: 20px; --pg-v: 52px; } }
-@media (max-width: 340px) { :root { --pg-t: 22px; --pg-tl: 28px; --pg-s: 12px; --pg-sl: 16px; --pg-v: 48px; } }
+/* Shared look of the app. STANDARD: every font size, line height and picture size is an EVEN number of px.
+   Page header (booking, create / edit trip): a 48px gradient icon tile on the left, then the title and one short line.
+   Title / line sizes step with the screen width (the short line is never allowed to wrap). */
+:root { --pg-t: 28px; --pg-tl: 36px; --pg-s: 16px; --pg-sl: 24px; }
+@media (max-width: 413px) { :root { --pg-t: 26px; --pg-tl: 34px; --pg-s: 14px; --pg-sl: 20px; } }
+@media (max-width: 374px) { :root { --pg-t: 24px; --pg-tl: 32px; --pg-s: 14px; --pg-sl: 20px; } }
+@media (max-width: 340px) { :root { --pg-t: 22px; --pg-tl: 28px; --pg-s: 12px; --pg-sl: 16px; } }
 
-.hero { --hbg: var(--surface); position: static; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; align-items: start; background: none; border-radius: 0; padding: 4px 4px 6px; }
-.hero .ht, .hero .hr { display: contents; }
-.hero h1 { grid-column: 1; grid-row: 1; min-width: 0; font-size: var(--pg-t); line-height: var(--pg-tl); margin: 0; white-space: nowrap; overflow-wrap: normal; }
-.hero .org, .hero p { grid-column: 1; grid-row: 2; font-size: var(--pg-s); line-height: var(--pg-sl); margin: 0; padding: 0; color: var(--muted); font-weight: 400; }
-.hero > svg { grid-column: 2; grid-row: 1 / span 2; position: static; margin-top: -4px; height: var(--pg-v); width: calc(var(--pg-v) * 92 / 60); color: var(--ink); }
+.hero { position: static; display: flex; align-items: center; gap: 14px; background: none; border-radius: 0; padding: 4px 4px 6px; }
+.hero .pgi { flex: none; width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; background: linear-gradient(135deg, #17a2ad, #0b5f68); box-shadow: 0 6px 14px rgba(14, 124, 134, .28); }
+.hero .pgi svg { position: static; width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.hero .pgi .i-edit { display: none; }
+.hero.is-edit .pgi .i-plus { display: none; }
+.hero.is-edit .pgi .i-edit { display: block; }
+.hero .ht { min-width: 0; flex: 1; }
+.hero h1 { font-size: var(--pg-t); line-height: var(--pg-tl); margin: 0; white-space: nowrap; overflow-wrap: normal; }
+.hero .org, .hero p { font-size: var(--pg-s); line-height: var(--pg-sl); margin: 0; padding: 0; color: var(--muted); font-weight: 400; }

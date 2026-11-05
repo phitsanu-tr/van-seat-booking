@@ -144,5 +144,5 @@ node dev.js
 
 ## UI standard
 - All font sizes and picture sizes are **even px** (22, 24, 26, 28 …). See `ui.css`.
-- Page header (booking, create / edit trip): title + short line on the left; the red-pin van on the right is exactly as tall as those two lines together (pin at the top of the title, road line at the bottom of the short line). Title / line sizes step with the screen width: 28/16 (≥414px), 26/14, 24/14, 22/12 (≤340px); line heights are even too. Van width = height × 92/60.
+- Page header (booking, create / edit trip): 48px gradient icon tile (seat / + / pencil) on the left, then the title and one short line. Title / line sizes step with the screen width: 28/16 (≥414px), 26/14, 24/14, 22/12 (≤340px); the short line never wraps. Styles live in `ui.css`.
 - Top bar on every page: back arrow (sub-pages) · app name · bell.
