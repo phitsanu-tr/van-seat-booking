@@ -1,5 +1,5 @@
 /* Shared look of the app. STANDARD: every font size, line height and picture size is an EVEN number of px.
-   Page header (booking, create / edit trip): a 48px gradient icon tile on the left, then the title and one short line.
+   Page header (booking, create / edit trip): a 48px tinted icon tile on the left, then the title and one short line.
    Title / line sizes step with the screen width (the short line is never allowed to wrap). */
 :root { --pg-t: 28px; --pg-tl: 36px; --pg-s: 16px; --pg-sl: 24px; }
 @media (max-width: 413px) { :root { --pg-t: 26px; --pg-tl: 34px; --pg-s: 14px; --pg-sl: 20px; } }
@@ -7,8 +7,8 @@
 @media (max-width: 340px) { :root { --pg-t: 22px; --pg-tl: 28px; --pg-s: 12px; --pg-sl: 16px; } }
 
 .hero { position: static; display: flex; align-items: center; gap: 14px; background: none; border-radius: 0; padding: 4px 4px 6px; }
-.hero .pgi { flex: none; width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; background: linear-gradient(135deg, #17a2ad, #0b5f68); box-shadow: 0 6px 14px rgba(14, 124, 134, .28); }
-.hero .pgi svg { position: static; width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.hero .pgi { flex: none; width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; background: #e5f1f2; }
+.hero .pgi svg { position: static; width: 24px; height: 24px; fill: none; stroke: #0e7c86; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .hero .pgi .i-edit { display: none; }
 .hero.is-edit .pgi .i-plus { display: none; }
 .hero.is-edit .pgi .i-edit { display: block; }
