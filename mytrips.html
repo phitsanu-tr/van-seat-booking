@@ -20,6 +20,15 @@ body.signed .top{border-bottom:0 !important;background:transparent !important}
 body.signed .top > div{height:auto !important;min-height:0;padding-top:12px !important;padding-bottom:4px !important}
 body.signed main{padding-top:12px !important}
 body.signed .top .ltl{display:block;min-width:0;flex:1}
+/* page header (E1): tinted full-width band, same fixed height on every tab; big faint icon on the right unless the tab has a button */
+body.signed .top{background:#e5f1f2 !important}
+body.signed .top > div{height:84px !important;padding-top:0 !important;padding-bottom:0 !important}
+body.signed main{padding-top:16px !important}
+.top .hic{display:none;flex:none;width:36px;height:36px;color:#0e7c86;opacity:.9}
+.top .hic svg{width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+body.signed .top .hic.on{display:block}
+body.signed .top .ltl b{font-size:26px;line-height:32px}
+body.signed .top .ltl small{font-size:14px;line-height:20px;margin-top:0}
 
 
 .stg-stat{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #e8ecef;border-radius:18px;padding:12px 6px;text-align:center}
@@ -423,7 +432,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 </script>
 </head>
 <body>
-<div class="top"><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="ltl" id="ltl"><b id="ltT">ทริปที่จัด</b><small id="ltS"></small></span><a class="mkp" id="mkTrip" href="/trips/new">＋ สร้างทริป</a><button class="mkr" id="mkRead" type="button">อ่านทั้งหมด</button><span class="bell-wrap" id="bellHost"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
+<div class="top"><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="ltl" id="ltl"><b id="ltT">ทริปที่จัด</b><small id="ltS"></small></span><a class="mkp" id="mkTrip" href="/trips/new">＋ สร้างทริป</a><button class="mkr" id="mkRead" type="button">อ่านทั้งหมด</button><span class="hic" id="hic" aria-hidden="true"></span><span class="bell-wrap" id="bellHost"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
 <main>
   <section class="login" id="loginView" hidden>
     <div class="hero">
@@ -1437,6 +1446,9 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     else { T = "โปรไฟล์"; S = "บัญชีและแพ็กเกจของคุณ"; }
     $("ltT").textContent = T; $("ltS").textContent = S;
     $("mkTrip").classList.toggle("show", tab === "trips" && !!(D && D.trips.length));
+    var HIC = { home: '<path d="M4 11l8-7 8 7v9H4z"/>', trips: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>', seats: '<path d="M7 4h6a3 3 0 0 1 3 3v6H7z"/><path d="M5 17h14M7 13v7M17 13v7"/>', notif: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/>', acct: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>' };
+    var hi = $("hic"); hi.innerHTML = '<svg viewBox="0 0 24 24">' + (HIC[tab] || HIC.acct) + "</svg>";
+    hi.classList.toggle("on", !(tab === "trips" && D && D.trips.length) && tab !== "notif");
     var rd = $("mkRead"); rd.classList.toggle("show", tab === "notif"); rd.disabled = !unreadN();
     var b = $("navBadge"), n = unreadN(); b.hidden = !n; b.textContent = n > 99 ? "99+" : String(n);
   }
