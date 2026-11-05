@@ -3,7 +3,8 @@
 //   GET  ?orders=1          -> { orders }                              payment history
 //   POST { sku }            -> { order, url }                          start a payment: url = Stripe's checkout page
 //   GET  ?order=<id>        -> { order }                               status (asks Stripe when still open; grants once paid)
-//   POST ?hook=1            Stripe webhook (checkout.session.completed / async_payment_succeeded), signed with STRIPE_WEBHOOK_SECRET
+//   POST ?hook=1            Stripe webhook, signed with STRIPE_WEBHOOK_SECRET: checkout.session.completed / async_payment_succeeded
+//                           grant the order; charge.refunded (full refund) takes it back
 //   POST { order, devPaid } local dev only: pretend the payment went through
 // Env: STRIPE_SECRET_KEY (sk_...), STRIPE_WEBHOOK_SECRET (whsec_...), PLANS_ON=1 to switch packages on in production.
 // The customer pays Stripe (their bank app shows "STRIPE PAYMENTS (THAILAND) LTD"), never the app owner's own account.
@@ -48,6 +49,7 @@ async function fulfil(o) {
   try { await P.grant(o.uid, o.sku, "paid"); } catch (e) { await L.redis(["DEL", "orderdone:" + o.id]); throw e; } // let the next check try again
   const next = Object.assign({}, o, { status: "paid", paidAt: Date.now() });
   await saveOrder(next);
+  if (o.pi) { try { await L.redis(["SET", "orderpi:" + o.pi, o.id, "EX", String(ORDER_DAYS * 86400)]); } catch (e) { /* best effort */ } } // refunds find the order by it
   const s = P.SKUS[o.sku] || {};
   await L.notify([o.uid], { k: "plan_paid", tn: s.label || "", amt: o.amount });
   return next;
@@ -56,7 +58,7 @@ async function refresh(o) { // asks Stripe whether an open order has been paid
   if (!o || o.status !== "open" || !o.sess || !stripeKey()) return o;
   try {
     const s = await stripe("GET", "checkout/sessions/" + encodeURIComponent(o.sess));
-    if (s.payment_status === "paid") return await fulfil(o);
+    if (s.payment_status === "paid") return await fulfil(Object.assign({}, o, { pi: s.payment_intent || o.pi }));
     if (s.status === "expired") { const next = Object.assign({}, o, { status: "expired" }); await saveOrder(next); return next; }
   } catch (e) { /* keep it open */ }
   return o;
@@ -89,7 +91,16 @@ module.exports = async function handler(req, res) {
       if (ev && obj && (ev.type === "checkout.session.completed" || ev.type === "checkout.session.async_payment_succeeded") && obj.payment_status === "paid") {
         const id = obj.metadata && obj.metadata.order;
         const o = /^[a-z0-9]{12}$/.test(id || "") ? await loadOrder(id) : null;
-        if (o && o.sess === obj.id) await fulfil(o);
+        if (o && o.sess === obj.id) await fulfil(Object.assign({}, o, { pi: obj.payment_intent || o.pi }));
+      }
+      if (ev && obj && ev.type === "charge.refunded" && obj.refunded === true && obj.payment_intent) {
+        const id = await L.redis(["GET", "orderpi:" + obj.payment_intent]);
+        const o = /^[a-z0-9]{12}$/.test(id || "") ? await loadOrder(id) : null;
+        if (o && o.status === "paid" && (await L.redis(["SET", "orderref:" + o.id, "1", "NX", "EX", String(ORDER_DAYS * 86400)])) === "OK") {
+          await P.revoke(o.uid, o.sku);
+          await saveOrder(Object.assign({}, o, { status: "refunded", refundedAt: Date.now() }));
+          await L.notify([o.uid], { k: "plan_refunded", tn: (P.SKUS[o.sku] || {}).label || "", amt: o.amount });
+        }
       }
       return L.json(res, 200, { received: true });
     }
@@ -115,8 +126,8 @@ module.exports = async function handler(req, res) {
     if (req.method === "GET") {
       const plan = await P.getPlan(user.id);
       const used = plan.on ? await P.monthUsed(user.id) : 0;
-      const catalog = Object.keys(P.SKUS).map((k) => Object.assign({ sku: k }, P.SKUS[k]));
-      return L.json(res, 200, { on: plan.on, ready: !!stripeKey() || DEV, dev: DEV, plan: P.publicPlan(plan, { used }), tiers: P.TIERS, catalog });
+      const catalog = Object.keys(P.SKUS).map((k) => Object.assign({ sku: k }, P.SKUS[k], P.priceOf(k)));
+      return L.json(res, 200, { on: plan.on, ready: !!stripeKey() || DEV, dev: DEV, plan: P.publicPlan(plan, { used }), tiers: P.TIERS, catalog, promoEnd: P.promoOn() ? P.PROMO_END : 0 });
     }
 
     if (req.method === "POST") {
@@ -131,13 +142,14 @@ module.exports = async function handler(req, res) {
       if (!s) return L.json(res, 400, { error: "bad_sku" });
       if (!stripeKey() && !DEV) return L.json(res, 503, { error: "pay_not_ready" });
       if (await L.rateLimited(req, user, "pay", 20, 3600)) return L.json(res, 429, { error: "too_many" });
-      const o = { id: L.newId(12), uid: user.id, name: user.name, sku: body.sku, amount: s.amount, status: "open", at: Date.now() };
+      const pr = P.priceOf(body.sku);
+      const o = { id: L.newId(12), uid: user.id, name: user.name, sku: body.sku, amount: pr.amount, status: "open", at: Date.now() };
       let url = "";
       if (stripeKey()) {
         const back = origin(req) + "/plans?order=" + o.id;
         const sess = await stripe("POST", "checkout/sessions", {
           mode: "payment", payment_method_types: ["promptpay", "card"], locale: "th",
-          line_items: [{ quantity: 1, price_data: { currency: "thb", unit_amount: s.amount * 100, product_data: { name: "จองที่นั่งรถตู้ · " + s.label } } }],
+          line_items: [{ quantity: 1, price_data: { currency: "thb", unit_amount: pr.amount * 100, product_data: { name: "จองที่นั่งรถตู้ · " + s.label } } }],
           success_url: back, cancel_url: back + "&c=1", client_reference_id: o.id, metadata: { order: o.id, sku: body.sku },
           expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         });

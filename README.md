@@ -84,6 +84,7 @@
 | | Free | Standard | Premium | ตั๋วรายทริป |
 |---|---|---|---|---|
 | ราคา | 0 | 149฿/30 วัน · 1,490฿/ปี | 399฿/30 วัน · 3,990฿/ปี | 39฿/ทริป |
+| ราคาเปิดตัว (ถึง 5 ก.พ. 2570) | 0 | 99฿ · 990฿/ปี | 299฿ · 2,990฿/ปี | 29฿ |
 | สร้างทริปต่อเดือน | 2 | 20 | ไม่จำกัด (เพดาน 100) | ไม่นับรวม |
 | รถต่อทริป | 1 | 5 | 10 | 5 |
 | ผู้ช่วยจัด | 0 | 2 | 5 | 2 |
@@ -102,7 +103,7 @@
 |---|---|
 | `PLANS_ON` | ไม่ต้องตั้ง = เปิดขาย · `0` = ปิดแพ็กเกจ (ยังเปิดให้บัญชีทดสอบจากหน้า /owner ได้) |
 | `STRIPE_SECRET_KEY` | `sk_test_...` หรือ `sk_live_...` จาก Stripe Dashboard → Developers → API keys |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_...` จาก webhook ที่ชี้ไป `https://<โดเมน>/api/pay?hook=1` เลือก event `checkout.session.completed` และ `checkout.session.async_payment_succeeded` |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_...` จาก webhook ที่ชี้ไป `https://<โดเมน>/api/pay?hook=1` เลือก event `checkout.session.completed`, `checkout.session.async_payment_succeeded` และ `charge.refunded` (คืนเงินเต็มจำนวนใน Stripe → ยกเลิกสิทธิ์ของรายการนั้นเอง) |
 
 ใน Stripe Dashboard ต้องเปิด PromptPay ที่ Settings → Payment methods ด้วย · ในเครื่อง (dev.js) ไม่ต้องมี Stripe: หน้าชำระเงินมีปุ่ม "จำลองว่าจ่ายแล้ว" · ชุดเทสเดิมรันโดยปิดแพ็กเกจ (`PLANS_ON=0`)
 

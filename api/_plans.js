@@ -26,13 +26,17 @@ const TIERS = {
 // while packages are off: the limits the app always had
 const LEGACY = { name: "", trips: 0, vans: 5, helpers: 2, rounds: 0 };
 
+// amount = normal price, promo = launch price (until PROMO_END, Bangkok time); the price is fixed when the order is made
 const SKUS = {
-  pass: { kind: "pass", label: "ตั๋วรายทริป 1 ใบ", amount: 39 },
-  std_m: { kind: "plan", tier: "standard", days: 30, label: "Standard 1 เดือน", amount: 149 },
-  std_y: { kind: "plan", tier: "standard", days: 365, label: "Standard 1 ปี", amount: 1490 },
-  pre_m: { kind: "plan", tier: "premium", days: 30, label: "Premium 1 เดือน", amount: 399 },
-  pre_y: { kind: "plan", tier: "premium", days: 365, label: "Premium 1 ปี", amount: 3990 },
+  pass: { kind: "pass", label: "ตั๋วรายทริป 1 ใบ", amount: 39, promo: 29 },
+  std_m: { kind: "plan", tier: "standard", days: 30, label: "Standard 1 เดือน", amount: 149, promo: 99 },
+  std_y: { kind: "plan", tier: "standard", days: 365, label: "Standard 1 ปี", amount: 1490, promo: 990 },
+  pre_m: { kind: "plan", tier: "premium", days: 30, label: "Premium 1 เดือน", amount: 399, promo: 299 },
+  pre_y: { kind: "plan", tier: "premium", days: 365, label: "Premium 1 ปี", amount: 3990, promo: 2990 },
 };
+const PROMO_END = Date.parse("2027-02-05T23:59:59+07:00"); // launch prices: 5 Nov 2026 – 5 Feb 2027
+function promoOn(now) { return (now || Date.now()) <= PROMO_END; }
+function priceOf(sku, now) { const s = SKUS[sku]; if (!s) return null; const p = promoOn(now) && s.promo ? s.promo : s.amount; return { amount: p, regular: s.amount, promo: p < s.amount }; }
 
 const DEV = process.env.VSB_DEV_AUTH === "1" && !process.env.VERCEL;
 function enabled() { // on everywhere; PLANS_ON=0 switches packages off (the old test suite runs that way)
@@ -110,6 +114,17 @@ async function grant(uid, sku, src) {
   await L.redis(["SET", planKey(uid), JSON.stringify({ tier, until: from + s.days * DAY, src: src || "paid" })]);
 }
 
+// a refunded order: take back what it gave (the plan's days, or one unused pass)
+async function revoke(uid, sku) {
+  const s = SKUS[sku];
+  if (!s) return;
+  if (s.kind === "pass") { const n = Number(await L.redis(["DECR", passKey(uid)])); if (n < 0) await L.redis(["INCR", passKey(uid)]); return; }
+  let cur = null;
+  try { cur = JSON.parse(await L.redis(["GET", planKey(uid)])); } catch (e) { cur = null; }
+  if (!cur || cur.tier === "free") return;
+  const until = (cur.until || 0) - s.days * DAY;
+  await L.redis(["SET", planKey(uid), JSON.stringify(until > Date.now() ? Object.assign({}, cur, { until }) : { tier: "free", until: 0, src: "refund" })]);
+}
 // owner console: set a package directly (tier "free" ends it)
 async function setPlan(uid, tier, days) {
   if (!TIERS[tier]) throw new Error("bad_tier");
@@ -121,4 +136,4 @@ function publicPlan(plan, extra) {
   return Object.assign({ on: !!plan.on, tier: plan.tier, name: t.name, until: plan.until, src: plan.src, passes: plan.passes, limits: { trips: t.trips, vans: t.vans, helpers: t.helpers, rounds: t.rounds } }, extra || {});
 }
 
-module.exports = { TESTERS, TIERS, SKUS, LEGACY, DAY, enabled, getPlan, limitsFor, monthUsed, monthCap, monthNow, quotaKey, REFUND_HOURS, usePass, refundPass, grant, setPlan, publicPlan, planKey, passKey };
+module.exports = { TESTERS, PROMO_END, promoOn, priceOf, revoke, TIERS, SKUS, LEGACY, DAY, enabled, getPlan, limitsFor, monthUsed, monthCap, monthNow, quotaKey, REFUND_HOURS, usePass, refundPass, grant, setPlan, publicPlan, planKey, passKey };

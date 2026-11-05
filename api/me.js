@@ -185,7 +185,7 @@ module.exports = async function handler(req, res) {
         // a few days before a package runs out: one reminder in the bell (PromptPay can't renew by itself)
         if (p.tier !== "free" && p.until - Date.now() < 3 * P.DAY) {
           const first = await L.redis(["SET", "planrem:" + user.id + ":" + p.until, "1", "NX", "EX", String(10 * 86400)]);
-          if (first === "OK") await L.notify([user.id], { k: "plan_expiring", tn: (P.TIERS[p.tier] || {}).name || "", until: p.until });
+          if (first === "OK") await L.notify([user.id], { k: "plan_expiring", tn: (P.TIERS[p.tier] || {}).name || "", until: p.until, amt: (P.priceOf(p.tier === "premium" ? "pre_m" : "std_m") || {}).amount });
         }
       } catch (e) { plan = null; }
     }

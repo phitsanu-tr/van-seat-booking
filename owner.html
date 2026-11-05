@@ -189,7 +189,7 @@ button { font:inherit; cursor:pointer; }
       (d.orders || []).slice(0, 50).forEach(function (o) {
         var row = el("div"); row.style.cssText = "display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding-top:6px";
         row.appendChild(el("span", null, fmtDate(o.paidAt || o.at) + " · " + (o.name || "?") + " …" + o.tag + " · " + o.label));
-        var st = el("b", null, o.amount + "฿ " + ({ paid: "✓", open: "รอจ่าย", expired: "หมดเวลา" }[o.status] || o.status)); st.style.color = o.status === "paid" ? "#068c3f" : "var(--muted)"; row.appendChild(st);
+        var st = el("b", null, o.amount + "฿ " + ({ paid: "✓", refunded: "คืนเงินแล้ว", open: "รอจ่าย", expired: "หมดเวลา" }[o.status] || o.status)); st.style.color = o.status === "paid" ? "#068c3f" : "var(--muted)"; row.appendChild(st);
         box.appendChild(row);
       });
       if (!(d.orders || []).length) box.appendChild(el("span", null, "ยังไม่มีรายการ"));

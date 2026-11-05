@@ -95,7 +95,8 @@
       case "became_owner": return { title: "คุณเป็นเจ้าของทริปแล้ว", body: tn + (it.n ? " · " + esc(it.n) + " โอนทริปให้คุณ" : ""), tone: "green", icon: "shield" };
       case "removed_team": return { title: "คุณถูกนำออกจากทีมผู้จัด", body: tn, tone: "grey", icon: "shield" };
       case "plan_paid": return { title: "ชำระเงินสำเร็จ", body: tn + (it.amt ? " · " + Number(it.amt).toLocaleString("th-TH") + "฿" : ""), tone: "green", icon: "shield" };
-      case "plan_expiring": return { title: "แพ็กเกจใกล้หมดอายุ", body: "แพ็กเกจ " + tn + " ใช้ได้ถึง " + esc(dayMs(it.until)) + " · แตะเพื่อต่ออายุ", tone: "amber", icon: "clock" };
+      case "plan_expiring": return { title: "แพ็กเกจใกล้หมดอายุ", body: "แพ็กเกจ " + tn + " ใช้ได้ถึง " + esc(dayMs(it.until)) + " · ต่ออายุ 30 วัน" + (it.amt ? " " + Number(it.amt).toLocaleString("th-TH") + "฿" : "") + " แตะเพื่อต่ออายุ", tone: "amber", icon: "clock" };
+      case "plan_refunded": return { title: "คืนเงินแล้ว", body: tn + (it.amt ? " · " + Number(it.amt).toLocaleString("th-TH") + "฿" : "") + " · ยกเลิกสิทธิ์ของรายการนี้แล้ว", tone: "grey", icon: "trash" };
       case "helper_joined": return { title: "มีผู้ช่วยจัดเข้าร่วม", body: tn + " · " + esc(it.n), tone: "green", icon: "shield" };
       default: return { title: "มีการเปลี่ยนแปลง", body: tn, tone: "grey", icon: "bell" };
     }
