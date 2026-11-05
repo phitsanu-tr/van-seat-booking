@@ -421,6 +421,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 body.signed .hbar .brand,body.signed .hbar .acct{display:none !important}
 body.signed .hbar .lback{display:inline-flex;align-items:center;gap:4px;height:36px;margin-right:auto;font:600 15px var(--font-display);color:var(--deep);text-decoration:none}
 body.signed .hbar .lback svg{width:20px;height:20px}
+/* inside LINE the back link is hidden (LINE has its own): show the page title on the left instead, drop the duplicate banner */
+.inline body.signed .hbar .brand{display:block !important;margin:0 auto 8px 0;font:600 22px/1.2 var(--font-display);color:var(--ink)}
+.inline body.signed .hero{display:none}
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
@@ -1581,7 +1584,7 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
     y += 34;
     var MX = 34, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k;
     var mh = 24 + 54 + 14 + PH + 30;
-    ctx.fillStyle = "var(--soft)"; rrect(ctx, MX, y, MW, mh, 50); ctx.fill();
+    ctx.fillStyle = "#f1f4f6"; rrect(ctx, MX, y, MW, mh, 50); ctx.fill();
     var cnt = Object.keys(seats).length, ry = y + 24 + 38;
     var hasLeft = (multi && cur) || (cur && cur.plate);
     // right (or centred when nothing is on the left): "8 / 10" with a muted total
