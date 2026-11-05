@@ -13,6 +13,8 @@
     ".vb-bell{position:relative;flex:none;width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid #c9d2d8;display:inline-grid;place-items:center;color:#1b1f22;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}",
     ".vb-bar{display:flex;align-items:center;gap:8px;width:100%;max-width:560px;margin:0 auto;padding:10px 16px 0;box-sizing:border-box;min-height:46px}",
     ".vb-bar a.vb-brand{flex:1;min-width:0;font:700 16px 'Noto Sans Thai',system-ui,sans-serif;color:#0f6e75;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
+    ".vb-bar .vb-back{flex:none;width:36px;height:36px;margin-left:-8px;display:inline-grid;place-items:center;color:#0f6e75;border-radius:50%}",
+    ".vb-bar .vb-back svg{width:22px;height:22px}",
     ".vb-bell[hidden]{display:none}",
     ".vb-bell svg{width:18px;height:18px}",
     ".vb-bell .vb-n{position:absolute;top:-5px;right:-6px;min-width:19px;height:19px;padding:0 5px;border-radius:99px;background:#b3261e;color:#fff;font:600 11px/15px 'Noto Sans Thai',system-ui,sans-serif;text-align:center;border:2px solid #eef1f3;box-sizing:border-box}",
@@ -127,10 +129,15 @@
     return b;
   };
   // same top row on every page: app name on the left, bell on the right
-  B.bar = function () {
+  B.bar = function (back) { // back: fallback address for the arrow (omit for no arrow)
     if (document.querySelector(".vb-bar")) return;
     injectCss();
     var bar = document.createElement("div"); bar.className = "vb-bar";
+    if (back) {
+      var bk = document.createElement("a"); bk.className = "vb-back"; bk.href = back; bk.setAttribute("aria-label", "กลับ");
+      bk.innerHTML = svg('<path d="M15 6l-6 6 6 6"/>'); bar.appendChild(bk);
+      bk.addEventListener("click", function (e) { var r = ""; try { r = new URL(document.referrer).origin; } catch (x) {} if (r === location.origin && history.length > 1 && !/\/trips\//.test(document.referrer)) { e.preventDefault(); history.back(); } });
+    }
     var a = document.createElement("a"); a.className = "vb-brand"; a.href = "/mytrips"; a.textContent = "จองที่นั่งรถตู้";
     var h = document.createElement("span"); h.style.display = "flex"; bar.appendChild(a); bar.appendChild(h);
     document.body.insertBefore(bar, document.body.firstChild);

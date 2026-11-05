@@ -77,9 +77,8 @@ details ol { margin: 8px 0 0; padding-left: 18px; }
 </style>
 </head>
 <body>
-<script src="/bell.js"></script><script>VSBBell.bar();</script>
+<script src="/bell.js"></script><script>VSBBell.bar("/mytrips#account");</script>
 <main id="app">
-  <a class="back" id="back" href="/mytrips#account">‹ กลับ</a>
   <div class="hd"><b id="title">แพ็กเกจ</b><small id="sub">ผู้จองที่นั่งใช้ฟรีเสมอ จ่ายเฉพาะคนจัดทริป</small></div>
   <div id="body"><div class="box"><div class="spin"></div></div></div>
 </main>
@@ -95,8 +94,6 @@ details ol { margin: 8px 0 0; padding-left: 18px; }
   function toast(t) { var e = $("toast"); e.textContent = t; e.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(function () { e.hidden = true; }, 3200); }
   var q = new URLSearchParams(location.search);
   var NEXT = /^\/trips\/new(?:[?#][^\s]*)?$|^\/trips\/[a-z0-9]{6,8}$/.test(q.get("next") || "") ? q.get("next") : "";
-  var b = $("back");
-  b.addEventListener("click", function (e) { var r = ""; try { r = new URL(document.referrer).origin; } catch (x) {} if (r === location.origin && history.length > 1) { e.preventDefault(); history.back(); } });
   var yearly = false, S = null;
 
   function feats(t) {

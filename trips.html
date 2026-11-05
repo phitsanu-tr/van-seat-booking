@@ -261,12 +261,11 @@ select.sel { border-color: #dde3e7!important; }
 .shrow small { font-size: 12px; }
 .dz b { font-size: 16px; }
 </style>
-<script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("inline")}catch(e){}</script><style>.inline .lback,.inline .back{display:none !important}</style>
+<script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("inline")}catch(e){}</script>
 </head>
 <body>
-<script src="/bell.js"></script><script>VSBBell.bar();</script>
+<script src="/bell.js"></script><script>VSBBell.bar("/mytrips#trips");</script>
 <main id="formMain" hidden>
-  <a class="back" id="backLink" href="/mytrips#trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>กลับ</a>
   <section class="hero">
     <div class="hr">
       <h1 id="title">สร้างทริป</h1>
@@ -1035,6 +1034,5 @@ select.sel { border-color: #dde3e7!important; }
   init();
 })();
 </script>
-<script>(function(){var b=document.getElementById("backLink");if(!b)return;b.addEventListener("click",function(e){var r="";try{r=new URL(document.referrer).origin;}catch(x){}if(r===location.origin&&history.length>1&&!/\/trips\//.test(document.referrer)){e.preventDefault();history.back();}});})();</script>
 </body>
 </html>
