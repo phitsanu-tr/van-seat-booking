@@ -37,7 +37,9 @@
     ".vb-tx em{font-style:normal;color:#1b1f22;font-weight:600}",
     ".vb-tx small{display:block;font-size:11.5px;color:#8a979e;margin-top:1px}",
     ".vb-dot{position:absolute;right:10px;top:14px;width:8px;height:8px;border-radius:50%;background:#b3261e}",
-    ".vb-empty{text-align:center;color:#5f6b73;font-size:14px;padding:28px 8px}",
+    ".vb-empty{text-align:center;color:#5f6b73;font-size:14px;line-height:20px;padding:40px 8px}",
+    ".vb-empty svg{display:block;margin:0 auto 12px}",
+    ".vb-empty b{display:block;font:600 16px/24px 'Prompt','Noto Sans Thai',system-ui,sans-serif;color:#1b1f22;margin-bottom:4px}",
     ".vb-ft{font-size:12px;color:#5f6b73;text-align:center;margin-top:6px}",
     ".vb-hd .vb-close{flex:none;width:36px;height:36px;margin:-4px -8px 0 0;padding:0;border:0;border-radius:12px;background:none;color:#1b1f22;display:flex;align-items:center;justify-content:center;cursor:pointer}.vb-hd .vb-close svg{width:22px;height:22px}.vb-hd .vb-close:active{background:#f3f6f7}",
     /* standard scale, same as the rest of the app */
@@ -176,9 +178,13 @@
     });
   }
   // the same list as a page (the app's notifications tab); redraws itself after every load / read
+  // empty-state picture (thin van on a dashed road) + short title + one line; same look on every empty tab
+  B.emptyHtml = function (title, text) {
+    return '<svg viewBox="0 0 120 70" width="104" height="60" fill="none" stroke="#0e7c86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".55" aria-hidden="true"><path d="M10 50V26c0-5 3-8 8-8h58c5 0 8 2 11 6l14 14c2 2 3 4 3 7v5z"/><path d="M26 26h22v14H26zM54 26h22v14H54zM82 26l10 14H82z"/><circle cx="32" cy="52" r="7" fill="#fff"/><circle cx="92" cy="52" r="7" fill="#fff"/><path d="M4 62h112" stroke-dasharray="3 5" opacity=".6"/></svg><b>' + title + "</b>" + text;
+  };
   B.page = function (host) {
     injectCss(); host.textContent = "";
-    if (!B.items.length) host.insertAdjacentHTML("beforeend", '<div class="vb-empty">' + (B.ready ? "ยังไม่มีการแจ้งเตือน<br>ถ้าผู้จัดเปลี่ยนเวลา ย้ายที่นั่ง หรือยกเลิกทริป จะแจ้งที่นี่" : "กำลังโหลด…") + "</div>");
+    if (!B.items.length) host.insertAdjacentHTML("beforeend", '<div class="vb-empty">' + (B.ready ? B.emptyHtml("ยังไม่มีการแจ้งเตือน", "ถ้าผู้จัดเปลี่ยนเวลา ย้ายที่นั่ง<br>หรือยกเลิกทริป จะแจ้งที่นี่") : "กำลังโหลด…") + "</div>");
     fillItems(host, function () {});
     if (B.items.length) host.insertAdjacentHTML("beforeend", '<div class="vb-ft">เก็บการแจ้งเตือนล่าสุด 50 รายการ · ลบเองหลัง 60 วัน</div>');
   };

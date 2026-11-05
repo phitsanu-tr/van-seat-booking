@@ -717,7 +717,8 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     if (up.length) section(pane, "กำลังจะถึง", "", up.length);
     up.forEach(function (x) { pane.appendChild(ticket(x, false)); });
     if (done.length) { section(pane, "ผ่านมาแล้ว", ""); done.forEach(function (x) { pane.appendChild(ticket(x, true)); }); }
-    pane.appendChild(node("div", "empty", list.length ? "เปิดลิงก์ทริปจากเพื่อนแล้วจอง ที่นั่งจะมาอยู่ที่นี่เอง · ใช้ได้ทั้งในมือถือและคอม" : "ยังไม่มีที่นั่งที่จองไว้ เปิดลิงก์ทริปจากเพื่อนแล้วจอง ที่นั่งจะมาอยู่ที่นี่เอง"));
+    if (list.length) pane.appendChild(node("div", "empty", "เปิดลิงก์ทริปจากเพื่อนแล้วจอง ที่นั่งจะมาอยู่ที่นี่เอง · ใช้ได้ทั้งในมือถือและคอม"));
+    else { var em = node("div", "vb-empty"); em.innerHTML = window.VSBBell ? VSBBell.emptyHtml("ยังไม่มีที่นั่งที่จองไว้", "เปิดลิงก์ทริปจากผู้จัดแล้วจอง<br>ที่นั่งจะมาอยู่ที่นี่") : "ยังไม่มีที่นั่งที่จองไว้"; pane.appendChild(em); }
   }
   function noteTag(id) { // unread change of this trip -> short orange label
     if (!window.VSBBell) return null;
