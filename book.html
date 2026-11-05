@@ -428,6 +428,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
       if (!liff.isInClient()) { resolve(false); return; }
+      try { if (localStorage.getItem("vsb_out") === "1") { resolve(false); return; } } catch (e) {} // signed out / deleted on purpose: no automatic sign-in
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
       fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){
@@ -607,7 +608,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     var a = document.getElementById("acct"); if (!a || IMG_ONLY) return;
     a.textContent = ""; a.hidden = false;
     if (me) {
-      a.className = "acct in"; a.href = isOwner ? "/mytrips#trips" : "/mytrips#seats"; document.body.classList.add("signed");
+      a.className = "acct in"; a.href = isOwner ? "/mytrips#trips" : "/mytrips#seats"; document.body.classList.add("signed"); try { localStorage.removeItem("vsb_out"); } catch (e) {}
       var av = el("span", "aav");
       if (me.pic) { var im = document.createElement("img"); im.alt = ""; im.src = me.pic; im.referrerPolicy = "no-referrer"; av.appendChild(im); } else av.textContent = (me.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
       a.appendChild(av); a.appendChild(el("span", null, "ของฉัน"));

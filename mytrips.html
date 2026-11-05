@@ -401,6 +401,7 @@ body.signed .top .bell-wrap { display: none; }
     if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
       if (!liff.isInClient()) { resolve(false); return; }
+      try { if (localStorage.getItem("vsb_out") === "1") { resolve(false); return; } } catch (e) {} // signed out / deleted on purpose: no automatic sign-in
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
       fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){
@@ -1498,7 +1499,7 @@ body.signed .top .bell-wrap { display: none; }
       if (d.user.pic) { var ni = node("img"); ni.alt = ""; ni.src = d.user.pic; ni.referrerPolicy = "no-referrer"; ni.onerror = function () { nv.textContent = ini; }; nv.appendChild(ni); } else nv.textContent = ini;
       $("nTrips").textContent = d.trips.length; $("nSeats").textContent = d.seats.length;
       renderTrips(d.trips); renderSeats(d.seats); HM.render(d); if (tab === "acct") renderAcctPane(); updateHead();
-      try { localStorage.setItem("vsb_in", "1"); } catch (e) {}
+      try { localStorage.setItem("vsb_in", "1"); localStorage.removeItem("vsb_out"); } catch (e) {}
       if (wantAcct) { wantAcct = false; openAccount(); }
       setTimeout(function () { preloadRosters(d.trips); }, 300); // after the page has drawn
     } catch (e) { toast("โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า", true); }
@@ -1572,7 +1573,7 @@ body.signed .top .bell-wrap { display: none; }
   }
   function goHome(msg) { // signed out or data deleted: back to the home page, which shows msg as a toast
     forgetRosters();
-    try { localStorage.removeItem("vsb_in"); } catch (e) {}
+    try { localStorage.removeItem("vsb_in"); localStorage.setItem("vsb_out", "1"); } catch (e) {} // in LINE: don't sign straight back in
     try { localStorage.removeItem("vsb_name"); } catch (e) {}
     try { sessionStorage.setItem("vsb_home_flash", msg); } catch (e) {}
     location.replace("/");
