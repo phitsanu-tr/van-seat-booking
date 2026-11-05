@@ -526,6 +526,7 @@ body.signed .top .bell-wrap { display: none; }
     if (x.ended) return node("span", "pill p-end", "จบแล้ว");
     if (x.closed) return node("span", "pill p-closed", "ปิดรับจอง");
     if (x.total && x.booked >= x.total) return node("span", "pill p-full", "เต็มแล้ว");
+    if (x.total && x.total - x.booked <= 2) return node("span", "pill p-full", "เหลือ " + (x.total - x.booked) + " ที่"); // nearly full
     var d = daysTo(x.startDate);
     if (d == null || d < 0) return null;
     var p = node("span", "pill cdn " + (d === 0 ? "p-today" : d <= 3 ? "p-near" : "p-soon"));

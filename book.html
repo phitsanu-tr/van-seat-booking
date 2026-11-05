@@ -464,6 +464,67 @@ body.sk #sbar, body.nf #sbar, .imgonly #sbar { display: none; }
 body.hasbar main { padding-bottom: 76px; }
 body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important; }
 @media (prefers-color-scheme: dark) { :root { --bg:#101417;--surface:#1a2024;--ink:#eef2f4;--muted:#9aa8b0;--line:#3a4750;--mine:#3cc0cb;--mine-ink:#06262a;--deep:#8fdde4;--tint:#12363a;--danger:#ff8a80;--amber:#f0b050;--amber-tint:#3a2d12;--page:#101417;--soft:#222b31;--e1:#2a343a;--e2:#2f3a41;--edge:#2f3a41;color-scheme:dark;--paper:#1a2024;--taken:#2c363d;--tka:#222b31;--tkb:#2c363d;--bfree:#222b31;--btaken:#3a4750;--bmine:rgba(0,0,0,.25);--sel:#f0a020;--driver-ink:#ff8a9c; } }
+
+/* ===== redesign (exact): one trip card, seat grid, inline name + confirm bar, success page ===== */
+.hero, .tip, #invite { display: none !important; }
+#sheetView .plan, #sheetView .legend { display: none; }
+.facts { grid-template-columns: 1fr 1fr; column-gap: 12px; row-gap: 10px; }
+.facts .fhead { grid-column: 1 / -1; position: relative; padding-right: 76px; }
+.facts .span2 { grid-column: 1 / -1; }
+.facts .fchip { position: absolute; top: 0; right: 0; font: 600 12px var(--font-display); padding: 4px 11px; border-radius: 99px; background: color-mix(in srgb, var(--mine) 14%, var(--surface)); color: var(--mine); white-space: nowrap; }
+.facts .fchip.full { background: color-mix(in srgb, var(--danger) 14%, var(--surface)); color: var(--danger); }
+.facts .fhead .ftitle { font-size: 18px; }
+.vgrid { margin-top: 10px; }
+.vgrid .vhd { display: flex; justify-content: space-between; align-items: center; padding: 0 4px 8px; margin-bottom: 10px; border-bottom: 1.5px dashed var(--line); font-size: 12px; color: var(--muted); }
+.vg3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.vs { min-height: 58px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 4px; font: inherit; cursor: pointer; line-height: 1.1; min-width: 0; }
+.vs b { font: 600 17px var(--font-display); }
+.vs small { font-size: 11px; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vs.t { background: var(--taken); border-color: var(--taken); }
+.vs.t b { color: var(--muted); }
+.vs.t small { color: var(--ink); }
+.vs.m { background: var(--mine); border-color: var(--mine); color: var(--mine-ink); }
+.vs.m b, .vs.m small { color: var(--mine-ink); }
+.vs.h { background: color-mix(in srgb, var(--sel) 14%, var(--surface)); border-style: dashed; border-color: var(--sel); }
+.vs.x { background: color-mix(in srgb, var(--sel) 16%, var(--surface)); border: 2px solid var(--sel); }
+.vs.x b, .vs.x small { color: var(--amber, #b86e00); font-weight: 600; }
+.vs.gap, .vs.drv { cursor: default; }
+.vs.gap { border: 0; background: none; }
+.vs.drv { background: #fdeff1; border-color: transparent; color: var(--driver-ink); font: 500 12px var(--font-display); }
+.vs.drv svg { width: 22px; height: 22px; }
+.vs:active:not(.t):not(.drv):not(.gap) { transform: scale(.97); }
+.vleg { display: flex; gap: 14px; justify-content: center; margin: 12px 0 2px; font-size: 12px; color: var(--muted); }
+.vleg i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid var(--line); vertical-align: -1px; margin-right: 5px; }
+.vleg .a { background: var(--bg); } .vleg .b { background: var(--taken); border-color: var(--taken); } .vleg .c { background: color-mix(in srgb, var(--sel) 16%, var(--surface)); border-color: var(--sel); }
+#pickBox { margin: 14px 4px 4px; }
+#pickBox label { display: block; font: 600 14px var(--font-display); margin-bottom: 6px; }
+#pickBox .nmwrap { position: relative; }
+#pickBox input { width: 100%; height: 48px; font-size: 16px; border: 2px solid var(--mine); border-radius: 12px; padding: 0 52px 0 14px; background: var(--surface); color: var(--ink); }
+#pickBox .nmcnt { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--muted); }
+#pickBox .pm { min-height: 20px; margin-top: 6px; font-size: 13px; color: var(--danger); }
+#pickBox .pl { font-size: 12px; color: var(--muted); }
+#sbar .in.col { flex-direction: column; align-items: stretch; gap: 8px; }
+#sbar .row2 { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--muted); }
+#sbar .row2 b { font: 600 15px var(--font-display); color: var(--ink); }
+#sbar button.wide { width: 100%; height: 50px; border-radius: 14px; font-size: 16px; }
+#sbar button.idle { background: var(--soft); color: var(--muted); }
+#sbar button.lgn { background: #06c755; color: #fff; }
+#okView { position: fixed; inset: 0; z-index: 18; overflow-y: auto; background: var(--bg); padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+#okView[hidden] { display: none; }
+#okView .w { max-width: 460px; margin: 0 auto; text-align: center; padding-top: 24px; }
+#okView .ck { width: 64px; height: 64px; border-radius: 50%; background: var(--mine); color: var(--mine-ink); display: grid; place-items: center; margin: 0 auto 12px; }
+#okView h2 { margin: 0; font: 600 24px var(--font-display); }
+#okView .sub { margin-top: 4px; font-size: 14px; color: var(--muted); }
+#okView .pass { margin-top: 20px; text-align: left; background: var(--surface); border: 2px dashed var(--mine); border-radius: 18px; padding: 16px; }
+#okView .pass .top { display: flex; justify-content: space-between; align-items: center; }
+#okView .pass .chip { font: 600 12px var(--font-display); padding: 4px 11px; border-radius: 99px; background: color-mix(in srgb, var(--mine) 14%, var(--surface)); color: var(--mine); }
+#okView .pass .no { font: 600 40px/1 var(--font-display); color: var(--mine); }
+#okView .pass .tn { font: 600 18px var(--font-display); margin-top: 10px; overflow-wrap: anywhere; }
+#okView .pass .ln { font-size: 14px; color: var(--muted); margin-top: 4px; }
+#okView .btns { display: grid; gap: 10px; margin-top: 18px; }
+#okView button { height: 50px; border-radius: 14px; font: 600 16px var(--font-display); border: 1.5px solid var(--mine); background: var(--surface); color: var(--mine); }
+#okView button.line { background: #06c755; border-color: #06c755; color: #fff; }
+#okView .back { margin-top: 14px; background: none; border: 0; color: var(--muted); font-size: 14px; height: 44px; }
 </style>
 </head>
 <body class="sk hasbar">
@@ -513,6 +574,9 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
         <text class="lbl" transform="translate(38 990) rotate(-90)" text-anchor="middle">ประตูเลื่อน</text><rect class="ln" x="361" y="194" width="98" height="184" rx="20"/><path class="ln" d="M385 228 V286 M435 228 V286 M385 257 H435 M410 228 V286" style="stroke-width:3.5"/><circle class="solid" cx="385" cy="230" r="9"/><circle class="ln" cx="394" cy="336" r="10"/><circle class="ln" cx="426" cy="336" r="10"/><text class="lbl" transform="translate(410 90)" text-anchor="middle">หน้ารถ</text><text class="lbl" transform="translate(410 1306)" text-anchor="middle">ท้ายรถ</text></svg>
       <div id="overlay"></div>
     </div>
+    <div id="seatGrid" class="vgrid"></div>
+    <div class="vleg"><span><i class="a"></i>ว่าง</span><span><i class="b"></i>มีคนจอง</span><span><i class="c"></i>ที่เลือก</span></div>
+    <div id="pickBox" hidden></div>
     <div class="legend">
       <span><i class="l-free"></i>ที่นั่งว่าง</span>
       <span><i class="l-taken"></i>ที่นั่งจองแล้ว</span>
@@ -563,7 +627,15 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
 
 <div id="imgOnlyNote"><span class="okc"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><b>บันทึกรูปแล้ว</b>กลับไปที่ LINE เพื่อจองที่นั่งต่อได้<button type="button" id="imgAgain">ดูรูปอีกครั้ง</button></div>
 
-<div id="sbar" hidden><div class="in"><div class="tx" id="sbTx"></div><span class="free" id="sbFree" hidden></span><button type="button" id="sbGo" hidden></button></div></div>
+<div id="sbar" hidden><div class="in" id="sbIn"></div></div>
+<div id="okView" hidden role="dialog" aria-modal="true" aria-labelledby="okT"><div class="w">
+  <div class="ck"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></div>
+  <h2 id="okT">จองสำเร็จแล้ว</h2><div class="sub" id="okS"></div>
+  <div class="pass"><div class="top"><span class="chip">SEAT PASS</span><span class="no" id="okN"></span></div><div class="tn" id="okTn"></div><div class="ln" id="okL1"></div><div class="ln" id="okL2"></div></div>
+  <div class="btns"><button type="button" id="okSave">บันทึกรูป SEAT PASS</button><button type="button" class="line" id="okShare">ส่งให้เพื่อนใน LINE</button></div>
+  <div class="sub" style="margin-top:14px">เปลี่ยนหรือยกเลิกที่นั่งได้ที่ “ที่นั่งที่จอง” หรือแตะที่นั่งของคุณในผัง</div>
+  <button type="button" class="back" id="okBack">ดูผังที่นั่ง</button>
+</div></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script src="/bell.js"></script>
@@ -665,6 +737,7 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
   var loaded = false, loadError = "";
   function skOff() { document.body.classList.remove("sk"); }
   setTimeout(skOff, 8000);
+  var pick = null, pickBuilt = null; // free seat chosen on the grid (the name field + confirm bar act on it)
   var selected = null, message = "", shown = false, confirming = false, lastSnapshot = "", wasFree = false; // wasFree: the seat was free when this dialog opened
   var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false, closed = false;
   // locked: nothing to tap. A finished trip is locked for everyone; a closed one only for passengers (organizers still manage seats).
@@ -1130,14 +1203,14 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
     if (dr) rows.push(["วันที่", dr, "cal", "date"]);
     if (trip.departTime) rows.push(["รถออก", trip.departTime.replace(":", ".") + " น.", "clk", "time"]);
     if (trip.meetPoint) rows.push(["นัดพบ", trip.meetPoint, "pin", "meet"]);
-    if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน (" + trip.vans.length * TOTAL + " ที่นั่ง)", "van"]);
     factsEl.textContent = "";
     var fh = el("div", "fhead");
     fh.appendChild(el("div", "ftitle", trip.name));
     if (trip.organizer) fh.appendChild(el("div", "forg", trip.organizer));
+    if (loaded) { var fr0 = Math.max(0, TOTAL - Object.keys(seats).length); fh.appendChild(el("span", "fchip" + (fr0 ? "" : " full"), fr0 ? "ว่าง " + fr0 : "เต็ม")); }
     factsEl.appendChild(fh);
     rows.forEach(function (r) {
-      var d = el("div");
+      var d = el("div", r[3] === "meet" ? "span2" : null);
       var ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg");
       sv.setAttribute("viewBox", "0 0 24 24"); sv.setAttribute("fill", "none"); sv.setAttribute("stroke", "currentColor");
       sv.setAttribute("stroke-width", "2"); sv.setAttribute("stroke-linecap", "round"); sv.setAttribute("stroke-linejoin", "round");
@@ -1170,7 +1243,7 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
   function switchVan(id) {
     if (id === curVan || pending > 0) return;
     vanCache[curVan] = seats;
-    curVan = id; selected = null; confirming = false; message = "";
+    curVan = id; selected = null; pick = null; confirming = false; message = "";
     seats = vanCache[id] || {}; loaded = !!vanCache[id]; lastSnapshot = JSON.stringify(seats);
     try { history.replaceState(null, "", location.pathname + "?" + new URLSearchParams(Object.assign({}, Object.fromEntries(params), { v: id })).toString()); } catch (e) {}
     renderAll(); refresh(true);
@@ -1242,26 +1315,93 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
     box.appendChild(bar);
   }
 
-  function renderBar() { // sticky bar under the plan: your seats and a share button, or what to do next
+  var NAV = { gap: "", drv: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg>' };
+  function renderSeatGrid() {
+    var g = document.getElementById("seatGrid"); if (!g) return;
+    if (pick != null && (seats[pick] || locked() || heldByOther(pick))) { if (seats[pick] && !mine(pick)) showToast("ที่นั่ง " + pick + " ถูกจองไปแล้ว เลือกที่นั่งอื่น", "error"); pick = null; }
+    g.textContent = "";
+    var hd = el("div", "vhd"); hd.appendChild(el("span", null, "หน้ารถ")); hd.appendChild(el("span", null, "คนขับ")); g.appendChild(hd);
+    var grid = el("div", "vg3");
+    [1, 0, -1, 4, 3, 2, 7, 6, 5, 10, 9, 8].forEach(function (n) {
+      if (n === 0) { grid.appendChild(el("div", "vs gap")); return; }
+      if (n === -1) { var dv = el("div", "vs drv"); dv.innerHTML = NAV.drv; dv.appendChild(document.createTextNode("คนขับ")); grid.appendChild(dv); return; }
+      var s0 = seats[n], b = el("button", "vs"); b.type = "button"; b.appendChild(el("b", null, String(n)));
+      if (s0) { b.classList.add("t"); if (mine(n)) b.classList.add("m"); b.appendChild(el("small", null, s0.name)); b.setAttribute("aria-label", "ที่นั่ง " + n + " จองโดย " + s0.name); }
+      else if (heldByOther(n)) { b.classList.add("h"); b.appendChild(el("small", null, "กำลังจอง")); b.setAttribute("aria-label", "ที่นั่ง " + n + " มีคนกำลังจอง"); }
+      else { if (pick === n) { b.classList.add("x"); b.setAttribute("aria-pressed", "true"); } b.appendChild(el("small", null, pick === n ? "เลือก" : "ว่าง")); b.setAttribute("aria-label", "ที่นั่ง " + n + " ว่าง"); }
+      b.addEventListener("click", function () {
+        if (locked()) return;
+        if (s0 || heldByOther(n)) { selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll(); return; } // someone's seat: the details dialog
+        pick = pick === n ? null : n; renderAll();
+        if (pick != null && me) setTimeout(function () { var bx = document.getElementById("pickBox"), inp = document.getElementById("pickInput"); if (bx) try { bx.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} if (inp && !inp.value) try { inp.focus({ preventScroll: true }); } catch (e) {} }, 60);
+      });
+      grid.appendChild(b);
+    });
+    g.appendChild(grid);
+  }
+  function renderPick() {
+    var box = document.getElementById("pickBox"); if (!box) return;
+    if (pick == null || !me || locked()) { box.hidden = true; box.textContent = ""; pickBuilt = null; return; }
+    if (pickBuilt === pick) return;
+    pickBuilt = pick; box.hidden = false; box.textContent = "";
+    var lb = el("label", null, "ชื่อที่ใช้จอง"); lb.setAttribute("for", "pickInput"); box.appendChild(lb);
+    var w = el("div", "nmwrap"), inp = el("input"), cnt = el("span", "nmcnt");
+    inp.type = "text"; inp.id = "pickInput"; inp.placeholder = "ชื่อที่ผู้จัดรู้จัก เช่น ชื่อเล่น"; inp.autocomplete = "off"; inp.autocapitalize = "off"; inp.spellcheck = false;
+    try { inp.value = cleanName(localStorage.getItem("vsb_name") || "").text; } catch (e) {}
+    var pm = el("div", "pm"); pm.id = "pickMsg"; pm.setAttribute("role", "status");
+    var composing = false;
+    function sync() { var v = inp.value, c = cleanName(v); if (c.text !== v) inp.value = c.text; cnt.textContent = inp.value ? inp.value.length + "/" + NAME_MAX : ""; pm.textContent = c.removed ? "ใช้ได้เฉพาะภาษาไทยและอังกฤษ ตัวเลข และเว้นวรรค" : c.truncated ? "ครบ " + NAME_MAX + " ตัวอักษรแล้ว" : ""; }
+    inp.addEventListener("compositionstart", function () { composing = true; });
+    inp.addEventListener("compositionend", function () { composing = false; sync(); });
+    inp.addEventListener("input", function () { if (!composing) sync(); });
+    inp.addEventListener("keydown", function (e) { if (e.key === "Enter" && !composing) confirmPick(); });
+    w.appendChild(inp); w.appendChild(cnt); box.appendChild(w); box.appendChild(pm);
+    if (seatLimit > 0 && !isOwner) box.appendChild(el("div", "pl", "จองได้ไม่เกิน " + seatLimit + " ที่นั่งต่อคน (รวมทุกคัน)"));
+    sync();
+  }
+  function confirmPick() {
+    if (pick == null) return;
+    var n = pick, inp = document.getElementById("pickInput"), pm = document.getElementById("pickMsg");
+    var name = inp ? cleanName(inp.value).text : "";
+    if (!name) { if (pm) pm.textContent = "ใส่ชื่อก่อนจอง"; if (inp) inp.focus(); return; }
+    if (!hasBaseLetter(name)) { if (pm) pm.textContent = "ต้องมีตัวอักษรอย่างน้อย 1 ตัว"; if (inp) inp.focus(); return; }
+    pick = null; pickBuilt = null; book(n, name);
+  }
+  function renderBar() { // sticky bar: next step / your seats
     var bar = document.getElementById("sbar"); if (!bar || !loaded) return;
-    var tx = document.getElementById("sbTx"), fr = document.getElementById("sbFree"), go = document.getElementById("sbGo");
-    var mineN = [], taken = 0;
-    for (var n = 1; n <= TOTAL; n++) { if (seats[n]) { taken++; if (mine(n)) mineN.push(n); } }
-    tx.textContent = ""; fr.hidden = true; go.hidden = true;
-    if (locked()) { tx.appendChild(el("b", null, ended ? "ทริปนี้จบแล้ว" : "ปิดรับจองแล้ว")); }
-    else if (mineN.length) {
-      tx.appendChild(el("b", null, "ที่นั่งของคุณ " + mineN.join(", ")));
-      tx.appendChild(document.createTextNode("แตะที่นั่งเพื่อแก้ชื่อหรือยกเลิก"));
-      go.textContent = "ส่งให้เพื่อน"; go.hidden = false;
-    } else {
-      tx.appendChild(el("b", null, "แตะที่นั่งว่างเพื่อจอง"));
-      tx.appendChild(document.createTextNode("ใส่ชื่อแล้วกดยืนยัน ไม่มีค่าใช้จ่าย"));
-      fr.textContent = "ว่าง " + Math.max(0, TOTAL - taken); fr.hidden = false;
-    }
+    var inn = document.getElementById("sbIn"); inn.textContent = ""; inn.className = "in";
+    var mineN = [];
+    for (var k = 1; k <= TOTAL; k++) if (seats[k] && mine(k)) mineN.push(k);
+    function btn(label, cls, fn) { var b = el("button", cls, label); b.type = "button"; b.addEventListener("click", fn); return b; }
+    if (locked()) { var t0 = el("div", "tx"); t0.appendChild(el("b", null, ended ? "ทริปนี้จบแล้ว" : "ปิดรับจองแล้ว")); inn.appendChild(t0); }
+    else if (pick != null) {
+      inn.classList.add("col");
+      var r2 = el("div", "row2"); r2.appendChild(el("b", null, "ที่นั่ง " + pick)); r2.appendChild(el("span", null, "ฟรี · ไม่มีค่าธรรมเนียม")); inn.appendChild(r2);
+      if (me) inn.appendChild(btn("ยืนยันที่นั่ง " + pick, "wide", confirmPick));
+      else { var lg = btn("เข้าสู่ระบบด้วย LINE เพื่อจองที่นั่ง " + pick, "wide lgn", function () { holdAndLogin(pick, lg); }); inn.appendChild(lg); }
+    } else if (mineN.length) {
+      inn.classList.add("col");
+      var r3 = el("div", "row2"); r3.appendChild(el("b", null, "ที่นั่งของคุณ " + mineN.join(", "))); r3.appendChild(el("span", null, "แตะที่นั่งเพื่อแก้ไข")); inn.appendChild(r3);
+      inn.appendChild(btn("ส่งให้เพื่อน", "wide", function () { shareFriend(); }));
+    } else { inn.appendChild(btn("แตะที่นั่งว่างเพื่อเลือก", "wide idle", function () {})); inn.classList.add("col"); }
     bar.hidden = false;
   }
-  document.getElementById("sbGo").addEventListener("click", function () { shareFriend(); });
-  function renderAll() { renderTrip(); renderNotice(); renderGrid(); renderPanel(); renderList(); renderBar(); }
+  function showOk(n, name) {
+    var T = trip || {}, dr = dateRange(T.startDate, T.endDate);
+    document.getElementById("okS").textContent = dr ? "เจอกัน " + dr : "";
+    document.getElementById("okN").textContent = String(n);
+    document.getElementById("okTn").textContent = T.name || "";
+    document.getElementById("okL1").textContent = name + (T.departTime ? " · ออก " + T.departTime.replace(":", ".") + " น." : "");
+    document.getElementById("okL2").textContent = T.meetPoint ? "นัดพบ: " + T.meetPoint : "";
+    document.getElementById("okL2").hidden = !T.meetPoint;
+    document.getElementById("okView").hidden = false; document.body.style.overflow = "hidden";
+  }
+  function closeOk() { document.getElementById("okView").hidden = true; document.body.style.overflow = ""; }
+  document.getElementById("okBack").addEventListener("click", closeOk);
+  document.getElementById("okShare").addEventListener("click", function () { shareFriend(); });
+  document.getElementById("okSave").addEventListener("click", function () { closeOk(); openImg(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !document.getElementById("okView").hidden) closeOk(); });
+  function renderAll() { renderTrip(); renderNotice(); renderGrid(); renderSeatGrid(); renderPick(); renderPanel(); renderList(); renderBar(); }
 
   async function refresh(force) {
     if (pending > 0) return;
@@ -1301,7 +1441,7 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
       seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff();
       if (locked() && selected !== null) { selected = null; message = ""; confirming = false; renaming = false; force = true; } // closed while the dialog was open
       if (changed || force) renderAll();
-      if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !locked()) openSeat(ws); }
+      if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !locked()) { pick = ws; renderAll(); } }
     } catch (e) {
       loadError = "เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่";
       if (!loaded) renderAll();
@@ -1326,7 +1466,7 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
         if (seats[n] === temp) seats[n] = { name: name, at: r.data.at, m: true, a: true };
         try { localStorage.setItem("vsb_name", name); } catch (e) {}
         showToast("จองที่นั่ง " + n + " แล้ว");
-        showInvite(n);
+        showOk(n, name);
       } else if (r.data && r.data.error === "taken") {
         failMsg = "ที่นั่ง " + n + " ถูกจองไปแล้ว เลือกที่นั่งอื่น";
       } else {
