@@ -32,6 +32,7 @@ body.signed .abar{display:flex;align-items:center;gap:12px;max-width:460px;margi
 .abar .nm b{display:block;font:700 16px/22px var(--font-display);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .abar .nm span{display:block;font:400 12px/16px var(--font-body);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .abar a.ab-new{flex:none;display:grid;justify-items:center;gap:0;color:var(--deep);text-decoration:none;font:600 12px/16px var(--font-display)}
+.abar a.ab-new[hidden]{display:none}
 .abar a.ab-new svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 body.signed .top a.mkp{display:none !important}
 body.signed .top .ltl b{font-size:26px;line-height:32px}
@@ -442,7 +443,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 </script>
 </head>
 <body>
-<div class="top"><section class="abar"><span class="lg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17V10a2 2 0 0 1 2-2h8l4 4 2 1v4z"/><circle cx="8" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg></span><span class="nm"><b>จองที่นั่งรถตู้</b><span>สร้างทริป ส่งลิงก์ เลือกที่นั่ง</span></span></section><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="ltl" id="ltl"><b id="ltT">ทริปที่จัด</b><small id="ltS"></small></span><a class="mkp" id="mkTrip" href="/trips/new">＋ สร้างทริป</a><button class="mkr" id="mkRead" type="button">อ่านทั้งหมด</button><span class="bell-wrap" id="bellHost"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
+<div class="top"><section class="abar"><span class="lg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17V10a2 2 0 0 1 2-2h8l4 4 2 1v4z"/><circle cx="8" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg></span><span class="nm"><b>จองที่นั่งรถตู้</b><span>สร้างทริป ส่งลิงก์ เลือกที่นั่ง</span></span><a class="ab-new" id="abNew" href="/trips/new" hidden><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>สร้างทริป</a></section><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="ltl" id="ltl"><b id="ltT">ทริปที่จัด</b><small id="ltS"></small></span><a class="mkp" id="mkTrip" href="/trips/new">＋ สร้างทริป</a><button class="mkr" id="mkRead" type="button">อ่านทั้งหมด</button><span class="bell-wrap" id="bellHost"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
 <main>
   <section class="login" id="loginView" hidden>
     <div class="hero">
@@ -1457,6 +1458,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     else { T = "โปรไฟล์"; S = "บัญชีและแพ็กเกจของคุณ"; }
     $("ltT").textContent = T; $("ltS").textContent = S;
     $("mkTrip").classList.toggle("show", tab === "trips" && !!(D && D.trips.length));
+    $("abNew").hidden = !(D && D.trips.length); // shortcut only for organizers; with no trips the home banner already offers it
 
     var rd = $("mkRead"); rd.classList.toggle("show", tab === "notif"); rd.disabled = !unreadN();
     var b = $("navBadge"), n = unreadN(); b.hidden = !n; b.textContent = n > 99 ? "99+" : String(n);
