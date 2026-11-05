@@ -100,7 +100,6 @@ a.path:active { background: var(--tint); }
     if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
       if (!liff.isInClient()) { resolve(false); return; }
-      try { if (localStorage.getItem("vsb_out") === "1") { resolve(false); return; } } catch (e) {} // signed out / deleted on purpose: no automatic sign-in
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
       fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){
@@ -208,7 +207,7 @@ a.path:active { background: var(--tint); }
   var a=document.getElementById("acct"); if(!a)return;
   fetch("/api/auth?me=1",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
     var u=d&&d.user; a.textContent="";
-    if(u){try{localStorage.setItem("vsb_in","1");localStorage.removeItem("vsb_out")}catch(e){}location.replace("/mytrips");return;} // signed in: the app is the home page
+    if(u){try{localStorage.setItem("vsb_in","1")}catch(e){}location.replace("/mytrips");return;} // signed in: the app is the home page
     if(u){a.className="acct in";a.href="/mytrips";var av=document.createElement("span");av.className="aav";if(u.pic){var im=document.createElement("img");im.alt="";im.src=u.pic;im.referrerPolicy="no-referrer";av.appendChild(im);}else av.textContent=(u.name||"?").replace(/^[เแโใไ]/,"").slice(0,1);a.appendChild(av);a.appendChild(document.createTextNode("ของฉัน"));
       if(window.VSBBell){var bh=document.getElementById("bellHost");if(bh){VSBBell.mount(bh);VSBBell.load();}}}
     else{a.className="acct out";a.href="/api/auth?start=1&r=%2Fmytrips";a.innerHTML='<span class="lg">LINE</span>เข้าสู่ระบบด้วย LINE';}

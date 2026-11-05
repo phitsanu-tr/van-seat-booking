@@ -428,7 +428,6 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
       if (!liff.isInClient()) { resolve(false); return; }
-      try { if (localStorage.getItem("vsb_out") === "1") { resolve(false); return; } } catch (e) {} // signed out / deleted on purpose: no automatic sign-in
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
       fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){
@@ -589,17 +588,15 @@ body.signed .hbar .lback svg{width:20px;height:20px}
   function holdClient() { // random id of this browser, only used so two people on the same mobile network do not cancel each other's hold
     try { var c = localStorage.getItem("vsb_hc"); if (!c || !/^[a-z0-9]{16}$/.test(c)) { c = Array.from(crypto.getRandomValues(new Uint8Array(16)), function (x) { return "abcdefghijklmnopqrstuvwxyz0123456789"[x % 36]; }).join(""); localStorage.setItem("vsb_hc", c); } return c; } catch (e) { return ""; }
   }
-  async function holdAndLogin(n, a) { // keep the seat while the visitor signs in with LINE, then go to LINE
-    a.style.opacity = ".7";
-    try {
-      var r = await api("POST", { hold: n, hc: holdClient() });
-      if (r.ok && r.data && r.data.hold) { try { sessionStorage.setItem("vsb_hold", JSON.stringify({ t: TRIP, v: curVan, s: n, id: r.data.hold, exp: r.data.exp })); } catch (e) {} }
-      else if (r.data && (r.data.error === "held" || r.data.error === "taken")) { a.style.opacity = ""; showToast(r.data.error === "held" ? "มีคนกำลังจองที่นั่งนี้อยู่ เลือกที่นั่งอื่นได้เลย" : "ที่นั่งนี้ถูกจองไปแล้ว", "error"); refresh(true); return; }
-    } catch (e) { /* no hold: sign in anyway */ }
-    location.href = loginHref(n);
-  } // signed-in LINE account (from the seats API)
+  // signed-in LINE account (from the seats API)
   var wantSeat = Number(params.get("seat")) || 0; // back from LINE sign-in: reopen the seat that was chosen
   if (params.has("li") || params.has("le") || params.has("seat")) { try { params.delete("li"); params.delete("le"); params.delete("seat"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params.toString() : "")); } catch (e) {} }
+  function retryBox() { // not signed in: in LINE the automatic sign-in failed (retry); in a browser, open the link in LINE
+    var w = el("div", "lgin"), b = el("a", "lgbtn");
+    if (IN_LINE) { b.href = "javascript:void(0)"; b.appendChild(document.createTextNode("เข้าสู่ระบบไม่สำเร็จ · ลองใหม่")); b.addEventListener("click", function () { try { sessionStorage.removeItem("vsb_liff"); } catch (e) {} location.reload(); }); }
+    else { b.href = "https://liff.line.me/2012285472-FvtYKx00/" + TRIP + (curVan ? "?v=" + encodeURIComponent(curVan) : ""); b.appendChild(el("i", null, "LINE")); b.appendChild(document.createTextNode("เปิดใน LINE เพื่อจองที่นั่ง")); }
+    w.appendChild(b); return w;
+  }
   function loginHref(seatN) {
     var back = "/" + TRIP + "?" + (curVan ? "v=" + encodeURIComponent(curVan) + "&" : "") + (seatN ? "seat=" + seatN : "");
     return "/api/auth?start=1&r=" + encodeURIComponent(back.replace(/[?&]$/, ""));
@@ -608,12 +605,12 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     var a = document.getElementById("acct"); if (!a || IMG_ONLY) return;
     a.textContent = ""; a.hidden = false;
     if (me) {
-      a.className = "acct in"; a.href = isOwner ? "/mytrips#trips" : "/mytrips#seats"; document.body.classList.add("signed"); try { localStorage.removeItem("vsb_out"); } catch (e) {}
+      a.className = "acct in"; a.href = isOwner ? "/mytrips#trips" : "/mytrips#seats"; document.body.classList.add("signed"); try { 0; } catch (e) {}
       var av = el("span", "aav");
       if (me.pic) { var im = document.createElement("img"); im.alt = ""; im.src = me.pic; im.referrerPolicy = "no-referrer"; av.appendChild(im); } else av.textContent = (me.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
       a.appendChild(av); a.appendChild(el("span", null, "ของฉัน"));
       startBell();
-    } else { a.className = "acct out"; a.href = loginHref(0); a.appendChild(el("span", "lg", "LINE")); a.appendChild(el("span", null, "เข้าสู่ระบบด้วย LINE")); }
+    } else { a.hidden = true; }
   }
   // ---- notifications: bell in the header, banner + highlighted facts for unread changes of this trip ----
   var CHG = {}, bellOn = false, lastIb = null;
@@ -950,10 +947,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       if (when) (s.ln ? lc : info).appendChild(el("span", null, when)); // with the LINE photo: date in the text column
       panelEl.appendChild(info);
       if (!me) { // signed out: managing a seat needs the account first
-        var lg2 = el("div", "lgin"), lb2 = el("a", "lgbtn");
-        lb2.href = loginHref(n);
-        lb2.appendChild(el("i", null, "LINE")); lb2.appendChild(document.createTextNode("เข้าสู่ระบบด้วย LINE เพื่อจัดการที่นั่ง"));
-        lg2.appendChild(lb2); panelEl.appendChild(lg2);
+        panelEl.appendChild(retryBox());
         actions.appendChild(plainBtn("ปิด", closeModal));
       } else if (!s.a || mine(n) || isOwner) { // a seat booked with an account: only its owner or the trip's organizer may cancel it
         if (me && ((mine(n) && s.a) || isOwner)) actions.appendChild(plainBtn("แก้ชื่อ", function () { renaming = true; message = ""; renderPanel(); }));
@@ -976,13 +970,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       actions.appendChild(plainBtn("ปิด", closeModal));
     } else {
       if (!me && !IMG_ONLY) { // not signed in: offer LINE first (the seat then belongs to the account on every device)
-        var lg = el("div", "lgin"), lb = el("a", "lgbtn");
-        lb.href = loginHref(n);
-        lb.addEventListener("click", function (e) { e.preventDefault(); holdAndLogin(n, lb); });
-        lb.appendChild(el("i", null, "LINE")); lb.appendChild(document.createTextNode("เข้าสู่ระบบด้วย LINE แล้วจองเลย"));
-        lg.appendChild(lb);
-        var ln = el("div", "lgnote", "เข้าสู่ระบบครั้งเดียว ที่นั่งเป็นของคุณทุกเครื่อง · "); var pl = el("a", null, "ความเป็นส่วนตัว"); pl.href = "/privacy"; pl.style.color = "inherit"; ln.appendChild(pl); lg.appendChild(ln);
-        panelEl.appendChild(lg);
+        panelEl.appendChild(retryBox());
         actions.appendChild(plainBtn("ปิด", closeModal)); panelEl.appendChild(actions); return;
       }
       if (me && opening && !typedName) { try { typedName = cleanName(localStorage.getItem("vsb_name") || "").text; } catch (e) {} } // the name typed last time on this device (first time: empty, the person types it)
@@ -1579,7 +1567,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     drawSeats(ctx, PX, PY, k, PW);
     y += mh + 34;
     // ---- footer
-    var url = location.origin + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
+    var url = "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var shortUrl = location.host + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var d = new Date(), pad = function (v) { return (v < 10 ? "0" : "") + v; };
     var stamp = "อัปเดตเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + pad(d.getHours()) + "." + pad(d.getMinutes()) + " น.";
@@ -1671,7 +1659,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     lineUrl = location.origin + location.pathname + "?" + qs.join("&");
     return lineUrl;
   }
-  function inviteLink() { return location.origin + "/" + TRIP; }
+  function inviteLink() { return "https://liff.line.me/2012285472-FvtYKx00/" + TRIP; }
   async function shareFriend() {
     var u = inviteLink(), L = [], T = trip || {}, dr = dateRange(T.startDate, T.endDate);
     L.push("🚐 " + (T.name || "จองที่นั่งรถตู้"), "");
