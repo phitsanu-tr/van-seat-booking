@@ -6,7 +6,27 @@
   document.addEventListener("touchstart", function () {}, { passive: true }); // lets iOS apply :active (card press effect)
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<style>html { touch-action: manipulation; }</style>
+<style>html { touch-action: manipulation; }
+/* create-trip wizard (new trips only): the same form cards, shown a few at a time */
+.wz-prog { display: none; gap: 6px; }
+.wz .wz-prog { display: flex; }
+.wz-prog b { flex: 1; height: 5px; border-radius: 99px; background: color-mix(in srgb, var(--line) 70%, var(--surface)); transition: background .2s; }
+.wz-prog b.on { background: var(--mine); }
+.wz-step { display: none; font: 600 13px var(--font-display); color: var(--muted); margin-top: -6px; }
+.wz .wz-step { display: block; }
+.wz #form { background: none; border: 0; padding: 0; gap: 16px; }
+.wz .card.fg[hidden] { display: none; }
+.wz-nav { display: none; gap: 12px; }
+.wz-nav .btn { flex: 1; }
+.wz-nav .btn.plain { flex: 0 0 96px; }
+.wz .wz-nav { display: flex; }
+.wz.wz-last .wz-nav .wz-next { display: none; }
+.wz.wz-last .wz-nav { display: none; }
+.wz:not(.wz-last) #form > .actions { display: none; }
+.wz .wz-last-back { display: none; }
+.wz.wz-last .wz-last-back { display: block; }
+@media (prefers-reduced-motion: reduce) { .wz-prog b { transition: none; } }
+</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
@@ -18,11 +38,13 @@
 html, body { overscroll-behavior: none; }
 [hidden] { display: none !important; }
 :root {
+  --page:#fff;--soft:#f1f4f6;--e1:#e8ecef;--e2:#dde3e7;
+ 
   --bg: #eef1f3; --surface: #ffffff; --ink: #1b1f22; --muted: #5f6b73; --line: #c9d2d8; --mine: #0e7c86; --mine-ink: #fff; --danger: #b3261e;
-  --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif; --font-body: "Noto Sans Thai", system-ui, sans-serif; color-scheme: light;
+  --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif; --font-body: "Noto Sans Thai", system-ui, sans-serif; color-scheme: light dark;
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: #fff; color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; padding: 20px max(16px, env(safe-area-inset-left)) calc(14px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; padding: 20px max(16px, env(safe-area-inset-left)) calc(14px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
 main { width: 100%; max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; flex: 1 0 auto; }
 h1 { font-family: var(--font-display); font-size: 24px; font-weight: 600; margin: 0; line-height: 1.2; }
 p { margin: 0; color: var(--muted); }
@@ -65,29 +87,29 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .modal { position: relative; border-radius: 24px; padding: 20px; gap: 16px; }
 .mclose { position: absolute; right: 12px; top: 16px; width: 36px; height: 36px; border-radius: 12px; border: 0; background: none; color: var(--ink); display: grid; place-items: center; cursor: pointer; padding: 0; -webkit-tap-highlight-color: transparent; }
 .mclose svg { width: 22px; height: 22px; }
-.mclose:active { background: #f3f6f7; }
+.mclose:active { background: var(--soft); }
 #mState { display: flex; align-items: center; gap: 8px; font: 600 20px/28px var(--font-display); color: var(--ink); padding-right: 40px; }
 #mState .okdot { flex: none; width: 24px; height: 24px; border-radius: 99px; background: var(--mine); color: var(--mine-ink); display: grid; place-items: center; }
 #mState .okdot svg { width: 14px; height: 14px; }
 #mState > svg { width: 24px; height: 24px; flex: none; color: var(--mine); }
 .mhead { margin-top: -12px; padding-right: 40px; }
 .mhead .msub { font-size: 14px; color: var(--muted); }
-.msum { background: #f1f4f6; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.msum { background: var(--soft); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .msum b { font: 600 16px/24px var(--font-display); color: var(--ink); overflow-wrap: anywhere; }
 .msum div { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 20px; color: var(--muted); overflow-wrap: anywhere; }
 .msum div svg { flex: none; width: 16px; height: 16px; margin-top: 2px; color: var(--mine); }
-.mlink { cursor: pointer; display: flex; align-items: center; gap: 12px; border: 1px solid #e8ecef; border-radius: 12px; padding: 12px; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); -webkit-tap-highlight-color: transparent; }
+.mlink { cursor: pointer; display: flex; align-items: center; gap: 12px; border: 1px solid var(--e1); border-radius: 12px; padding: 12px; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); -webkit-tap-highlight-color: transparent; }
 .mlink .url { flex: 1; min-width: 0; }
 .url .code { display: block; font: 600 16px/1.4 var(--font-display); letter-spacing: .04em; color: #0b5f67; overflow: hidden; white-space: nowrap; }
 .url .sub { display: block; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cpbtn { flex: none; width: 40px; height: 40px; display: grid; place-items: center; background: #f1f4f6; color: var(--ink); border-radius: 12px; }
+.cpbtn { flex: none; width: 40px; height: 40px; display: grid; place-items: center; background: var(--soft); color: var(--ink); border-radius: 12px; }
 .cpbtn svg { width: 18px; height: 18px; }
 .cpbtn.ok { color: var(--mine); }
 .macts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .macts .btn { height: 48px; gap: 8px; white-space: nowrap; font-family: var(--font-display); font-weight: 600; }
 .macts .btn svg { width: 20px; height: 20px; flex: none; }
 .macts .btn.line { font-size: 16px; padding: 0 8px; }
-.macts .btn.plain { font-size: 14px; padding: 0 8px; background: #f1f4f6; border-color: transparent; }
+.macts .btn.plain { font-size: 14px; padding: 0 8px; background: var(--soft); border-color: transparent; }
 .macts .btn.plain svg { width: 18px; height: 18px; }
 
 /* create / edit form: matches the home page */
@@ -118,7 +140,7 @@ input[type=text], input[type=date], input[type=time] { background: var(--surface
 .pk-sheet { width: 100%; max-width: 360px; margin: auto; background: var(--surface); border-radius: 24px; padding: 20px; box-shadow: 0 18px 50px rgba(0,0,0,.35); display: flex; flex-direction: column; gap: 16px; }
 .pk-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pk-top h2 { margin: 0; font: 600 20px/28px var(--font-display); }
-.pk-ic { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; border: 1.5px solid #e8ecef; background: transparent; color: var(--mine); padding: 0; }
+.pk-ic { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; border: 1.5px solid var(--e1); background: transparent; color: var(--mine); padding: 0; }
 .pk-ic svg { width: 18px; height: 18px; }
 .pk-ic.bare { border-color: transparent; color: var(--ink); width: 36px; height: 36px; }
 .pk-ic.bare svg { width: 22px; height: 22px; }
@@ -172,30 +194,30 @@ label.bad { color: var(--danger); }
 .swt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .swt small { font-size: 12px; line-height: 1.45; }
 .sw { flex: none; -webkit-appearance: none; appearance: none; width: 50px; height: 30px; border-radius: 99px; background: var(--line); position: relative; margin: 0; cursor: pointer; transition: background .15s; }
-.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .15s; }
+.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .15s; }
 .sw:checked { background: var(--danger); }
 .sw:checked::after { transform: translateX(20px); }
 .sw:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 14%, transparent); }
 .fe { display: flex; gap: 6px; align-items: center; color: var(--danger); font: 400 12.5px/18px var(--font-body); margin-top: 6px; }
 .fe svg { flex: none; width: 14px; height: 14px; }
-.vcard { border: 1px solid var(--line); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 8px; border-color: #e8ecef; background: #f8fafb; }
+.vcard { border: 1px solid var(--line); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 8px; border-color: var(--e1); background: var(--soft); }
 .vch { display: flex; justify-content: space-between; align-items: center; min-height: 28px; }
 .vch b { font: 600 14px/20px var(--font-display); }
 .vch .x { width: 36px; height: 36px; margin: -4px -4px -4px 0; border-radius: 12px; border-color: transparent; background: transparent; }
 .cf-title { margin: 0; font: 600 20px/28px var(--font-display); }
-.cf-sum { margin: 0; padding: 12px; border: 1px solid #e8ecef; border-radius: 12px; background: color-mix(in srgb, var(--ink) 4%, var(--surface)); }
+.cf-sum { margin: 0; padding: 12px; border: 1px solid var(--e1); border-radius: 12px; background: color-mix(in srgb, var(--ink) 4%, var(--surface)); }
 .cf-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .cf-top b { font: 600 16px/24px var(--font-display); overflow-wrap: anywhere; }
 .cf-tot { flex: none; font-size: 12px; line-height: 16px; color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border-radius: 999px; padding: 4px 8px; }
 .cf-meta { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; line-height: 20px; color: var(--muted); margin-top: 4px; }
 .cf-meta svg { flex: none; width: 16px; height: 16px; margin-top: 2px; }
 .cf-meta span { min-width: 0; overflow-wrap: anywhere; }
-.cf-hr { height: 1px; background: #e8ecef; margin: 12px 0; }
+.cf-hr { height: 1px; background: var(--e1); margin: 12px 0; }
 .cf-lbl { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
 .cf-vg { display: grid; gap: 8px; }
 .cf-vg.g2 { grid-template-columns: 1fr 1fr; }
-.cf-vc { background: var(--surface); border: 1px solid #e8ecef; border-radius: 12px; padding: 8px 12px; min-width: 0; }
+.cf-vc { background: var(--surface); border: 1px solid var(--e1); border-radius: 12px; padding: 8px 12px; min-width: 0; }
 .cf-vg.g2 .cf-vc { padding: 8px; }
 .cf-vk { display: flex; justify-content: space-between; align-items: flex-start; gap: 4px; }
 .cf-vk b { font: 600 14px/20px var(--font-display); }
@@ -245,23 +267,24 @@ input.vp::placeholder { font-size: 14px; } /* long example text still fits on 36
 @keyframes fvan { from { transform: translateX(-36px); } to { transform: translateX(124px); } }
 @media (prefers-reduced-motion: reduce) { .foot .vn { animation: none; transform: translateX(44px); } }
 /* kept as late rules: they must stay after rules above to win (same element, same property) */
-.card { border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); padding: 16px; gap: 16px; }
+.card { border-color: var(--e1); box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); padding: 16px; gap: 16px; }
 .hb b { font-size: 16px; }
 label small { font-size: 12px; }
 .swt small { font-size: 12px; }
-input[type=text] { border-color: #dde3e7!important; }
-input[type=date] { border-color: #dde3e7!important; }
-input[type=time] { border-color: #dde3e7!important; }
-.pk { border-color: #dde3e7!important; }
-select.sel { border-color: #dde3e7!important; }
-.btn.plain:not(#addVan) { border-color: transparent!important; background: #f1f4f6!important; }
-.x { border-color: transparent; background: #f1f4f6; }
+input[type=text] { border-color: var(--e2)!important; }
+input[type=date] { border-color: var(--e2)!important; }
+input[type=time] { border-color: var(--e2)!important; }
+.pk { border-color: var(--e2)!important; }
+select.sel { border-color: var(--e2)!important; }
+.btn.plain:not(#addVan) { border-color: transparent!important; background: var(--soft)!important; }
+.x { border-color: transparent; background: var(--soft); }
 .shrow { padding: 12px; }
 .shrow b { font-size: 16px; }
 .shrow small { font-size: 12px; }
 .dz b { font-size: 16px; }
 </style>
-<script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("inline")}catch(e){}</script><style>.inline .lback,.inline .back{display:none !important}</style>
+<script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("inline")}catch(e){}</script><style>.inline .lback,.inline .back{display:none !important}@media (prefers-color-scheme: dark) { :root { --bg:#101417;--surface:#1a2024;--ink:#eef2f4;--muted:#9aa8b0;--line:#3a4750;--mine:#3cc0cb;--mine-ink:#06262a;--deep:#8fdde4;--tint:#12363a;--danger:#ff8a80;--amber:#f0b050;--amber-tint:#3a2d12;--page:#101417;--soft:#222b31;--e1:#2a343a;--e2:#2f3a41;--edge:#2f3a41;color-scheme:dark; } }
+</style>
 </head>
 <body>
 <main id="formMain" hidden>
@@ -575,8 +598,9 @@ select.sel { border-color: #dde3e7!important; }
     (anchor || ctrl).insertAdjacentElement("afterend", m);
     return ctrl;
   }
-  function focusFirst(c) { if (!c) return; try { c.focus({ preventScroll: true }); c.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} }
+  function focusFirst(c) { if (!c) return; if (window.__wzShow) window.__wzShow(c); try { c.focus({ preventScroll: true }); c.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} }
   ["input", "change"].forEach(function (ev) { $("form").addEventListener(ev, function (e) { clearOne(e.target); }); });
+  window.__vsbForm = { fieldErr: fieldErr, clear: clearFieldErrors, focus: focusFirst };
   // form-level errors (quota, network, server): floating toast that fades on its own
   var toastTimer = null, toastEl = $("toast");
   function hideToast() { clearTimeout(toastTimer); toastEl.hidden = true; }
@@ -731,7 +755,7 @@ select.sel { border-color: #dde3e7!important; }
     rows.push({ id: "", label: letter(rows.length) }); renderVans();
   });
 
-  function link(path) { return location.origin + path; }
+  function link(path) { return "https://liff.line.me/2012285472-FvtYKx00" + path; } // LIFF link: friends opening it in LINE are signed in automatically
   var shown = null; // {id} of the trip whose link the sheet shows
   var shareLink = "";
   var OK_DOT = '<span class="okdot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span>';
@@ -740,7 +764,7 @@ select.sel { border-color: #dde3e7!important; }
   function showResult(id, created, name) {
     shown = { id: id }; goList = created === true;
     var share = shareLink = link("/" + id);
-    urlBox($("shareUrl"), id, location.host + "/" + id);
+    urlBox($("shareUrl"), id, "liff.line.me/…/" + id);
     $("openShare").href = "/" + id;
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
@@ -1034,6 +1058,48 @@ select.sel { border-color: #dde3e7!important; }
   init();
 })();
 </script>
+<script>(function(){
+  // wizard for /trips/new: step 1 trip + dates, step 2 meeting point + vans, step 3 closing; the last step shows the original buttons
+  if (!/^\/trips\/new\/?$/.test(location.pathname)) return;
+  var main = document.getElementById("formMain"), form = document.getElementById("form"); if (!main || !form) return;
+  var cards = [].slice.call(form.querySelectorAll(":scope > section.card.fg"));
+  if (cards.length !== 4) return;
+  var groups = [[0, 1], [2], [3]], titles = ["ไปไหน เมื่อไหร่", "นัดพบและรถ", "การปิดรับจอง"], step = 0;
+  var prog = document.createElement("div"); prog.className = "wz-prog"; prog.setAttribute("aria-hidden", "true");
+  groups.forEach(function () { prog.appendChild(document.createElement("b")); });
+  var lab = document.createElement("div"); lab.className = "wz-step"; lab.setAttribute("aria-live", "polite");
+  form.parentNode.insertBefore(prog, form); form.parentNode.insertBefore(lab, form);
+  var nav = document.createElement("div"); nav.className = "wz-nav";
+  var back = document.createElement("button"); back.type = "button"; back.className = "btn plain"; back.textContent = "‹ กลับ";
+  var next = document.createElement("button"); next.type = "button"; next.className = "btn primary wz-next"; next.textContent = "ถัดไป ›";
+  nav.appendChild(back); nav.appendChild(next); form.appendChild(nav);
+  var lastBack = document.createElement("button"); lastBack.type = "button"; lastBack.className = "btn plain wz-last-back"; lastBack.textContent = "‹ กลับไปแก้ไข";
+  lastBack.style.marginTop = "-4px"; form.appendChild(lastBack);
+  function show(n) {
+    step = n;
+    cards.forEach(function (c, i) { c.hidden = groups[n].indexOf(i) < 0; });
+    [].forEach.call(prog.children, function (b, i) { b.classList.toggle("on", i <= n); });
+    lab.textContent = "ขั้น " + (n + 1) + " จาก " + groups.length + " · " + titles[n];
+    main.classList.add("wz"); main.classList.toggle("wz-last", n === groups.length - 1);
+    var lead = document.getElementById("lead"); if (lead && n > 0) lead.textContent = titles[n];
+  }
+  window.__wzShow = function (c) { var card = c && c.closest && c.closest("section.card.fg"); var i = cards.indexOf(card); if (i < 0) return; for (var g = 0; g < groups.length; g++) if (groups[g].indexOf(i) >= 0 && g !== step) show(g); };
+  function ok1() { // same checks as the final submit, for what this step holds
+    var F = window.__vsbForm, $ = function (id) { return document.getElementById(id); }, first = null;
+    if (!F) return true; F.clear();
+    if (!$("name").value.trim()) first = F.fieldErr($("name"), "ระบุชื่อทริป");
+    [["startDate", "ระบุวันที่เดินทางไป"], ["endDate", "ระบุวันที่เดินทางกลับ"]].forEach(function (f) { if (!$(f[0]).value) { var c = F.fieldErr($(f[0]), f[1]); first = first || c; } });
+    if ($("startDate").value && $("endDate").value && $("endDate").value < $("startDate").value) { var e = F.fieldErr($("endDate"), "วันกลับต้องไม่ก่อนวันไป"); first = first || e; }
+    if (!$("departTime").value) { var t = F.fieldErr($("departTime"), "ระบุเวลาออกเดินทาง"); first = first || t; }
+    if (first) { F.focus(first); return false; }
+    return true;
+  }
+  function top() { try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { window.scrollTo(0, 0); } }
+  next.addEventListener("click", function () { if (step === 0 && !ok1()) return; if (step < groups.length - 1) { show(step + 1); top(); } });
+  back.addEventListener("click", function () { if (step > 0) { show(step - 1); top(); } else { var c = document.getElementById("cancelBtn"); if (c) c.click(); } });
+  lastBack.addEventListener("click", function () { show(step - 1); top(); });
+  show(0);
+})();</script>
 <script>(function(){var b=document.getElementById("backLink");if(!b)return;b.addEventListener("click",function(e){var r="";try{r=new URL(document.referrer).origin;}catch(x){}if(r===location.origin&&history.length>1&&!/\/trips\//.test(document.referrer)){e.preventDefault();history.back();}});})();</script>
 </body>
 </html>
