@@ -272,7 +272,7 @@ select.sel { border-color: #dde3e7!important; }
       <h1 id="title">สร้างทริป</h1>
       
     </div>
-    <p id="lead">กรอกรายละเอียด แล้วแชร์ลิงก์ให้เพื่อน</p></div>
+    <p id="lead">กรอกรายละเอียด แล้วแชร์ลิงก์ให้ผู้ร่วมทริป</p></div>
   </section>
 
   <button type="button" class="shrow" id="shareBtn" hidden>
@@ -988,7 +988,7 @@ select.sel { border-color: #dde3e7!important; }
     }
     $("formMain").hidden = false;
     if (editing) {
-      document.querySelector(".hero").classList.add("is-edit"); $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "อัปเดตแล้วผู้จองเห็นข้อมูลใหม่ทันที"; document.title = "แก้ไขทริป · จองที่นั่งรถตู้";
+      document.querySelector(".hero").classList.add("is-edit"); $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "แก้ข้อมูลแล้วบันทึก ผู้ร่วมทริปเห็นทันที"; document.title = "แก้ไขทริป · จองที่นั่งรถตู้";
       $("submit").textContent = "แก้ไขทริป";
       try {
         var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store" });
