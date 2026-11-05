@@ -869,11 +869,6 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
         if (selected === n || pick === n) { b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
         b.addEventListener("click", function () {
           if (locked()) return;
-          if (!seats[n] && !heldByOther(n)) { // free seat: pick it, the name field and confirm bar below take over
-            pick = pick === n ? null : n; renderAll();
-            if (pick != null && me) setTimeout(function () { var bx = document.getElementById("pickBox"), inp = document.getElementById("pickInput"); if (bx) try { bx.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} if (inp && !inp.value) try { inp.focus({ preventScroll: true }); } catch (e) {} }, 60);
-            return;
-          }
           selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll();
         });
         overlayEl.appendChild(frame(b, RECT[n]));
@@ -1450,7 +1445,7 @@ body.hasbar .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !impo
       seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff();
       if (locked() && selected !== null) { selected = null; message = ""; confirming = false; renaming = false; force = true; } // closed while the dialog was open
       if (changed || force) renderAll();
-      if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !locked()) { pick = ws; renderAll(); } }
+      if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !locked()) openSeat(ws); }
     } catch (e) {
       loadError = "เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่";
       if (!loaded) renderAll();
