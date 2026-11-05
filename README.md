@@ -145,4 +145,5 @@ node dev.js
 ## UI standard
 - All font sizes and picture sizes are **even px** (22, 24, 26, 28 …). See `ui.css`.
 - Page header (booking, create / edit trip): 4px teal bar on the left (stretches to the full height of the two text lines, so it always matches the text), then the title and one short line. Title / line sizes step with the screen width: 28/16 (≥414px), 26/14, 24/14, 22/12 (≤340px); the short line never wraps. Styles live in `ui.css`.
+- Bottom menu: the 5-tab bar is in `/mytrips` itself and, for signed-in users, on the trips form, plans, privacy and booking pages through `tabbar.js` (`data-tab` marks the active tab; keep its look in sync with the bar in `mytrips.html`). The trips form asks before leaving when there is unsaved input.
 - Top bar on every page: back arrow (sub-pages) · app name · bell.

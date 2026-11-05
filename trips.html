@@ -595,6 +595,13 @@ select.sel { border-color: #dde3e7!important; }
     location.href = "/mytrips#trips";
   }, true);
 
+  // the bottom menu (added by /tabbar.js) asks first too when the form has unsaved input
+  document.addEventListener("click", async function (e) {
+    var a = e.target.closest && e.target.closest(".vt-bar a"); if (!a || !dirty) return;
+    e.preventDefault();
+    if (await askConfirm(editing ? "ออกโดยไม่บันทึก?" : "ยกเลิกการสร้างทริป?", "ข้อมูลที่กรอกไว้จะไม่ถูกบันทึก", "ออกจากหน้านี้")) { dirty = false; location.href = a.href; }
+  }, true);
+
   // in-app confirm dialog (replaces the browser's English "localhost says" box); resolves true / false
   function askConfirm(title, text, okLabel, returnFocus, sum) {
     return new Promise(function (resolve) {
@@ -1032,5 +1039,6 @@ select.sel { border-color: #dde3e7!important; }
   init();
 })();
 </script>
+<script src="/tabbar.js" data-tab="trips"></script>
 </body>
 </html>
