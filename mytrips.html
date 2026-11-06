@@ -187,6 +187,9 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .h2 span { font-size: 12px; color: var(--muted); line-height: 16px}
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
 .card.dim { opacity: .62; }
+/* cards you can tap (whole card opens the trip's seat plan): press feedback so the tap is felt */
+.card.tap { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .1s ease, background-color .1s ease; }
+.card.tap.press { transform: scale(.98); background: #f4f7f8; }
 .chead { display: flex; flex-direction: column; gap: 12px; }
 .chead .row1 .t { flex: 1; }
 .row1 { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
@@ -718,13 +721,13 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
       sh.insertAdjacentHTML("beforeend", MG.share); sh.appendChild(document.createTextNode(x.closed ? "แชร์ผัง" : "แชร์ลิงก์")); sh.setAttribute("aria-label", x.closed ? "แชร์ผังที่นั่ง" : "แชร์ลิงก์จอง");
       sh.addEventListener("click", function () { shareTrip(x); });
       acts.appendChild(ros); acts.appendChild(vmap); acts.appendChild(sh); c.appendChild(acts);
-      c.style.cursor = "pointer"; c.addEventListener("click", function (e) { if (!e.target.closest("button, a")) location.href = "/" + x.id; }); // tap the card: open the seat plan (buttons keep their own action)
+      tapCard(c, "/" + x.id); // tap the card: open the seat plan (buttons keep their own action)
       pane.appendChild(c);
     });
     if (done.length) {
       section(pane, "จบแล้ว", "ลบอัตโนมัติหลังเดินทาง 60 วัน");
       done.forEach(function (x) {
-        var c = node("div", "card dim"); c.style.cursor = "pointer"; c.addEventListener("click", function () { location.href = "/" + x.id; });
+        var c = node("div", "card dim"); tapCard(c, "/" + x.id);
         var r1 = node("div", "row1"); r1.appendChild(node("div", "t", x.name)); r1.appendChild(node("span", "pill p-end", "จบแล้ว")); c.appendChild(r1);
         var m = node("div", "meta"); var s1 = node("span"); s1.appendChild(node("i", null, dateRange(x.startDate, x.endDate) || "ไม่ระบุวัน")); m.appendChild(s1);
         var s2 = node("span", null, "จอง "); s2.appendChild(node("i", null, x.booked + "/" + x.total)); m.appendChild(s2); c.appendChild(m);
@@ -755,8 +758,19 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     var it = VSBBell.forTrip(id).map(function (x) { return VSBBell.tag(x); }).filter(Boolean)[0];
     return it ? node("span", "ntag", it) : null;
   }
+  // whole-card tap: shrinks a little while the finger is down (not when the finger is on a button or link inside), then opens href
+  function tapCard(c, href) {
+    c.classList.add("tap");
+    function inner(e) { return e.target.closest && e.target.closest("button, a, input, label"); }
+    function off() { c.classList.remove("press"); }
+    c.addEventListener("pointerdown", function (e) { if (!inner(e)) c.classList.add("press"); });
+    ["pointerup", "pointercancel", "pointerleave"].forEach(function (ev) { c.addEventListener(ev, function () { setTimeout(off, 120); }); });
+    c.addEventListener("click", function (e) { if (inner(e)) return; c.classList.add("press"); location.href = href; });
+    window.addEventListener("pageshow", off); // back from the seat plan: not stuck pressed
+  }
   function ticket(x, past) {
     var c = node("div", "card tk" + (past ? " dim" : "")), l = node("div", "l");
+    tapCard(c, "/" + x.id + (x.seats && x.seats[0] ? "?v=" + encodeURIComponent(x.seats[0].van) : ""));
     var tg = past ? null : noteTag(x.id); if (tg) l.appendChild(tg);
     l.appendChild(node("div", "t", x.name));
     var m = node("div", "meta"), dr = dateRange(x.startDate, x.endDate), tm = x.departTime ? x.departTime.replace(":", ".") + " น." + (x.returnTime ? " · กลับ " + x.returnTime.replace(":", ".") + " น." : "") : "";
