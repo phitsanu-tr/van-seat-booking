@@ -348,7 +348,7 @@ form label { position: relative; }
     </div>
    </section>
    <section class="card fg" data-step="2"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 1114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><b>จุดนัดพบและรถ</b></div>
-    <label>จุดนัดพบ <small>(ไม่บังคับ)</small>
+    <label>จุดนัดพบ
       <span class="cnt" data-for="meetPoint"></span><input type="text" id="meetPoint" maxlength="60" placeholder="เช่น ลานจอดรถ BTS หมอชิต">
     </label>
     <div>
@@ -962,6 +962,7 @@ form label { position: relative; }
     });
     if (c1 && $("startDate").value && $("endDate").value && $("endDate").value < $("startDate").value) { var ed = fieldErr($("endDate"), "วันกลับต้องไม่ก่อนวันไป"); first = first || ed; }
     if (c1 && !$("departTime").value) { var tc = fieldErr($("departTime"), "ระบุเวลาออกเดินทาง"); first = first || tc; }
+    if (c2 && !$("meetPoint").value.trim()) { var mc = fieldErr($("meetPoint"), "ระบุจุดนัดพบ"); first = first || mc; }
     var seen = {}, dupBad = false;
     if (c2) [].forEach.call(vansEl.querySelectorAll("input.vn"), function (inp, i) {
       var l = labels[i]; if (!l || seen[l]) { inp.classList.add("bad"); inp.setAttribute("aria-invalid", "true"); dupBad = true; } else seen[l] = 1;
@@ -1129,7 +1130,6 @@ form label { position: relative; }
     setTimeout(function () { location.href = "/mytrips#trips"; }, 400); // opened straight into this page: nothing to go back to
   });
   // picking the go date fills the return date with the same day (one-day trips); a later return date stays
-  $("startDate").addEventListener("change", function () { var a = $("startDate").value, b = $("endDate").value; if (a && (!b || b < a)) { $("endDate").value = a; $("endDate").dispatchEvent(new Event("change", { bubbles: true })); } });
   // editing: "บันทึก" is faded until something differs from what was loaded (back to faded if the change is undone)
   var saved0 = null;
   function formState() {
