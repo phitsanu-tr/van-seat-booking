@@ -1068,7 +1068,7 @@ form label { position: relative; }
     [].forEach.call(document.querySelectorAll("#form [data-step]"), function (x) { var d = x.getAttribute("data-step"); x.hidden = editing ? d === "3" : d !== String(n); });
   }
   function pkText(id) { var b = $(id).parentNode.querySelector(".pk span"); return b ? b.textContent : $(id).value; }
-  function fillSummary() {
+  function fillStepSummary() { // step 3 card (not the share sheet summary, which is fillSummary)
     var box = $("sumRows"); box.textContent = "";
     var sd = $("startDate").value, ed = $("endDate").value;
     var vl = rows.map(function (r) { return (r.label || "").trim(); }).filter(Boolean);
@@ -1093,7 +1093,7 @@ form label { position: relative; }
     [].forEach.call($("stp").children, function (x, i) { x.className = "s" + (i + 1 < n ? " done" : i + 1 === n ? " on" : ""); x.firstChild.innerHTML = i + 1 < n ? CHK : String(i + 1); });
     $("cancelBtn").textContent = n === 1 ? "ยกเลิก" : "ย้อนกลับ";
     $("submit").textContent = n === 3 ? "สร้างทริป" : "ถัดไป";
-    fillSummary(); alignSteps();
+    fillStepSummary(); alignSteps();
     window.scrollTo(0, 0);
   }
   $("sumEdit").addEventListener("click", function () { setStep(1); });
