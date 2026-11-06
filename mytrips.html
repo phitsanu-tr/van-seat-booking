@@ -207,11 +207,11 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .ab.am { border-color: var(--amber-edge); color: var(--amber); } .ab.dg { border-color: #efcfcc; color: var(--danger); } .ab.tl { border-color: #bfe0e3; color: var(--mine); }
 .ab:active { background: var(--bg); }
 .wel { display: flex; flex-direction: column; gap: 12px; }
-.wbig { position: relative; overflow: hidden; border-radius: 22px; padding: 22px 18px 18px; color: #fff; background: linear-gradient(160deg, var(--mine), var(--deep)); display: flex; flex-direction: column; gap: 8px; }
-.wbig h2 { margin: 0; font: 600 21px/1.35 var(--font-display); position: relative; }
-.wbig p { margin: 0; font-size: 13.5px; line-height: 1.6; color: #d4ecee; position: relative; }
-.wpic { align-self: center; background: #fff; border-radius: 16px; padding: 8px 12px; margin-bottom: 4px; line-height: 0; }
-.wpic svg { width: 150px; height: 98px; display: block; }
+.wbig { position: relative; overflow: hidden; border-radius: 22px; padding: 20px 18px 18px; color: #fff; background: linear-gradient(160deg, var(--mine), var(--deep)); display: flex; flex-direction: column; gap: 8px; }
+.wbig h2 { margin: 0; font: 600 20px/30px var(--font-display); position: relative; padding-right: 96px; }
+.wbig p { margin: 0; font-size: 14px; line-height: 20px; color: #d4ecee; position: relative; }
+.wpic { position: absolute; right: 14px; top: 16px; line-height: 0; }
+.wpic svg { width: 92px; height: 60px; display: block; }
 .wgo { position: relative; margin-top: 8px; height: 52px; border-radius: 16px; background: #fff; color: var(--deep); font: 600 16px var(--font-display); display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .wgo:active { opacity: .85; }
 .acts .ab svg { width: 16px; height: 16px; flex: none; }
@@ -444,7 +444,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 </script>
 </head>
 <body>
-<div class="top"><section class="abar"><span class="lg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17V10a2 2 0 0 1 2-2h8l4 4 2 1v4z"/><circle cx="8" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg></span><span class="nm"><b>จองที่นั่งรถตู้</b><span>สร้างทริป ส่งลิงก์ เลือกที่นั่ง</span></span><a class="ab-new" id="abNew" href="/trips/new" hidden><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>สร้างทริป</a></section><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="ltl" id="ltl"><b id="ltT">ทริปที่จัด</b><small id="ltS"></small></span><a class="mkp" id="mkTrip" href="/trips/new">＋ สร้างทริป</a><button class="mkr" id="mkRead" type="button">อ่านทั้งหมด</button><span class="bell-wrap" id="bellHost"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
+<div class="top"><section class="abar"><span class="lg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17V10a2 2 0 0 1 2-2h8l4 4 2 1v4z"/><circle cx="8" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg></span><span class="nm"><b>จองที่นั่งรถตู้</b><span>สร้างทริป แชร์ลิงก์ เลือกที่นั่ง</span></span><a class="ab-new" id="abNew" href="/trips/new" hidden><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>สร้างทริป</a></section><div><a href="/" style="font:700 16px var(--font-display);color:var(--deep);text-decoration:none">จองที่นั่งรถตู้</a><span class="ltl" id="ltl"><b id="ltT">ทริปที่จัด</b><small id="ltS"></small></span><a class="mkp" id="mkTrip" href="/trips/new">＋ สร้างทริป</a><button class="mkr" id="mkRead" type="button">อ่านทั้งหมด</button><span class="bell-wrap" id="bellHost"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
 <main>
   <section class="login" id="loginView" hidden>
     <div class="hero">
@@ -677,8 +677,8 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     var big = node("div", "wbig");
     var m = window.VSBBell && /<svg[\s\S]*<\/svg>/.exec(VSBBell.emptyHtml("", "")); // the app's standard van picture (road, red pin)
     if (m) big.innerHTML = '<div class="wpic">' + m[0] + '</div>';
-    var h = node("h2"); h.appendChild(document.createTextNode("จัดทริปรถตู้")); h.appendChild(node("br")); h.appendChild(document.createTextNode("ไม่ต้องจดชื่อในแชทอีกต่อไป"));
-    big.appendChild(h); big.appendChild(node("p", null, "ส่งลิงก์เข้ากลุ่ม เพื่อนเลือกที่นั่งเอง"));
+    var h = node("h2"); h.appendChild(document.createTextNode("จัดทริปรถตู้")); h.appendChild(node("br")); h.appendChild(document.createTextNode("ง่ายในลิงก์เดียว"));
+    big.appendChild(h); big.appendChild(node("p", null, "แชร์ลิงก์ ผู้ร่วมทริปเลือกที่นั่งเอง"));
     var go = node("a", "wgo", "＋ สร้างทริปแรก"); go.href = "/trips/new"; big.appendChild(go);
     return big;
   }
