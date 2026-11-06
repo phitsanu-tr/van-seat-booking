@@ -104,6 +104,11 @@ async function renameStaff(trip) {
   ids.forEach((id, i) => { let r = null; try { r = JSON.parse(got[i]); } catch (e) { /* empty */ } if (appStaff(r) && r.name !== nm) cmds.push(["HSET", L.seatsKey(trip.id, id), "1", JSON.stringify(Object.assign(r, { name: nm, sn: nm }))]); });
   if (cmds.length) await L.pipeline(cmds);
 }
+// vans whose seat 1 is no longer held for the team (cancelled on the booking page, or booked by someone)
+async function staffGaps(trip) {
+  const got = await L.pipeline(trip.vans.map((v) => ["HGET", L.seatsKey(trip.id, v.id), "1"]));
+  return trip.vans.filter((v, i) => { let r = null; try { r = JSON.parse(got[i]); } catch (e) { /* empty */ } return !(r && r.st === 1); });
+}
 // Turning it off frees only the seats the app made that nobody renamed.
 async function releaseStaff(trip) {
   const ids = trip.vans.map((v) => v.id);
@@ -224,6 +229,15 @@ module.exports = async function handler(req, res) {
       await saveTrip(next);
       await L.logEvent(t, { e: "board_reset", n: user.name, u: user.id, by: L.roleOf(trip, user), at: Date.now() });
       return L.json(res, 200, { ok: true, board: next.board });
+    }
+    if (req.method === "POST" && pb.staffRestore === true) { // "สงวนคืน": hold seat 1 again where it is still free
+      const t = L.tripId(pb.t);
+      const trip = t ? await L.loadTrip(t) : null;
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      if (!isManager(trip, user)) return deny(res, user);
+      if (!trip.staffSeat) return L.json(res, 400, { error: "staff_off" });
+      const taken = await reserveStaff(trip, (await staffGaps(trip)).map((v) => v.id));
+      return L.json(res, 200, { ok: true, taken, gaps: (await staffGaps(trip)).map((v) => v.label) });
     }
     if (req.method === "POST" && typeof pb.close === "boolean") {
       const t = L.tripId(pb.t);
@@ -364,7 +378,8 @@ module.exports = async function handler(req, res) {
       const limits = await limitsOf(trip);
       const tm = Object.assign(team(trip, user), { max: limits.helpers });
       if (wantRoster) return L.json(res, 200, Object.assign(rosterPayload(trip, user, all), { limits, team: tm }));
-      return L.json(res, 200, { trip: tripSummary(trip, user), booked, perVan, roster, ended: L.tripEnded(trip), team: tm, limits });
+      const staffGap = trip.staffSeat ? (await staffGaps(trip)).map((v) => v.label) : undefined;
+      return L.json(res, 200, { trip: tripSummary(trip, user), booked, perVan, roster, ended: L.tripEnded(trip), team: tm, limits, staffGaps: staffGap });
     }
 
     if (req.method === "DELETE") {
@@ -427,7 +442,8 @@ module.exports = async function handler(req, res) {
       removed.forEach((id) => { (bookers[id] || []).forEach((u) => gone.add(u)); });
       if (gone.size) await L.notify(Array.from(gone), { k: "van_removed", t, tn: updated.name, vl: L.vanLabel(trip, removed[0]), by }, user.id);
       if (ch.length) await L.notify([].concat(...next.map((v) => bookers[v.id] || []), L.teamIds(updated)), { k: "trip_changed", t, tn: updated.name, ch, by }, user.id);
-      return L.json(res, 200, { ok: true, trip: tripSummary(updated, user), staffSkipped: staffSkipped.length ? staffSkipped : undefined });
+      let gapsNow; try { gapsNow = updated.staffSeat ? (await staffGaps(updated)).map((v) => v.label) : undefined; } catch (e) { /* shown next load */ }
+      return L.json(res, 200, { ok: true, trip: tripSummary(updated, user), staffSkipped: staffSkipped.length ? staffSkipped : undefined, staffGaps: gapsNow });
     }
 
     res.setHeader("Allow", "GET, POST, PUT, DELETE");

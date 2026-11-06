@@ -200,6 +200,13 @@ module.exports = async function handler(req, res) {
         if (prev.u) { try { await L.redis(["SREM", L.mySeatsKey(prev.u), t + "|" + van.id + "|" + seat]); } catch (e) { /* best effort */ } }
         if (prev.u && prev.u !== user.id) await L.notify([prev.u], { k: "seat_cancelled", t, tn: trip.name, vl: van.label, s: seat, by: role });
         await L.logEvent(t, { e: "cancel", v: van.id, s: seat, n: String(prev.name || ""), u: user.id, ou: prev.u, by: isOwner && user.id !== prev.u ? role : undefined, at: Date.now() });
+        if (prev.st === 1 && trip.staffSeat) { // the last team seat 1 cancelled: the trip's switch turns itself off
+          try {
+            const got = await L.pipeline(trip.vans.map((x) => ["HGET", L.seatsKey(t, x.id), "1"]));
+            const any = got.some((g) => { try { return JSON.parse(g).st === 1; } catch (e) { return false; } });
+            if (!any) { const fresh = await L.loadTrip(t); if (fresh && fresh.staffSeat) { fresh.staffSeat = false; await L.redis(["SET", L.tripKey(t), JSON.stringify(fresh)]); await L.applyExpiry(fresh); } }
+          } catch (e) { /* best effort */ }
+        }
       }
       return L.json(res, 200, { ok: true });
     }

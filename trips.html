@@ -177,6 +177,10 @@ label.bad { color: var(--danger); }
 .sw:checked { background: var(--danger); }
 .sw:checked::after { transform: translateX(20px); }
 .sw.ok:checked { background: var(--mine); }
+.stw { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: -4px; background: #fdf6ea; border: 1px solid #f0dcb8; border-radius: 12px; padding: 8px 8px 8px 12px; }
+.stw span { font-size: 12px; line-height: 16px; color: #8a5a00; }
+.stw span b { font-weight: 600; }
+.stw button { flex: none; height: 32px; padding: 0 12px; border-radius: 100px; border: 1px solid var(--mine); background: #fff; color: var(--mine); font-weight: 600; font-size: 14px; line-height: 20px; cursor: pointer; }
 .stn { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: -4px; }
 .stn span { font-size: 12px; line-height: 16px; color: var(--muted); margin-right: 4px; }
 .stn button { height: 36px; padding: 0 16px; border-radius: 100px; border: 1px solid var(--line); background: #fff; color: var(--ink); font: 500 14px/20px var(--font-body, inherit); cursor: pointer; }
@@ -364,6 +368,7 @@ form label { position: relative; }
     </div>
     <label class="swl stf"><span class="swt"><b>สงวนที่นั่ง 1 สำหรับผู้จัด</b><small>ใช้กับรถทุกคัน · ผู้ร่วมทริปจองที่นั่งนี้ไม่ได้</small></span><input type="checkbox" id="staffSeat" class="sw ok" role="switch"></label>
     <div class="stn" id="staffNameRow" hidden><span>ชื่อที่แสดง</span><input type="hidden" id="staffName" value="STAFF"><button type="button" data-n="STAFF">STAFF</button><button type="button" data-n="ไกด์">ไกด์</button><button type="button" data-n="ผู้จัด">ผู้จัด</button></div>
+    <div class="stw" id="staffGap" hidden><span></span><button type="button" id="staffRestore">สงวนคืน</button></div>
     <label>จองได้สูงสุดต่อคน <small>(รวมทุกคัน · คนจัดทริปไม่จำกัด)</small>
       <input type="hidden" id="maxPer" value="1">
     </label>
@@ -1024,6 +1029,7 @@ form label { position: relative; }
       if (editing) {
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
         showResult(T, "saved", data.trip.name);
+        staffGapL = data.staffGaps || []; staffUi();
         if (data.staffSkipped) toast("ที่นั่ง 1 คัน " + data.staffSkipped.join(", ") + " มีคนจองแล้ว จึงไม่ได้สงวนไว้");
       } else {
         T = data.id; editing = true; setStep(1); // now an edit page: one page, all cards
@@ -1154,11 +1160,26 @@ form label { position: relative; }
       $("closeDate").value, $("closeTime").value, $("closedNow").checked]);
   }
   // "สงวนที่นั่ง 1 สำหรับผู้จัด": name chips show only while the switch is on
+  var staffGapL = []; // vans whose seat 1 was cancelled (edit page, from the server)
   function staffUi() {
     $("staffNameRow").hidden = !$("staffSeat").checked;
+    var g = $("staffGap"); g.hidden = !($("staffSeat").checked && staffGapL.length);
+    if (!g.hidden) { g.firstChild.innerHTML = ""; var bb = document.createElement("b"); bb.textContent = "คัน " + staffGapL.join(", "); g.firstChild.appendChild(bb); g.firstChild.appendChild(document.createTextNode(" ยกเลิกที่นั่ง 1 แล้ว")); }
     [].forEach.call($("staffNameRow").querySelectorAll("button"), function (b) { var on = b.getAttribute("data-n") === $("staffName").value; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on ? "true" : "false"); });
   }
   $("staffSeat").addEventListener("change", staffUi);
+  $("staffRestore").addEventListener("click", async function () {
+    var b = this; b.disabled = true;
+    try {
+      var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: T, staffRestore: true }) });
+      var d = await r.json();
+      if (!r.ok) { toast("สงวนคืนไม่สำเร็จ ลองอีกครั้ง"); return; }
+      staffGapL = d.gaps || []; staffUi();
+      if (d.taken && d.taken.length) toast("ที่นั่ง 1 คัน " + d.taken.join(", ") + " มีคนจองแล้ว จึงสงวนคืนไม่ได้");
+      else toast("สงวนที่นั่ง 1 คืนแล้ว", false, true);
+    } catch (x) { toast("เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง"); }
+    finally { b.disabled = false; }
+  });
   [].forEach.call($("staffNameRow").querySelectorAll("button"), function (b) {
     b.addEventListener("click", function () { $("staffName").value = b.getAttribute("data-n"); staffUi(); $("staffName").dispatchEvent(new Event("change", { bubbles: true })); });
   });
@@ -1196,7 +1217,7 @@ form label { position: relative; }
           toast("ทริปนี้อยู่ในบัญชี LINE อื่น เข้าสู่ระบบด้วยบัญชีที่สร้างทริป", true); $("submit").disabled = true; return;
         }
         if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
-        var t = data.trip;
+        var t = data.trip; staffGapL = data.staffGaps || [];
         $("name").value = t.name; $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || "";
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
         (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
