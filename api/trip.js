@@ -262,6 +262,12 @@ module.exports = async function handler(req, res) {
     }
     if (req.method === "POST") {
       if (!user) return L.json(res, 401, { error: "login_required" }); // a trip always has an owner account
+      // retry of the same create (reply lost on a bad connection): hand back the trip already made, no second trip or quota
+      const ck = typeof pb.ck === "string" && /^[A-Za-z0-9]{12,32}$/.test(pb.ck) ? "ck:" + user.id + ":" + pb.ck : "";
+      if (ck) {
+        const prevId = await L.redis(["GET", ck]);
+        if (prevId) { const pt = await L.loadTrip(String(prevId)); if (pt && pt.owner === user.id) return L.json(res, 200, { id: pt.id, trip: tripSummary(pt, user) }); }
+      }
       const plan = await P.getPlan(user.id);
       let plus = false;
       const lim0 = P.limitsFor(plan, null);
@@ -282,6 +288,7 @@ module.exports = async function handler(req, res) {
       const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
       if (ok !== "OK") { if (qm) await refundQuota(user, qm); if (plus) await P.refundPass(user.id); return L.json(res, 502, { error: "storage_error" }); }
       await L.applyExpiry(trip);
+      if (ck) { try { await L.redis(["SET", ck, id, "EX", "86400"]); } catch (e) { /* best effort */ } }
       { try { await L.pipeline([["SADD", L.myTripsKey(user.id), id], ["EXPIRE", L.myTripsKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* best effort */ } }
       return L.json(res, 200, { id, trip: tripSummary(trip, user) });
     }
