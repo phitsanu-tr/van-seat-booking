@@ -1458,7 +1458,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     if (tab === "home") { T = "สวัสดี " + nm; }
     else if (tab === "trips") { T = "ทริปที่จัด"; S = "ทริปที่คุณสร้างและดูแล"; }
     else if (tab === "seats") { T = "ที่นั่งที่จอง"; S = "ที่นั่งของคุณในทุกทริป"; }
-    else if (tab === "notif") { T = "แจ้งเตือน"; S = "ข่าวทริปของคุณจากผู้จัด"; }
+    else if (tab === "notif") { T = "แจ้งเตือน"; S = "การเปลี่ยนแปลงทริปของคุณ"; }
     else { T = "โปรไฟล์"; S = "บัญชีและแพ็กเกจของคุณ"; }
     $("ltT").textContent = T; $("ltS").textContent = S;
     $("mkTrip").classList.toggle("show", tab === "trips" && !!(D && D.trips.length));
