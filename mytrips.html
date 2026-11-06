@@ -208,7 +208,6 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .ab { height: 40px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 600; color: var(--ink); display: flex; align-items: center; justify-content: center; text-decoration: none; line-height: 20px}
 .ab.am { border-color: var(--amber-edge); color: var(--amber); } .ab.dg { border-color: #efcfcc; color: var(--danger); } .ab.tl { border-color: #bfe0e3; color: var(--mine); }
 .ab:active { background: var(--bg); }
-.wel { display: flex; flex-direction: column; gap: 12px; }
 .wbig { position: relative; overflow: hidden; border-radius: 22px; padding: 20px; border: 1px solid transparent; color: #fff; background: linear-gradient(160deg, var(--mine), var(--deep)); display: flex; flex-direction: column; gap: 8px; }
 .wbig h2 { margin: 0; font: 600 20px/30px var(--font-display); position: relative; padding-right: 100px; }
 .wbig p { margin: 0; font-size: 14px; line-height: 20px; color: #d4ecee; position: relative; }
@@ -242,11 +241,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .wslim .tx span { font-size: 12px; color: #d4ecee; line-height: 16px}
 .wslim .go { position: relative; flex: none; height: 40px; padding: 0 14px; border-radius: 12px; background: #fff; color: var(--mine); font: 600 14px/20px var(--font-display); display: flex; align-items: center; }
 .wslim .go { text-decoration: none; } .wslim .go:active { opacity: .85; }
-.wfeat { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.wf { background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
-.wf .we { font-size: 20px; line-height: 26px; }
-.wf b { font: 600 14px/18px var(--font-display); }
-.wf span:not(.we) { font-size: 12px; line-height: 18px; color: var(--muted); }
+.vb-empty .eb { display: flex; width: 176px; justify-content: center; align-items: center; gap: 8px; height: 48px; padding: 0 24px; margin: 20px auto 0; border-radius: 14px; background: var(--mine); color: #fff; font: 600 16px/24px var(--font-display); text-decoration: none; }
 .tk { flex-direction: row; gap: 0; padding: 0; overflow: hidden; }
 .tk .l { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .tk .r { width: 88px; flex: none; background: var(--mine); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 2px dashed rgba(255,255,255,.4); text-align: center; padding: 8px 4px; }
@@ -663,17 +658,11 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     else toast(u);
   }
 
-  // no trips yet: a welcome card (create button) and four tiles saying what organizers get
-  function welcome() {
-    var w = node("div", "wel"), big = wBanner();
-    w.appendChild(big);
-    var grid = node("div", "wfeat");
-    [["🪑", "เพื่อนเลือกที่นั่งเอง", "ผังรถอัปเดตทันที ไม่จองซ้ำ"], ["👥", "มีผู้ช่วยได้ 2 คน", "ช่วยกันจัดการทริป"],
-     ["📋", "คัดลอกรายชื่อ", "วางในกลุ่ม LINE ได้เลย"], ["✅", "เช็กชื่อขึ้นรถ", "ขาไป ขากลับ จุดแวะ"]].forEach(function (f) {
-      var t = node("div", "wf"); t.appendChild(node("span", "we", f[0])); t.appendChild(node("b", null, f[1])); t.appendChild(node("span", null, f[2])); grid.appendChild(t);
-    });
-    w.appendChild(grid);
-    return w;
+  function noTrips() { // trips tab with nothing yet: the app's standard empty picture + one button (same look as the seats tab)
+    var em = node("div", "vb-empty");
+    em.innerHTML = (window.VSBBell ? VSBBell.emptyHtml("ยังไม่มีทริปที่จัด", "สร้างทริปแล้วแชร์ลิงก์<br>ทริปจะมาอยู่ที่นี่") : "ยังไม่มีทริปที่จัด");
+    var go = node("a", "eb", "＋ สร้างทริปแรก"); go.href = "/trips/new"; em.appendChild(go);
+    return em;
   }
   function wBanner() { // the green "จัดทริปรถตู้" banner with one big button (trips tab and home when there is nothing yet)
     var big = node("div", "wbig");
@@ -687,7 +676,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
   function renderTrips(list) {
     var pane = $("paneTrips"); pane.textContent = "";
     var up = list.filter(function (x) { return !x.ended; }), done = list.filter(function (x) { return x.ended; });
-    if (!list.length) { pane.appendChild(welcome()); return; } // first visit: what the app does + one big button
+    if (!list.length) { pane.appendChild(noTrips()); return; }
     if (up.length) section(pane, "กำลังจะถึง", "", up.length);
     up.forEach(function (x) {
       var c = node("div", "card"), r1 = node("div", "row1");
