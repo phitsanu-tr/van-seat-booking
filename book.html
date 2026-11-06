@@ -396,6 +396,11 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 /* kept as late rules: they must stay after rules above to win (same element, same property) */
 .deck { border-color: #e8ecef; }
 .facts .fhead { border-bottom-color: #e8ecef; padding-bottom: 12px; }
+/* fact rows: icon on the left, small visible label (ขาไป / ขากลับ / จุดนัดพบ / รถตู้) above the value */
+.facts div.fr { display: grid; grid-template-columns: 16px 1fr; column-gap: 12px; row-gap: 0; align-items: start; }
+.facts div.fr svg { grid-row: 1 / 3; margin-top: 2px; }
+.facts div.fr dt { position: static; width: auto; height: auto; overflow: visible; clip: auto; font-size: 12px; line-height: 16px; color: var(--muted); }
+.facts { gap: 12px; }
 .vb-bell { border-color: #e8ecef!important; }
 .deck .tabs { gap: 12px; }
 .tab { border-color: #e8ecef!important; }
@@ -1094,9 +1099,14 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       van: '<path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/>',
       pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'
     };
-    if (dr) rows.push(["วันที่", dr, "cal", "date"]);
-    if (trip.departTime) rows.push(["รถออก", trip.returnTime ? "ไป " + trip.departTime.replace(":", ".") + " น. · กลับ " + trip.returnTime.replace(":", ".") + " น." : trip.departTime.replace(":", ".") + " น.", "clk", "time"]);
-    if (trip.meetPoint) rows.push(["นัดพบ", trip.meetPoint, "pin", "meet"]);
+    // ขาไป / ขากลับ: day + time on one line ("ส. 28 พ.ย. 69 · 21.00 น."), a small visible label above each value
+    var WD = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+    function dayS(iso) { var o = parseD(iso); if (!o) return ""; return WD[new Date(o.y - 543, o.mo, o.d).getDay()] + " " + o.d + " " + SHORT_M[o.mo] + " " + String(o.y).slice(-2); }
+    function leg(iso, tm) { return [dayS(iso), tm ? tm.replace(":", ".") + " น." : ""].filter(Boolean).join(" · "); }
+    var chgDT = CHG.date ? "date" : "time";
+    if (trip.startDate || trip.departTime) rows.push(["ขาไป", leg(trip.startDate, trip.departTime), "cal", chgDT]);
+    if (trip.endDate || trip.returnTime) rows.push(["ขากลับ", leg(trip.endDate || trip.startDate, trip.returnTime), "cal", chgDT]);
+    if (trip.meetPoint) rows.push(["จุดนัดพบ", trip.meetPoint, "pin", "meet"]);
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน (" + trip.vans.length * TOTAL + " ที่นั่ง)", "van"]);
     factsEl.textContent = "";
     var fh = el("div", "fhead");
@@ -1104,7 +1114,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     if (trip.organizer) fh.appendChild(el("div", "forg", trip.organizer));
     factsEl.appendChild(fh);
     rows.forEach(function (r) {
-      var d = el("div");
+      var d = el("div", "fr");
       var ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg");
       sv.setAttribute("viewBox", "0 0 24 24"); sv.setAttribute("fill", "none"); sv.setAttribute("stroke", "currentColor");
       sv.setAttribute("stroke-width", "2"); sv.setAttribute("stroke-linecap", "round"); sv.setAttribute("stroke-linejoin", "round");
