@@ -38,7 +38,7 @@ body.signed .abar{display:flex;align-items:center;gap:12px;max-width:460px;margi
 body.signed .top a.mkp{display:none !important}
 body.signed .top .ltl b{font-size:26px;line-height:32px}
 body.signed .top .ltl small{font-size:14px;line-height:20px;margin-top:0}
-body.signed main{padding-top:4px !important}
+body.signed main{padding-top:6px !important}
 body.signed #paneHome{font-size:14px;line-height:20px}
 /* soft teal tint fading out at the top of every signed-in tab */
 body.signed{background:linear-gradient(180deg,#fff 0,#eaf5f6 90px,#fff 230px) no-repeat top / 100% 230px #fff}
@@ -1455,7 +1455,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
   function unreadN() { return window.VSBBell && VSBBell.ready ? VSBBell.unread : 0; }
   function updateHead() { // page title + one fixed line that says what the tab is for (never a status, so it never repeats the empty-state text); the "สร้างทริป" capsule only on the trips page
     var nm = $("meName").textContent || "", T = "", S = "";
-    if (tab === "home") { T = "สวัสดี " + nm; }
+    if (tab === "home") { T = "สวัสดี " + nm; S = "ภาพรวมทริปและที่นั่งของคุณ"; }
     else if (tab === "trips") { T = "ทริปที่จัด"; S = "ทริปที่คุณสร้างและดูแล"; }
     else if (tab === "seats") { T = "ที่นั่งที่จอง"; S = "ที่นั่งของคุณในทุกทริป"; }
     else if (tab === "notif") { T = "แจ้งเตือน"; S = "การเปลี่ยนแปลงทริปของคุณ"; }
