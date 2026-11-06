@@ -396,11 +396,10 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 /* kept as late rules: they must stay after rules above to win (same element, same property) */
 .deck { border-color: #e8ecef; }
 .facts .fhead { border-bottom-color: #e8ecef; padding-bottom: 12px; }
-/* fact rows: icon on the left, small visible label (ขาไป / ขากลับ / จุดนัดพบ / รถตู้) above the value */
-.facts div.fr { display: grid; grid-template-columns: 16px 1fr; column-gap: 12px; row-gap: 0; align-items: start; }
-.facts div.fr svg { grid-row: 1 / 3; margin-top: 2px; }
-.facts div.fr dt { position: static; width: auto; height: auto; overflow: visible; clip: auto; font-size: 12px; line-height: 16px; color: var(--muted); }
-.facts { gap: 12px; }
+/* fact rows on one line: icon, small grey label (ขาไป / ขากลับ / จุดนัดพบ / รถตู้), value */
+.facts div.fr { display: grid; grid-template-columns: 16px 64px 1fr; column-gap: 12px; align-items: start; }
+.facts div.fr svg { margin-top: 2px; }
+.facts div.fr dt { position: static; width: auto; height: auto; overflow: visible; clip: auto; color: var(--muted); }
 .vb-bell { border-color: #e8ecef!important; }
 .deck .tabs { gap: 12px; }
 .tab { border-color: #e8ecef!important; }
