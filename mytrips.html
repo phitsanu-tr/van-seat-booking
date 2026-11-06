@@ -1453,12 +1453,12 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
   $("navNotif").addEventListener("click", function () { setTab("notif"); });
   $("mkRead").addEventListener("click", function () { if (window.VSBBell) VSBBell.read("all"); });
   function unreadN() { return window.VSBBell && VSBBell.ready ? VSBBell.unread : 0; }
-  function updateHead() { // page title + one small line under it (style A); the "สร้างทริป" capsule only on the trips page
+  function updateHead() { // page title + one fixed line that says what the tab is for (never a status, so it never repeats the empty-state text); the "สร้างทริป" capsule only on the trips page
     var nm = $("meName").textContent || "", T = "", S = "";
     if (tab === "home") { T = "สวัสดี " + nm; }
-    else if (tab === "trips") { T = "ทริปที่จัด"; if (D && D.trips.length) { var bk = D.trips.reduce(function (n, x) { return n + (x.booked || 0); }, 0); S = D.trips.length + " ทริป · คนจองรวม " + bk + " คน"; } }
-    else if (tab === "seats") { T = "ที่นั่งที่จอง"; if (D && D.seats.length) S = "จองไว้ " + D.seats.length + " ทริป"; }
-    else if (tab === "notif") { T = "แจ้งเตือน"; if (window.VSBBell && VSBBell.ready) S = unreadN() ? "ยังไม่อ่าน " + unreadN() + " รายการ" : "อ่านครบแล้ว"; }
+    else if (tab === "trips") { T = "ทริปที่จัด"; S = "ทริปที่คุณสร้างและดูแล"; }
+    else if (tab === "seats") { T = "ที่นั่งที่จอง"; S = "ที่นั่งของคุณในทุกทริป"; }
+    else if (tab === "notif") { T = "แจ้งเตือน"; S = "ข่าวทริปของคุณจากผู้จัด"; }
     else { T = "โปรไฟล์"; S = "บัญชีและแพ็กเกจของคุณ"; }
     $("ltT").textContent = T; $("ltS").textContent = S;
     $("mkTrip").classList.toggle("show", tab === "trips" && !!(D && D.trips.length));
