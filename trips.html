@@ -279,10 +279,15 @@ select.sel { border-color: #dde3e7!important; }
 .sum .r { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; line-height: 20px; }
 .sum .r span { flex: none; color: var(--muted); }
 .sum .r b { font-weight: 600; text-align: right; min-width: 0; overflow-wrap: anywhere; }
-.nx2 { background: #e3f3f4; border-radius: 16px; padding: 16px 20px; display: grid; gap: 12px; }
-.nx2 > b { font: 700 16px/24px var(--font-display); color: #0b5f67; }
-.nx2 .l { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 24px; }
-.nx2 .l i { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #fff; color: #0b5f67; display: grid; place-items: center; font: 700 12px/24px var(--font-display); font-style: normal; }
+.nx2 { display: grid; gap: 12px; padding: 8px 4px 0; }
+.nx2 > b { font: 700 16px/24px var(--font-display); color: var(--ink); }
+.nx2 .l { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 28px; }
+.nx2 .l i { flex: none; width: 28px; height: 28px; border-radius: 50%; background: #e3f3f4; color: #0b5f67; display: grid; place-items: center; font: 700 14px/28px var(--font-display); font-style: normal; }
+/* creating: the buttons stay at the bottom of the screen on every step; the bottom menu is hidden until the trip exists */
+body.creating .vt-bar { display: none !important; }
+body.creating, body.creating.vt-on { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important; }
+body.creating #form .actions { position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; margin: 0 !important; background: #fff; border-top: 1px solid #e8ecef; padding: 12px max(16px, calc((100% - 460px) / 2)) calc(12px + env(safe-area-inset-bottom, 0px)); }
+body.creating .toast { bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important; }
 form label { position: relative; }
 .cnt { position: absolute; right: 0; top: 0; font-size: 12px; font-weight: 400; line-height: 20px; color: var(--muted); }
 .cnt.low { color: var(--danger); }
@@ -1080,17 +1085,7 @@ form label { position: relative; }
       d.appendChild(a); d.appendChild(b); box.appendChild(d);
     });
   }
-  function alignSteps() { // the buttons sit at the same height on every step: shorter steps get the gap of the tallest one
-    var ac = document.querySelector("#form .actions"), sp = $("stp");
-    ac.style.marginTop = "";
-    if (editing) return;
-    var max = 0;
-    [1, 2, 3].forEach(function (k) { showStep(k); max = Math.max(max, ac.getBoundingClientRect().top - sp.getBoundingClientRect().bottom); });
-    showStep(step);
-    var h = ac.getBoundingClientRect().top - sp.getBoundingClientRect().bottom;
-    var base = parseFloat(getComputedStyle(ac).marginTop) || 0;
-    if (max > h) ac.style.marginTop = (base + Math.round(max - h)) + "px";
-  }
+  function alignSteps() { document.body.classList.toggle("creating", !editing); } // fixed action bar instead of padding the steps
   function setStep(n) {
     step = n; $("stp").hidden = editing;
     showStep(n);
