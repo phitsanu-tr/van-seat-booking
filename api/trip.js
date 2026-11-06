@@ -74,7 +74,33 @@ function clean(body, vanCap, planVans, prev) {
     value.closeAt = ca;
   }
   if (body.closed !== undefined) value.closed = body.closed === true;
+  value.staffSeat = body.staffSeat === undefined ? !!(prev && prev.staffSeat) : body.staffSeat === true; // seat 1 of every van kept for the organizer team
   return { value };
+}
+
+// "สงวนที่นั่ง 1 สำหรับผู้จัด": books seat 1 as STAFF in the owner's name (not in their "my seats" list); a seat someone
+// already booked is left alone. Returns the labels of the vans where seat 1 was taken.
+async function reserveStaff(trip, vanIds) {
+  if (!vanIds.length) return [];
+  const at = Date.now(), rec = JSON.stringify({ name: "STAFF", at, u: trip.owner, ln: trip.ownerName || "", lp: "", st: 1 });
+  const out = await L.pipeline(vanIds.map((id) => ["HSETNX", L.seatsKey(trip.id, id), "1", rec]));
+  const skipped = [];
+  for (let i = 0; i < vanIds.length; i++) {
+    if (Number(out[i]) === 1) await L.logEvent(trip.id, { e: "book", v: vanIds[i], s: 1, n: "STAFF", u: trip.owner, at });
+    else skipped.push(L.vanLabel(trip, vanIds[i]));
+  }
+  return skipped;
+}
+// Turning it off frees only the STAFF seats nobody renamed.
+async function releaseStaff(trip) {
+  const ids = trip.vans.map((v) => v.id);
+  const got = await L.pipeline(ids.map((id) => ["HGET", L.seatsKey(trip.id, id), "1"]));
+  for (let i = 0; i < ids.length; i++) {
+    let r = null; try { r = JSON.parse(got[i]); } catch (e) { /* empty or damaged */ }
+    if (r && r.st === 1 && r.name === "STAFF") {
+      if (Number(await L.redis(["HDEL", L.seatsKey(trip.id, ids[i]), "1"])) === 1) await L.logEvent(trip.id, { e: "cancel", v: ids[i], s: 1, n: "STAFF", u: trip.owner, at: Date.now() });
+    }
+  }
 }
 
 // Gives each new van an id that is unused so far (v1, v2, ...).
@@ -287,7 +313,8 @@ module.exports = async function handler(req, res) {
       trip.vans = assignVanIds(trip.vans, []);
       const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
       if (ok !== "OK") { if (qm) await refundQuota(user, qm); if (plus) await P.refundPass(user.id); return L.json(res, 502, { error: "storage_error" }); }
-      await L.applyExpiry(trip);
+      if (trip.staffSeat) { try { await reserveStaff(trip, trip.vans.map((v) => v.id)); } catch (e) { /* the trip exists; seats can be booked by hand */ } }
+      await L.applyExpiry(trip); // after the STAFF seats so their van lists get the trip's expiry too
       if (ck) { try { await L.redis(["SET", ck, id, "EX", "86400"]); } catch (e) { /* best effort */ } }
       { try { await L.pipeline([["SADD", L.myTripsKey(user.id), id], ["EXPIRE", L.myTripsKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* best effort */ } }
       return L.json(res, 200, { id, trip: tripSummary(trip, user) });
@@ -367,6 +394,12 @@ module.exports = async function handler(req, res) {
       const cmds = [["SET", L.tripKey(t), JSON.stringify(updated)]];
       removed.forEach((id) => cmds.push(["DEL", L.seatsKey(t, id)]));
       await L.pipeline(cmds);
+      let staffSkipped = [];
+      try {
+        if (updated.staffSeat && !trip.staffSeat) staffSkipped = await reserveStaff(updated, next.map((v) => v.id)); // just turned on: every van
+        else if (updated.staffSeat) staffSkipped = await reserveStaff(updated, next.filter((v) => !oldIds.includes(v.id)).map((v) => v.id)); // new vans only
+        else if (trip.staffSeat) await releaseStaff(updated);
+      } catch (e) { /* best effort: the trip itself is saved */ }
       await L.applyExpiry(updated); // SET cleared the TTL; dates may have changed
       // notifications: what passengers care about (name, dates, departure, meeting point) and removed vans
       const by = L.roleOf(trip, user), ch = [];
@@ -378,7 +411,7 @@ module.exports = async function handler(req, res) {
       removed.forEach((id) => { (bookers[id] || []).forEach((u) => gone.add(u)); });
       if (gone.size) await L.notify(Array.from(gone), { k: "van_removed", t, tn: updated.name, vl: L.vanLabel(trip, removed[0]), by }, user.id);
       if (ch.length) await L.notify([].concat(...next.map((v) => bookers[v.id] || []), L.teamIds(updated)), { k: "trip_changed", t, tn: updated.name, ch, by }, user.id);
-      return L.json(res, 200, { ok: true, trip: tripSummary(updated, user) });
+      return L.json(res, 200, { ok: true, trip: tripSummary(updated, user), staffSkipped: staffSkipped.length ? staffSkipped : undefined });
     }
 
     res.setHeader("Allow", "GET, POST, PUT, DELETE");

@@ -176,6 +176,8 @@ label.bad { color: var(--danger); }
 .sw::after { content: ""; position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .15s; }
 .sw:checked { background: var(--danger); }
 .sw:checked::after { transform: translateX(20px); }
+.sw.ok:checked { background: var(--mine); }
+form label.swl.stf { display: flex; padding: 12px 16px; border: 1px solid #e8ecef; border-radius: 12px; }
 .sw:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 14%, transparent); }
 .fe { display: flex; gap: 6px; align-items: center; color: var(--danger); font: 400 12px/18px var(--font-body); margin-top: 6px; }
@@ -356,6 +358,7 @@ form label { position: relative; }
       <div class="vans" id="vans"></div>
       <button type="button" class="btn plain small" id="addVan" style="margin-top:8px">+ เพิ่มรถอีกคัน</button>
     </div>
+    <label class="swl stf"><span class="swt"><b>สงวนที่นั่ง 1 สำหรับผู้จัด</b><small>ใช้กับรถทุกคัน · ผู้ร่วมทริปจองที่นั่งนี้ไม่ได้</small></span><input type="checkbox" id="staffSeat" class="sw ok" role="switch"></label>
     <label>จองได้สูงสุดต่อคน <small>(รวมทุกคัน · คนจัดทริปไม่จำกัด)</small>
       <input type="hidden" id="maxPer" value="1">
     </label>
@@ -990,6 +993,7 @@ form label { position: relative; }
       departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value,
       vans: rows.map(function (r) { return { id: r.id, label: r.label.trim(), plate: (r.plate || "").trim() }; }),
       maxPerPerson: Number($("maxPer").value),
+      staffSeat: $("staffSeat").checked,
       closeAt: $("closeDate").value ? $("closeDate").value + "T" + ($("closeTime").value || "23:59") : ""
     };
     if (editing && $("closedNow").checked !== closedAtLoad) body.closed = $("closedNow").checked; // only when changed here: a form left open must not undo someone else's close/reopen
@@ -1015,6 +1019,7 @@ form label { position: relative; }
       if (editing) {
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
         showResult(T, "saved", data.trip.name);
+        if (data.staffSkipped) toast("ที่นั่ง 1 คัน " + data.staffSkipped.join(", ") + " มีคนจองแล้ว จึงไม่ได้สงวนไว้");
       } else {
         T = data.id; editing = true; setStep(1); // now an edit page: one page, all cards
         history.replaceState(null, "", editPath(T));
@@ -1079,7 +1084,7 @@ form label { position: relative; }
       var data = await res.json();
       if (!res.ok || !data.trip) { if (res.status !== 401) toast("คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย", true); return; }
       var t = data.trip;
-      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || "";
+      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat;
       (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
       rows = t.vans.map(function (v) { return { id: "", label: v.label, plate: v.plate || "" }; });
       $("lead").textContent = "คัดลอกจากทริปเดิมแล้ว เลือกวันเดินทางใหม่ได้เลย";
@@ -1103,7 +1108,7 @@ form label { position: relative; }
      ["ขาไป", [shortDate(sd), $("departTime").value ? $("departTime").value.replace(":", ".") + " น." : ""].filter(Boolean).join(" · ")],
      ["ขากลับ", [shortDate(ed), $("returnTime").value ? $("returnTime").value.replace(":", ".") + " น." : ""].filter(Boolean).join(" · ")], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
      ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
-     ["จองได้ต่อคน", pkText("maxPer")]
+     ["จองได้ต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["ที่นั่ง 1", "สงวนสำหรับผู้จัด ทุกคัน"] : null
     ].forEach(function (r) {
       if (!r || !r[1]) return;
       var d = document.createElement("div"); d.className = "r";
@@ -1140,7 +1145,7 @@ form label { position: relative; }
   var saved0 = null;
   function formState() {
     return JSON.stringify([$("name").value.trim(), $("organizer").value.trim(), $("startDate").value, $("endDate").value, $("departTime").value, $("returnTime").value,
-      $("meetPoint").value.trim(), rows.map(function (r) { return [r.id, (r.label || "").trim(), (r.plate || "").trim()]; }), $("maxPer").value,
+      $("meetPoint").value.trim(), $("staffSeat").checked, rows.map(function (r) { return [r.id, (r.label || "").trim(), (r.plate || "").trim()]; }), $("maxPer").value,
       $("closeDate").value, $("closeTime").value, $("closedNow").checked]);
   }
   function updSave() { if (!editing || busy || saved0 === null) return; $("submit").disabled = formState() === saved0; }
@@ -1178,7 +1183,7 @@ form label { position: relative; }
         if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
         var t = data.trip;
         $("name").value = t.name; $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || "";
-        $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || "";
+        $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat;
         (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
         fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = closedAtLoad = t.closed === true;
