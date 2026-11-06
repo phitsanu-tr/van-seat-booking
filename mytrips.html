@@ -205,6 +205,29 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .bar { height: 6px; border-radius: 100px; background: #e7ecef; overflow: hidden; }
 .bar i { display: block; height: 100%; background: var(--mine); border-radius: 100px; }
 .bar.full i { background: var(--amber); }
+.rt { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; background: #f6f8f9; border-radius: 12px; padding: 12px 16px; }
+.rt.sm { padding: 8px 12px; }
+.rt.one { grid-template-columns: 1fr; }
+.rt .s { min-width: 0; }
+.rt .s small { display: block; font-size: 12px; line-height: 16px; color: var(--muted); }
+.rt .s b { display: block; font: 600 20px/28px var(--font-display); color: var(--ink); }
+.rt .s b.d { font-size: 16px; line-height: 28px; }
+.rt .s span { display: block; font-size: 12px; line-height: 16px; color: var(--ink); white-space: nowrap; }
+.rt .s.rr { text-align: right; }
+.rt .s span.q { color: var(--muted); }
+.rt .mid { color: var(--mine); display: flex; }
+.rt .mid svg { width: 40px; height: 16px; }
+.rt.sm .mid svg { width: 24px; }
+.stat { display: flex; align-items: center; gap: 12px; }
+.stat .bar { flex: 1; }
+.stat b { font-size: 14px; line-height: 20px; font-weight: 600; white-space: nowrap; }
+.stat b span { color: var(--muted); font-weight: 400; }
+.stat small { font-size: 12px; line-height: 16px; color: var(--muted); white-space: nowrap; }
+.orgx { font-size: 12px; line-height: 16px; color: var(--muted); margin-top: -4px; }
+.mtag { display: flex; gap: 8px; align-items: flex-start; background: #e7f3f4; border-radius: 12px; padding: 8px 12px; color: var(--mine); }
+.mtag svg { flex: none; width: 16px; height: 16px; margin-top: 2px; }
+.mtag span { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
+.mtag small { display: block; font-size: 12px; line-height: 16px; color: var(--mine); }
 .bt { font-size: 12px; color: var(--muted); margin-top: -4px; line-height: 16px} .bt b { color: var(--ink); font-weight: 600; }
 .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .acts.a3 { grid-template-columns: 1fr 1fr 1fr; }
@@ -529,6 +552,30 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     var now = new Date(Date.now() + 7 * 3600 * 1000), today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
     return Math.round((Date.UTC(p.y, p.m - 1, p.d) - today) / 86400000);
   }
+  // ticket box "ขาไป 21.00 → ขากลับ 13.00" with the day under each time; withYear on the wider trips card
+  var WD = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+  function dayLabel(iso, withYear) {
+    var p = parseD(iso); if (!p) return "";
+    var d = daysTo(iso); if (d === 0) return "วันนี้"; if (d === 1) return "พรุ่งนี้";
+    return WD[new Date(Date.UTC(p.y, p.m - 1, p.d)).getUTCDay()] + " " + p.d + " " + MON[p.m - 1] + (withYear ? " " + String((p.y + 543) % 100) : "");
+  }
+  function routeBox(x, withYear) {
+    var box = node("div", "rt" + (withYear ? "" : " sm"));
+    function side(lbl, iso, tm, cls, sub) {
+      var s = node("div", "s" + (cls ? " " + cls : "")); s.appendChild(node("small", null, lbl));
+      var day = sub || dayLabel(iso, withYear);
+      if (tm) { s.appendChild(node("b", null, tm.replace(":", "."))); if (day) s.appendChild(node("span", null, day)); }
+      else { s.appendChild(node("b", "d", day || "ไม่ระบุวัน")); s.appendChild(node("span", "q", "ไม่ระบุเวลา")); } // keeps both sides on the same three lines
+      return s;
+    }
+    box.appendChild(side("ขาไป", x.startDate, x.departTime));
+    var back = x.endDate || x.startDate, same = !x.endDate || x.endDate === x.startDate;
+    if (x.endDate || x.returnTime) {
+      box.insertAdjacentHTML("beforeend", '<div class="mid"><svg viewBox="0 0 40 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h34M30 3l6 5-6 5"/></svg></div>');
+      box.appendChild(side("ขากลับ", back, x.returnTime, "rr", same && x.returnTime ? "วันเดียวกัน" : ""));
+    } else box.classList.add("one");
+    return box;
+  }
   var toastTimer = null;
   function toast(msg, bad) {
     var t = $("toast"); t.textContent = msg; t.className = "toast" + (bad ? " bad" : ""); t.hidden = false;
@@ -710,9 +757,10 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
       var p = statusPill(x);
       if (x.organizer || p) { var sub = node("div", "org"); if (x.organizer) sub.appendChild(node("span", null, x.organizer)); if (p) sub.appendChild(p); hd.appendChild(sub); }
       if (x.role === "helper") hd.appendChild(node("div", "rolep", "คุณเป็นผู้ช่วยจัดทริปนี้"));
-      hd.appendChild(meta(x, true));
-      var full = x.total && x.booked >= x.total, bar = node("div", "bar" + (full ? " full" : "")), bi = node("i"); bi.style.width = (x.total ? Math.min(100, Math.round(x.booked / x.total * 100)) : 0) + "%"; bar.appendChild(bi); hd.appendChild(bar);
-      var bt = node("div", "bt"); bt.appendChild(document.createTextNode("จองแล้ว ")); bt.appendChild(node("b", null, String(x.booked))); bt.appendChild(document.createTextNode("/" + x.total + " ที่นั่ง")); hd.appendChild(bt);
+      hd.appendChild(routeBox(x, true));
+      var full = x.total && x.booked >= x.total, bar = node("div", "bar" + (full ? " full" : "")), bi = node("i"); bi.style.width = (x.total ? Math.min(100, Math.round(x.booked / x.total * 100)) : 0) + "%"; bar.appendChild(bi);
+      var st = node("div", "stat"), sn = node("b", null, String(x.booked)); sn.appendChild(node("span", null, "/" + x.total)); sn.setAttribute("aria-label", "จองแล้ว " + x.booked + " จาก " + x.total + " ที่นั่ง");
+      st.appendChild(sn); st.appendChild(bar); st.appendChild(node("small", null, "รถตู้ " + x.vans + " คัน")); hd.appendChild(st);
       if (!x.closed && closeText(x.closeAt)) hd.appendChild(node("div", "cat", "ปิดรับจองอัตโนมัติ " + closeText(x.closeAt)));
       c.appendChild(hd);
       var ros = node("button", "ab ros3", "รายชื่อ"); ros.type = "button"; ros.addEventListener("click", function () { openRoster(x); }); ros.addEventListener("pointerdown", function () { prefetchRoster(x.id); }); ros.insertAdjacentHTML("afterbegin", MG.team);
@@ -773,14 +821,18 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     tapCard(c, "/" + x.id + (x.seats && x.seats[0] ? "?v=" + encodeURIComponent(x.seats[0].van) : ""));
     var tg = past ? null : noteTag(x.id); if (tg) l.appendChild(tg);
     l.appendChild(node("div", "t", x.name));
-    var m = node("div", "meta"), dr = dateRange(x.startDate, x.endDate), tm = x.departTime ? x.departTime.replace(":", ".") + " น." + (x.returnTime ? " · กลับ " + x.returnTime.replace(":", ".") + " น." : "") : "";
-    if (dr || tm) { var s = node("span"); s.innerHTML = SV.cal; s.appendChild(node("i", null, [dr, tm].filter(Boolean).join(" · "))); m.appendChild(s); }
-    if (x.meetPoint && !past) { var p = node("span"); p.innerHTML = SV.pin; p.appendChild(node("i", null, x.meetPoint)); m.appendChild(p); }
-    l.appendChild(m);
-    var names = []; x.seats.forEach(function (s) { if (names.indexOf(s.name) < 0) names.push(s.name); });
-    var nm = node("div", "nm", "ชื่อบนผัง "); nm.appendChild(node("b", null, names.join(", ")));
-    if (x.organizer) nm.appendChild(document.createTextNode(" · จัดโดย " + x.organizer));
-    if (!past) l.appendChild(nm);
+    if (past) {
+      var m = node("div", "meta"), dr = dateRange(x.startDate, x.endDate), tm = x.departTime ? x.departTime.replace(":", ".") + " น." : "";
+      if (dr || tm) { var s0 = node("span"); s0.innerHTML = SV.cal; s0.appendChild(node("i", null, [dr, tm].filter(Boolean).join(" · "))); m.appendChild(s0); }
+      l.appendChild(m);
+    } else {
+      if (x.organizer) l.appendChild(node("div", "orgx", x.organizer));
+      l.appendChild(routeBox(x, false));
+      var dd = daysTo(x.startDate);
+      if (x.meetPoint && (dd === 0 || dd === 1)) { // travel day (or the day before): where to get on
+        var mt = node("div", "mtag"); mt.innerHTML = SV.pin; var ms = node("span"); ms.appendChild(node("small", null, "จุดนัดพบ")); ms.appendChild(document.createTextNode(x.meetPoint)); mt.appendChild(ms); l.appendChild(mt);
+      }
+    }
     if (!past && x.closed) { var cn = node("div", "cnote"); cn.innerHTML = LOCK_SVG; cn.appendChild(node("span", null, "ปิดรับจองแล้ว · ยกเลิกเองไม่ได้ ติดต่อผู้จัดทริปถ้าต้องการเปลี่ยน")); l.appendChild(cn); }
     var vans = []; x.seats.forEach(function (s) { if (vans.indexOf(s.vanLabel) < 0) vans.push(s.vanLabel); });
     if (!past) {
