@@ -241,11 +241,11 @@ body.sk main > :not(.skpage):not(.foot) { display: none; }
 .seat::after { content: ""; position: absolute; left: .98cqw; right: .98cqw; bottom: .98cqw; height: 2.93cqw; border-radius: 1.1cqw; background: var(--bfree); pointer-events: none; }
 .seat.taken::after { background: var(--btaken); }
 .seat.mine::after { background: var(--bmine); }
-.seat .no { font-family: var(--font-display); font-weight: 500; font-size: 26px; font-size: clamp(20px, 4.88cqw, 40px); line-height: 26px; }
-.seat.taken .no { position: absolute; top: 1.4cqw; right: 1.7cqw; font-size: 16px; font-size: clamp(14px, 3.4cqw, 28px); line-height: 24px}
-.seat .who { font-size: 12px; font-size: clamp(14px, 4.9cqw, 40px); line-height: 16px; font-weight: 500; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; max-width: 100%; }
-.seat .who.s2 { font-size: 12px; font-size: clamp(12px, 3.9cqw, 32px); line-height: 16px}
-.seat .who.s3 { font-size: 10px; font-size: clamp(10px, 3.3cqw, 28px); line-height: 14px}
+.seat .no { font-family: var(--font-display); font-weight: 500; font-size: 26px; font-size: clamp(20px, 4.88cqw, 40px); line-height: 1; }
+.seat.taken .no { position: absolute; top: 1.4cqw; right: 1.7cqw; font-size: 16px; font-size: clamp(14px, 3.4cqw, 28px); line-height: 1.2; }
+.seat .who { font-size: 12px; font-size: clamp(14px, 4.9cqw, 40px); line-height: 1.25; font-weight: 500; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; max-width: 100%; }
+.seat .who.s2 { font-size: 12px; font-size: clamp(12px, 3.9cqw, 32px); line-height: 1.25; }
+.seat .who.s3 { font-size: 10px; font-size: clamp(10px, 3.3cqw, 28px); line-height: 1.25; }
 @media (hover: hover) {
   .seat:not(.taken):not(.mine):hover { background: color-mix(in srgb, var(--mine) 14%, transparent); box-shadow: inset 0 0 0 2px var(--mine); }
   .seat:not(.taken):not(.mine):hover .no { color: var(--mine); }
@@ -261,7 +261,7 @@ body.sk main > :not(.skpage):not(.foot) { display: none; }
 .driver {
   position: absolute; border-radius: 1.46cqw; display: flex; align-items: center; justify-content: center;
   flex-direction: column; gap: 2%; background: #fdeff1; color: var(--driver-ink);
-  font-family: var(--font-display); font-weight: 500; font-size: 14px; font-size: clamp(14px, 3.9cqw, 32px); line-height: 20px}
+  font-family: var(--font-display); font-weight: 500; font-size: 14px; font-size: clamp(14px, 3.9cqw, 32px); line-height: 1.25; }
 .driver svg { position: static; display: block; width: 36%; height: auto; }
 .driver span { font-size: .8em; line-height: 1.2; }
 .legend { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin: 4px 0 2px; font-size: 12px; color: var(--muted); line-height: 16px}
@@ -379,7 +379,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .toast.error { background: var(--danger); color: var(--paper); }
 .seat.pending { opacity: .6; }
 .seat.held { background: repeating-linear-gradient(135deg, var(--surface) 0 8px, color-mix(in srgb, var(--taken) 70%, var(--surface)) 8px 16px); color: var(--muted); }
-.seat.held .who { font-size: 14px; font-size: clamp(12px, 2.6cqw, 20px); font-weight: 600; color: var(--muted); line-height: 20px}
+.seat.held .who { font-size: 14px; font-size: clamp(12px, 2.6cqw, 20px); font-weight: 600; color: var(--muted); line-height: 1.25; }
 button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 10px 16px; cursor: pointer; background: var(--danger); color: var(--paper); border: 1.5px solid var(--danger); }
 .foot { margin: auto auto 0; text-align: center; font-size: 12px; line-height: 18px; color: var(--muted); white-space: nowrap; }
 .foot .fmsg { transition: opacity .35s ease; }
