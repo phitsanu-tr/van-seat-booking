@@ -1095,7 +1095,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'
     };
     if (dr) rows.push(["วันที่", dr, "cal", "date"]);
-    if (trip.departTime) rows.push(["รถออก", trip.departTime.replace(":", ".") + " น.", "clk", "time"]);
+    if (trip.departTime) rows.push(["รถออก", trip.returnTime ? "ไป " + trip.departTime.replace(":", ".") + " น. · กลับ " + trip.returnTime.replace(":", ".") + " น." : trip.departTime.replace(":", ".") + " น.", "clk", "time"]);
     if (trip.meetPoint) rows.push(["นัดพบ", trip.meetPoint, "pin", "meet"]);
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน (" + trip.vans.length * TOTAL + " ที่นั่ง)", "van"]);
     factsEl.textContent = "";
@@ -1514,7 +1514,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       y += 40;
 
       // facts
-      var dr = dateRange(trip.startDate, trip.endDate), dep = trip.departTime ? trip.departTime.replace(":", ".") + " น." : "";
+      var dr = dateRange(trip.startDate, trip.endDate), dep = trip.departTime ? trip.departTime.replace(":", ".") + (trip.returnTime ? " / " + trip.returnTime.replace(":", ".") : "") + " น." : "";
       function fact(label, val, fx, fy, fw) {
         ctx.textAlign = "left"; ctx.fillStyle = MUTED; ctx.font = '400 28px "Noto Sans Thai", sans-serif'; ctx.fillText(label, fx, fy + 28);
         ctx.fillStyle = INK; ctx.font = '600 36px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, val, fw, 1)[0], fx, fy + 76);
@@ -1522,7 +1522,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       var any = false;
       if (dr || dep) {
         if (dr) fact("วันที่", dr, X, y, IW * 0.6);
-        if (dep) fact("รถออก", dep, X + IW * 0.62, y, IW * 0.38);
+        if (dep) fact(trip.returnTime ? "รถออก ไป / กลับ" : "รถออก", dep, X + IW * 0.62, y, IW * 0.38);
         y += 112; any = true;
       }
       if (trip.meetPoint) { fact("นัดพบ", trip.meetPoint, X, y, IW); y += 112; any = true; }
@@ -1664,6 +1664,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     var tm = T.departTime ? T.departTime.replace(":", ".") + " น." : "";
     if (tm && T.meetPoint) L.push("📍 " + tm + " - " + T.meetPoint);
     else if (tm) L.push("⏰ " + tm);
+    if (T.returnTime) L.push("🔁 ขากลับ รถออก " + T.returnTime.replace(":", ".") + " น.");
     else if (T.meetPoint) L.push("📍 " + T.meetPoint);
     L.push("", closed || ended ? "ดูผังที่นั่ง 👇" : "จองที่นั่งได้ที่นี่ 👇"); // closed: the link only shows the seat map
     var lead = L.join("\n");

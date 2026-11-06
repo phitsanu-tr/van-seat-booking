@@ -295,6 +295,15 @@ form label { position: relative; }
 .pk-nm { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 56px; gap: 8px; }
 .pk-nm .pk-m.w { grid-column: span 2; }
 .pk-note { margin: -4px 0 0; font-size: 14px; line-height: 20px; color: var(--muted); }
+
+/* วันและเวลา as a little timeline: 1 ขาไป -> 2 ขากลับ */
+.tl { position: relative; padding-left: 36px; display: grid; gap: 20px; }
+.tl::before { content: ""; position: absolute; left: 11px; top: 16px; bottom: 16px; border-left: 2px dashed #9fd3d8; }
+.tl .grp { position: relative; display: grid; gap: 12px; }
+.tl .grp > .dot { position: absolute; left: -36px; top: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--mine); color: #fff; display: grid; place-items: center; font: 700 12px/24px var(--font-display); }
+.tl .grp > .dot.r { background: #e5484d; }
+.tl .grp > b { font: 700 14px/24px var(--font-display); color: var(--ink); }
+.tl label input { margin-top: 0; }
 </style>
 <script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("inline")}catch(e){}</script>
 <link rel="stylesheet" href="/ui.css">
@@ -312,7 +321,7 @@ form label { position: relative; }
 
   <button type="button" class="shrow" id="shareBtn" hidden>
     <span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></span>
-    <span class="stx"><b>ลิงก์ของทริปนี้</b><small>แชร์ลิงก์ / คิวอาร์ให้ผู้จอง</small></span>
+    <span class="stx"><b>ลิงก์ของทริปนี้</b><small>แชร์ลิงก์หรือรหัสทริปให้ผู้ร่วมทริป</small></span>
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
   </button>
 
@@ -327,11 +336,16 @@ form label { position: relative; }
     </label>
    </section>
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><b>วันและเวลา</b></div>
-    <div class="row one">
-      <label>วันเดินทางไป <input type="date" id="startDate"></label>
-      <label>วันเดินทางกลับ <input type="date" id="endDate"></label>
+    <div class="tl">
+      <div class="grp"><span class="dot" aria-hidden="true">1</span><b>ขาไป</b>
+        <label>วันที่ <input type="date" id="startDate"></label>
+        <label>เวลารถออก <input type="time" id="departTime"></label>
+      </div>
+      <div class="grp"><span class="dot r" aria-hidden="true">2</span><b>ขากลับ</b>
+        <label>วันที่ <input type="date" id="endDate"></label>
+        <label>เวลารถออก <small>(ไม่บังคับ)</small> <input type="time" id="returnTime"></label>
+      </div>
     </div>
-    <label>เวลาออกเดินทาง <input type="time" id="departTime"></label>
    </section>
    <section class="card fg" data-step="2"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 1114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><b>จุดนัดพบและรถ</b></div>
     <label>จุดนัดพบ <small>(ไม่บังคับ)</small>
@@ -358,7 +372,7 @@ form label { position: relative; }
     </div>
    </section>
    <section class="card fg" data-step="3" id="sumCard" hidden><div class="hb sumh"><b>สรุปทริป</b><button type="button" class="ed" id="sumEdit">แก้ไข</button></div><div class="sum" id="sumRows"></div></section>
-   <div class="nx2" data-step="3" id="nextBox" hidden><b>หลังกดสร้างทริป</b><div class="l"><i>1</i><span>ได้ลิงก์และคิวอาร์ของทริปทันที</span></div><div class="l"><i>2</i><span>แชร์เข้ากลุ่ม LINE ให้ผู้ร่วมทริปเลือกที่นั่งเอง</span></div><div class="l"><i>3</i><span>ดูรายชื่อและผังที่นั่งได้ที่ "ทริปที่จัด"</span></div></div>
+   <div class="nx2" data-step="3" id="nextBox" hidden><b>หลังกดสร้างทริป</b><div class="l"><i>1</i><span>ได้ลิงก์และรหัสทริปทันที</span></div><div class="l"><i>2</i><span>แชร์เข้ากลุ่ม LINE ให้ผู้ร่วมทริปเลือกที่นั่งเอง</span></div><div class="l"><i>3</i><span>ดูรายชื่อและผังที่นั่งได้ที่ "ทริปที่จัด"</span></div></div>
     <div class="actions">
       <button type="button" class="btn plain" id="cancelBtn">ยกเลิก</button>
       <button type="submit" class="btn primary" id="submit">สร้างทริป</button>
@@ -366,7 +380,7 @@ form label { position: relative; }
   </form>
 
   <section class="dz" id="dz" hidden>
-    <div><b>ลบทริปนี้</b><span>ผู้จองและลิงก์ที่แชร์ไปจะใช้ไม่ได้อีก ย้อนกลับไม่ได้</span></div>
+    <div><b>ลบทริปนี้</b><span>ลบรายชื่อผู้จองและลิงก์ของทริปนี้ถาวร</span></div>
     <button type="button" id="delBtn">ลบ</button>
   </section>
 
@@ -392,11 +406,11 @@ form label { position: relative; }
   <div class="modal" id="result" role="dialog" aria-modal="true" aria-labelledby="mState">
     <button class="mclose" id="closeX" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div id="mState"></div>
-    <div class="mhead"><div class="msub">ส่งลิงก์ให้เพื่อน แล้วเพื่อนเลือกที่นั่งเองได้เลย</div></div>
+    <div class="mhead"><div class="msub" id="mSub">แชร์ลิงก์ให้ผู้ร่วมทริป เลือกที่นั่งเองได้เลย</div></div>
     <div class="msum" id="mSum"></div>
     <div class="mlink" id="copyBox" role="button" tabindex="0" aria-label="คัดลอกลิงก์"><div class="url" id="shareUrl"></div><span class="cpbtn" id="copyShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span></div>
     <div class="macts">
-      <a class="btn line" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span>ส่งเข้า LINE</span></a>
+      <a class="btn line" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span>แชร์ใน LINE</span></a>
       <a class="btn plain" id="openShare" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v9a2 2 0 002 2h7M7 19h10M9 15l-1 4M16 15l1 4"/></svg><span>จองที่นั่ง</span></a>
     </div>
   </div>
@@ -548,7 +562,8 @@ form label { position: relative; }
   if (s && e && t) {
     dateField(s, "วันเดินทางไป", function () { var v = s.value; return v && v < todayIso() ? v : todayIso(); }); // a saved past date (editing an old trip) stays selectable
     dateField(e, "วันเดินทางกลับ", function () { return s.value || todayIso(); });
-    timeField(t, "เวลาออกเดินทาง");
+    timeField(t, "เวลารถออก ขาไป");
+    var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออก ขากลับ");
   }
   // "จองได้สูงสุดต่อคน": the app's own picker (like the calendar) instead of the phone's select wheel; 0 = no limit
   function maxField(input) {
@@ -823,6 +838,7 @@ form label { position: relative; }
     $("openShare").href = "/" + id;
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
+    $("mSub").textContent = created === "saved" ? "ผู้ร่วมทริปเห็นข้อมูลใหม่ทันที ลิงก์เดิมใช้ได้ต่อ" : "แชร์ลิงก์ให้ผู้ร่วมทริป เลือกที่นั่งเองได้เลย";
     fillSummary(name);
     backToList = created === true || created === "saved";
     $("backdrop").hidden = false; document.body.style.overflow = "hidden";
@@ -846,7 +862,8 @@ form label { position: relative; }
     }
     var sd = $("startDate").value, ed = $("endDate").value, tm = $("departTime").value, mp = $("meetPoint").value.trim();
     line("cal", sd ? dateRange(sd, ed || sd) : "");
-    line("clk", tm ? "ออกเดินทาง " + tm.replace(":", ".") + " น." : "");
+    var rt2 = $("returnTime").value;
+    line("clk", tm ? (rt2 ? "รถออก " + tm.replace(":", ".") + " น. · ขากลับ " + rt2.replace(":", ".") + " น." : "ออกเดินทาง " + tm.replace(":", ".") + " น.") : "");
     line("pin", mp);
     var vs = rows.map(function (r) { return r.label; }).filter(Boolean);
     line("van", vs.length ? "รถตู้ " + vs.length + " คัน (" + vs.join(", ") + ")" : "");
@@ -964,7 +981,7 @@ form label { position: relative; }
     if (only) { setStep(step + 1); return; }
     var body = {
       name: $("name").value, organizer: $("organizer").value, startDate: $("startDate").value, endDate: $("endDate").value,
-      departTime: $("departTime").value, meetPoint: $("meetPoint").value,
+      departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value,
       vans: rows.map(function (r) { return { id: r.id, label: r.label.trim(), plate: (r.plate || "").trim() }; }),
       maxPerPerson: Number($("maxPer").value),
       closeAt: $("closeDate").value ? $("closeDate").value + "T" + ($("closeTime").value || "23:59") : ""
@@ -972,7 +989,7 @@ form label { position: relative; }
     if (editing && $("closedNow").checked !== closedAtLoad) body.closed = $("closedNow").checked; // only when changed here: a form left open must not undo someone else's close/reopen
     if (editing) body.t = T;
     if (!editing && usePass) body.usePass = true;
-    busy = true; $("submit").disabled = true; $("cancelBtn").disabled = true; $("submit").textContent = (editing ? "กำลังแก้ไข..." : "กำลังสร้าง...");
+    busy = true; $("submit").disabled = true; $("cancelBtn").disabled = true; $("submit").textContent = (editing ? "กำลังบันทึก..." : "กำลังสร้าง...");
     try {
       var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       var data = {}; try { data = await res.json(); } catch (x) {}
@@ -995,13 +1012,14 @@ form label { position: relative; }
         T = data.id; editing = true; setStep(1); // now an edit page: one page, all cards
         history.replaceState(null, "", editPath(T));
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
-        document.querySelector(".hero").classList.add("is-edit"); $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "แก้ไขทริป"; $("shareBtn").hidden = false; document.title = "แก้ไขทริป";
+        document.querySelector(".hero").classList.add("is-edit"); $("title").textContent = "แก้ไขทริป"; $("submit").textContent = "บันทึก"; $("shareBtn").hidden = false; document.title = "แก้ไขทริป";
         showResult(T, true, data.trip.name);
       }
     } catch (x) {
       toast("เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง");
     } finally {
-      busy = false; $("submit").disabled = false; $("cancelBtn").disabled = false; $("submit").textContent = editing ? "แก้ไขทริป" : "สร้างทริป";
+      busy = false; $("submit").disabled = false; $("cancelBtn").disabled = false; $("submit").textContent = editing ? "บันทึก" : (step === 3 ? "สร้างทริป" : "ถัดไป");
+      if (editing) { if (!dirty) saved0 = formState(); updSave(); }
     }
   });
 
@@ -1054,7 +1072,7 @@ form label { position: relative; }
       var data = await res.json();
       if (!res.ok || !data.trip) { if (res.status !== 401) toast("คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย", true); return; }
       var t = data.trip;
-      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
+      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || "";
       (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
       rows = t.vans.map(function (v) { return { id: "", label: v.label, plate: v.plate || "" }; });
       $("lead").textContent = "คัดลอกจากทริปเดิมแล้ว เลือกวันเดินทางใหม่ได้เลย";
@@ -1067,15 +1085,16 @@ form label { position: relative; }
   function showStep(n) {
     [].forEach.call(document.querySelectorAll("#form [data-step]"), function (x) { var d = x.getAttribute("data-step"); x.hidden = editing ? d === "3" : d !== String(n); });
   }
+  var MS2 = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  function shortDate(v) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ""); return m ? (+m[3]) + " " + MS2[+m[2] - 1] + " " + String(+m[1] + 543).slice(2) : ""; }
   function pkText(id) { var b = $(id).parentNode.querySelector(".pk span"); return b ? b.textContent : $(id).value; }
   function fillStepSummary() { // step 3 card (not the share sheet summary, which is fillSummary)
     var box = $("sumRows"); box.textContent = "";
     var sd = $("startDate").value, ed = $("endDate").value;
     var vl = rows.map(function (r) { return (r.label || "").trim(); }).filter(Boolean);
     [["ชื่อทริป", $("name").value.trim()], ["ผู้จัด", $("organizer").value.trim()],
-     sd && ed && sd !== ed ? ["วันเดินทางไป", pkText("startDate")] : ["วันเดินทาง", pkText("startDate")],
-     sd && ed && sd !== ed ? ["วันเดินทางกลับ", pkText("endDate")] : null,
-     ["ออกเดินทาง", pkText("departTime")], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
+     ["ขาไป", [shortDate(sd), $("departTime").value ? $("departTime").value.replace(":", ".") + " น." : ""].filter(Boolean).join(" · ")],
+     ["ขากลับ", [shortDate(ed), $("returnTime").value ? $("returnTime").value.replace(":", ".") + " น." : ""].filter(Boolean).join(" · ")], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
      ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
      ["จองได้ต่อคน", pkText("maxPer")]
     ].forEach(function (r) {
@@ -1109,6 +1128,17 @@ form label { position: relative; }
     dirty = false; history.back();
     setTimeout(function () { location.href = "/mytrips#trips"; }, 400); // opened straight into this page: nothing to go back to
   });
+  // picking the go date fills the return date with the same day (one-day trips); a later return date stays
+  $("startDate").addEventListener("change", function () { var a = $("startDate").value, b = $("endDate").value; if (a && (!b || b < a)) { $("endDate").value = a; $("endDate").dispatchEvent(new Event("change", { bubbles: true })); } });
+  // editing: "บันทึก" is faded until something differs from what was loaded (back to faded if the change is undone)
+  var saved0 = null;
+  function formState() {
+    return JSON.stringify([$("name").value.trim(), $("organizer").value.trim(), $("startDate").value, $("endDate").value, $("departTime").value, $("returnTime").value,
+      $("meetPoint").value.trim(), rows.map(function (r) { return [r.id, (r.label || "").trim(), (r.plate || "").trim()]; }), $("maxPer").value,
+      $("closeDate").value, $("closeTime").value, $("closedNow").checked]);
+  }
+  function updSave() { if (!editing || busy || saved0 === null) return; $("submit").disabled = formState() === saved0; }
+  ["input", "change"].forEach(function (ev) { $("form").addEventListener(ev, function () { setTimeout(updSave, 0); }); });
   // character counters on the three text fields (Thai vowels and tone marks count as characters)
   var CNT = [];
   [["name", 60], ["organizer", 60], ["meetPoint", 60]].forEach(function (f) {
@@ -1130,7 +1160,7 @@ form label { position: relative; }
     $("formMain").hidden = false;
     if (editing) {
       document.querySelector(".hero").classList.add("is-edit"); $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "แก้ข้อมูลแล้วบันทึก ผู้ร่วมทริปเห็นทันที"; document.title = "แก้ไขทริป";
-      $("submit").textContent = "แก้ไขทริป";
+      $("submit").textContent = "บันทึก";
       try {
         var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store" });
         var data = await res.json();
@@ -1142,7 +1172,7 @@ form label { position: relative; }
         if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
         var t = data.trip;
         $("name").value = t.name; $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || "";
-        $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("meetPoint").value = t.meetPoint || "";
+        $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || "";
         (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
         fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = closedAtLoad = t.closed === true;
@@ -1169,7 +1199,8 @@ form label { position: relative; }
       } catch (x) { /* packages unknown: the server still checks */ }
     }
     renderVans();
-    var rv0 = renderVans; renderVans = function () { rv0(); if (!editing) alignSteps(); }; // adding/removing a van changes the tallest step
+    var rv0 = renderVans; renderVans = function () { rv0(); if (!editing) alignSteps(); else updSave(); };
+    if (editing && !$("submit").disabled) { saved0 = formState(); updSave(); } // adding/removing a van changes the tallest step
     CNT.forEach(function (u) { u(); });
     setStep(1);
     if (!editing) armBack();

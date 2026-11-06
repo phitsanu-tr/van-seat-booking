@@ -45,6 +45,8 @@ function clean(body, vanCap, planVans, prev) {
   if (startDate && !DATE_RE.test(startDate)) return { error: "bad_date" };
   if (endDate && !DATE_RE.test(endDate)) return { error: "bad_date" };
   if (departTime && !TIME_RE.test(departTime)) return { error: "bad_time" };
+  const returnTime = s(body.returnTime, 5); // optional: when the van leaves for home
+  if (returnTime && !TIME_RE.test(returnTime)) return { error: "bad_time" };
   const vans = Array.isArray(body.vans) ? body.vans : [];
   if (vans.length < 1) return { error: "bad_vans" };
   if (vans.length > Math.max(planVans || MAX_VANS, vanCap || 0)) return { error: planVans ? "plan_vans" : "bad_vans", limit: planVans || MAX_VANS };
@@ -60,7 +62,7 @@ function clean(body, vanCap, planVans, prev) {
     const plate = keep(v && v.plate, LIM.plate, ov.plate);
     outVans.push(plate ? { id, label, plate } : { id, label });
   }
-  const value = { name, organizer: keep(body.organizer, LIM.organizer, prev && prev.organizer), startDate, endDate, departTime, meetPoint: keep(body.meetPoint, LIM.meetPoint, prev && prev.meetPoint), vans: outVans };
+  const value = { name, organizer: keep(body.organizer, LIM.organizer, prev && prev.organizer), startDate, endDate, departTime, returnTime, meetPoint: keep(body.meetPoint, LIM.meetPoint, prev && prev.meetPoint), vans: outVans };
   if (body.maxPerPerson !== undefined && body.maxPerPerson !== null && body.maxPerPerson !== "") {
     const m = Number(body.maxPerPerson);
     if (!Number.isInteger(m) || m < 0 || m > 50) return { error: "bad_max" };

@@ -535,7 +535,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
   function meta(x, withVans) {
     var m = node("div", "meta"), add = function (svg, text) { if (!text) return; var s = node("span"); s.innerHTML = svg || ""; var i = node("i", null, text); s.appendChild(i); m.appendChild(s); };
     add(SV.cal, dateRange(x.startDate, x.endDate));
-    add(SV.clk, x.departTime ? x.departTime.replace(":", ".") + " น." : "");
+    add(SV.clk, x.departTime ? x.departTime.replace(":", ".") + " น." + (x.returnTime ? " · กลับ " + x.returnTime.replace(":", ".") + " น." : "") : "");
     if (withVans) { var s = node("span", null, "รถตู้ "); s.appendChild(node("i", null, x.vans + " คัน")); m.appendChild(s); }
     else add(SV.pin, x.meetPoint);
     return m;
@@ -759,7 +759,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     var c = node("div", "card tk" + (past ? " dim" : "")), l = node("div", "l");
     var tg = past ? null : noteTag(x.id); if (tg) l.appendChild(tg);
     l.appendChild(node("div", "t", x.name));
-    var m = node("div", "meta"), dr = dateRange(x.startDate, x.endDate), tm = x.departTime ? x.departTime.replace(":", ".") + " น." : "";
+    var m = node("div", "meta"), dr = dateRange(x.startDate, x.endDate), tm = x.departTime ? x.departTime.replace(":", ".") + " น." + (x.returnTime ? " · กลับ " + x.returnTime.replace(":", ".") + " น." : "") : "";
     if (dr || tm) { var s = node("span"); s.innerHTML = SV.cal; s.appendChild(node("i", null, [dr, tm].filter(Boolean).join(" · "))); m.appendChild(s); }
     if (x.meetPoint && !past) { var p = node("span"); p.innerHTML = SV.pin; p.appendChild(node("i", null, x.meetPoint)); m.appendChild(p); }
     l.appendChild(m);
