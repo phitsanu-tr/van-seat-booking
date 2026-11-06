@@ -16,7 +16,7 @@
     ".vt-bar a{flex:1;height:50px;display:flex;flex-direction:column;align-items:center;gap:4px;font:500 12px/16px 'Prompt','Noto Sans Thai',system-ui,sans-serif;color:#8a949a;text-decoration:none;position:relative;white-space:nowrap}" +
     ".vt-bar svg{flex:none;width:24px;height:24px;stroke-width:1.8}" +
     ".vt-bar a.on{color:#0b5f67;font-weight:700}.vt-bar a.on svg{stroke-width:2.4}" +
-    ".vt-bar .nb{position:absolute;top:-4px;left:50%;margin-left:4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#e5484d;color:#fff;font:700 10px/18px 'Noto Sans Thai',system-ui,sans-serif;text-align:center;box-sizing:border-box}" +
+    ".vt-bar .nb{position:absolute;top:-4px;left:50%;margin-left:4px;min-width:18px;height:18px;padding:0 6px;border-radius:10px;background:#e5484d;color:#fff;font:700 10px/18px 'Noto Sans Thai',system-ui,sans-serif;text-align:center;box-sizing:border-box}" +
     ".vt-bar .nb[hidden]{display:none}" +
     ".vt-bar .av{flex:none;width:24px;height:24px;border-radius:50%;background:#0e7c86;color:#fff;font:700 12px/24px 'Prompt','Noto Sans Thai',system-ui,sans-serif;text-align:center;overflow:hidden;display:block;box-sizing:border-box}" +
     ".vt-bar .av img{width:100%;height:100%;object-fit:cover;display:block}" +
