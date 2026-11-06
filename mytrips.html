@@ -122,7 +122,7 @@ body.signed .top button.mkr:disabled{color:#9aa6ad}
 .hp{margin-top:0}
 </style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
-<title>ทริปของฉัน · จองที่นั่งรถตู้</title>
+<title>ทริปของฉัน</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
 <style>
@@ -191,6 +191,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .chead .row1 .t { flex: 1; }
 .row1 { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
 .t { font: 600 16px/20px var(--font-display); min-width: 0; overflow-wrap: anywhere; }
+.chead .t, .tc b, .nx h3 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } /* long trip names: 2 lines then … (full name on the booking page) */
 .org { font-size: 12px; color: var(--muted); margin-top: -8px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; line-height: 16px}
 .meta { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: var(--muted); line-height: 20px}
 .meta i { font-style: normal; color: var(--ink); font-weight: 500; }
@@ -241,7 +242,8 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .wslim .tx span { font-size: 12px; color: #d4ecee; line-height: 16px}
 .wslim .go { position: relative; flex: none; height: 40px; padding: 0 14px; border-radius: 12px; background: #fff; color: var(--mine); font: 600 14px/20px var(--font-display); display: flex; align-items: center; }
 .wslim .go { text-decoration: none; } .wslim .go:active { opacity: .85; }
-.vb-empty .eb { display: flex; width: 176px; justify-content: center; align-items: center; gap: 8px; height: 48px; padding: 0 24px; margin: 20px auto 0; border-radius: 14px; background: var(--mine); color: #fff; font: 600 16px/24px var(--font-display); text-decoration: none; }
+.vb-empty .eb svg { width: 20px; height: 20px; flex: none; margin: 0; display: block; }
+.vb-empty .eb { display: flex; width: 176px; justify-content: center; align-items: center; gap: 8px; border: 0; cursor: pointer; height: 48px; padding: 0 24px; margin: 20px auto 0; border-radius: 14px; background: var(--mine); color: #fff; font: 600 16px/24px var(--font-display); text-decoration: none; }
 .tk { flex-direction: row; gap: 0; padding: 0; overflow: hidden; }
 .tk .l { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .tk .r { width: 88px; flex: none; background: var(--mine); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 2px dashed rgba(255,255,255,.4); text-align: center; padding: 8px 4px; }
@@ -615,6 +617,23 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     team: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>',
     dup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>'
   };
+  var KEY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l3 3"/></svg>';
+  function openCode() { // seats tab, nothing booked yet: type a trip code or paste a link (same rules as the home code box)
+    var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
+    var shut = function () { bd.remove(); };
+    bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
+    sheetHead(sh, "ใส่รหัสทริป", shut);
+    sh.appendChild(node("p", "msub", "ใส่รหัสหรือวางลิงก์ที่ผู้จัดส่งให้"));
+    var f = node("form", "hcf"); f.setAttribute("autocomplete", "off");
+    var inp = node("input"); inp.type = "text"; inp.maxLength = 200; inp.placeholder = "ใส่รหัสทริป หรือวางลิงก์"; inp.setAttribute("aria-label", "รหัสทริป"); inp.setAttribute("autocapitalize", "characters"); inp.setAttribute("autocorrect", "off"); inp.spellcheck = false;
+    var go = node("button"); go.type = "submit"; go.setAttribute("aria-label", "ไปหน้าจอง"); go.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    f.appendChild(inp); f.appendChild(go); sh.appendChild(f);
+    var er = node("div", "herr"); er.setAttribute("role", "alert"); er.hidden = true; sh.appendChild(er);
+    function bad(t) { er.textContent = t; er.hidden = !t; if (t) inp.setAttribute("aria-invalid", "true"); else inp.removeAttribute("aria-invalid"); }
+    inp.addEventListener("input", function () { bad(""); });
+    f.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.parse(inp.value); if (!id) { bad(inp.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); inp.focus(); return; } location.href = "/" + id; });
+    document.body.appendChild(bd); setTimeout(function () { inp.focus(); }, 50);
+  }
   function openManage(x) {
     var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
     var shut = function () { bd.remove(); };
@@ -725,7 +744,11 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     up.forEach(function (x) { pane.appendChild(ticket(x, false)); });
     if (done.length) { section(pane, "ผ่านมาแล้ว", ""); done.forEach(function (x) { pane.appendChild(ticket(x, true)); }); }
     if (list.length) pane.appendChild(node("div", "empty", "เปิดลิงก์ทริปจากเพื่อนแล้วจอง ที่นั่งจะมาอยู่ที่นี่เอง · ใช้ได้ทั้งในมือถือและคอม"));
-    else { var em = node("div", "vb-empty"); em.innerHTML = window.VSBBell ? VSBBell.emptyHtml("ยังไม่มีที่นั่งที่จองไว้", "ที่นั่งที่คุณจองจะอยู่ที่นี่<br>เปิดลิงก์จากผู้จัดเพื่อจอง") : "ยังไม่มีที่นั่งที่จองไว้"; pane.appendChild(em); }
+    else {
+      var em = node("div", "vb-empty"); em.innerHTML = window.VSBBell ? VSBBell.emptyHtml("ยังไม่มีที่นั่งที่จองไว้", "ที่นั่งที่คุณจองจะอยู่ที่นี่<br>เปิดลิงก์จากผู้จัด หรือใส่รหัสทริป") : "ยังไม่มีที่นั่งที่จองไว้";
+      var cb = node("button", "eb"); cb.type = "button"; cb.innerHTML = KEY_ICON + "<span>ใส่รหัสทริป</span>"; cb.addEventListener("click", openCode); em.appendChild(cb);
+      pane.appendChild(em);
+    }
   }
   function noteTag(id) { // unread change of this trip -> short orange label
     if (!window.VSBBell) return null;

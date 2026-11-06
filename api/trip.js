@@ -33,9 +33,13 @@ async function refundQuota(user, month) {
   try { await L.redis(["DECR", P.quotaKey(user.id, month)]); } catch (e) { /* best effort */ }
 }
 
-function clean(body, vanCap, planVans) {
+// text limits (characters, Thai vowels/tone marks count): a trip saved before these limits keeps its longer text until that field is edited
+const LIM = { name: 60, organizer: 60, meetPoint: 60, label: 4, plate: 25 };
+function clean(body, vanCap, planVans, prev) {
   const s = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
-  const name = s(body.name, 80);
+  const keep = (v, n, old) => { const t = String(v == null ? "" : v).trim(); return old && t === old ? t : t.slice(0, n); };
+  const oldVan = (id) => ((prev && prev.vans) || []).find((x) => id && x.id === id) || {};
+  const name = keep(body.name, LIM.name, prev && prev.name);
   if (!name) return { error: "bad_name" };
   const startDate = s(body.startDate, 10), endDate = s(body.endDate, 10), departTime = s(body.departTime, 5);
   if (startDate && !DATE_RE.test(startDate)) return { error: "bad_date" };
@@ -47,15 +51,16 @@ function clean(body, vanCap, planVans) {
   const seen = new Set();
   const outVans = [];
   for (const v of vans) {
-    const label = s(v && v.label, 12);
+    const ov = oldVan(String((v && v.id) || ""));
+    const label = keep(v && v.label, LIM.label, ov.label);
     if (!label) return { error: "bad_vans" };
     const id = s(v && v.id, 12);
     if (id && (seen.has(id) || !/^[A-Za-z0-9]+$/.test(id))) return { error: "bad_vans" };
     if (id) seen.add(id);
-    const plate = s(v && v.plate, 25);
+    const plate = keep(v && v.plate, LIM.plate, ov.plate);
     outVans.push(plate ? { id, label, plate } : { id, label });
   }
-  const value = { name, organizer: s(body.organizer, 80), startDate, endDate, departTime, meetPoint: s(body.meetPoint, 120), vans: outVans };
+  const value = { name, organizer: keep(body.organizer, LIM.organizer, prev && prev.organizer), startDate, endDate, departTime, meetPoint: keep(body.meetPoint, LIM.meetPoint, prev && prev.meetPoint), vans: outVans };
   if (body.maxPerPerson !== undefined && body.maxPerPerson !== null && body.maxPerPerson !== "") {
     const m = Number(body.maxPerPerson);
     if (!Number.isInteger(m) || m < 0 || m > 50) return { error: "bad_max" };
@@ -342,7 +347,7 @@ module.exports = async function handler(req, res) {
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (!isManager(trip, user)) return deny(res, user);
       const lt = await limitsOf(trip);
-      const c = clean(body, trip.vans.length, lt.on ? lt.vans : 0);
+      const c = clean(body, trip.vans.length, lt.on ? lt.vans : 0, trip);
       if (c.error) return L.json(res, c.error === "plan_vans" ? 402 : 400, { error: c.error, limit: c.limit });
       const oldIds = trip.vans.map((v) => v.id);
       const next = assignVanIds(c.value.vans.map((v) => ({ id: oldIds.includes(v.id) ? v.id : "", label: v.label, plate: v.plate })), oldIds);
