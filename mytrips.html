@@ -1401,7 +1401,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
       });
     } else if(fresh){
       var hs=el("div","hsteps");hs.appendChild(el("b","hsh","ง่าย ๆ 3 ขั้นตอน"));
-      [["สร้างทริป","กรอกวัน เวลา จุดนัด และจำนวนรถ"],["ส่งลิงก์เข้ากลุ่ม LINE","เพื่อนไม่ต้องโหลดแอป แตะแล้วจองได้เลย"],["ดูผังและรายชื่อ","อัปเดตทันที เช็กชื่อขึ้นรถได้ด้วย"]].forEach(function(f,i){
+      [["สร้างทริป","กรอกวัน เวลา จุดนัด และจำนวนรถ"],["แชร์ลิงก์เข้ากลุ่ม LINE","ผู้ร่วมทริปไม่ต้องโหลดแอป แตะแล้วเลือกที่นั่งได้เลย"],["ดูผังและรายชื่อ","อัปเดตทันที เช็กชื่อขึ้นรถได้ด้วย"]].forEach(function(f,i){
         var r=el("div","hst");r.appendChild(el("i",null,String(i+1)));var tx=el("div");tx.appendChild(el("b",null,f[0]));tx.appendChild(el("span",null,f[1]));r.appendChild(tx);hs.appendChild(r);
       });
       ml.appendChild(hs);
