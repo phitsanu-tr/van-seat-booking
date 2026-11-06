@@ -272,9 +272,9 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .vb-empty .eb { display: flex; width: 176px; justify-content: center; align-items: center; gap: 8px; border: 0; cursor: pointer; height: 48px; padding: 0 24px; margin: 20px auto 0; border-radius: 14px; background: var(--mine); color: #fff; font: 600 16px/24px var(--font-display); text-decoration: none; }
 .tk { flex-direction: row; gap: 0; padding: 0; overflow: hidden; position: relative; }
 /* ticket join: a notch at the top and bottom, centred on a column of dots (the tear line) */
-.tk::before, .tk::after { content: ""; position: absolute; right: 72px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1px #e8ecef; z-index: 2; pointer-events: none; }
+.tk::before, .tk::after { content: ""; position: absolute; right: 76px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1px #e8ecef; z-index: 2; pointer-events: none; }
 .tk::before { top: -12px; } .tk::after { bottom: -12px; }
-.tk .r::before { content: ""; position: absolute; left: 2px; top: 16px; bottom: 16px; width: 4px; background: radial-gradient(circle, rgba(255,255,255,.6) 1.5px, transparent 2px) 0 0 / 4px 8px repeat-y; }
+.tk .r::before { content: ""; position: absolute; left: -4px; top: 16px; bottom: 16px; width: 8px; background: radial-gradient(circle, #fff 2.5px, transparent 3px) 0 0 / 8px 10px repeat-y; } /* white dots centred on the green edge, in line with the notches */
 .tk .l { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .tk .r { width: 88px; flex: none; position: relative; background: var(--mine); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; padding: 8px 4px 8px 8px; }
 .tk .r .lb { font-size: 12px; line-height: 16px; opacity: .85; }
