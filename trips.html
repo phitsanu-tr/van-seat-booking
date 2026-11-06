@@ -1097,6 +1097,18 @@ form label { position: relative; }
     window.scrollTo(0, 0);
   }
   $("sumEdit").addEventListener("click", function () { setStep(1); });
+  // the phone's / LINE's back button steps back one step while creating (3 -> 2 -> 1), then asks before leaving
+  var guardOn = false;
+  function armBack() { if (guardOn) return; try { history.pushState({ vsbGuard: 1 }, ""); guardOn = true; } catch (e) {} }
+  window.addEventListener("popstate", async function () {
+    if (!guardOn) return;
+    guardOn = false;
+    if (editing) { location.replace("/mytrips#trips"); return; } // just created: back goes to the trips list
+    if (step > 1) { setStep(step - 1); armBack(); return; }
+    if (dirty && !(await askConfirm("ยกเลิกการสร้างทริป?", "ข้อมูลที่กรอกไว้จะไม่ถูกบันทึก", "ออก"))) { armBack(); return; }
+    dirty = false; history.back();
+    setTimeout(function () { location.href = "/mytrips#trips"; }, 400); // opened straight into this page: nothing to go back to
+  });
   // character counters on the three text fields (Thai vowels and tone marks count as characters)
   var CNT = [];
   [["name", 60], ["organizer", 60], ["meetPoint", 60]].forEach(function (f) {
@@ -1160,6 +1172,7 @@ form label { position: relative; }
     var rv0 = renderVans; renderVans = function () { rv0(); if (!editing) alignSteps(); }; // adding/removing a van changes the tallest step
     CNT.forEach(function (u) { u(); });
     setStep(1);
+    if (!editing) armBack();
   }
   init();
 })();
