@@ -210,7 +210,8 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .wbig { position: relative; overflow: hidden; border-radius: 22px; padding: 22px 18px 18px; color: #fff; background: linear-gradient(160deg, var(--mine), var(--deep)); display: flex; flex-direction: column; gap: 8px; }
 .wbig h2 { margin: 0; font: 600 21px/1.35 var(--font-display); position: relative; }
 .wbig p { margin: 0; font-size: 13.5px; line-height: 1.6; color: #d4ecee; position: relative; }
-.wvan { position: absolute; right: -8px; top: 12px; width: 120px; color: #fff; opacity: .16; }
+.wpic { align-self: center; background: #fff; border-radius: 16px; padding: 8px 12px; margin-bottom: 4px; line-height: 0; }
+.wpic svg { width: 150px; height: 98px; display: block; }
 .wgo { position: relative; margin-top: 8px; height: 52px; border-radius: 16px; background: #fff; color: var(--deep); font: 600 16px var(--font-display); display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .wgo:active { opacity: .85; }
 .acts .ab svg { width: 16px; height: 16px; flex: none; }
@@ -674,7 +675,8 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
   }
   function wBanner() { // the green "จัดทริปรถตู้" banner with one big button (trips tab and home when there is nothing yet)
     var big = node("div", "wbig");
-    big.innerHTML = '<svg class="wvan" viewBox="0 0 96 50" fill="currentColor" aria-hidden="true"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/></svg>';
+    var m = window.VSBBell && /<svg[\s\S]*<\/svg>/.exec(VSBBell.emptyHtml("", "")); // the app's standard van picture (road, red pin)
+    if (m) big.innerHTML = '<div class="wpic">' + m[0] + '</div>';
     var h = node("h2"); h.appendChild(document.createTextNode("จัดทริปรถตู้")); h.appendChild(node("br")); h.appendChild(document.createTextNode("ไม่ต้องจดชื่อในแชทอีกต่อไป"));
     big.appendChild(h); big.appendChild(node("p", null, "ส่งลิงก์เข้ากลุ่ม เพื่อนเลือกที่นั่งเอง"));
     var go = node("a", "wgo", "＋ สร้างทริปแรก"); go.href = "/trips/new"; big.appendChild(go);
