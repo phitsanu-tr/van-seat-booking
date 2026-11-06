@@ -177,6 +177,10 @@ label.bad { color: var(--danger); }
 .sw:checked { background: var(--danger); }
 .sw:checked::after { transform: translateX(20px); }
 .sw.ok:checked { background: var(--mine); }
+.stn { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: -4px; }
+.stn span { font-size: 12px; line-height: 16px; color: var(--muted); margin-right: 4px; }
+.stn button { height: 36px; padding: 0 16px; border-radius: 100px; border: 1px solid var(--line); background: #fff; color: var(--ink); font: 500 14px/20px var(--font-body, inherit); cursor: pointer; }
+.stn button.on { border-color: var(--mine); background: color-mix(in srgb, var(--mine) 10%, #fff); color: var(--mine); font-weight: 600; }
 form label.swl.stf { display: flex; padding: 12px 16px; border: 1px solid #e8ecef; border-radius: 12px; }
 .sw:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 14%, transparent); }
@@ -359,6 +363,7 @@ form label { position: relative; }
       <button type="button" class="btn plain small" id="addVan" style="margin-top:8px">+ เพิ่มรถอีกคัน</button>
     </div>
     <label class="swl stf"><span class="swt"><b>สงวนที่นั่ง 1 สำหรับผู้จัด</b><small>ใช้กับรถทุกคัน · ผู้ร่วมทริปจองที่นั่งนี้ไม่ได้</small></span><input type="checkbox" id="staffSeat" class="sw ok" role="switch"></label>
+    <div class="stn" id="staffNameRow" hidden><span>ชื่อที่แสดง</span><input type="hidden" id="staffName" value="STAFF"><button type="button" data-n="STAFF">STAFF</button><button type="button" data-n="ไกด์">ไกด์</button><button type="button" data-n="ผู้จัด">ผู้จัด</button></div>
     <label>จองได้สูงสุดต่อคน <small>(รวมทุกคัน · คนจัดทริปไม่จำกัด)</small>
       <input type="hidden" id="maxPer" value="1">
     </label>
@@ -993,7 +998,7 @@ form label { position: relative; }
       departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value,
       vans: rows.map(function (r) { return { id: r.id, label: r.label.trim(), plate: (r.plate || "").trim() }; }),
       maxPerPerson: Number($("maxPer").value),
-      staffSeat: $("staffSeat").checked,
+      staffSeat: $("staffSeat").checked, staffName: $("staffName").value,
       closeAt: $("closeDate").value ? $("closeDate").value + "T" + ($("closeTime").value || "23:59") : ""
     };
     if (editing && $("closedNow").checked !== closedAtLoad) body.closed = $("closedNow").checked; // only when changed here: a form left open must not undo someone else's close/reopen
@@ -1084,7 +1089,7 @@ form label { position: relative; }
       var data = await res.json();
       if (!res.ok || !data.trip) { if (res.status !== 401) toast("คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย", true); return; }
       var t = data.trip;
-      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat;
+      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
       (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
       rows = t.vans.map(function (v) { return { id: "", label: v.label, plate: v.plate || "" }; });
       $("lead").textContent = "คัดลอกจากทริปเดิมแล้ว เลือกวันเดินทางใหม่ได้เลย";
@@ -1108,7 +1113,7 @@ form label { position: relative; }
      ["ขาไป", [shortDate(sd), $("departTime").value ? $("departTime").value.replace(":", ".") + " น." : ""].filter(Boolean).join(" · ")],
      ["ขากลับ", [shortDate(ed), $("returnTime").value ? $("returnTime").value.replace(":", ".") + " น." : ""].filter(Boolean).join(" · ")], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
      ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
-     ["จองได้ต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["ที่นั่ง 1", "สงวนสำหรับผู้จัด ทุกคัน"] : null
+     ["จองได้ต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["ที่นั่ง 1", "สงวนสำหรับผู้จัด ทุกคัน · ขึ้นชื่อ " + $("staffName").value] : null
     ].forEach(function (r) {
       if (!r || !r[1]) return;
       var d = document.createElement("div"); d.className = "r";
@@ -1145,9 +1150,19 @@ form label { position: relative; }
   var saved0 = null;
   function formState() {
     return JSON.stringify([$("name").value.trim(), $("organizer").value.trim(), $("startDate").value, $("endDate").value, $("departTime").value, $("returnTime").value,
-      $("meetPoint").value.trim(), $("staffSeat").checked, rows.map(function (r) { return [r.id, (r.label || "").trim(), (r.plate || "").trim()]; }), $("maxPer").value,
+      $("meetPoint").value.trim(), $("staffSeat").checked, $("staffName").value, rows.map(function (r) { return [r.id, (r.label || "").trim(), (r.plate || "").trim()]; }), $("maxPer").value,
       $("closeDate").value, $("closeTime").value, $("closedNow").checked]);
   }
+  // "สงวนที่นั่ง 1 สำหรับผู้จัด": name chips show only while the switch is on
+  function staffUi() {
+    $("staffNameRow").hidden = !$("staffSeat").checked;
+    [].forEach.call($("staffNameRow").querySelectorAll("button"), function (b) { var on = b.getAttribute("data-n") === $("staffName").value; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on ? "true" : "false"); });
+  }
+  $("staffSeat").addEventListener("change", staffUi);
+  [].forEach.call($("staffNameRow").querySelectorAll("button"), function (b) {
+    b.addEventListener("click", function () { $("staffName").value = b.getAttribute("data-n"); staffUi(); $("staffName").dispatchEvent(new Event("change", { bubbles: true })); });
+  });
+  staffUi();
   function updSave() { if (!editing || busy || saved0 === null) return; $("submit").disabled = formState() === saved0; }
   ["input", "change"].forEach(function (ev) { $("form").addEventListener(ev, function () { setTimeout(updSave, 0); }); });
   // character counters on the three text fields (Thai vowels and tone marks count as characters)
@@ -1183,7 +1198,7 @@ form label { position: relative; }
         if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
         var t = data.trip;
         $("name").value = t.name; $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || "";
-        $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat;
+        $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
         (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
         fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = closedAtLoad = t.closed === true;

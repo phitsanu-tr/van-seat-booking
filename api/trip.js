@@ -75,30 +75,43 @@ function clean(body, vanCap, planVans, prev) {
   }
   if (body.closed !== undefined) value.closed = body.closed === true;
   value.staffSeat = body.staffSeat === undefined ? !!(prev && prev.staffSeat) : body.staffSeat === true; // seat 1 of every van kept for the organizer team
+  const sn = body.staffName === undefined ? (prev && prev.staffName) : body.staffName;
+  value.staffName = STAFF_NAMES.includes(sn) ? sn : "STAFF"; // the name shown on those seats
   return { value };
 }
 
 // "สงวนที่นั่ง 1 สำหรับผู้จัด": books seat 1 as STAFF in the owner's name (not in their "my seats" list); a seat someone
 // already booked is left alone. Returns the labels of the vans where seat 1 was taken.
+const STAFF_NAMES = ["STAFF", "ไกด์", "ผู้จัด"];
 async function reserveStaff(trip, vanIds) {
   if (!vanIds.length) return [];
-  const at = Date.now(), rec = JSON.stringify({ name: "STAFF", at, u: trip.owner, ln: trip.ownerName || "", lp: "", st: 1 });
+  const nm = trip.staffName || "STAFF", at = Date.now(), rec = JSON.stringify({ name: nm, at, u: trip.owner, ln: trip.ownerName || "", lp: "", st: 1, sn: nm }); // sn: the name the app gave it
   const out = await L.pipeline(vanIds.map((id) => ["HSETNX", L.seatsKey(trip.id, id), "1", rec]));
   const skipped = [];
   for (let i = 0; i < vanIds.length; i++) {
-    if (Number(out[i]) === 1) await L.logEvent(trip.id, { e: "book", v: vanIds[i], s: 1, n: "STAFF", u: trip.owner, at });
+    if (Number(out[i]) === 1) await L.logEvent(trip.id, { e: "book", v: vanIds[i], s: 1, n: nm, u: trip.owner, at });
     else skipped.push(L.vanLabel(trip, vanIds[i]));
   }
   return skipped;
 }
-// Turning it off frees only the STAFF seats nobody renamed.
+// the seat-1 records the app made and nobody renamed since
+function appStaff(r) { return !!(r && r.st === 1 && r.name === (r.sn || "STAFF")); }
+// A new name chosen while it stays on: rename those seats too.
+async function renameStaff(trip) {
+  const ids = trip.vans.map((v) => v.id), nm = trip.staffName || "STAFF";
+  const got = await L.pipeline(ids.map((id) => ["HGET", L.seatsKey(trip.id, id), "1"]));
+  const cmds = [];
+  ids.forEach((id, i) => { let r = null; try { r = JSON.parse(got[i]); } catch (e) { /* empty */ } if (appStaff(r) && r.name !== nm) cmds.push(["HSET", L.seatsKey(trip.id, id), "1", JSON.stringify(Object.assign(r, { name: nm, sn: nm }))]); });
+  if (cmds.length) await L.pipeline(cmds);
+}
+// Turning it off frees only the seats the app made that nobody renamed.
 async function releaseStaff(trip) {
   const ids = trip.vans.map((v) => v.id);
   const got = await L.pipeline(ids.map((id) => ["HGET", L.seatsKey(trip.id, id), "1"]));
   for (let i = 0; i < ids.length; i++) {
     let r = null; try { r = JSON.parse(got[i]); } catch (e) { /* empty or damaged */ }
-    if (r && r.st === 1 && r.name === "STAFF") {
-      if (Number(await L.redis(["HDEL", L.seatsKey(trip.id, ids[i]), "1"])) === 1) await L.logEvent(trip.id, { e: "cancel", v: ids[i], s: 1, n: "STAFF", u: trip.owner, at: Date.now() });
+    if (appStaff(r)) {
+      if (Number(await L.redis(["HDEL", L.seatsKey(trip.id, ids[i]), "1"])) === 1) await L.logEvent(trip.id, { e: "cancel", v: ids[i], s: 1, n: r.name, u: trip.owner, at: Date.now() });
     }
   }
 }
@@ -397,7 +410,10 @@ module.exports = async function handler(req, res) {
       let staffSkipped = [];
       try {
         if (updated.staffSeat && !trip.staffSeat) staffSkipped = await reserveStaff(updated, next.map((v) => v.id)); // just turned on: every van
-        else if (updated.staffSeat) staffSkipped = await reserveStaff(updated, next.filter((v) => !oldIds.includes(v.id)).map((v) => v.id)); // new vans only
+        else if (updated.staffSeat) {
+          if ((trip.staffName || "STAFF") !== updated.staffName) await renameStaff(updated);
+          staffSkipped = await reserveStaff(updated, next.filter((v) => !oldIds.includes(v.id)).map((v) => v.id)); // new vans only
+        }
         else if (trip.staffSeat) await releaseStaff(updated);
       } catch (e) { /* best effort: the trip itself is saved */ }
       await L.applyExpiry(updated); // SET cleared the TTL; dates may have changed
