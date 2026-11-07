@@ -190,8 +190,8 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 /* cards you can tap (whole card opens the trip's seat plan): press feedback so the tap is felt */
 .card.tap { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .1s ease, background-color .1s ease; }
 .card.tap.press { transform: scale(.98); background: #f4f7f8; }
-.tk.tap.press { background: transparent; } /* tickets: keep the notches see-through while pressed; tint the white half only */
-.tk.tap.press .l { background-color: #f4f7f8; }
+
+
 .chead { display: flex; flex-direction: column; gap: 12px; }
 .chead .row1 .t { flex: 1; }
 .row1 { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
@@ -272,13 +272,12 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .wslim .go { text-decoration: none; } .wslim .go:active { opacity: .85; }
 .vb-empty .eb svg { width: 20px; height: 20px; flex: none; margin: 0; display: block; }
 .vb-empty .eb { display: flex; width: 176px; justify-content: center; align-items: center; gap: 8px; border: 0; cursor: pointer; height: 48px; padding: 0 24px; margin: 20px auto 0; border-radius: 14px; background: var(--mine); color: #fff; font: 600 16px/24px var(--font-display); text-decoration: none; }
-.tk { flex-direction: row; gap: 0; padding: 0; overflow: hidden; position: relative; border: 0; background: transparent; box-shadow: none; filter: drop-shadow(0 6px 8px rgba(20,40,50,.08)); } /* a drop shadow follows the notches, so they read as cut out */ /* see-through notches: each half is cut with a mask, so the page shows through them */
-/* ticket join: a notch at the top and bottom, centred on a column of dots (the tear line) */
-/* the notch outline is painted inside each half (same layer as the cut), so it never drifts off the cut edge when the card scales */
+.tk { flex-direction: row; gap: 0; padding: 0; overflow: hidden; }
 
-.tk .l, .tk .r { --hole: radial-gradient(circle at var(--hx) 0, #0000 11px, #000 11.5px) top / 100% 51% no-repeat, radial-gradient(circle at var(--hx) 100%, #0000 11px, #000 11.5px) bottom / 100% 51% no-repeat; -webkit-mask: var(--hole); mask: var(--hole); background-image: radial-gradient(circle at var(--hx) 0, #0000 10.5px, #e8ecef 11px 12.5px, #0000 13px), radial-gradient(circle at var(--hx) 100%, #0000 10.5px, #e8ecef 11px 12.5px, #0000 13px), linear-gradient(#cfd8dc 0 6px, transparent 0); background-size: 100% 100%, 100% 100%, 2px 10px; background-repeat: no-repeat, no-repeat, repeat-y; } /* notch outlines + tear line (short dashes, 1px each side of the edge) */
-.tk .l { --hx: 100%; flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; background-color: #fff; background-position: 0 0, 0 0, right -1px top 16px; border-radius: 16px 0 0 16px; box-shadow: inset 1px 0 #e8ecef, inset 0 1px #e8ecef, inset 0 -1px #e8ecef; }
-.tk .r { --hx: 0; width: 88px; flex: none; position: relative; background-color: var(--mine); background-image: linear-gradient(#cfd8dc 0 6px, transparent 0); background-size: 2px 10px; background-repeat: repeat-y; background-position: -1px 16px; /* green half: the notch edge stays green (outline only on the white half) */ color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; padding: 8px 4px 8px 8px; }
+
+.tk .l, .tk .r { background-image: linear-gradient(#cfd8dc 0 6px, transparent 0); background-size: 2px 10px; background-repeat: repeat-y; } /* tear line: short dashes, 1px drawn on each side of the edge */
+.tk .l { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; background-position: right -1px top 8px; }
+.tk .r { width: 88px; flex: none; position: relative; background-color: var(--mine); background-position: -1px 8px; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; padding: 8px 4px 8px 8px; }
 .tk .r .lb { font-size: 12px; line-height: 16px; opacity: .85; }
 .tk .r .pill { margin-top: 4px; font-size: 12px; line-height: 16px; font-weight: 600; background: rgba(255,255,255,.18); border-radius: 100px; padding: 4px 10px; white-space: nowrap; }
 .tk .r small { font-size: 12px; opacity: .85; line-height: 18px; }
