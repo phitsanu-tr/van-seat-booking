@@ -270,19 +270,19 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .wslim .go { text-decoration: none; } .wslim .go:active { opacity: .85; }
 .vb-empty .eb svg { width: 20px; height: 20px; flex: none; margin: 0; display: block; }
 .vb-empty .eb { display: flex; width: 176px; justify-content: center; align-items: center; gap: 8px; border: 0; cursor: pointer; height: 48px; padding: 0 24px; margin: 20px auto 0; border-radius: 14px; background: var(--mine); color: #fff; font: 600 16px/24px var(--font-display); text-decoration: none; }
-.tk { flex-direction: row; gap: 0; padding: 0; overflow: hidden; position: relative; border: 0; box-shadow: inset 0 0 0 1px #e8ecef, 0 8px 24px -10px rgba(20,40,50,.18); } /* the outline is an inset shadow so the notches can cover it (a border would stay drawn across them) */
+.tk { flex-direction: row; gap: 0; padding: 0; overflow: hidden; position: relative; border: 0; background: transparent; } /* see-through notches: each half is cut with a mask, so the page shows through them */
 /* ticket join: a notch at the top and bottom, centred on a column of dots (the tear line) */
-.tk::before, .tk::after { content: ""; position: absolute; right: 76px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1px #e8ecef; z-index: 2; pointer-events: none; }
+.tk::before, .tk::after { content: ""; position: absolute; right: 76px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid #e8ecef; box-sizing: border-box; z-index: 2; pointer-events: none; } /* the notch's curved edge */
 .tk::before { top: -12px; } .tk::after { bottom: -12px; }
-.tk .r::before { content: ""; position: absolute; left: -4px; top: 16px; bottom: 16px; width: 8px; background: radial-gradient(circle, #dfe6e9 2.5px, transparent 3px) 0 0 / 8px 10px repeat-y; } /* white dots centred on the green edge, in line with the notches */
-.tk .l { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.tk .r { width: 88px; flex: none; position: relative; background: var(--mine); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; padding: 8px 4px 8px 8px; }
+.tk .l, .tk .r { --hole: radial-gradient(circle at var(--hx) 0, #0000 12px, #000 12.5px) top / 100% 51% no-repeat, radial-gradient(circle at var(--hx) 100%, #0000 12px, #000 12.5px) bottom / 100% 51% no-repeat; -webkit-mask: var(--hole); mask: var(--hole); background-repeat: repeat-y; background-size: 8px 10px; } /* tear-line dots: half drawn on each side of the edge */
+.tk .l { --hx: 100%; flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; background-color: #fff; background-image: radial-gradient(circle, #dfe6e9 2.5px, transparent 3px); background-position: right -4px top 16px; border-radius: 16px 0 0 16px; box-shadow: inset 1px 0 #e8ecef, inset 0 1px #e8ecef, inset 0 -1px #e8ecef; }
+.tk .r { --hx: 0; width: 88px; flex: none; position: relative; background-color: var(--mine); background-image: radial-gradient(circle, #dfe6e9 2.5px, transparent 3px); background-position: -4px 16px; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; padding: 8px 4px 8px 8px; }
 .tk .r .lb { font-size: 12px; line-height: 16px; opacity: .85; }
 .tk .r .pill { margin-top: 4px; font-size: 12px; line-height: 16px; font-weight: 600; background: rgba(255,255,255,.18); border-radius: 100px; padding: 4px 10px; white-space: nowrap; }
 .tk .r small { font-size: 12px; opacity: .85; line-height: 18px; }
 .tk .r b { font: 600 40px/44px var(--font-display); }
 .tk .r b.sm { font-size: 20px; line-height: 28px}
-.tk.dim .r { background: #8a979e; }
+.tk.dim .r { background-color: #8a979e; }
 .nm { font-size: 12px; color: var(--muted); line-height: 16px} .nm b { color: var(--ink); font-weight: 600; }
 .empty { background: #f7fafb; border: 1.5px dashed var(--line); border-radius: 16px; padding: 16px; text-align: center; font-size: 14px; color: var(--muted); line-height: 20px}
 .sk { background: linear-gradient(90deg, #e6eaed 0%, #f2f4f6 50%, #e6eaed 100%); background-size: 200% 100%; animation: sk 1.2s linear infinite; border-radius: 8px; }
