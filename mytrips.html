@@ -216,8 +216,8 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .rt .s.rr { text-align: right; }
 .rt .s span.q { color: var(--muted); }
 .rt .mid { color: var(--mine); display: flex; }
-.rt .mid svg { width: 40px; height: 16px; }
-.rt.sm .mid svg { width: 24px; }
+.rt .mid svg { width: 40px; height: 20px; } /* ⇄ going (top) and back (bottom) */
+.rt.sm .mid svg { width: 32px; height: 16px; }
 .stat { display: flex; align-items: center; gap: 12px; }
 .stat .bar { flex: 1; }
 .stat b { font-size: 14px; line-height: 20px; font-weight: 600; white-space: nowrap; }
@@ -577,7 +577,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     box.appendChild(side("ขาไป", x.startDate, x.departTime));
     var back = x.endDate || x.startDate, same = !x.endDate || x.endDate === x.startDate;
     if ((x.endDate && !same) || x.returnTime) { // a same-day trip with no return time shows the way out only
-      box.insertAdjacentHTML("beforeend", '<div class="mid"><svg viewBox="0 0 40 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h34M30 3l6 5-6 5"/></svg></div>');
+      box.insertAdjacentHTML("beforeend", '<div class="mid"><svg viewBox="0 0 40 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h32M31 1l5 4-5 4M36 15H4M9 11l-5 4 5 4"/></svg></div>');
       box.appendChild(side("ขากลับ", back, x.returnTime, "rr", same && x.returnTime ? "วันเดียวกัน" : ""));
     } else box.classList.add("one");
     return box;
