@@ -1,4 +1,4 @@
-# Only the home page and the privacy page are meant for search engines.
+# Only the home page, the privacy page and the terms page are meant for search engines.
 User-agent: *
 Disallow: /api/
 Disallow: /owner

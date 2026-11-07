@@ -92,6 +92,7 @@ function route(pathname, query) {
   if (pathname === "/owner") return "/owner.html";
   if (pathname === "/mytrips") return "/mytrips.html";
   if (pathname === "/privacy") return "/privacy.html";
+  if (pathname === "/terms") return "/terms.html";
   if (pathname === "/plans") return "/plans.html";
   if (/^\/[a-hj-km-np-z2-9]{6,8}$/.test(pathname)) return "/book.html";
   return pathname;
@@ -100,7 +101,7 @@ function route(pathname, query) {
 function startApp() {
   const app = http.createServer((req, res) => {
     const u = new URL(req.url, "http://localhost");
-    const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/mytrips", "/trips": "/mytrips", "/owner.html": "/owner", "/mytrips.html": "/mytrips", "/privacy.html": "/privacy", "/plans.html": "/plans", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
+    const RD = { "/index.html": "/", "/book.html": "/", "/trips.html": "/mytrips", "/trips": "/mytrips", "/owner.html": "/owner", "/mytrips.html": "/mytrips", "/privacy.html": "/privacy", "/terms.html": "/terms", "/plans.html": "/plans", "/vercel.json": "/", "/dev.js": "/", "/README.md": "/" };
     if (RD[u.pathname]) { res.writeHead(302, { Location: RD[u.pathname] }); return res.end(); }
     if (u.pathname === "/api/trip" || u.pathname === "/api/seats" || u.pathname === "/api/owner" || u.pathname === "/api/mark" || u.pathname === "/api/auth" || u.pathname === "/api/me" || u.pathname === "/api/pay") {
       let raw = ""; req.on("data", (c) => (raw += c));
@@ -117,7 +118,7 @@ function startApp() {
     }
     const rel = route(u.pathname, u.searchParams);
     // only plain static assets at the project root (never dev.js, api/, vercel.json, .git ...)
-    if (rel !== "/qrcode.js" && rel !== "/bell.js" && rel !== "/tabbar.js" && rel !== "/robots.txt" && !/^\/[A-Za-z0-9_-]+\.(html|css|svg|png|ico|webmanifest)$/.test(rel)) { res.statusCode = 404; return res.end("Not found"); }
+    if (rel !== "/qrcode.js" && rel !== "/bell.js" && rel !== "/tabbar.js" && rel !== "/footer.js" && rel !== "/robots.txt" && !/^\/[A-Za-z0-9_-]+\.(html|css|svg|png|ico|webmanifest)$/.test(rel)) { res.statusCode = 404; return res.end("Not found"); }
     const file = path.join(ROOT, rel);
     fs.readFile(file, (err, data) => {
       if (err) { res.statusCode = 404; return res.end("Not found"); }

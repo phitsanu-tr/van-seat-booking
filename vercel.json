@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/terms.html",
+      "destination": "/terms",
+      "permanent": false
+    },
+    {
       "source": "/index.html",
       "destination": "/",
       "permanent": false
@@ -80,6 +85,10 @@
     {
       "source": "/privacy",
       "destination": "/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
     },
     {
       "source": "/:t([a-hj-km-np-z2-9]{6,8})",

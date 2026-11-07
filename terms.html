@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>เงื่อนไขการใช้งาน</title>
+<meta name="description" content="เงื่อนไขการใช้แอปจองที่นั่งรถตู้ แพ็กเกจ การชำระเงิน และการคืนเงิน">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
+<style>
+button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */
+* { box-sizing: border-box; }
+:root {
+  --bg: #eef1f3; --surface: #ffffff; --ink: #1b1f22; --muted: #5f6b73; --line: #c9d2d8; --edge: #dde3e7; --mine: #0e7c86; --deep: #0b5f67; --tint: #e3f3f4;
+  --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif; --font-body: "Noto Sans Thai", system-ui, sans-serif; color-scheme: light;
+}
+body { margin: 0; background: #fff; color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 22px; -webkit-tap-highlight-color: transparent; }
+.top { background: var(--surface); border-bottom: 1px solid var(--edge); border-bottom-color: #e8ecef; }
+.top div { max-width: 640px; margin: 0 auto; height: 52px; padding: 0 max(16px,env(safe-area-inset-left)); display: flex; align-items: center; }
+.top a { font: 600 16px/24px var(--font-display); color: var(--deep); text-decoration: none; font-size: 16px; }
+main { max-width: 640px; margin: 0 auto; padding: 24px max(16px,env(safe-area-inset-left)) calc(32px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; }
+h1 { font: 600 24px/30px var(--font-display); margin: 0; font-size: 20px; }
+.upd { color: var(--muted); font-size: 12px; margin-top: -6px; line-height: 16px}
+.sum { background: var(--tint); border-radius: 16px; padding: 16px; }
+.sum b { font-family: var(--font-display); font-weight: 600; }
+.sum ul { margin: 6px 0 0; padding-left: 20px; }
+section { background: var(--surface); border: 1px solid var(--edge); border-radius: 16px; padding: 16px; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
+h2 { font: 600 18px/26px var(--font-display); margin: 0 0 8px; font-size: 16px; }
+p { margin: 6px 0; }
+ul { margin: 6px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; line-height: 20px}
+th, td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px solid var(--edge); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; line-height: 16px}
+tr:last-child td { border-bottom: 0; }
+a { color: var(--mine); }
+.muted { color: var(--muted); font-size: 12px; line-height: 16px}
+/* kept as late rules: they must stay after rules above to win (same element, same property) */
+.top a { color: #0e7c86; }
+th,td { border-bottom-color: #e8ecef; }
+</style>
+</head>
+<body>
+<script src="/bell.js"></script><script>VSBBell.bar("/mytrips#account");</script>
+<main>
+  <h1>เงื่อนไขการใช้งาน</h1>
+  <div class="upd">ปรับปรุงล่าสุด 7 พฤศจิกายน 2569</div>
+
+  <div class="sum"><b>สรุปสั้น ๆ</b>
+    <ul>
+      <li>แอปนี้เป็น <b>เครื่องมือจองที่นั่ง</b> ให้คนจัดทริปและผู้ร่วมทริป เราไม่ได้ให้บริการรถหรือจัดทริปเอง</li>
+      <li>ใช้ฟรีได้ เดือนละ 2 ทริป ถ้าอยากได้มากกว่านั้นซื้อแพ็กเกจหรือตั๋วรายทริปได้ <b>ไม่มีการตัดเงินอัตโนมัติ</b></li>
+      <li>ขอคืนเงินได้ตามเงื่อนไขในข้อ 4 ทางอีเมล <a href="mailto:phitsanu.tr@outlook.com">phitsanu.tr@outlook.com</a></li>
+    </ul>
+  </div>
+
+  <section>
+    <h2>1. บริการนี้คืออะไร</h2>
+    <p>จองที่นั่งรถตู้เป็นเว็บแอปที่ใช้ผ่าน LINE ให้คนจัดทริปสร้างทริป แชร์ลิงก์ และให้ผู้ร่วมทริปเลือกที่นั่งเอง แอปนี้พัฒนาและดูแลโดยบุคคล ไม่ใช่บริษัท</p>
+    <p>การเดินทางจริง รถ คนขับ เวลารถออก และการเก็บเงินค่าทริป เป็นความรับผิดชอบของคนจัดทริป ไม่ใช่ของแอปนี้</p>
+  </section>
+
+  <section>
+    <h2>2. การใช้งาน</h2>
+    <ul>
+      <li>ต้องเข้าสู่ระบบด้วย LINE เพื่อสร้างทริปหรือจองที่นั่ง</li>
+      <li>คนจัดทริปรับผิดชอบรายละเอียดทริปที่กรอก (ชื่อทริป วันเวลา จุดนัดพบ รถ) ให้ถูกต้อง</li>
+      <li>ชื่อบนผังที่นั่งต้องเหมาะสม ห้ามใช้คำหยาบหรือแอบอ้างเป็นคนอื่น คนจัดทริปแก้หรือลบชื่อที่ไม่เหมาะสมได้</li>
+      <li>ห้ามใช้แอปทำสิ่งผิดกฎหมาย กดรัว ๆ เพื่อแกล้งระบบ หรือพยายามเข้าถึงข้อมูลของคนอื่น เราอาจระงับการใช้งานของบัญชีที่ทำแบบนี้</li>
+      <li>ทริปและที่นั่งลบตัวเองหลังทริปจบ 60 วัน รายละเอียดอยู่ใน <a href="/privacy">นโยบายความเป็นส่วนตัว</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>3. แพ็กเกจและการชำระเงิน</h2>
+    <ul>
+      <li>แพ็กเกจ Free สร้างทริปใหม่ได้เดือนละ 2 ทริป ดูราคาและสิทธิ์ของแต่ละแพ็กเกจได้ที่หน้า <a href="/plans">แพ็กเกจ</a></li>
+      <li>จ่ายด้วย PromptPay หรือบัตร ผ่าน Stripe จ่ายครั้งเดียว ไม่ตัดเงินต่ออัตโนมัติ หมดอายุแล้วซื้อต่อเองได้</li>
+      <li>แพ็กเกจรายเดือนใช้ได้ 30 วัน รายปี 365 วัน นับจากวันที่ชำระ ซื้อแพ็กเกจเดิมซ้ำจะต่อเวลาจากวันหมดอายุเดิม อัปเกรดเป็นแพ็กเกจที่สูงกว่า แพ็กเกจใหม่เริ่มนับทันที</li>
+      <li>จำนวนทริปนับตามเดือน (เวลาไทย) <b>ลบทริปแล้วไม่ได้โควตาคืน</b> ยกเว้นลบภายใน 24 ชั่วโมงหลังสร้างและยังไม่มีใครจอง</li>
+      <li>เมื่อแพ็กเกจหมดอายุ ทริปและที่นั่งเดิมยังอยู่ครบ แต่จะสร้างทริป เพิ่มรถ หรือเพิ่มผู้ช่วยได้ตามสิทธิ์ของแพ็กเกจ Free</li>
+      <li>ตั๋วรายทริปไม่มีวันหมดอายุ ใช้แล้วผูกกับทริปนั้นถาวร</li>
+      <li>ราคาเปิดตัวใช้กับการซื้อที่ชำระภายในวันหมดโปรโมชั่น ซื้อหรือต่ออายุหลังจากนั้นใช้ราคาปกติ</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>4. การคืนเงิน</h2>
+    <table>
+      <tr><th>กรณี</th><th>คืนเงิน</th></tr>
+      <tr><td>ถูกตัดเงินซ้ำ หรือระบบผิดพลาด</td><td>คืนเต็มทุกกรณี</td></tr>
+      <tr><td>ตั๋วรายทริปที่ยังไม่ได้ใช้กับทริปไหน</td><td>คืนได้ภายใน 30 วันหลังชำระ</td></tr>
+      <tr><td>แพ็กเกจรายเดือน / รายปี</td><td>คืนเต็มภายใน 7 วันหลังชำระ ถ้ายังไม่ได้สร้างทริปหรือใช้สิทธิ์เกินแพ็กเกจ Free</td></tr>
+      <tr><td>กรณีอื่น</td><td>ไม่คืนเงิน</td></tr>
+    </table>
+    <p>ขอคืนเงินทางอีเมล <a href="mailto:phitsanu.tr@outlook.com">phitsanu.tr@outlook.com</a> พร้อมวันที่ชำระ จ่ายด้วย PromptPay จะได้อีเมลจาก Stripe ขอเลขบัญชีเพื่อโอนคืน จ่ายด้วยบัตรคืนเข้าบัตรเดิม เมื่อคืนเงินแล้ว สิทธิ์ของรายการนั้นจะถูกยกเลิก</p>
+  </section>
+
+  <section>
+    <h2>5. ขอบเขตความรับผิดชอบ</h2>
+    <ul>
+      <li>เราดูแลให้แอปใช้งานได้ตลอด แต่บางครั้งระบบอาจหยุดชั่วคราว เช่น ช่วงปรับปรุงหรือเมื่อบริการคลาวด์ที่เราใช้มีปัญหา</li>
+      <li>เราไม่รับผิดชอบความเสียหายจากการเดินทาง การยกเลิกหรือเลื่อนทริปโดยคนจัดทริป หรือข้อตกลงระหว่างคนจัดทริปกับผู้ร่วมทริป</li>
+      <li>ถ้าเราต้องหยุดให้บริการถาวร จะแจ้งในแอปล่วงหน้า และคืนเงินส่วนของแพ็กเกจที่ยังใช้ไม่หมด</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>6. การเปลี่ยนเงื่อนไข และติดต่อ</h2>
+    <p>ถ้าเงื่อนไขเปลี่ยน เราจะแก้วันที่ "ปรับปรุงล่าสุด" ด้านบน และแจ้งในแอปหากเป็นการเปลี่ยนที่สำคัญ การเปลี่ยนจะไม่ลดสิทธิ์ของแพ็กเกจที่คุณซื้อไปแล้ว</p>
+    <p>มีคำถามหรือพบปัญหา ติดต่อ <a href="mailto:phitsanu.tr@outlook.com">phitsanu.tr@outlook.com</a></p>
+  </section>
+  <footer class="vfoot"></footer><script src="/footer.js"></script>
+</main>
+<script src="/tabbar.js" data-tab="acct"></script>
+</body>
+</html>
