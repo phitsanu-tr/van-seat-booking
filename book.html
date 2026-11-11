@@ -48,48 +48,48 @@ img { max-width: 100%; }
   --font-body: "Noto Sans Thai", system-ui, sans-serif;
 }
 * { box-sizing: border-box; }
-body { background: #fff; color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 20px; padding-block: 20px calc(14px + env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+body { background: #fff; color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 20px; padding-block: 20px calc(16px + env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
 main { width: 100%; flex: 1 0 auto; max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
 header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
-h1 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 28px; margin: 0; text-wrap: balance; }
+h1 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 32px; margin: 0; text-wrap: balance; }
 header.trip { display: block; }
 .mytrips { display: inline-flex; align-items: center; gap: 2px; margin-bottom: 8px; color: var(--mine); font: 600 14px/20px var(--font-body); text-decoration: none; }
 .mytrips[hidden] { display: none; }
 .hbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 0; }
 .hbar .mytrips { margin-bottom: 8px; }
-.hbar .brand { font: 700 16px/24px var(--font-display); color: #0f6e75; text-decoration: none; margin-bottom: 8px; flex: 1; }
-.acct { margin: 0 0 8px auto; display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px 0 4px; border-radius: 100px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); font: 600 14px/20px var(--font-body); text-decoration: none; max-width: 60%; border-color: #e8ecef; }
+.hbar .brand { font: 700 16px/24px var(--font-display); color: #0b5f67; text-decoration: none; margin-bottom: 8px; flex: 1; }
+.acct { margin: 0 0 8px auto; display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px 0 4px; border-radius: 100px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); font: 600 14px/20px var(--font-body); text-decoration: none; max-width: 60%; border-color: #e8ecef; }
 .acct[hidden] { display: none; }
 .bellhost { margin: 0 0 8px auto; display: flex; }
 .bellhost + .acct { margin-left: 8px; }
-.chgban { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 12px; background: #fdf0dd; border: 1px solid #ecd3ad; border-radius: 16px; padding: 12px 10px 12px 12px; }
+.chgban { display: flex; gap: 12px; align-items: flex-start; margin: 0 0 12px; background: #fdf0dd; border: 1px solid #ecd3ad; border-radius: 16px; padding: 12px 12px 12px 12px; }
 .chgban[hidden] { display: none; }
 .chgban .ci { flex: none; width: 30px; height: 30px; border-radius: 50%; background: #b86e00; color: #fff; display: grid; place-items: center; }
-.chgban .ci svg { width: 18px; height: 18px; }
-.chgban .ct { flex: 1; min-width: 0; font-size: 14px; line-height: 22px; color: var(--muted); }
+.chgban .ci svg { width: 20px; height: 20px; }
+.chgban .ct { flex: 1; min-width: 0; font-size: 14px; line-height: 20px; color: var(--muted); }
 .chgban .ct b { display: block; font: 600 14px/20px var(--font-display); color: #b86e00; }
 .chgban .ct em { font-style: normal; font-weight: 600; color: var(--ink); }
 .chgban .ct small { display: block; font-size: 12px; color: #8a979e; line-height: 16px}
-.chgban .cx { flex: none; border: 0; background: none; color: var(--muted); font-size: 22px; line-height: 22px; padding: 2px 6px; cursor: pointer; }
-.facts dd.chg { display: inline-block; justify-self: start; background: #fdf0dd; color: #b86e00; border-radius: 6px; padding: 0 6px; font-weight: 600; }
+.chgban .cx { flex: none; border: 0; background: none; color: var(--muted); font-size: 22px; line-height: 22px; padding: 2px 8px; cursor: pointer; }
+.facts dd.chg { display: inline-block; justify-self: start; background: #fdf0dd; color: #b86e00; border-radius: 8px; padding: 0 8px; font-weight: 600; }
 .acct .aav { width: 24px; height: 24px; border-radius: 50%; background: #06c755; color: #fff; font: 600 12px/24px var(--font-display); text-align: center; overflow: hidden; flex: none; }
 .acct .aav img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .acct span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.acct.in { background: #ecf9fa; color: var(--deep); border-color: #cdeef0; padding: 0 10px 0 4px; gap: 6px; } /* signed in: pill with photo + "ของฉัน" */
+.acct.in { background: #ecf9fa; color: var(--deep); border-color: #cdeef0; padding: 0 12px 0 4px; gap: 8px; } /* signed in: pill with photo + "ของฉัน" */
 .acct.in .aav { width: 28px; height: 28px; line-height: 28px; font-size: 14px; }
 .acct.out { height: 36px; padding: 0 12px 0 8px; border-radius: 12px; background: none; border-color: #e8ecef; color: var(--ink); font: 600 14px/20px var(--font-display); }
-.acct.out .lg { flex: none; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: #06c755; color: #fff; font: 700 8px/12px var(--font-display); letter-spacing: -.2px; }
+.acct.out .lg { flex: none; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 8px; background: #06c755; color: #fff; font: 700 8px/12px var(--font-display); letter-spacing: -.2px; }
 .lgin { display: flex; flex-direction: column; gap: 8px; margin: 2px 0 4px; }
-.lgbtn { height: 50px; border-radius: 16px; background: #06c755; color: #fff; font: 600 16px/24px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; }
+.lgbtn { height: 48px; border-radius: 12px; background: #06c755; color: #fff; font: 600 16px/24px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 12px; text-decoration: none; }
 .lgbtn i { width: 24px; height: 24px; border-radius: 8px; background: #fff; color: #06c755; font: 800 8px/24px sans-serif; font-style: normal; text-align: center; }
 .lgnote { font-size: 12px; color: var(--muted); text-align: center; line-height: 16px}
-.lock { font-size: 14px; color: var(--muted); display: flex; gap: 6px; align-items: center; line-height: 20px}
+.lock { font-size: 14px; color: var(--muted); display: flex; gap: 8px; align-items: center; line-height: 20px}
 .org { font-size: 14px; color: var(--mine); font-weight: 600; margin-bottom: 2px; line-height: 20px}
 .hero .ht { min-width: 0; }
 .hero .org span { display: inline-block; }
-.facts .fhead { display: block; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.facts .fhead { display: block; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .facts .fhead:only-child { padding-bottom: 0; border-bottom: 0; }
-.fhead .ftitle { font: 600 18px/26px var(--font-display); line-height: 20px; color: var(--ink); overflow-wrap: anywhere; font-size: 16px; }
+.fhead .ftitle { font: 600 16px/24px var(--font-display); line-height: 24px; color: var(--ink); overflow-wrap: anywhere; font-size: 16px; }
 .fhead .forg { font-size: 12px; font-weight: 600; color: var(--mine); margin-top: 2px; overflow-wrap: anywhere; line-height: 16px}
 .facts { margin: 12px 0 0; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: 8px; font-size: 14px; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); line-height: 20px}
 .facts div { display: flex; align-items: flex-start; gap: 12px; }
@@ -97,18 +97,18 @@ header.trip { display: block; }
 .facts dt { position: absolute; width: 2px; height: 2px; overflow: hidden; clip: rect(0 0 0 0); }
 .facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .deck { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
-.tlbl { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 0; font-size: 14px; color: var(--muted); line-height: 20px}
-.tlbl .tl { display: flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 600; }
+.tlbl { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 16px 0; font-size: 14px; color: var(--muted); line-height: 20px}
+.tlbl .tl { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 600; }
 .tlbl .tl svg { color: var(--mine); flex: none; }
-.deck .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; overflow: visible; padding: 12px 16px 14px; background: linear-gradient(color-mix(in srgb, var(--line) 60%, transparent), color-mix(in srgb, var(--line) 60%, transparent)) 16px 100% / calc(100% - 32px) 1px no-repeat; }
-.deck .tabs .tab { flex-direction: column; gap: 0; line-height: 20px; min-height: 52px; padding-block: 6px; }
+.deck .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; overflow: visible; padding: 12px 16px 16px; background: linear-gradient(color-mix(in srgb, var(--line) 60%, transparent), color-mix(in srgb, var(--line) 60%, transparent)) 16px 100% / calc(100% - 32px) 1px no-repeat; }
+.deck .tabs .tab { flex-direction: column; gap: 0; line-height: 20px; min-height: 52px; padding-block: 8px; }
 .deck .tabs .tab small { margin-left: 0; font-size: 12px; line-height: 16px}
 .deck .tabs .tab .tn { font-size: 16px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; line-height: 24px}
 .deck .tabs .tab { flex: none; width: calc((100% - 20px) / 3); }
 @media (max-width: 350px) { .deck .tabs .tab small { font-size: 12px; line-height: 16px} .deck .tabs { gap: 8px; padding-inline: 12px; } .deck .tabs .tab { width: calc((100% - 16px) / 3); } }
-.deck .tabs .tab { padding: 0 6px; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
+.deck .tabs .tab { padding: 0 8px; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
 .deck .sheet { border: 0; border-radius: 0; }
-.ended { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding: 12px 14px; border-radius: 16px; background: color-mix(in srgb, var(--ink) 6%, var(--surface)); border: 1px solid var(--line); font-size: 14px; line-height: 22px; }
+.ended { display: flex; gap: 12px; align-items: flex-start; margin-top: 12px; padding: 12px 16px; border-radius: 16px; background: color-mix(in srgb, var(--ink) 6%, var(--surface)); border: 1px solid var(--line); font-size: 14px; line-height: 20px; }
 .ended svg { flex: none; width: 16px; height: 16px; margin-top: 4px; color: var(--mine); }
 .ended b { font-family: var(--font-display); font-weight: 600; }
 .deck.isended .seat { cursor: default; }
@@ -121,24 +121,24 @@ header.trip { display: block; }
 #notice:empty { display: none; }
 .tip { margin: 12px 4px 0; background: color-mix(in srgb, var(--mine) 10%, var(--surface)); border-radius: 12px; padding: 8px 12px; display: flex; gap: 8px; align-items: center; font-size: 14px; line-height: 20px; }
 .tip svg { flex: none; width: 16px; height: 16px; color: var(--mine); }
-.fullbar { margin: 10px 6px 0; background: color-mix(in srgb, var(--sel) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--sel) 42%, var(--surface)); border-radius: 12px; padding: 10px 12px; display: flex; gap: 10px; align-items: center; justify-content: space-between; font-size: 14px; line-height: 22px; }
+.fullbar { margin: 12px 8px 0; background: color-mix(in srgb, var(--sel) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--sel) 42%, var(--surface)); border-radius: 12px; padding: 12px 12px; display: flex; gap: 12px; align-items: center; justify-content: space-between; font-size: 14px; line-height: 20px; }
 .fullbar .ft { min-width: 0; }
 .fullbar b { font-family: var(--font-display); font-weight: 600; }
-.fullbar .go { flex: none; font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 14px; color: var(--mine); background: none; border: 0; padding: 6px 2px 6px 8px; display: flex; align-items: center; gap: 2px; cursor: pointer; white-space: nowrap; }
+.fullbar .go { flex: none; font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 14px; color: var(--mine); background: none; border: 0; padding: 8px 2px 8px 8px; display: flex; align-items: center; gap: 2px; cursor: pointer; white-space: nowrap; }
 .fullbar .go svg { width: 16px; height: 16px; }
-.shbtn { display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - 12px); margin: 12px 6px 4px; height: 46px; border-radius: 1000px; border: 1.5px solid var(--mine); background: transparent; color: var(--mine); font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 16px; cursor: pointer; }
-.shbtn svg { width: 18px; height: 18px; }
+.shbtn { display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - 12px); margin: 12px 8px 4px; height: 48px; border-radius: 12px; border: 1.5px solid var(--mine); background: transparent; color: var(--mine); font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 16px; cursor: pointer; }
+.shbtn svg { width: 20px; height: 20px; }
 .sk { position: relative; overflow: hidden; border-radius: 8px; background: color-mix(in srgb, var(--ink) 9%, var(--surface)); }
 .sk::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--surface) 70%, transparent), transparent); transform: translateX(-100%); animation: skm 1.4s ease-in-out infinite; }
 @keyframes skm { to { transform: translateX(100%); } }
 @media (prefers-reduced-motion: reduce) { .sk::after { animation: none; } }
-.nfbox { display: none; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 36px 22px 30px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; }
+.nfbox { display: none; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 36px 22px 30px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; }
 body.nf .nfbox { display: flex; }
 body.nf main > :not(.nfbox):not(.vfoot) { display: none; }
 .nfbox .nfv { margin-bottom: 4px; }
-.nfbox h2 { margin: 6px 0 0; font: 600 20px/28px var(--font-display); }
-.nfbox p { margin: 0; color: var(--muted); font-size: 14px; line-height: 22px; }
-.nfbox a { margin-top: 12px; height: 46px; padding: 0 26px; border-radius: 1000px; background: var(--mine); color: var(--mine-ink); font: 600 16px/24px var(--font-display); display: inline-flex; align-items: center; text-decoration: none; }
+.nfbox h2 { margin: 8px 0 0; font: 600 20px/28px var(--font-display); }
+.nfbox p { margin: 0; color: var(--muted); font-size: 14px; line-height: 20px; }
+.nfbox a { margin-top: 12px; height: 48px; padding: 0 26px; border-radius: 12px; background: var(--mine); color: var(--mine-ink); font: 600 16px/24px var(--font-display); display: inline-flex; align-items: center; text-decoration: none; }
 body.sk .skf { display: block; }
 .skf { display: none; min-height: 184px; box-sizing: border-box; border: 1px solid var(--line); background: var(--surface); border-radius: 24px; padding: 16px; margin-top: 12px; }
 .skf .sk { height: 14px; margin-top: 12px; }
@@ -148,19 +148,19 @@ body.sk .skpage { display: flex; }
 body.sk main > :not(.skpage):not(.vfoot) { display: none; }
 .skpage .skh { height: 82px; border-radius: 16px; }
 .skpage .skf { display: block; margin-top: 0; }
-.skpage .skd { border: 1px solid var(--line); background: var(--surface); border-radius: 24px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
-.skpage .skd .sk:first-child { height: 48px; border-radius: 14px; }
-.skpage .skd .sk:last-child { height: 420px; border-radius: 28px; }
-.shrow { display: flex; gap: 10px; margin: 12px 6px 4px; }
+.skpage .skd { border: 1px solid var(--line); background: var(--surface); border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.skpage .skd .sk:first-child { height: 48px; border-radius: 12px; }
+.skpage .skd .sk:last-child { height: 420px; border-radius: 24px; }
+.shrow { display: flex; gap: 12px; margin: 12px 8px 4px; }
 .shrow .shbtn { flex: 1 1 0; min-width: 0; width: auto; margin: 0; white-space: nowrap; }
 .shbtn.fill { background: var(--mine); color: var(--mine-ink); }
-.invite { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 10px 10px 10px 14px; border: 1.5px solid var(--mine); border-radius: 16px; background: color-mix(in srgb, var(--mine) 9%, var(--surface)); }
+.invite { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 12px 12px 12px 16px; border: 1.5px solid var(--mine); border-radius: 16px; background: color-mix(in srgb, var(--mine) 9%, var(--surface)); }
 .invite[hidden] { display: none; }
 .invite .ok { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--mine); color: var(--mine-ink); display: grid; place-items: center; }
 .invite .tx { flex: 1; min-width: 0; }
 .invite .tx b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-display); font-weight: 600; font-size: 14px; line-height: 20px; color: var(--mine); }
-.invite .tx small { display: block; font-size: 12px; line-height: 18px; color: var(--muted); }
-.invite .go { flex: none; height: 36px; padding: 0 14px; border-radius: 1000px; border: 0; background: var(--mine); color: var(--mine-ink); font: 600 14px/20px var(--font-display); display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.invite .tx small { display: block; font-size: 12px; line-height: 16px; color: var(--muted); }
+.invite .go { flex: none; height: 36px; padding: 0 16px; border-radius: 1000px; border: 0; background: var(--mine); color: var(--mine-ink); font: 600 14px/20px var(--font-display); display: flex; align-items: center; gap: 8px; cursor: pointer; }
 .invite .go svg { width: 16px; height: 16px; }
 .invite .x { flex: none; width: 24px; height: 28px; margin-left: -8px; border: 0; background: transparent; color: var(--muted); font-size: 18px; line-height: 18px; cursor: pointer; }
 @media (max-width: 340px) { .invite .tx small { display: none; } .shrow { gap: 8px; } }
@@ -172,13 +172,13 @@ body.sk main > :not(.skpage):not(.vfoot) { display: none; }
 .imgm .imgx { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--bg); color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 .imgm img { align-self: center; max-width: 100%; max-height: min(470px, calc(100vh - 346px)); object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .2)); }
 .imgm .imgh { display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; font-size: 14px; line-height: 20px}
-.imgm .imgbtn { font: inherit; font-weight: 600; font-size: 16px; height: 54px; border-radius: 16px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 12px; cursor: pointer; min-width: 0; }
+.imgm .imgbtn { font: inherit; font-weight: 600; font-size: 16px; height: 48px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 12px; cursor: pointer; min-width: 0; }
 .imgm .imgbtn svg { flex: none; width: 20px; height: 20px; }
-.imgm .imgbtn.primary { flex: none; width: 100%; background: var(--mine); border-color: var(--mine); color: var(--mine-ink); font-size: 18px; line-height: 26px}
+.imgm .imgbtn.primary { flex: none; width: 100%; background: var(--mine); border-color: var(--mine); color: var(--mine-ink); font-size: 16px; line-height: 24px}
 .imgm .imgbtn.primary svg { width: 22px; height: 22px; }
 .imgm .imgbtn.primary[hidden] { display: none; }
 .imgm a.imgbtn { text-decoration: none; }
-.imgm .lt { margin: 0; font-size: 14px; line-height: 22px; color: var(--muted); }
+.imgm .lt { margin: 0; font-size: 14px; line-height: 20px; color: var(--muted); }
 .imgm .lt b { color: var(--ink); font-weight: 600; }
 .imgonly #tripHdr, .imgonly #deck > :not(#imgBackdrop), .imgonly .vfoot { display: none !important; }
 .imgonly .deck { background: none; border: 0; padding: 0; }
@@ -196,7 +196,7 @@ body.sk main > :not(.skpage):not(.vfoot) { display: none; }
 .modal.imgm::before { display: none; }
 .imgm .imgt h2 { display: flex; align-items: center; gap: 8px; font-size: 20px; line-height: 28px}
 .imgm .imgt h2 .tki { display: inline-flex; width: 24px; justify-content: center; color: var(--mine); }
-.imgm .imgx { width: 36px; height: 36px; margin: -6px -6px -6px 0; border-radius: 0; background: none; }
+.imgm .imgx { width: 36px; height: 36px; margin: -8px -8px -8px 0; border-radius: 0; background: none; }
 .imgm img { -webkit-user-select: none; user-select: none; height: min(400px, calc(100vh - 340px)); width: auto; max-height: none; }
 .imgm .imgh { min-height: 36px; }
 .imgm .imgbtn { height: 48px; border-radius: 12px; border: 0; background: #f1f4f6; }
@@ -205,25 +205,25 @@ body.sk main > :not(.skpage):not(.vfoot) { display: none; }
 .imgm .imgbtn:not(#imgShare) svg { display: none; }
 .imgm .imgh span { text-wrap: balance; }
 @media (max-width: 350px) { .imgm .imgh { font-size: 12px; line-height: 16px} }
-.imgm .imgh.lt { font-size: 12px; line-height: 18px; color: var(--muted); }
+.imgm .imgh.lt { font-size: 12px; line-height: 16px; color: var(--muted); }
 .deck .list { border: 0; border-radius: 0; }
 .deck .vsw { background: linear-gradient(color-mix(in srgb, var(--line) 60%, transparent), color-mix(in srgb, var(--line) 60%, transparent)) 16px 100% / calc(100% - 32px) 1px no-repeat; border-radius: 0; padding: 0 16px; gap: 0; }
 .deck .vsw button { border-radius: 0; border-bottom: 3px solid transparent; margin-bottom: 0; min-height: 44px; }
 .deck .vsw button[aria-selected="true"] { background: none; box-shadow: none; border-bottom-color: var(--mine); }
-.shead { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 6px 6px; }
+.shead { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 8px 8px; }
 .shead .count { margin-left: auto; }
 @media (max-width: 350px) { .shead { flex-wrap: wrap; row-gap: 2px; } .shead .plate { flex: 1 1 100%; } }
-.plate { font-size: 14px; line-height: 22px; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
+.plate { font-size: 14px; line-height: 20px; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
 .plate b { color: var(--ink); font-weight: 600; }
-.tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
 .tabs .tab { flex: none; }
-.tab { font: inherit; font-weight: 600; font-family: var(--font-display); font-size: 16px; min-height: 40px; padding: 0 14px; border-radius: 1000px; cursor: pointer; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); }
+.tab { font: inherit; font-weight: 600; font-family: var(--font-display); font-size: 16px; min-height: 40px; padding: 0 16px; border-radius: 1000px; cursor: pointer; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); }
 .tab[aria-selected="true"] { background: var(--mine); border-color: var(--mine); color: var(--mine-ink); }
 .tab small { font-weight: 500; opacity: .75; margin-left: 4px; font-size: 12px; line-height: 16px}
 .count { font-family: var(--font-display); font-size: 14px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; line-height: 20px}
 .count b { color: var(--ink); font-size: 14px; font-weight: 600; line-height: 20px}
 
-.sheet { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 10px; border-color: #e8ecef; }
+.sheet { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 12px; border-color: #e8ecef; }
 .plan { position: relative; width: 100%; aspect-ratio: 820 / 1384; container-type: inline-size; }
 .plan svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .ln { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
@@ -265,7 +265,7 @@ body.sk main > :not(.skpage):not(.vfoot) { display: none; }
 .driver svg { position: static; display: block; width: 36%; height: auto; }
 .driver span { font-size: .8em; line-height: 1.2; }
 .legend { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin: 4px 0 2px; font-size: 12px; color: var(--muted); line-height: 16px}
-.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; border: 1.5px solid var(--ink); vertical-align: -1px; margin-right: 6px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; border: 1.5px solid var(--ink); vertical-align: -1px; margin-right: 8px; }
 .legend .l-free { background: transparent; } .legend .l-taken { background: var(--taken); } .legend .l-mine { background: var(--mine); border-color: var(--mine); }
 
 .backdrop {
@@ -275,11 +275,11 @@ body.sk main > :not(.skpage):not(.vfoot) { display: none; }
 }
 .backdrop[hidden] { display: none !important; }
 .modal {
-  background: var(--surface); border-radius: 24px; padding: 22px 20px 18px; width: 100%; max-width: 340px;
-  display: flex; flex-direction: column; gap: 14px; box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
+  background: var(--surface); border-radius: 24px; padding: 22px 20px 16px; width: 100%; max-width: 340px;
+  display: flex; flex-direction: column; gap: 16px; box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
 }
 .backdrop { align-items: flex-end; justify-content: center; padding: 0 !important; }
-.modal { gap: 18px; padding: 12px 20px calc(24px + env(safe-area-inset-bottom, 0px)); border-radius: 24px 24px 0 0; max-width: 480px; border-bottom: 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, .25); }
+.modal { gap: 16px; padding: 12px 20px calc(24px + env(safe-area-inset-bottom, 0px)); border-radius: 24px 24px 0 0; max-width: 480px; border-bottom: 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, .25); }
 .modal::before { content: ""; align-self: center; width: 42px; height: 6px; border-radius: 4px; background: var(--line); }
 /* seat dialog: floating card centred a little above the middle so the keyboard does not cover it (pure CSS, no scripts moving it) */
 #backdrop { align-items: flex-start; padding: 16px 16px max(16px, 20vh) !important; overflow-y: auto; overscroll-behavior: contain; }
@@ -287,7 +287,7 @@ body.sk main > :not(.skpage):not(.vfoot) { display: none; }
 #backdrop .modal::before { display: none; }
 #backdrop .modal .actions button { flex: 1 1 0; min-width: 0; }
 .mx { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
-.minfo { flex: none; height: 58px; box-sizing: border-box; padding: 0 16px; border-radius: 12px; font-size: 16px; background: var(--bg); display: flex; flex-direction: column; justify-content: center; line-height: 22px; color: var(--ink); }
+.minfo { flex: none; height: 58px; box-sizing: border-box; padding: 0 16px; border-radius: 12px; font-size: 16px; background: var(--bg); display: flex; flex-direction: column; justify-content: center; line-height: 24px; color: var(--ink); }
 .minfo b { font-weight: 600; }
 .minfo.warn { background: color-mix(in srgb, var(--sel) 18%, var(--surface)); border: 1px solid color-mix(in srgb, var(--sel) 55%, var(--line)); padding: 0 16px; }
 .minfo.warn .who { font-weight: 600; color: var(--ink); }
@@ -305,7 +305,7 @@ body.sk main > :not(.skpage):not(.vfoot) { display: none; }
 .minfo .lc { min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 20px; }
 .minfo .lc .who { line-height: 24px; }
 .minfo .lnr { display: flex; align-items: center; gap: 8px; min-width: 0; height: 20px; font-size: 14px; color: var(--muted); line-height: 20px}
-.minfo .lnr i { flex: none; display: inline-flex; align-items: center; height: 16px; padding: 0 6px; border-radius: 6px; background: #06c755; color: #fff; font: normal 700 10px/10px Arial, sans-serif; }
+.minfo .lnr i { flex: none; display: inline-flex; align-items: center; height: 16px; padding: 0 8px; border-radius: 8px; background: #06c755; color: #fff; font: normal 700 10px/10px Arial, sans-serif; }
 .minfo .lnr span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mtt { margin: -12px 0 0; height: 40px; padding-right: 44px; display: flex; align-items: center; font: 600 20px/28px var(--font-display); color: var(--ink); min-width: 0; }
 .mtt span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -313,13 +313,14 @@ body.sk main > :not(.skpage):not(.vfoot) { display: none; }
 .mini { flex: none; width: 64px; height: 96px; border-radius: 12px; background: var(--bg); padding: 4px; box-sizing: border-box; display: flex; justify-content: center; align-items: center; }
 .mini svg { height: 100%; width: auto; display: block; }
 .mtxt { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1; }
-#backdrop .modal { gap: 14px; min-height: 348px; }
+#backdrop .modal { gap: 16px; min-height: 348px; }
 #backdrop .modal .actions { margin-top: auto; }
+#backdrop .modal.noact { min-height: 0; }
 .mtxt h2 { font-size: 28px !important; line-height: 30px; }
 .pill { align-self: flex-start; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 1000px; background: color-mix(in srgb, var(--mine) 18%, transparent); color: var(--mine); line-height: 16px}
 .pill.taken { background: var(--taken); color: var(--ink); }
 .modal input[type=text] { flex: none; width: 100%; height: 48px; font-size: 16px; border: 2px solid var(--mine); border-radius: 12px; padding: 0 16px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--mine) 18%, transparent); outline: none; line-height: 24px}
-.modal .actions { flex-wrap: nowrap; gap: 10px; }
+.modal .actions { flex-wrap: nowrap; gap: 12px; }
 .modal .actions button { height: 48px; border-radius: 12px; font-size: 16px; padding: 0 16px; line-height: 24px}
 .modal .actions button.primary { flex: 1.6; font-size: 16px; line-height: 24px}
 .modal .actions button.plain { flex: 1; }
@@ -329,9 +330,9 @@ body.sk main > :not(.skpage):not(.vfoot) { display: none; }
 .modal p { margin: 0; color: var(--muted); }
 .modal p b { color: var(--ink); font-weight: 600; }
 .actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
-button.plain { font: inherit; font-weight: 500; border-radius: 16px; padding: 10px 16px; cursor: pointer; background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
-input[type=text] { flex: 1; min-width: 0; font: inherit; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 16px; padding: 10px 12px; }
-button.primary, button.ghost { font: inherit; font-weight: 600; border-radius: 16px; padding: 10px 16px; cursor: pointer; border: 1.5px solid transparent; }
+button.plain { font: inherit; font-weight: 500; border-radius: 16px; padding: 12px 16px; cursor: pointer; background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+input[type=text] { flex: 1; min-width: 0; font: inherit; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 12px; }
+button.primary, button.ghost { font: inherit; font-weight: 600; border-radius: 16px; padding: 12px 16px; cursor: pointer; border: 1.5px solid transparent; }
 button.primary { background: var(--mine); color: var(--mine-ink); }
 button.ghost { background: transparent; color: var(--danger); border-color: var(--danger); align-self: flex-start; }
 button:disabled { opacity: .5; cursor: not-allowed; }
@@ -342,7 +343,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .nmcnt { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 14px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; pointer-events: none; line-height: 20px}
 .nmcnt.full { color: var(--danger); }
 .modal input[type=text].bad { border-color: var(--danger); box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 16%, transparent); }
-.msg.nmmsg { display: flex; align-items: center; gap: 4px; height: 18px; margin-top: -6px; line-height: 18px; white-space: nowrap; }
+.msg.nmmsg { display: flex; align-items: center; gap: 4px; height: 18px; margin-top: -8px; line-height: 18px; white-space: nowrap; }
 .msg.nmmsg:empty { display: block; }
 .msg.nmmsg svg { flex: none; }
 .msg.nmmsg.info { color: var(--muted); }
@@ -359,11 +360,11 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .list li.bk .sn { flex: none; width: 32px; height: 32px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font: 600 14px/20px var(--font-display); background: color-mix(in srgb, var(--ink) 7%, var(--surface)); font-variant-numeric: tabular-nums; }
 .list li.bk .w { flex: 1; min-width: 0; font-weight: 600; font-size: 16px; line-height: 24px}
 .list li.bk .w .at { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; line-height: 16px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.list li.bk .me { flex: none; font-size: 12px; font-weight: 600; color: var(--mine); background: color-mix(in srgb, var(--mine) 14%, transparent); border-radius: 1000px; padding: 2px 10px; line-height: 16px}
+.list li.bk .me { flex: none; font-size: 12px; font-weight: 600; color: var(--mine); background: color-mix(in srgb, var(--mine) 14%, transparent); border-radius: 1000px; padding: 2px 12px; line-height: 16px}
 .list li.mine-row { background: color-mix(in srgb, var(--mine) 8%, var(--surface)); }
 .list li.mine-row .sn { background: var(--mine); color: var(--mine-ink); }
 .list li.none, .list li.free { display: block; padding: 12px 16px; font-size: 14px; color: var(--muted); line-height: 20px}
-.list li.free b { color: var(--ink); font-weight: 600; margin-right: 6px; }
+.list li.free b { color: var(--ink); font-weight: 600; margin-right: 8px; }
 .list h2 { font-family: var(--font-display); font-size: 16px; font-weight: 500; margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--line); line-height: 24px}
 .list ul { list-style: none; margin: 0; padding: 0; }
 .list li { display: grid; grid-template-columns: 64px minmax(0, 1fr); padding: 8px 16px; border-bottom: 1px solid var(--line); gap: 8px; }
@@ -374,13 +375,13 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 @media (prefers-reduced-motion: no-preference) { .seat { transition: background .15s, transform .1s; } }
 .toast {
   position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 30;
-  max-width: min(92vw, 360px); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 16px;
+  max-width: min(92vw, 360px); background: var(--ink); color: var(--bg); padding: 12px 16px; border-radius: 16px;
   font-size: 14px; text-align: center; box-shadow: 0 8px 28px rgba(0, 0, 0, .3); line-height: 20px}
 .toast.error { background: var(--danger); color: var(--paper); }
 .seat.pending { opacity: .6; }
 .seat.held { background: repeating-linear-gradient(135deg, var(--surface) 0 8px, color-mix(in srgb, var(--taken) 70%, var(--surface)) 8px 16px); color: var(--muted); }
 .seat.held .who { font-size: 14px; font-size: clamp(12px, 2.6cqw, 20px); font-weight: 600; color: var(--muted); line-height: 1.25; }
-button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 10px 16px; cursor: pointer; background: var(--danger); color: var(--paper); border: 1.5px solid var(--danger); }
+button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 12px 16px; cursor: pointer; background: var(--danger); color: var(--paper); border: 1.5px solid var(--danger); }
 /* kept as late rules: they must stay after rules above to win (same element, same property) */
 .deck { border-color: #e8ecef; }
 .facts .fhead { border-bottom-color: #e8ecef; padding-bottom: 12px; }
@@ -404,7 +405,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 /* signed in: back link + bell (brand and account chip only for visitors who still need to sign in) */
 .hbar .lback{display:none}
 body.signed .hbar .acct{display:none !important}
-body.signed .hbar .lback{display:inline-flex;align-items:center;gap:4px;width:36px;justify-content:center;height:36px;margin:0 0 8px -8px;font:600 16px/24px var(--font-display);color:#0f6e75;text-decoration:none}
+body.signed .hbar .lback{display:inline-flex;align-items:center;gap:4px;width:36px;justify-content:center;height:36px;margin:0 0 8px -8px;font:600 16px/24px var(--font-display);color:#0b5f67;text-decoration:none}
 body.signed .hbar .lback svg{width:20px;height:20px}
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -440,14 +441,14 @@ body.signed .hbar .lback svg{width:20px;height:20px}
 <body class="sk">
 <main>
   <header class="trip" id="tripHdr">
-    <div class="hbar"><a class="lback" id="lback" href="/mytrips" aria-label="กลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><a class="brand" href="/mytrips">จองที่นั่งรถตู้</a><span class="bellhost" id="bellHost"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div>
+    <div class="hbar"><a class="lback" id="lback" href="/mytrips" aria-label="กลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><a class="brand" href="/mytrips">จองที่นั่งรถตู้</a><span class="bellhost" id="bellHost"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div>
     <div class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht"><h1>เลือกที่นั่ง</h1>
     <div class="org"><span>แตะที่ว่าง</span> <span>ใส่ชื่อ</span> <span>แล้วจองได้เลย</span></div></div></div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
     <div class="ended" id="closedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span><b>ปิดรับจองแล้ว</b> จองหรือยกเลิกเองไม่ได้ ถ้าต้องการเปลี่ยนที่นั่ง ติดต่อผู้จัดทริป</span></div>
     <div class="chgban" id="chgBan" hidden></div>
     <dl class="facts" id="tripFacts" hidden></dl>
-    <div class="invite" id="invite" hidden><span class="ok"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><span class="tx"><b id="invT">จองที่นั่งแล้ว</b><small>ชวนผู้ร่วมทริปมาจองด้วยกัน</small></span><button type="button" class="go" id="invGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>แชร์ใน LINE</button><button type="button" class="x" id="invX" aria-label="ปิด">×</button></div>
+    <div class="invite" id="invite" hidden><span class="ok"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><span class="tx"><b id="invT">จองที่นั่งแล้ว</b><small>ชวนผู้ร่วมทริปมาจองด้วยกัน</small></span><button type="button" class="go" id="invGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>แชร์ใน LINE</button><button type="button" class="x" id="invX" aria-label="ปิด">×</button></div>
   </header>
 
   <div class="skpage" aria-hidden="true"><div class="sk skh"></div>
@@ -498,14 +499,14 @@ body.signed .hbar .lback svg{width:20px;height:20px}
 
   <div class="backdrop" id="imgBackdrop" hidden>
     <div class="modal imgm" role="dialog" aria-modal="true" aria-label="SEAT PASS">
-      <div class="imghd"><div class="imgt"><h2><span class="tki"><svg viewBox="2.5 5.5 19 13" width="24" height="16.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg></span>SEAT PASS</h2></div><button type="button" class="imgx" id="imgClose" aria-label="ปิด"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="imghd"><div class="imgt"><h2><span class="tki"><svg viewBox="2.5 5.5 19 13" width="24" height="16.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 015.5 7h13A1.5 1.5 0 0120 8.5V10a2 2 0 000 4v1.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 15.5V14a2 2 0 000-4V8.5zM14 7v10"/></svg></span>SEAT PASS</h2></div><button type="button" class="imgx" id="imgClose" aria-label="ปิด"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <img id="imgPrev" alt="รูปผังที่นั่งรถตู้">
       <p class="imgh" id="imgHint"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a6 6 0 01-6-6V9a1.5 1.5 0 013 0v3M9 11V5.5a1.5 1.5 0 013 0V11M12 10V4.5a1.5 1.5 0 013 0V11M15 11V7.5a1.5 1.5 0 013 0V15a6 6 0 01-6 6z"/></svg><span>กดค้างที่รูปเพื่อบันทึก หรือใช้ปุ่มด้านล่าง</span></p>
-      <a class="imgbtn primary" id="imgExt" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 014 18.5v-11A1.5 1.5 0 015.5 6H10"/></svg>เปิดในเบราว์เซอร์เพื่อโหลดรูป</a>
-      <button type="button" class="imgbtn primary" id="imgSave"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg><span>ดาวน์โหลดรูป</span></button>
+      <a class="imgbtn primary" id="imgExt" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 014 18.5v-11A1.5 1.5 0 015.5 6H10"/></svg>เปิดในเบราว์เซอร์เพื่อโหลดรูป</a>
+      <button type="button" class="imgbtn primary" id="imgSave"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19.5h14"/></svg><span>ดาวน์โหลดรูป</span></button>
       <div class="imgrow">
-        <button type="button" class="imgbtn" id="imgCopy"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>คัดลอกลิงก์</span></button>
-        <button type="button" class="imgbtn" id="imgShare" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4"/><path d="M8 7.5L12 3.5 16 7.5"/><path d="M6 11H5.5A1.5 1.5 0 004 12.5v6A1.5 1.5 0 005.5 20h13a1.5 1.5 0 001.5-1.5v-6a1.5 1.5 0 00-1.5-1.5H18"/></svg><span>แชร์รูป</span></button>
+        <button type="button" class="imgbtn" id="imgCopy"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>คัดลอกลิงก์</span></button>
+        <button type="button" class="imgbtn" id="imgShare" hidden><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4"/><path d="M8 7.5L12 3.5 16 7.5"/><path d="M6 11H5.5A1.5 1.5 0 004 12.5v6A1.5 1.5 0 005.5 20h13a1.5 1.5 0 001.5-1.5v-6a1.5 1.5 0 00-1.5-1.5H18"/></svg><span>แชร์รูป</span></button>
       </div>
     </div>
   </div>
@@ -594,7 +595,6 @@ body.signed .hbar .lback svg{width:20px;height:20px}
   function startBell() {
     if (bellOn || !window.VSBBell || IMG_ONLY) return;
     bellOn = true;
-    VSBBell.mount(document.getElementById("bellHost"));
     VSBBell.onChange(onBell);
     VSBBell.load();
     var bellAt = Date.now();
@@ -855,10 +855,11 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     panelEl.appendChild(head);
     var xb = el("button", "mx");
     xb.type = "button"; xb.setAttribute("aria-label", "ปิด");
-    xb.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    xb.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
     xb.addEventListener("click", closeModal);
     panelEl.appendChild(xb);
     var actions = el("div", "actions");
+    panelEl.classList.remove("noact");
     var input = null, noteBox = null;
 
     function plainBtn(label, onClick) {
@@ -870,7 +871,6 @@ body.signed .hbar .lback svg{width:20px;height:20px}
 
     if (!loaded) {
       panelEl.appendChild(el("p", null, loadError || "กำลังโหลดข้อมูลการจอง..."));
-      actions.appendChild(plainBtn("ปิด", closeModal));
     } else if (s && confirming) {
       var ask = el("div", "minfo one");
       ask.appendChild(document.createTextNode("ยกเลิกการจองของ "));
@@ -906,7 +906,6 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       wb.appendChild(document.createTextNode(" · เลือกที่นั่งอื่นได้เลย"));
       warn.appendChild(wb);
       panelEl.appendChild(warn);
-      actions.appendChild(plainBtn("ปิด", closeModal));
     } else if (s) {
       var info = el("div", "minfo");
       var who = el("div", "who", "จองโดย ");
@@ -924,8 +923,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       panelEl.appendChild(info);
       if (!me) { // signed out: managing a seat needs the account first
         panelEl.appendChild(retryBox());
-        actions.appendChild(plainBtn("ปิด", closeModal));
-      } else if (!s.a || mine(n) || isOwner) { // a seat booked with an account: only its owner or the trip's organizer may cancel it
+        } else if (!s.a || mine(n) || isOwner) { // a seat booked with an account: only its owner or the trip's organizer may cancel it
         if (me && ((mine(n) && s.a) || isOwner)) actions.appendChild(plainBtn("แก้ชื่อ", function () { renaming = true; message = ""; renderPanel(); }));
         var cancel = el("button", "ghost", !mine(n) && s.a && isOwner ? "ยกเลิกให้ (คนจัดทริป)" : "ยกเลิกการจอง");
         cancel.type = "button";
@@ -936,18 +934,16 @@ body.signed .hbar .lback svg{width:20px;height:20px}
         lk.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10.5h10a2 2 0 012 2V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-5.5a2 2 0 012-2zM8.5 10.5V8a3.5 3.5 0 017 0v2.5"/></svg>';
         lk.appendChild(el("span", null, me ? "ยกเลิกได้เฉพาะคนที่จอง หรือคนจัดทริป" : "คนจองเข้าสู่ระบบไว้ ยกเลิกได้เฉพาะเจ้าของที่นั่ง"));
         panelEl.appendChild(lk);
-        actions.appendChild(plainBtn("ปิด", closeModal));
-      }
+        }
     } else if (heldByOther(n)) { // someone is signing in to book this seat right now
       var hw2 = el("div", "minfo warn");
       hw2.appendChild(el("div", "who", "มีคนกำลังจองที่นั่ง " + n));
       hw2.appendChild(el("span", null, "กันไว้ระหว่างเข้าสู่ระบบ ไม่เกิน 5 นาที"));
       panelEl.appendChild(hw2);
-      actions.appendChild(plainBtn("ปิด", closeModal));
     } else {
       if (!me && !IMG_ONLY) { // not signed in: offer LINE first (the seat then belongs to the account on every device)
         panelEl.appendChild(retryBox());
-        actions.appendChild(plainBtn("ปิด", closeModal)); panelEl.appendChild(actions); return;
+        panelEl.classList.add("noact"); return; // no "ปิด" button: the X at the top right closes it
       }
       if (me && opening && !typedName) { try { typedName = cleanName(localStorage.getItem("vsb_name") || "").text; } catch (e) {} } // the name typed last time on this device (first time: empty, the person types it)
       input = el("input");
@@ -997,7 +993,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       actions.appendChild(ok);
     }
     if (message && !input) panelEl.appendChild(el("div", "msg", message));
-    panelEl.appendChild(actions);
+    if (actions.children.length) panelEl.appendChild(actions); else panelEl.classList.add("noact"); // nothing to choose: only the X closes the dialog
     if (input && hadFocus) input.focus();
   }
 
