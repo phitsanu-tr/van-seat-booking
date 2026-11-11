@@ -1054,6 +1054,9 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
     return m ? { y: Number(m[1]) + 543, mo: Number(m[2]) - 1, d: Number(m[3]) } : null;
   }
+  var WD = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+  function dayS(iso) { var o = parseD(iso); if (!o) return ""; return WD[new Date(o.y - 543, o.mo, o.d).getDay()] + " " + o.d + " " + SHORT_M[o.mo] + " " + String(o.y).slice(-2); }
+  function leg(iso, tm) { return [dayS(iso), tm ? tm.replace(":", ".") + " น." : ""].filter(Boolean).join(" · "); }
   function dateRange(a, b) {
     var x = parseD(a), y = parseD(b);
     if (!x || !y || a === b) { var o = x || y; return o ? o.d + " " + MONTHS[o.mo] + " " + o.y : ""; }
@@ -1074,12 +1077,8 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'
     };
     // ขาไป / ขากลับ: day + time on one line ("ส. 28 พ.ย. 69 · 21.00 น."), a small visible label above each value
-    var WD = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
-    function dayS(iso) { var o = parseD(iso); if (!o) return ""; return WD[new Date(o.y - 543, o.mo, o.d).getDay()] + " " + o.d + " " + SHORT_M[o.mo] + " " + String(o.y).slice(-2); }
-    function leg(iso, tm) { return [dayS(iso), tm ? tm.replace(":", ".") + " น." : ""].filter(Boolean).join(" · "); }
-    var chgDT = CHG.date ? "date" : "time";
-    if (trip.startDate || trip.departTime) rows.push(["ขาไป", leg(trip.startDate, trip.departTime), "cal", chgDT]);
-    if (trip.endDate || trip.returnTime) rows.push(["ขากลับ", leg(trip.endDate || trip.startDate, trip.returnTime), "cal", chgDT]);
+    if (trip.startDate || trip.departTime) rows.push(["ขาไป", leg(trip.startDate, trip.departTime), "cal", CHG.date ? "date" : "time"]);
+    if (trip.endDate || trip.returnTime) rows.push(["ขากลับ", leg(trip.endDate || trip.startDate, trip.returnTime), "cal", CHG.date ? "date" : "rtime"]);
     if (trip.meetPoint) rows.push(["จุดนัดพบ", trip.meetPoint, "pin", "meet"]);
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน (" + trip.vans.length * TOTAL + " ที่นั่ง)", "van"]);
     factsEl.textContent = "";
@@ -1498,15 +1497,15 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       y += 40;
 
       // facts
-      var dr = dateRange(trip.startDate, trip.endDate), dep = trip.departTime ? trip.departTime.replace(":", ".") + (trip.returnTime ? " / " + trip.returnTime.replace(":", ".") : "") + " น." : "";
+      var go = (trip.startDate || trip.departTime) ? leg(trip.startDate, trip.departTime) : "", back = (trip.endDate || trip.returnTime) ? leg(trip.endDate || trip.startDate, trip.returnTime) : ""; // same wording as the trip card
       function fact(label, val, fx, fy, fw) {
         ctx.textAlign = "left"; ctx.fillStyle = MUTED; ctx.font = '400 28px "Noto Sans Thai", sans-serif'; ctx.fillText(label, fx, fy + 28);
         ctx.fillStyle = INK; ctx.font = '600 36px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, val, fw, 1)[0], fx, fy + 76);
       }
       var any = false;
-      if (dr || dep) {
-        if (dr) fact("วันที่", dr, X, y, IW * 0.6);
-        if (dep) fact(trip.returnTime ? "รถออก ไป / กลับ" : "รถออก", dep, X + IW * 0.62, y, IW * 0.38);
+      if (go || back) {
+        if (go) fact("ขาไป", go, X, y, IW * 0.48);
+        if (back) fact("ขากลับ", back, go ? X + IW * 0.52 : X, y, IW * 0.48);
         y += 112; any = true;
       }
       if (trip.meetPoint) { fact("นัดพบ", trip.meetPoint, X, y, IW); y += 112; any = true; }
@@ -1642,14 +1641,11 @@ body.signed .hbar .lback svg{width:20px;height:20px}
   }
   function inviteLink() { return "https://liff.line.me/2012285472-FvtYKx00/" + TRIP; }
   async function shareFriend() {
-    var u = inviteLink(), L = [], T = trip || {}, dr = dateRange(T.startDate, T.endDate);
+    var u = inviteLink(), L = [], T = trip || {};
     L.push("🚐 " + (T.name || "จองที่นั่งรถตู้"), "");
-    if (dr) L.push("📅 " + dr);
-    var tm = T.departTime ? T.departTime.replace(":", ".") + " น." : "";
-    if (tm && T.meetPoint) L.push("📍 " + tm + " - " + T.meetPoint);
-    else if (tm) L.push("⏰ " + tm);
-    if (T.returnTime) L.push("🔁 ขากลับ รถออก " + T.returnTime.replace(":", ".") + " น.");
-    else if (T.meetPoint) L.push("📍 " + T.meetPoint);
+    if (T.startDate || T.departTime) L.push("📅 ขาไป " + leg(T.startDate, T.departTime));
+    if (T.endDate || T.returnTime) L.push("🔁 ขากลับ " + leg(T.endDate || T.startDate, T.returnTime));
+    if (T.meetPoint) L.push("📍 " + T.meetPoint);
     L.push("", closed || ended ? "ดูผังที่นั่ง 👇" : "จองที่นั่งได้ที่นี่ 👇"); // closed: the link only shows the seat map
     var lead = L.join("\n");
     if (!IN_LINE && navigator.share) { try { await navigator.share({ title: lead, text: lead, url: u }); } catch (e) {} return; }

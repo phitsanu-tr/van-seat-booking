@@ -78,10 +78,10 @@
   }
   function dayMs(ms) { var x = new Date(Number(ms) + 7 * 3600e3); return x.getUTCDate() + " " + MON[x.getUTCMonth()]; }
   function byTxt(it) { return it.by === "helper" ? " · โดยผู้ช่วยจัด" : it.by === "owner" ? " · โดยผู้จัด" : ""; }
-  var FIELD = { name: ["เปลี่ยนชื่อทริป", "edit"], date: ["เปลี่ยนวันเดินทาง", "cal"], time: ["เปลี่ยนเวลารถออก", "clock"], meet: ["เปลี่ยนจุดนัดพบ", "pin"] };
+  var FIELD = { name: ["เปลี่ยนชื่อทริป", "edit"], date: ["เปลี่ยนวันเดินทาง", "cal"], time: ["เปลี่ยนเวลารถออก", "clock"], rtime: ["เปลี่ยนเวลารถออกขากลับ", "clock"], meet: ["เปลี่ยนจุดนัดพบ", "pin"] };
   function chLine(c) {
     if (c.f === "date") return esc(dates(c.o)) + " → <em>" + esc(dates(c.n)) + "</em>";
-    if (c.f === "time") return esc(tm(c.o)) + " → <em>" + esc(tm(c.n)) + "</em>";
+    if (c.f === "time" || c.f === "rtime") return esc(tm(c.o)) + " → <em>" + esc(tm(c.n)) + "</em>";
     return esc(c.o || "ไม่ระบุ") + " → <em>" + esc(c.n || "ไม่ระบุ") + "</em>";
   }
   // title / body (HTML, escaped) / tone / icon for one notification
@@ -90,7 +90,7 @@
     switch (it.k) {
       case "trip_changed": {
         var ch = it.ch || [];
-        if (ch.length === 1) return { title: FIELD[ch[0].f][0], body: tn + " · " + chLine(ch[0]), tone: "amber", icon: FIELD[ch[0].f][1] };
+        if (ch.length === 1) return { title: (FIELD[ch[0].f] || FIELD.name)[0], body: tn + " · " + chLine(ch[0]), tone: "amber", icon: FIELD[ch[0].f][1] };
         return { title: "ทริปมีการเปลี่ยนแปลง", body: tn + "<br>" + ch.map(function (c) { return FIELD[c.f][0].replace("เปลี่ยน", "") + ": " + chLine(c); }).join("<br>"), tone: "amber", icon: "edit" };
       }
       case "trip_deleted": return { title: "ทริปถูกยกเลิก", body: tn + " · ผู้จัดลบทริปนี้แล้ว", tone: "red", icon: "trash" };
@@ -108,7 +108,7 @@
     }
   }
   function tag(it) {
-    if (it.k === "trip_changed") { var ch = it.ch || []; if (ch.length !== 1) return "ทริปมีการเปลี่ยนแปลง"; var c = ch[0]; return c.f === "time" ? "เวลาเปลี่ยน · " + tm(c.n) : c.f === "date" ? "วันเดินทางเปลี่ยน" : c.f === "meet" ? "จุดนัดพบเปลี่ยน" : "ชื่อทริปเปลี่ยน"; }
+    if (it.k === "trip_changed") { var ch = it.ch || []; if (ch.length !== 1) return "ทริปมีการเปลี่ยนแปลง"; var c = ch[0]; return c.f === "time" ? "เวลาเปลี่ยน · " + tm(c.n) : c.f === "rtime" ? "เวลาขากลับเปลี่ยน" + (c.n ? " · " + tm(c.n) : "") : c.f === "date" ? "วันเดินทางเปลี่ยน" : c.f === "meet" ? "จุดนัดพบเปลี่ยน" : "ชื่อทริปเปลี่ยน"; }
     return { seat_moved: "ย้ายที่นั่งแล้ว", seat_renamed: "ชื่อบนผังถูกแก้", became_owner: "คุณเป็นเจ้าของแล้ว", helper_joined: "มีผู้ช่วยใหม่" }[it.k] || "";
   }
   var linkable = { trip_deleted: 0, removed_team: 0 };

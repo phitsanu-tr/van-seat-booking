@@ -62,7 +62,9 @@ function clean(body, vanCap, planVans, prev) {
     const plate = keep(v && v.plate, LIM.plate, ov.plate);
     outVans.push(plate ? { id, label, plate } : { id, label });
   }
-  const value = { name, organizer: keep(body.organizer, LIM.organizer, prev && prev.organizer), startDate, endDate, departTime, returnTime, meetPoint: keep(body.meetPoint, LIM.meetPoint, prev && prev.meetPoint), vans: outVans };
+  const meetPoint = keep(body.meetPoint, LIM.meetPoint, prev && prev.meetPoint);
+  if (!meetPoint && !(prev && !prev.meetPoint)) return { error: "bad_meet" }; // required (an old trip saved without one may stay without)
+  const value = { name, organizer: keep(body.organizer, LIM.organizer, prev && prev.organizer), startDate, endDate, departTime, returnTime, meetPoint, vans: outVans };
   if (body.maxPerPerson !== undefined && body.maxPerPerson !== null && body.maxPerPerson !== "") {
     const m = Number(body.maxPerPerson);
     if (!Number.isInteger(m) || m < 0 || m > 50) return { error: "bad_max" };
@@ -437,6 +439,7 @@ module.exports = async function handler(req, res) {
       if ((trip.name || "") !== (updated.name || "")) ch.push({ f: "name", o: trip.name || "", n: updated.name || "" });
       if ((trip.startDate || "") !== (updated.startDate || "") || (trip.endDate || "") !== (updated.endDate || "")) ch.push({ f: "date", o: [trip.startDate || "", trip.endDate || ""], n: [updated.startDate || "", updated.endDate || ""] });
       if ((trip.departTime || "") !== (updated.departTime || "")) ch.push({ f: "time", o: trip.departTime || "", n: updated.departTime || "" });
+      if ((trip.returnTime || "") !== (updated.returnTime || "")) ch.push({ f: "rtime", o: trip.returnTime || "", n: updated.returnTime || "" });
       if ((trip.meetPoint || "") !== (updated.meetPoint || "")) ch.push({ f: "meet", o: trip.meetPoint || "", n: updated.meetPoint || "" });
       const gone = new Set();
       removed.forEach((id) => { (bookers[id] || []).forEach((u) => gone.add(u)); });
