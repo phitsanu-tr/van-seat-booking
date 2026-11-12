@@ -213,7 +213,10 @@ async function currentUser(req) {
     return s && s.u ? { id: String(s.u), name: String(s.n || ""), pic: String(s.p || ""), sid } : null;
   } catch (e) { return null; }
 }
-function publicUser(u) { return u ? { name: u.name, pic: u.pic } : null; }
+// The signed-in person's own photo is served through /api/auth?pic=1 (long browser cache, the URL changes only when the LINE photo does),
+// so the avatar is not fetched from LINE again on every page load. Other people's photos keep their LINE address.
+function picUrl(pic) { return pic ? "/api/auth?pic=1&v=" + crypto.createHash("sha1").update(String(pic)).digest("hex").slice(0, 10) : ""; }
+function publicUser(u) { return u ? { name: u.name, pic: picUrl(u.pic) } : null; }
 function clientIp(req) {
   return (String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim() || "unknown").slice(0, 64);
 }

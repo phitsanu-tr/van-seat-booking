@@ -87,6 +87,20 @@ module.exports = async function handler(req, res) {
     }
     if (req.method !== "GET") { res.setHeader("Allow", "GET, POST"); return L.json(res, 405, { error: "method_not_allowed" }); }
 
+    if (q.pic !== undefined) { // my own LINE photo, relayed so the browser can keep it (only LINE's picture host is fetched)
+      const u = await L.currentUser(req);
+      let host = ""; try { host = new URL(u && u.pic).hostname; } catch (e) { /* none */ }
+      if (!u || !u.pic || !/(^|\.)(line-scdn\.net|line\.me|line-apps\.com)$/.test(host)) { res.statusCode = 404; return res.end(); }
+      try {
+        const pr = await fetch(u.pic, { redirect: "error" });
+        const type = pr.headers.get("content-type") || "";
+        if (!pr.ok || !/^image\//.test(type)) { res.statusCode = 404; return res.end(); }
+        const buf = Buffer.from(await pr.arrayBuffer());
+        if (buf.length > 1024 * 1024) { res.statusCode = 404; return res.end(); }
+        res.statusCode = 200; res.setHeader("Content-Type", type); res.setHeader("Cache-Control", "private, max-age=2592000, immutable"); res.setHeader("X-Content-Type-Options", "nosniff");
+        return res.end(buf);
+      } catch (e) { res.statusCode = 404; return res.end(); }
+    }
     if (q.me !== undefined) {
       const u = await L.currentUser(req);
       return L.json(res, 200, { user: L.publicUser(u), login: DEV || !!env("LINE_CHANNEL_ID") });
