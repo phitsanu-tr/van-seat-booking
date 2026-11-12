@@ -1552,12 +1552,12 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     if (t === "notif") renderNotif();
     try { history.replaceState(null, "", "/mytrips" + ({ trips: "#trips", seats: "#seats", acct: "#account", notif: "#notify" }[t] || "")); } catch (e) {}
     window.scrollTo(0, 0);
-    if (D && Date.now() - loadedAt > 15000) load(); // single page: refresh stale lists when switching tabs
+    if (D && Date.now() - loadedAt > 15000) load(true); // single page: refresh stale lists when switching tabs
     $("navHome").classList.toggle("on", t === "home"); $("navTrips").classList.toggle("on", t === "trips"); $("navSeats").classList.toggle("on", t === "seats"); $("navAcct").classList.toggle("on", t === "acct"); $("navNotif").classList.toggle("on", t === "notif");
     updateHead();
   }
   $("navHome").addEventListener("click", function () { setTab("home"); });
-  document.addEventListener("visibilitychange", function () { if (!document.hidden && D && Date.now() - loadedAt > 15000) load(); }); // back to the app after a while
+  document.addEventListener("visibilitychange", function () { if (!document.hidden && D && Date.now() - loadedAt > 15000) load(true); }); // back to the app after a while
   window.addEventListener("hashchange", function () { // a link to /mytrips#seats etc. while already in the app
     var t = { "#trips": "trips", "#seats": "seats", "#account": "acct", "#notify": "notif" }[location.hash] || "home";
     if (t !== tab && document.body.classList.contains("signed")) setTab(t);
@@ -1628,13 +1628,16 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     document.body.appendChild(bd);
   }
 
-  async function load() {
+  var lastSig = "";
+  async function load(quiet) {
     try {
       var r = await fetch("/api/me", { cache: "no-store" });
       if (r.status === 401) { showLogin(); return; }
       var d = await r.json();
       if (!r.ok) throw new Error();
-      D = d; loadedAt = Date.now();
+      var sig = JSON.stringify(d);
+      if (quiet && D && sig === lastSig) { loadedAt = Date.now(); return; } // nothing changed: keep the screen as it is, no redraw
+      lastSig = sig; D = d; loadedAt = Date.now();
       $("meName").textContent = d.user.name || "ผู้ใช้ LINE";
       var av = $("av"); av.textContent = "";
       if (d.user.pic) { var im = node("img"); im.alt = ""; im.src = d.user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1); }; av.appendChild(im); }
