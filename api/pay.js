@@ -80,9 +80,9 @@ function signedOk(raw, header, secret) {
 
 // one line under the product name on Stripe's page
 function descOf(s) {
-  if (s.kind === "pass") return "ใช้สร้างทริปได้ 1 ทริป · รถสูงสุด " + P.TIERS.standard.vans + " คัน · ไม่มีวันหมดอายุ";
+  if (s.kind === "pass") return "สร้างทริปได้ 1 ทริป · ไม่มีวันหมดอายุ";
   const t = P.TIERS[s.tier];
-  return (t.trips ? "สร้างทริปได้ " + t.trips + " ทริป/เดือน" : "สร้างทริปไม่จำกัด") + " · รถ " + t.vans + " คัน · ผู้ช่วย " + t.helpers + " คน · ใช้ได้ " + s.days + " วัน";
+  return (t.trips ? t.trips + " ทริป/เดือน" : "ทริปไม่จำกัด") + " · รถ " + t.vans + " คัน · ใช้ได้ " + s.days + " วัน";
 }
 
 module.exports = async function handler(req, res) {
