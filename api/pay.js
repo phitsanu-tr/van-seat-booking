@@ -78,6 +78,13 @@ function signedOk(raw, header, secret) {
   return (parts.v1 || []).some((v) => v.length === want.length && L.crypto.timingSafeEqual(Buffer.from(v), Buffer.from(want)));
 }
 
+// one line under the product name on Stripe's page
+function descOf(s) {
+  if (s.kind === "pass") return "ใช้สร้างทริปได้ 1 ทริป · รถสูงสุด " + P.TIERS.standard.vans + " คัน · ไม่มีวันหมดอายุ";
+  const t = P.TIERS[s.tier];
+  return (t.trips ? "สร้างทริปได้ " + t.trips + " ทริป/เดือน" : "สร้างทริปไม่จำกัด") + " · รถ " + t.vans + " คัน · ผู้ช่วย " + t.helpers + " คน · ใช้ได้ " + s.days + " วัน";
+}
+
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
   const q = req.query || {};
@@ -149,7 +156,7 @@ module.exports = async function handler(req, res) {
         const back = origin(req) + "/plans?order=" + o.id;
         const sess = await stripe("POST", "checkout/sessions", {
           mode: "payment", payment_method_types: ["promptpay", "card"], locale: "th",
-          line_items: [{ quantity: 1, price_data: { currency: "thb", unit_amount: pr.amount * 100, product_data: { name: "VanTrip · " + s.label } } }],
+          line_items: [{ quantity: 1, price_data: { currency: "thb", unit_amount: pr.amount * 100, product_data: { name: "VanTrip · " + s.label, description: descOf(s), images: [origin(req) + "/pay-icon.png"] } } }],
           success_url: back, cancel_url: back + "&c=1", client_reference_id: o.id, metadata: { order: o.id, sku: body.sku },
           expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         });
