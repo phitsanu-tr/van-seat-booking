@@ -1074,14 +1074,12 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       cal: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
       clk: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
       van: '<path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/>',
-      note: '<path d="M5 4h14v16H5z"/><path d="M9 9h6M9 13h6"/>',
       pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'
     };
     // ขาไป / ขากลับ: day + time on one line ("ส. 28 พ.ย. 69 · 21.00 น."), a small visible label above each value
     if (trip.startDate || trip.departTime) rows.push(["ขาไป", leg(trip.startDate, trip.departTime), "cal", CHG.date ? "date" : "time"]);
     if (trip.endDate || trip.returnTime) rows.push(["ขากลับ", leg(trip.endDate || trip.startDate, trip.returnTime), "cal", CHG.date ? "date" : "rtime"]);
     if (trip.meetPoint) rows.push(["จุดนัดพบ", trip.meetPoint, "pin", "meet"]);
-    if (trip.note) rows.push(["หมายเหตุ", trip.note, "note"]);
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน (" + trip.vans.length * TOTAL + " ที่นั่ง)", "van"]);
     factsEl.textContent = "";
     var fh = el("div", "fhead");
@@ -1529,16 +1527,6 @@ body.signed .hbar .lback svg{width:20px;height:20px}
         mLines.forEach(function (ln, i) { ctx.fillText(ln, mTx, y + 56 + 36 + i * 46); });
         y += mh2 + CGAP;
       }
-      if (trip.note) {
-        ctx.font = '600 32px "Noto Sans Thai", sans-serif';
-        var nLines = wrapText(ctx, trip.note, CWD - 2 * CP, 2), nh = 20 + 36 + 42 * nLines.length + 14;
-        ctx.fillStyle = "#fff8e6"; rrect(ctx, CX, y, CWD, nh, CRAD); ctx.fill();
-        ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
-        ctx.fillStyle = "#8a6a16"; ctx.font = '400 28px "Noto Sans Thai", sans-serif'; ctx.fillText("หมายเหตุ", CX + CP, y + 48);
-        ctx.fillStyle = INK; ctx.font = '600 32px "Noto Sans Thai", sans-serif';
-        nLines.forEach(function (ln, i) { ctx.fillText(ln, CX + CP, y + 56 + 32 + i * 42); });
-        y += nh + CGAP;
-      }
       y -= CGAP;
     }
     // ---- map card
@@ -1675,7 +1663,6 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     if (T.startDate || T.departTime) L.push("📅 ขาไป " + leg(T.startDate, T.departTime));
     if (T.endDate || T.returnTime) L.push("🔁 ขากลับ " + leg(T.endDate || T.startDate, T.returnTime));
     if (T.meetPoint) L.push("📍 " + T.meetPoint);
-    if (T.note) L.push("📝 " + T.note);
     L.push("", closed || ended ? "ดูผังที่นั่ง 👇" : "จองที่นั่งได้ที่นี่ 👇"); // closed: the link only shows the seat map
     var lead = L.join("\n");
     if (!IN_LINE && navigator.share) { try { await navigator.share({ title: lead, text: lead, url: u }); } catch (e) {} return; }

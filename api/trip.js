@@ -34,7 +34,7 @@ async function refundQuota(user, month) {
 }
 
 // text limits (characters, Thai vowels/tone marks count): a trip saved before these limits keeps its longer text until that field is edited
-const LIM = { name: 60, organizer: 60, meetPoint: 60, note: 80, label: 4, plate: 25 };
+const LIM = { name: 60, organizer: 60, meetPoint: 60, label: 4, plate: 25 };
 function clean(body, vanCap, planVans, prev) {
   const s = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
   const keep = (v, n, old) => { const t = String(v == null ? "" : v).trim(); return old && t === old ? t : t.slice(0, n); };
@@ -64,7 +64,7 @@ function clean(body, vanCap, planVans, prev) {
   }
   const meetPoint = keep(body.meetPoint, LIM.meetPoint, prev && prev.meetPoint);
   if (!meetPoint && !(prev && !prev.meetPoint)) return { error: "bad_meet" }; // required (an old trip saved without one may stay without)
-  const value = { name, organizer: keep(body.organizer, LIM.organizer, prev && prev.organizer), startDate, endDate, departTime, returnTime, meetPoint, note: keep(body.note, LIM.note, prev && prev.note), vans: outVans };
+  const value = { name, organizer: keep(body.organizer, LIM.organizer, prev && prev.organizer), startDate, endDate, departTime, returnTime, meetPoint, vans: outVans };
   if (body.maxPerPerson !== undefined && body.maxPerPerson !== null && body.maxPerPerson !== "") {
     const m = Number(body.maxPerPerson);
     if (!Number.isInteger(m) || m < 0 || m > 50) return { error: "bad_max" };
