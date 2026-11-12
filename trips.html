@@ -7,7 +7,7 @@
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>
-button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; } .vb-bar { padding: 0 !important; margin: -8px auto 8px !important; }.vb-bar{display:none !important}.hero{position:relative}.hx{position:absolute;right:0;top:4px;width:40px;height:40px;border-radius:50%;border:0;background:var(--tint,#eef1f3);color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0;line-height:0;cursor:pointer}.hero .hx svg{width:20px !important;height:20px !important;display:block;flex:none;margin:0;position:static !important;inset:auto !important}</style>
+button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; } .vb-bar { padding: 0 !important; margin: -8px auto 8px !important; }.vb-bar{display:none !important}.hero{position:relative}.hx{position:absolute;right:0;top:4px;width:40px;height:40px;border-radius:50%;border:0;background:var(--tint,#eef1f3);color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0;line-height:0;cursor:pointer}.hx[hidden]{display:none}.hero .hx svg{width:20px !important;height:20px !important;display:block;flex:none;margin:0;position:static !important;inset:auto !important}</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
@@ -1120,6 +1120,7 @@ form label { position: relative; }
   function alignSteps() { document.body.classList.toggle("creating", !editing); } // fixed action bar instead of padding the steps
   function setStep(n) {
     step = n; $("stp").hidden = editing;
+    $("closeX").hidden = editing || n === 1; // step 1 / editing: the bottom "ยกเลิก" already leaves; steps 2-3 only have "ย้อนกลับ"
     showStep(n);
     if (editing) { $("cancelBtn").textContent = "ยกเลิก"; alignSteps(); return; }
     [].forEach.call($("stp").children, function (x, i) { x.className = "s" + (i + 1 < n ? " done" : i + 1 === n ? " on" : ""); x.firstChild.innerHTML = i + 1 < n ? CHK : String(i + 1); });
