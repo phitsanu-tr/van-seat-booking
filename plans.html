@@ -74,6 +74,23 @@ main { max-width: 460px; margin: 0 auto; padding: 12px 16px calc(32px + env(safe
 details { border-radius: 16px; background: #f2f5f6; padding: 12px 16px; font-size: 14px; color: var(--ink); line-height: 20px}
 details summary { font: 600 14px/20px var(--font-display); color: var(--ink); cursor: pointer; }
 details ol { margin: 8px 0 0; padding-left: 16px; }
+.hist .rf { color: var(--mine); font-size: 12px; line-height: 16px; text-decoration: underline; background: none; border: 0; padding: 4px 0; font-family: inherit; cursor: pointer; }
+.hist .rq { display: block; font-size: 12px; line-height: 16px; color: #8a5400; }
+.hist .rd { display: block; font-size: 12px; line-height: 16px; color: var(--muted); }
+#rfBd { position: fixed; inset: 0; z-index: 50; background: rgba(27,31,34,.5); display: flex; align-items: flex-end; justify-content: center; padding: 16px; }
+#rfBd[hidden] { display: none; }
+.rfd { background: #fff; border-radius: 24px; padding: 20px; width: 100%; max-width: 420px; position: relative; max-height: 90vh; overflow: auto; }
+.rfd h3 { font: 600 20px/28px var(--font-display); padding-right: 40px; margin: 0; }
+.rfd .rx { position: absolute; right: 12px; top: 12px; width: 40px; height: 40px; border: 0; background: none; display: grid; place-items: center; cursor: pointer; color: var(--ink); }
+.rfd .rx svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.rfd p { font-size: 14px; line-height: 20px; color: var(--muted); margin: 4px 0 12px; }
+.rfd .op { display: flex; align-items: center; gap: 12px; border: 1.5px solid var(--line); border-radius: 12px; height: 48px; padding: 0 16px; font-size: 14px; line-height: 20px; margin-bottom: 8px; cursor: pointer; }
+.rfd .op input { position: absolute; opacity: 0; pointer-events: none; }
+.rfd .op i { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid #b8c2c7; }
+.rfd .op.on { border-color: var(--mine); background: #f4fbfb; }
+.rfd .op.on i { border: 6px solid var(--mine); }
+.rfd textarea { width: 100%; height: 72px; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; font: 400 14px/20px var(--font-body, inherit); resize: none; margin: 4px 0 12px; }
+.rfd .note { font-size: 12px; line-height: 16px; color: var(--muted); margin-top: 8px; text-align: center; }
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: #1b1f22; color: #fff; padding: 12px 16px; border-radius: 12px; font-size: 14px; z-index: 50; max-width: 90vw; line-height: 20px}
 </style>
 </head>
@@ -85,6 +102,7 @@ details ol { margin: 8px 0 0; padding-left: 16px; }
   <footer class="vfoot"></footer><script src="/footer.js"></script>
 </main>
 <div class="toast" id="toast" hidden></div>
+<div id="rfBd" hidden><div class="rfd" role="dialog" aria-modal="true" aria-labelledby="rfT"><button type="button" class="rx" id="rfX" aria-label="ปิด"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><h3 id="rfT">ขอคืนเงิน</h3><p id="rfSub"></p><div id="rfOps"></div><textarea id="rfNote" maxlength="300" placeholder="รายละเอียดเพิ่มเติม (ไม่บังคับ)"></textarea><button type="button" class="btn" id="rfGo">ส่งคำขอคืนเงิน</button><div class="note">ผู้ดูแลจะตรวจสอบตามเงื่อนไขการคืนเงิน แล้วคืนเงินเข้าช่องทางที่ใช้ชำระ</div></div></div>
 <script>
 (function () {
   "use strict";
@@ -154,18 +172,47 @@ details ol { margin: 8px 0 0; padding-left: 16px; }
       "<li>เมื่อหมดอายุ ทริปและที่นั่งเดิมยังอยู่ครบ แต่จะสร้างทริป เพิ่มรถ หรือเพิ่มผู้ช่วยได้ตามสิทธิ์ของแพ็กเกจ Free</li>" +
       "<li>ตั๋วรายทริปไม่มีวันหมดอายุ ใช้แล้วผูกกับทริปนั้นถาวร</li>" +
       "<li>ราคาเปิดตัวใช้กับการซื้อที่ชำระภายในวันหมดโปรโมชั่น ซื้อหรือต่ออายุหลังจากนั้นใช้ราคาปกติ</li>" +
-      "<li><b>การคืนเงิน</b> · ถูกตัดเงินซ้ำหรือระบบผิดพลาด: คืนเต็มทุกกรณี · ตั๋วรายทริปที่ยังไม่ได้ใช้กับทริปไหน: คืนได้ภายใน 30 วัน · แพ็กเกจรายเดือน/รายปี: คืนเต็มภายใน 7 วัน ถ้ายังไม่ได้สร้างทริปหรือใช้สิทธิ์เกินแพ็กเกจ Free · นอกจากนี้ไม่คืนเงิน (ไม่มีการตัดเงินต่ออัตโนมัติ)</li>" +
-      "<li>ขอคืนเงิน: อีเมล phitsanu.tr@outlook.com พร้อมวันที่ชำระ · จ่ายด้วย PromptPay จะได้อีเมลจาก Stripe ขอเลขบัญชีที่ใช้จ่ายเพื่อโอนคืน · จ่ายด้วยบัตรคืนเข้าบัตร · เมื่อคืนเงินแล้ว สิทธิ์ของรายการนั้นจะถูกยกเลิก</li>" +
+      "<li><b>การคืนเงิน</b> · ถูกตัดเงินซ้ำหรือระบบผิดพลาด: คืนเต็มทุกกรณี · ตั๋วรายทริปที่ยังไม่ได้ใช้กับทริปไหน: คืนเต็มภายใน 7 วัน · แพ็กเกจรายเดือน/รายปี: คืนเต็มภายใน 7 วัน ถ้ายังไม่ได้สร้างทริปหรือใช้สิทธิ์เกินแพ็กเกจ Free · นอกจากนี้ไม่คืนเงิน (ไม่มีการตัดเงินต่ออัตโนมัติ)</li>" +
+      "<li>ขอคืนเงิน: กด \"ขอคืนเงิน\" ที่รายการในประวัติการชำระเงินด้านบน หรืออีเมล phitsanu.tr@outlook.com พร้อมวันที่ชำระ · จ่ายด้วย PromptPay จะได้อีเมลจาก Stripe ขอเลขบัญชีที่ใช้จ่ายเพื่อโอนคืน · จ่ายด้วยบัตรคืนเข้าบัตร · เมื่อคืนเงินแล้ว สิทธิ์ของรายการนั้นจะถูกยกเลิก</li>" +
       "</ol></details>");
     body.appendChild(wrap);
     if (location.hash === "#pass") setTimeout(function () { pass.scrollIntoView({ block: "center" }); }, 50);
     fetch("/api/pay?orders=1", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (h) {
       if (!h.orders || !h.orders.length) return;
-      var hs = '<div class="h2">ประวัติการชำระเงิน</div><div class="hist">' + h.orders.map(function (o) { return "<div><span>" + esc(o.label) + "<small>" + day(o.paidAt || o.at) + "</small></span><b>" + baht(o.amount) + "</b></div>"; }).join("") + "</div>";
+      var hs = '<div class="h2">ประวัติการชำระเงิน</div><div class="hist" id="hist">' + h.orders.map(function (o) {
+        var sub = o.status === "refunded" ? '<span class="rd">คืนเงินแล้ว</span>' : o.refundReq ? '<span class="rq">ส่งคำขอคืนเงินแล้ว · รอตรวจสอบ</span>' : o.canRefund ? '<button type="button" class="rf" data-o="' + esc(o.id) + '">ขอคืนเงิน</button>' : "";
+        return '<div><span>' + esc(o.label) + "<small>" + day(o.paidAt || o.at) + (o.canRefund ? " · คืนได้ถึง " + day(o.refundUntil) : "") + "</small>" + sub + "</span><b>" + baht(o.amount) + "</b></div>";
+      }).join("") + "</div>";
       wrap.insertAdjacentHTML("beforeend", hs);
+      var byId = {}; h.orders.forEach(function (o) { byId[o.id] = o; });
+      $("hist").addEventListener("click", function (ev) { var b = ev.target.closest && ev.target.closest(".rf"); if (b && byId[b.getAttribute("data-o")]) refundDialog(byId[b.getAttribute("data-o")]); });
     }).catch(function () {});
   }
 
+  var WHY = [["cant_use", "สร้างทริปไม่ได้ / ใช้งานไม่ได้"], ["duplicate", "ซื้อซ้ำหรือซื้อผิด"], ["not_needed", "ไม่ต้องการใช้แล้ว"], ["other", "อื่น ๆ"]];
+  function refundDialog(o) {
+    var bd = $("rfBd"), why = "cant_use", ops = $("rfOps"), go = $("rfGo");
+    $("rfSub").textContent = o.label + " · " + baht(o.amount) + " · ชำระ " + day(o.paidAt || o.at);
+    $("rfNote").value = ""; go.disabled = false;
+    function paint() { ops.innerHTML = WHY.map(function (w) { return '<label class="op' + (w[0] === why ? " on" : "") + '"><input type="radio" name="rfw" value="' + w[0] + '"><i></i>' + w[1] + "</label>"; }).join(""); }
+    paint();
+    ops.onclick = function (ev) { var l = ev.target.closest && ev.target.closest(".op"); if (!l) return; ev.preventDefault(); why = l.querySelector("input").value; paint(); };
+    function close() { bd.hidden = true; document.removeEventListener("keydown", esc2); }
+    function esc2(ev) { if (ev.key === "Escape") close(); }
+    document.addEventListener("keydown", esc2);
+    $("rfX").onclick = close; bd.onclick = function (ev) { if (ev.target === bd) close(); };
+    go.onclick = function () {
+      go.disabled = true;
+      fetch("/api/pay", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ refund: { order: o.id, why: why, note: $("rfNote").value } }) })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (x) {
+          if (x.ok) { close(); toast("ส่งคำขอคืนเงินแล้ว"); render(); return; }
+          go.disabled = false;
+          toast({ already: "ส่งคำขอสำหรับรายการนี้ไปแล้ว", too_late: "เกิน 7 วันแล้ว ติดต่อทางอีเมลได้", too_many: "ลองใหม่ภายหลัง", not_paid: "รายการนี้ขอคืนเงินไม่ได้" }[x.d && x.d.error] || "ส่งไม่สำเร็จ ลองอีกครั้ง");
+        }).catch(function () { go.disabled = false; toast("ส่งไม่สำเร็จ ลองอีกครั้ง"); });
+    };
+    bd.hidden = false;
+  }
   function orderView(id) {
     $("title").textContent = "ชำระเงิน"; $("sub").textContent = "";
     var body = $("body"), tries = 0, dev = q.get("dev") === "1";

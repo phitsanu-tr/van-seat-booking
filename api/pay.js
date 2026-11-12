@@ -40,7 +40,13 @@ function origin(req) {
 }
 async function loadOrder(id) { try { return JSON.parse(await L.redis(["GET", "order:" + id])); } catch (e) { return null; } }
 async function saveOrder(o) { await L.redis(["SET", "order:" + o.id, JSON.stringify(o), "EX", String(ORDER_DAYS * 86400)]); }
-function publicOrder(o) { return { id: o.id, sku: o.sku, label: (P.SKUS[o.sku] || {}).label || o.sku, amount: o.amount, status: o.status, at: o.at, paidAt: o.paidAt || 0 }; }
+const REFUND_DAYS = 7; // every package and pass: a refund can be asked for within 7 days of paying (terms, section 4)
+const REFUND_WHY = ["cant_use", "duplicate", "not_needed", "other"];
+function refundUntil(o) { return (o.paidAt || o.at || 0) + REFUND_DAYS * 86400 * 1000; }
+function publicOrder(o) {
+  return { id: o.id, sku: o.sku, label: (P.SKUS[o.sku] || {}).label || o.sku, amount: o.amount, status: o.status, at: o.at, paidAt: o.paidAt || 0,
+    refundReq: !!o.refundReq, refundUntil: refundUntil(o), canRefund: o.status === "paid" && !o.refundReq && Date.now() <= refundUntil(o) };
+}
 
 // marks the order paid and adds the package / pass — exactly once, however many times Stripe or the page reports it
 async function fulfil(o) {
@@ -119,7 +125,7 @@ module.exports = async function handler(req, res) {
       const ids = ((await L.redis(["LRANGE", "orders:" + user.id, "0", "49"])) || []).filter((x) => /^[a-z0-9]{12}$/.test(x));
       const raws = ids.length ? await L.pipeline(ids.map((id) => ["GET", "order:" + id])) : [];
       const orders = [];
-      raws.forEach((r) => { try { const o = JSON.parse(r); if (o && o.uid === user.id && o.status === "paid") orders.push(publicOrder(o)); } catch (e) { /* skip */ } });
+      raws.forEach((r) => { try { const o = JSON.parse(r); if (o && o.uid === user.id && (o.status === "paid" || o.status === "refunded")) orders.push(publicOrder(o)); } catch (e) { /* skip */ } });
       return L.json(res, 200, { orders });
     }
     if (req.method === "GET" && q.order !== undefined) {
@@ -139,6 +145,19 @@ module.exports = async function handler(req, res) {
 
     if (req.method === "POST") {
       const body = L.readBody(req);
+      if (body && body.refund) { // the buyer asks for a refund; the owner decides and refunds in Stripe (the webhook then takes the package back)
+        const r = body.refund;
+        const o = /^[a-z0-9]{12}$/.test(String(r.order || "")) ? await loadOrder(String(r.order)) : null;
+        if (!o || o.uid !== user.id) return L.json(res, 404, { error: "no_order" });
+        if (await L.rateLimited(req, user, "refund", 5, 3600)) return L.json(res, 429, { error: "too_many" });
+        if (o.status !== "paid") return L.json(res, 409, { error: "not_paid" });
+        if (o.refundReq) return L.json(res, 409, { error: "already" });
+        if (Date.now() > refundUntil(o)) return L.json(res, 409, { error: "too_late" });
+        const why = REFUND_WHY.indexOf(r.why) >= 0 ? r.why : "other";
+        const note = String(r.note || "").replace(/\s+/g, " ").trim().slice(0, 300);
+        await saveOrder(Object.assign({}, o, { refundReq: { at: Date.now(), why, note } }));
+        return L.json(res, 200, { ok: true });
+      }
       if (DEV && body.devPaid === true) { // local dev: no Stripe, finish the order right away
         const o = /^[a-z0-9]{12}$/.test(String(body.order || "")) ? await loadOrder(String(body.order)) : null;
         if (!o || o.uid !== user.id) return L.json(res, 404, { error: "no_order" });

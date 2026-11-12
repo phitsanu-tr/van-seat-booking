@@ -192,6 +192,12 @@ button { font:inherit; cursor:pointer; }
         row.appendChild(el("span", null, fmtDate(o.paidAt || o.at) + " · " + (o.name || "?") + " …" + o.tag + " · " + o.label));
         var st = el("b", null, o.amount + "฿ " + ({ paid: "✓", refunded: "คืนเงินแล้ว", open: "รอจ่าย", expired: "หมดเวลา" }[o.status] || o.status)); st.style.color = o.status === "paid" ? "#068c3f" : "var(--muted)"; row.appendChild(st);
         box.appendChild(row);
+        if (o.refundReq && o.status === "paid") {
+          var why = { cant_use: "สร้างทริปไม่ได้/ใช้งานไม่ได้", duplicate: "ซื้อซ้ำหรือซื้อผิด", not_needed: "ไม่ต้องการใช้แล้ว", other: "อื่น ๆ" }[o.refundReq.why] || "อื่น ๆ";
+          var rq = el("div", null, "⚠ ขอคืนเงิน " + fmtDate(o.refundReq.at) + " · " + why + (o.refundReq.note ? " · " + o.refundReq.note : ""));
+          rq.style.cssText = "background:#fdf0dd;color:#8a5400;border-radius:8px;padding:6px 8px;font-size:12px;line-height:16px";
+          box.appendChild(rq);
+        }
       });
       if (!(d.orders || []).length) box.appendChild(el("span", null, "ยังไม่มีรายการ"));
     });

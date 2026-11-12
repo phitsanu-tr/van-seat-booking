@@ -77,7 +77,7 @@ module.exports = async function handler(req, res) {
         let o = null; try { o = JSON.parse(r); } catch (e) { o = null; }
         if (!o) return;
         if (o.status === "paid") { paid += o.amount; paidN++; if (new Date((o.paidAt || o.at) + 7 * 3600e3).toISOString().slice(0, 7) === ym) month += o.amount; }
-        orders.push({ id: o.id, name: o.name || "", tag: String(o.uid || "").slice(-6), sku: o.sku, label: (P.SKUS[o.sku] || {}).label || o.sku, amount: o.amount, status: o.status, at: o.at, paidAt: o.paidAt || 0 });
+        orders.push({ id: o.id, name: o.name || "", tag: String(o.uid || "").slice(-6), sku: o.sku, label: (P.SKUS[o.sku] || {}).label || o.sku, amount: o.amount, status: o.status, at: o.at, paidAt: o.paidAt || 0, refundReq: o.refundReq || null });
       });
       return L.json(res, 200, { orders, totals: { paid, paidN, month }, on: P.enabled(), stripe: /^sk_(test|live)_/.test(process.env.STRIPE_SECRET_KEY || ""), mode: /^sk_live_/.test(process.env.STRIPE_SECRET_KEY || "") ? "live" : "test" });
     }
