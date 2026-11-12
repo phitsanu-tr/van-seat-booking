@@ -355,6 +355,9 @@ form label { position: relative; }
     <label>จุดนัดพบ
       <span class="cnt" data-for="meetPoint"></span><input type="text" id="meetPoint" maxlength="60" placeholder="เช่น ลานจอดรถ BTS หมอชิต">
     </label>
+    <label>หมายเหตุ <small>(ไม่บังคับ)</small>
+      <span class="cnt" data-for="note"></span><input type="text" id="note" maxlength="80" placeholder="เช่น รถออกตรงเวลา โอนภายใน 24 ชม.">
+    </label>
     <div>
       <div class="vh" style="font-weight:600;font-size:14px;margin-bottom:8px">รถตู้ <small>(คันละ 10 ที่นั่ง)</small></div>
       <div class="vans" id="vans"></div>
@@ -988,7 +991,7 @@ form label { position: relative; }
     if (only) { setStep(step + 1); return; }
     var body = {
       name: $("name").value, organizer: $("organizer").value, startDate: $("startDate").value, endDate: $("endDate").value,
-      departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value,
+      departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value, note: $("note").value,
       vans: rows.map(function (r) { return { id: r.id, label: r.label.trim(), plate: (r.plate || "").trim() }; }),
       maxPerPerson: Number($("maxPer").value),
       staffSeat: $("staffSeat").checked, staffName: $("staffName").value,
@@ -1086,7 +1089,7 @@ form label { position: relative; }
       var data = await res.json();
       if (!res.ok || !data.trip) { if (res.status !== 401) toast("คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย", true); return; }
       var t = data.trip;
-      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
+      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("note").value = t.note || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
       (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
       rows = t.vans.map(function (v) { return { id: "", label: v.label, plate: v.plate || "" }; });
       $("lead").textContent = "คัดลอกจากทริปเดิมแล้ว เลือกวันเดินทางใหม่ได้เลย";
@@ -1111,7 +1114,7 @@ form label { position: relative; }
     var vl = rows.map(function (r) { return (r.label || "").trim(); }).filter(Boolean);
     [["ชื่อทริป", $("name").value.trim()], ["ผู้จัด", $("organizer").value.trim()],
      ["ขาไป", leg(sd, $("departTime").value)],
-     ["ขากลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
+     ["ขากลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"], ["หมายเหตุ", $("note").value.trim()],
      ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
      ["จองได้ต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["ที่นั่ง 1", "สงวนสำหรับผู้จัด ทุกคัน · ขึ้นชื่อ " + $("staffName").value] : null
     ].forEach(function (r) {
@@ -1163,7 +1166,7 @@ form label { position: relative; }
   var saved0 = null;
   function formState() {
     return JSON.stringify([$("name").value.trim(), $("organizer").value.trim(), $("startDate").value, $("endDate").value, $("departTime").value, $("returnTime").value,
-      $("meetPoint").value.trim(), $("staffSeat").checked, $("staffName").value, rows.map(function (r) { return [r.id, (r.label || "").trim(), (r.plate || "").trim()]; }), $("maxPer").value,
+      $("meetPoint").value.trim(), $("note").value.trim(), $("staffSeat").checked, $("staffName").value, rows.map(function (r) { return [r.id, (r.label || "").trim(), (r.plate || "").trim()]; }), $("maxPer").value,
       $("closeDate").value, $("closeTime").value, $("closedNow").checked]);
   }
   // "สงวนที่นั่ง 1 สำหรับผู้จัด": name chips show only while the switch is on
@@ -1195,7 +1198,7 @@ form label { position: relative; }
   ["input", "change"].forEach(function (ev) { $("form").addEventListener(ev, function () { setTimeout(updSave, 0); }); });
   // character counters on the three text fields (Thai vowels and tone marks count as characters)
   var CNT = [];
-  [["name", 60], ["organizer", 60], ["meetPoint", 60]].forEach(function (f) {
+  [["name", 60], ["organizer", 60], ["meetPoint", 60], ["note", 80]].forEach(function (f) {
     var inp = $(f[0]), c = document.querySelector('.cnt[data-for="' + f[0] + '"]'); if (!inp || !c) return;
     function u() { var n = inp.value.length; c.textContent = n + "/" + f[1]; c.classList.toggle("low", f[1] - n < 5); }
     inp.addEventListener("input", u); CNT.push(u); u();
@@ -1226,7 +1229,7 @@ form label { position: relative; }
         if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
         var t = data.trip; staffGapL = data.staffGaps || [];
         $("name").value = t.name; $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || "";
-        $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
+        $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("note").value = t.note || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
         (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
         fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = closedAtLoad = t.closed === true;
