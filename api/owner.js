@@ -79,10 +79,19 @@ module.exports = async function handler(req, res) {
         if (o.status === "paid") { paid += o.amount; paidN++; if (new Date((o.paidAt || o.at) + 7 * 3600e3).toISOString().slice(0, 7) === ym) month += o.amount; }
         orders.push({ id: o.id, name: o.name || "", tag: String(o.uid || "").slice(-6), sku: o.sku, label: (P.SKUS[o.sku] || {}).label || o.sku, amount: o.amount, status: o.status, at: o.at, paidAt: o.paidAt || 0, refundReq: o.refundReq || null });
       });
-      return L.json(res, 200, { orders, totals: { paid, paidN, month }, on: P.enabled(), stripe: /^sk_(test|live)_/.test(process.env.STRIPE_SECRET_KEY || ""), mode: /^sk_live_/.test(process.env.STRIPE_SECRET_KEY || "") ? "live" : "test" });
+      let watching = false;
+      try { const me = await L.currentUser(req); watching = !!me && Number(await L.redis(["SISMEMBER", "owner:watch", me.id])) === 1; } catch (e) { watching = false; }
+      return L.json(res, 200, { orders, watching, totals: { paid, paidN, month }, on: P.enabled(), stripe: /^sk_(test|live)_/.test(process.env.STRIPE_SECRET_KEY || ""), mode: /^sk_live_/.test(process.env.STRIPE_SECRET_KEY || "") ? "live" : "test" });
     }
     if (req.method === "POST") {
-      const g = (L.readBody(req) || {}).grant || {};
+      const bd = L.readBody(req) || {};
+      if (bd.watch !== undefined) { // this account (logged in with LINE in this browser) gets a bell notice for every refund request
+        const me = await L.currentUser(req);
+        if (!me) return L.json(res, 401, { error: "login_required" });
+        await L.redis([bd.watch ? "SADD" : "SREM", "owner:watch", me.id]);
+        return L.json(res, 200, { ok: true, watching: !!bd.watch });
+      }
+      const g = bd.grant || {};
       const t = L.tripId(g.t);
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip || !trip.owner) return L.json(res, 404, { error: "no_trip" });

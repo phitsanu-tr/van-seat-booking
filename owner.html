@@ -69,6 +69,7 @@ button { font:inherit; cursor:pointer; }
     <div class="card" id="payCard">
       <b>แพ็กเกจและการชำระเงิน</b>
       <p id="payNote" style="margin:0;font-size:14px;color:var(--muted)"></p>
+      <label style="display:flex;gap:8px;align-items:center;font-size:14px;line-height:20px"><input type="checkbox" id="watch"> รับแจ้งเตือนคำขอคืนเงินในกระดิ่ง (บัญชี LINE ที่ล็อกอินในเบราว์เซอร์นี้)</label>
       <div class="stats"><div class="stat"><b id="pMonth">0</b><span>รายรับเดือนนี้ (฿)</span></div><div class="stat"><b id="pAll">0</b><span>รายรับทั้งหมด (฿)</span></div><div class="stat"><b id="pN">0</b><span>รายการที่จ่ายแล้ว</span></div></div>
       <form id="grantForm" autocomplete="off" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
         <input id="gTrip" placeholder="รหัสทริป (ให้สิทธิ์เจ้าของทริป)" style="flex:1 1 180px;height:44px;border:1px solid var(--line);border-radius:12px;padding:0 12px;font:inherit">
@@ -186,6 +187,7 @@ button { font:inherit; cursor:pointer; }
       var d = r.body, t = d.totals || {};
       $("pMonth").textContent = (t.month || 0).toLocaleString(); $("pAll").textContent = (t.paid || 0).toLocaleString(); $("pN").textContent = t.paidN || 0;
       $("payNote").textContent = (d.on ? "เปิดขายแพ็กเกจอยู่" : "ยังไม่เปิดขาย (PLANS_ON ไม่ใช่ 1)") + " · Stripe: " + (d.stripe ? (d.mode === "live" ? "ใช้งานจริง" : "โหมดทดสอบ") : "ยังไม่ได้ตั้งค่า");
+      $("watch").checked = !!d.watching;
       var box = $("orders"); box.textContent = "";
       (d.orders || []).slice(0, 50).forEach(function (o) {
         var row = el("div"); row.style.cssText = "display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding-top:6px";
@@ -202,6 +204,11 @@ button { font:inherit; cursor:pointer; }
       if (!(d.orders || []).length) box.appendChild(el("span", null, "ยังไม่มีรายการ"));
     });
   }
+  $("watch").addEventListener("change", function () {
+    var cb = this, want = cb.checked;
+    fetch("/api/owner", { method: "POST", cache: "no-store", headers: { "x-owner-key": KEY, "Content-Type": "application/json" }, body: JSON.stringify({ watch: want }) })
+      .then(function (r) { if (!r.ok) { cb.checked = !want; alert(r.status === 401 ? "ต้องล็อกอิน LINE ในเบราว์เซอร์นี้ก่อน (เปิดหน้าแอปแล้วเข้าสู่ระบบ)" : "ตั้งค่าไม่สำเร็จ"); } });
+  });
   $("grantForm").addEventListener("submit", function (e) {
     e.preventDefault();
     var tier = $("gTier").value, n = Number($("gDays").value), g = { t: $("gTrip").value.trim().toLowerCase() };

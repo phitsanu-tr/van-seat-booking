@@ -156,6 +156,7 @@ module.exports = async function handler(req, res) {
         const why = REFUND_WHY.indexOf(r.why) >= 0 ? r.why : "other";
         const note = String(r.note || "").replace(/\s+/g, " ").trim().slice(0, 300);
         await saveOrder(Object.assign({}, o, { refundReq: { at: Date.now(), why, note } }));
+        try { const w = (await L.redis(["SMEMBERS", "owner:watch"])) || []; if (w.length) await L.notify(w, { k: "refund_req", tn: (P.SKUS[o.sku] || {}).label || "", amt: o.amount, n: why }); } catch (e) { /* best effort */ }
         return L.json(res, 200, { ok: true });
       }
       if (DEV && body.devPaid === true) { // local dev: no Stripe, finish the order right away
