@@ -466,7 +466,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 (function(){
   var LIFF_ID = "2012285472-FvtYKx00";
   window.__liffReady = new Promise(function(resolve){
-    var dg=function(c){try{navigator.sendBeacon("/api/auth",new Blob([JSON.stringify({diag:c})],{type:"application/json"}));}catch(e){}};
+    var dg=function(c,w){window.__liffWhy=c+(w?" · "+w:"");try{navigator.sendBeacon("/api/auth",new Blob([JSON.stringify({diag:c})],{type:"application/json"}));}catch(e){}};
     if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
       if (!liff.isInClient()) { resolve(false); return; }
@@ -481,7 +481,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
         fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ liff_token: token, r: location.pathname + location.search + location.hash }) })
           .then(function(r){ return r.json(); })
-          .then(function(d){ if (d && d.ok) location.replace(d.r || "/"); else { dg("login_" + ((d && d.error) || "fail")); resolve(false); } })
+          .then(function(d){ if (d && d.ok) location.replace(d.r || "/"); else { dg("login_" + ((d && d.error) || "fail"), d && d.why); resolve(false); } })
           .catch(function(){ dg("login_net"); resolve(false); });
       });
     }).catch(function(){ dg("init_fail"); resolve(false); });
@@ -1649,10 +1649,11 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     var box = node("div"); box.style.cssText = "min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center";
     var t = node("b", null, inLine ? "เข้าสู่ระบบไม่สำเร็จ" : "กรุณาเปิดใน LINE"); t.style.cssText = "font:700 20px/28px var(--font-display);color:var(--ink)";
     var p = node("div", null, inLine ? (le === "cancel" ? "ยกเลิกการเข้าสู่ระบบแล้ว" : "ลองใหม่อีกครั้ง หากยังไม่ได้ ให้ปิดแล้วเปิดจากเมนูของแอปใหม่") : "แอปนี้ใช้งานผ่าน LINE ปุ่มด้านล่างจะเปิดใน LINE ให้"); p.style.cssText = "color:var(--muted);font:400 14px/20px var(--font-body)";
-    var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใน LINE"); btn.href = inLine ? "javascript:void(0)" : "https://liff.line.me/2012285472-FvtYKx00/mytrips" + (JOIN ? "?join=" + JOIN : "") + (location.hash || "");
+        var why = inLine && (window.__liffWhy || le) ? node("div", null, "รหัส: " + (window.__liffWhy || le)) : null; if (why) why.style.cssText = "font:400 12px/16px var(--font-body);color:var(--muted)";
+var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใน LINE"); btn.href = inLine ? "javascript:void(0)" : "https://liff.line.me/2012285472-FvtYKx00/mytrips" + (JOIN ? "?join=" + JOIN : "") + (location.hash || "");
     btn.style.cssText = "display:inline-block;height:48px;padding:0 24px;border-radius:12px;background:var(--deep);color:#fff;font:600 16px/44px var(--font-display);text-decoration:none";
     if (inLine) btn.addEventListener("click", function () { try { sessionStorage.removeItem("vsb_liff"); } catch (e) {} location.replace("/mytrips" + (JOIN ? "?join=" + JOIN : "") + (location.hash || "")); });
-    box.appendChild(t); box.appendChild(p); box.appendChild(btn); v.appendChild(box);
+    box.appendChild(t); box.appendChild(p); box.appendChild(btn); if (why) box.appendChild(why); v.appendChild(box);
   }
   // account menu (tap the photo or name): privacy policy, sign out, delete my data (last, in red)
   function openAccount() {

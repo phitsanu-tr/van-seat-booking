@@ -74,7 +74,7 @@ module.exports = async function handler(req, res) {
           body: new URLSearchParams({ id_token: body.liff_token, client_id: id }).toString(),
         });
         const prof = await vr.json().catch(() => ({}));
-        if (!vr.ok || !prof.sub || !/^U[0-9a-f]{32}$/.test(prof.sub)) { console.error("liff-verify-failed", vr.status, String(prof.error || "").slice(0, 40), String(prof.error_description || "").slice(0, 120)); return L.json(res, 401, { error: "verify_failed" }); }
+        if (!vr.ok || !prof.sub || !/^U[0-9a-f]{32}$/.test(prof.sub)) { console.error("liff-verify-failed", vr.status, String(prof.error || "").slice(0, 40), String(prof.error_description || "").slice(0, 120)); return L.json(res, 401, { error: "verify_failed", why: String(prof.error_description || prof.error || "").toLowerCase().replace(/[^a-z ]/g, "").slice(0, 30) }); }
         const back = safeReturn(body.r);
         const sid = L.newId(32);
         const sess = { u: prof.sub, n: String(prof.name || "").slice(0, 60), p: /^https:\/\//.test(prof.picture || "") ? String(prof.picture).slice(0, 300) : "", at: Date.now() };
