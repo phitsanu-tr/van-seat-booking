@@ -15,9 +15,9 @@ button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every
 }
 body { margin: 0; background: #fff; color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 20px; -webkit-tap-highlight-color: transparent; }
 .top { background: var(--surface); border-bottom: 1px solid var(--edge); border-bottom-color: #e8ecef; }
-.top div { max-width: 640px; margin: 0 auto; height: 52px; padding: 0 max(16px,env(safe-area-inset-left)); display: flex; align-items: center; }
+.top div { max-width: 460px; margin: 0 auto; height: 52px; padding: 0 max(16px,env(safe-area-inset-left)); display: flex; align-items: center; }
 .top a { font: 600 16px/24px var(--font-display); color: var(--deep); text-decoration: none; font-size: 16px; }
-main { max-width: 640px; margin: 0 auto; padding: 24px max(16px,env(safe-area-inset-left)) calc(32px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; }
+main { max-width: 460px; margin: 0 auto; padding: 24px max(16px,env(safe-area-inset-left)) calc(32px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; }
 h1 { font: 600 24px/32px var(--font-display); margin: 0; font-size: 24px; }
 .upd { color: var(--muted); font-size: 12px; margin-top: -8px; line-height: 16px}
 .sum { background: var(--tint); border-radius: 16px; padding: 16px; }
@@ -37,7 +37,14 @@ a { color: var(--mine); }
 /* kept as late rules: they must stay after rules above to win (same element, same property) */
 .top a { color: #0e7c86; }
 th,td { border-bottom-color: #e8ecef; }
-.vb-bar{max-width:640px !important}body.vt-on main{padding-bottom:0 !important}</style>
+.vb-bar{max-width:460px !important}body.vt-on main{padding-bottom:0 !important}table, tbody, tr, td { display: block; width: 100%; }
+tr.hd { display: none; }
+tr { border: 1px solid #e8ecef; border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; }
+tr:last-child { margin-bottom: 0; }
+td { padding: 4px 0 !important; border-bottom: 0 !important; }
+td:first-child { font-weight: 600; }
+td[data-l]:not([data-l=""])::before { content: attr(data-l); display: block; font-size: 12px; line-height: 16px; color: var(--muted); font-weight: 500; }
+</style>
 </head>
 <body>
 <script src="/bell.js"></script><script>VSBBell.bar("/mytrips#account");</script>
@@ -87,11 +94,11 @@ th,td { border-bottom-color: #e8ecef; }
   <section>
     <h2>4. การคืนเงิน</h2>
     <table>
-      <tr><th>กรณี</th><th>คืนเงิน</th></tr>
-      <tr><td>ถูกตัดเงินซ้ำ หรือระบบผิดพลาด</td><td>คืนเต็มทุกกรณี</td></tr>
-      <tr><td>ตั๋วรายทริปที่ยังไม่ได้ใช้กับทริปไหน</td><td>คืนเต็มภายใน 7 วันหลังชำระ</td></tr>
-      <tr><td>แพ็กเกจรายเดือน / รายปี</td><td>คืนเต็มภายใน 7 วันหลังชำระ ถ้ายังไม่ได้สร้างทริปหรือใช้สิทธิ์เกินแพ็กเกจ Free</td></tr>
-      <tr><td>กรณีอื่น</td><td>ไม่คืนเงิน</td></tr>
+      <tr class="hd"><th>กรณี</th><th>คืนเงิน</th></tr>
+      <tr><td data-l="">ถูกตัดเงินซ้ำ หรือระบบผิดพลาด</td><td data-l="คืนเงิน">คืนเต็มทุกกรณี</td></tr>
+      <tr><td data-l="">ตั๋วรายทริปที่ยังไม่ได้ใช้กับทริปไหน</td><td data-l="คืนเงิน">คืนเต็มภายใน 7 วันหลังชำระ</td></tr>
+      <tr><td data-l="">แพ็กเกจรายเดือน / รายปี</td><td data-l="คืนเงิน">คืนเต็มภายใน 7 วันหลังชำระ ถ้ายังไม่ได้สร้างทริปหรือใช้สิทธิ์เกินแพ็กเกจ Free</td></tr>
+      <tr><td data-l="">กรณีอื่น</td><td data-l="คืนเงิน">ไม่คืนเงิน</td></tr>
     </table>
     <p>ขอคืนเงินได้ที่หน้า "แพ็กเกจ" ในแอป (ปุ่ม "ขอคืนเงิน" ที่รายการซื้อ) หรือทางอีเมล <a href="mailto:phitsanu.tr@outlook.com">phitsanu.tr@outlook.com</a> พร้อมวันที่ชำระ จ่ายด้วย PromptPay จะได้อีเมลจาก Stripe ขอเลขบัญชีเพื่อโอนคืน จ่ายด้วยบัตรคืนเข้าบัตรเดิม เมื่อคืนเงินแล้ว สิทธิ์ของรายการนั้นจะถูกยกเลิก</p>
   </section>

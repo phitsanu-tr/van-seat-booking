@@ -7,7 +7,7 @@
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>
-button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; } .vb-bar { padding: 0 !important; margin: -8px auto 8px !important; }.vb-bar{display:none !important}.hr{display:flex;align-items:center;justify-content:space-between;gap:12px}.hx{flex:none;height:36px;border-radius:18px;border:0;background:var(--tint,#eef1f3);color:#0b5f67;padding:0 16px;font:600 14px/20px var(--font-display);cursor:pointer}.hx[hidden]{display:none}.stp .s.done{cursor:pointer}.stp .s.done:active i{opacity:.8}</style>
+button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; } .vb-bar { padding: 0 !important; margin: -8px auto 8px !important; }.vb-bar{display:none !important}.hr{display:flex;align-items:center;justify-content:space-between;gap:12px}.hx{flex:none;height:36px;border-radius:18px;border:0;background:var(--tint,#eef1f3);color:#0b5f67;padding:0 16px;font:600 14px/20px var(--font-display);cursor:pointer}.hx[hidden]{display:none}.stp .s.reach{cursor:pointer}.stp .s.reach:active i{opacity:.8}</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
@@ -1119,23 +1119,30 @@ form label { position: relative; }
     });
   }
   function alignSteps() { document.body.classList.add("creating"); } // fixed action bar instead of padding the steps
+  var maxStep = 1; // furthest step reached so far: its circle stays tappable after going back
   function setStep(n) {
     step = n; $("stp").hidden = editing;
+    maxStep = Math.max(maxStep, n);
     $("cancelTop").hidden = editing || n === 1; // step 1 / editing: the bottom "ยกเลิก" already leaves; steps 2-3 only have "ย้อนกลับ"
     showStep(n);
     if (editing) { $("cancelBtn").textContent = "ยกเลิก"; alignSteps(); return; }
-    [].forEach.call($("stp").children, function (x, i) { x.className = "s" + (i + 1 < n ? " done" : i + 1 === n ? " on" : ""); if (i + 1 < n) { x.setAttribute("role", "button"); x.tabIndex = 0; x.setAttribute("aria-label", "กลับไปขั้นที่ " + (i + 1)); } else { x.removeAttribute("role"); x.removeAttribute("tabindex"); x.removeAttribute("aria-label"); } x.firstChild.innerHTML = i + 1 < n ? CHK : String(i + 1); });
+    [].forEach.call($("stp").children, function (x, i) { x.className = "s" + (i + 1 < n ? " done" : i + 1 === n ? " on" : ""); if (i + 1 <= maxStep && i + 1 !== n) { x.classList.add("reach"); x.setAttribute("role", "button"); x.tabIndex = 0; x.setAttribute("aria-label", "ไปขั้นที่ " + (i + 1)); } else { x.removeAttribute("role"); x.removeAttribute("tabindex"); x.removeAttribute("aria-label"); } x.firstChild.innerHTML = i + 1 < n ? CHK : String(i + 1); });
     $("cancelBtn").textContent = n === 1 ? "ยกเลิก" : "ย้อนกลับ";
     $("submit").textContent = n === 3 ? "สร้างทริป" : "ถัดไป";
     fillStepSummary(); alignSteps();
     window.scrollTo(0, 0);
   }
   $("sumEdit").addEventListener("click", function () { setStep(1); });
-  [].forEach.call($("stp").children, function (x, i) { // a finished step can be tapped to go back and edit it (data stays); current / later steps are not tappable
-    function go() { if (!editing && x.classList.contains("done") && i + 1 < step) setStep(i + 1); }
+  [].forEach.call($("stp").children, function (x, i) { // a step reached before can be tapped (back or forward); going forward validates each step like "ถัดไป"
+    function go() {
+      var t = i + 1; if (editing || t === step || t > maxStep) return;
+      if (t < step) { setStep(t); return; }
+      while (step < t) { var before = step; $("form").requestSubmit(); if (step === before) break; } // stops at the first step that is not complete (its fields get marked)
+    }
     x.addEventListener("click", go);
     x.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
   });
+
   // the phone's / LINE's back button steps back one step while creating (3 -> 2 -> 1), then asks before leaving
   var guardOn = false;
   function armBack() { if (guardOn) return; try { history.pushState({ vsbGuard: 1 }, ""); guardOn = true; } catch (e) {} }

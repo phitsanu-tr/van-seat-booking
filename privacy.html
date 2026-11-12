@@ -15,9 +15,9 @@ button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every
 }
 body { margin: 0; background: #fff; color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 20px; -webkit-tap-highlight-color: transparent; }
 .top { background: var(--surface); border-bottom: 1px solid var(--edge); border-bottom-color: #e8ecef; }
-.top div { max-width: 640px; margin: 0 auto; height: 52px; padding: 0 max(16px,env(safe-area-inset-left)); display: flex; align-items: center; }
+.top div { max-width: 460px; margin: 0 auto; height: 52px; padding: 0 max(16px,env(safe-area-inset-left)); display: flex; align-items: center; }
 .top a { font: 600 16px/24px var(--font-display); color: var(--deep); text-decoration: none; font-size: 16px; }
-main { max-width: 640px; margin: 0 auto; padding: 24px max(16px,env(safe-area-inset-left)) calc(32px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; }
+main { max-width: 460px; margin: 0 auto; padding: 24px max(16px,env(safe-area-inset-left)) calc(32px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; }
 h1 { font: 600 24px/32px var(--font-display); margin: 0; font-size: 24px; }
 .upd { color: var(--muted); font-size: 12px; margin-top: -8px; line-height: 16px}
 .sum { background: var(--tint); border-radius: 16px; padding: 16px; }
@@ -37,7 +37,14 @@ a { color: var(--mine); }
 /* kept as late rules: they must stay after rules above to win (same element, same property) */
 .top a { color: #0e7c86; }
 th,td { border-bottom-color: #e8ecef; }
-.vb-bar{max-width:640px !important}body.vt-on main{padding-bottom:0 !important}</style>
+.vb-bar{max-width:460px !important}body.vt-on main{padding-bottom:0 !important}table, tbody, tr, td { display: block; width: 100%; }
+tr.hd { display: none; }
+tr { border: 1px solid #e8ecef; border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; }
+tr:last-child { margin-bottom: 0; }
+td { padding: 4px 0 !important; border-bottom: 0 !important; }
+td:first-child { font-weight: 600; }
+td[data-l]:not([data-l=""])::before { content: attr(data-l); display: block; font-size: 12px; line-height: 16px; color: var(--muted); font-weight: 500; }
+</style>
 </head>
 <body>
 <script src="/bell.js"></script><script>VSBBell.bar("/mytrips#account");</script>
@@ -56,17 +63,17 @@ th,td { border-bottom-color: #e8ecef; }
   <section>
     <h2>1. ข้อมูลที่เราเก็บ</h2>
     <table>
-      <tr><th>ข้อมูล</th><th>มาจาก</th><th>ใช้ทำอะไร</th></tr>
-      <tr><td>รหัสผู้ใช้ LINE (ตัวระบุภายใน)</td><td>LINE เมื่อคุณกด "อนุญาต"</td><td>รู้ว่าทริปและที่นั่งไหนเป็นของคุณ ใช้ได้ทุกเครื่อง</td></tr>
-      <tr><td>ชื่อที่แสดงและรูปโปรไฟล์ LINE</td><td>LINE เมื่อคุณกด "อนุญาต"</td><td>แสดงในหน้า "ของฉัน" · ทีมผู้จัดของทริปที่คุณจองเห็นชื่อและรูป LINE ที่ที่นั่งของคุณ เพื่อรู้ว่าใครเป็นคนจอง</td></tr>
-      <tr><td>ชื่อบนผังที่นั่ง และเวลาที่จอง</td><td>คุณพิมพ์เอง</td><td>แสดงบนผังให้คนในทริปเห็นว่าใครนั่งตรงไหน</td></tr>
-      <tr><td>รายละเอียดทริป (ชื่อทริป วันที่ เวลา จุดนัดพบ รถ)</td><td>คนจัดทริปกรอกเอง</td><td>แสดงในหน้าจองและรูปที่แชร์</td></tr>
-      <tr><td>เวลาขึ้นรถ ของแต่ละที่นั่ง</td><td>ทีมผู้จัดติ๊กเอง</td><td>ช่วยผู้จัดเช็กชื่อในวันเดินทาง</td></tr>
-      <tr><td>สรุปการเช็กชื่อแต่ละรอบ (เช่น ขาไป ขากลับ)</td><td>ระบบสรุปเมื่อทีมผู้จัดเริ่มเช็กรอบใหม่</td><td>ให้ผู้จัดดูย้อนหลังว่าแต่ละรอบขึ้นรถครบไหม · เก็บชื่อรอบ เวลาเริ่มและจบ จำนวนที่ขึ้น และชื่อบนผังของคนที่ยังไม่ขึ้นรถในรอบนั้น · ไม่เก็บเวลาขึ้นรถรายคนย้อนหลัง</td></tr>
-      <tr><td>การแจ้งเตือนในหน้าเว็บ (เช่น ผู้จัดเปลี่ยนเวลา ย้ายที่นั่ง หรือยกเลิกทริป)</td><td>ระบบสร้างเมื่อทริปหรือที่นั่งของคุณเปลี่ยน</td><td>แจ้งให้คุณรู้เมื่อเปิดเว็บ (เก็บ 50 รายการล่าสุด ลบเองหลัง 60 วัน)</td></tr>
-      <tr><td>ประวัติการจองและยกเลิก</td><td>ระบบบันทึกอัตโนมัติ</td><td>ตรวจสอบย้อนหลังเมื่อมีปัญหา เช่น ใครยกเลิกที่นั่ง</td></tr>
-      <tr><td>หมายเลข IP</td><td>การเชื่อมต่อของคุณ</td><td>กันการกดรัว ๆ หรือการแกล้งระบบ (เก็บชั่วคราว)</td></tr>
-      <tr><td>แพ็กเกจและรายการซื้อ (แพ็กเกจ ราคา วันที่ชำระ วันหมดอายุ และชื่อที่แสดงใน LINE ของบัญชีที่ซื้อ)</td><td>เมื่อคุณซื้อแพ็กเกจหรือตั๋วรายทริป</td><td>เปิดสิทธิ์ให้บัญชีของคุณ และเป็นหลักฐานทางบัญชี · การจ่ายเงินทำผ่าน Stripe เราไม่เห็นเลขบัตรหรือเลขบัญชีธนาคารของคุณ (Stripe อาจขออีเมลเพื่อส่งใบเสร็จหรือคืนเงิน ตามนโยบายของ Stripe)</td></tr>
+      <tr class="hd"><th>ข้อมูล</th><th>มาจาก</th><th>ใช้ทำอะไร</th></tr>
+      <tr><td data-l="">รหัสผู้ใช้ LINE (ตัวระบุภายใน)</td><td data-l="มาจาก">LINE เมื่อคุณกด "อนุญาต"</td><td data-l="ใช้ทำอะไร">รู้ว่าทริปและที่นั่งไหนเป็นของคุณ ใช้ได้ทุกเครื่อง</td></tr>
+      <tr><td data-l="">ชื่อที่แสดงและรูปโปรไฟล์ LINE</td><td data-l="มาจาก">LINE เมื่อคุณกด "อนุญาต"</td><td data-l="ใช้ทำอะไร">แสดงในหน้า "ของฉัน" · ทีมผู้จัดของทริปที่คุณจองเห็นชื่อและรูป LINE ที่ที่นั่งของคุณ เพื่อรู้ว่าใครเป็นคนจอง</td></tr>
+      <tr><td data-l="">ชื่อบนผังที่นั่ง และเวลาที่จอง</td><td data-l="มาจาก">คุณพิมพ์เอง</td><td data-l="ใช้ทำอะไร">แสดงบนผังให้คนในทริปเห็นว่าใครนั่งตรงไหน</td></tr>
+      <tr><td data-l="">รายละเอียดทริป (ชื่อทริป วันที่ เวลา จุดนัดพบ รถ)</td><td data-l="มาจาก">คนจัดทริปกรอกเอง</td><td data-l="ใช้ทำอะไร">แสดงในหน้าจองและรูปที่แชร์</td></tr>
+      <tr><td data-l="">เวลาขึ้นรถ ของแต่ละที่นั่ง</td><td data-l="มาจาก">ทีมผู้จัดติ๊กเอง</td><td data-l="ใช้ทำอะไร">ช่วยผู้จัดเช็กชื่อในวันเดินทาง</td></tr>
+      <tr><td data-l="">สรุปการเช็กชื่อแต่ละรอบ (เช่น ขาไป ขากลับ)</td><td data-l="มาจาก">ระบบสรุปเมื่อทีมผู้จัดเริ่มเช็กรอบใหม่</td><td data-l="ใช้ทำอะไร">ให้ผู้จัดดูย้อนหลังว่าแต่ละรอบขึ้นรถครบไหม · เก็บชื่อรอบ เวลาเริ่มและจบ จำนวนที่ขึ้น และชื่อบนผังของคนที่ยังไม่ขึ้นรถในรอบนั้น · ไม่เก็บเวลาขึ้นรถรายคนย้อนหลัง</td></tr>
+      <tr><td data-l="">การแจ้งเตือนในหน้าเว็บ (เช่น ผู้จัดเปลี่ยนเวลา ย้ายที่นั่ง หรือยกเลิกทริป)</td><td data-l="มาจาก">ระบบสร้างเมื่อทริปหรือที่นั่งของคุณเปลี่ยน</td><td data-l="ใช้ทำอะไร">แจ้งให้คุณรู้เมื่อเปิดเว็บ (เก็บ 50 รายการล่าสุด ลบเองหลัง 60 วัน)</td></tr>
+      <tr><td data-l="">ประวัติการจองและยกเลิก</td><td data-l="มาจาก">ระบบบันทึกอัตโนมัติ</td><td data-l="ใช้ทำอะไร">ตรวจสอบย้อนหลังเมื่อมีปัญหา เช่น ใครยกเลิกที่นั่ง</td></tr>
+      <tr><td data-l="">หมายเลข IP</td><td data-l="มาจาก">การเชื่อมต่อของคุณ</td><td data-l="ใช้ทำอะไร">กันการกดรัว ๆ หรือการแกล้งระบบ (เก็บชั่วคราว)</td></tr>
+      <tr><td data-l="">แพ็กเกจและรายการซื้อ (แพ็กเกจ ราคา วันที่ชำระ วันหมดอายุ และชื่อที่แสดงใน LINE ของบัญชีที่ซื้อ)</td><td data-l="มาจาก">เมื่อคุณซื้อแพ็กเกจหรือตั๋วรายทริป</td><td data-l="ใช้ทำอะไร">เปิดสิทธิ์ให้บัญชีของคุณ และเป็นหลักฐานทางบัญชี · การจ่ายเงินทำผ่าน Stripe เราไม่เห็นเลขบัตรหรือเลขบัญชีธนาคารของคุณ (Stripe อาจขออีเมลเพื่อส่งใบเสร็จหรือคืนเงิน ตามนโยบายของ Stripe)</td></tr>
     </table>
   </section>
 
@@ -88,12 +95,12 @@ th,td { border-bottom-color: #e8ecef; }
     <p>ข้อมูลเก็บบนบริการคลาวด์ ได้แก่ Vercel (เว็บไซต์) และ Upstash (ฐานข้อมูล) ซึ่งอาจตั้งอยู่นอกประเทศไทย</p>
     <p>การชำระเงินดำเนินการโดย Stripe ซึ่งเก็บข้อมูลการชำระเงินและอีเมลตามนโยบายความเป็นส่วนตัวของ Stripe เอง และอาจอยู่นอกประเทศไทย</p>
     <table>
-      <tr><th>ข้อมูล</th><th>ลบอัตโนมัติเมื่อ</th></tr>
-      <tr><td>ทริป ที่นั่ง และประวัติของทริป (รวมเวลาขึ้นรถ และสรุปการเช็กชื่อ)</td><td>60 วันหลังวันสุดท้ายของทริป หรือเมื่อคนจัดทริปลบทริป · สถานะของที่นั่งหายไปทันทีเมื่อยกเลิกที่นั่งนั้น</td></tr>
-      <tr><td>การเข้าสู่ระบบ (คุกกี้ในเครื่อง)</td><td>30 วันหลังเข้าสู่ระบบ หรือเมื่อกดออกจากระบบ</td></tr>
-      <tr><td>รายการ "ทริปของฉัน / ที่นั่งของฉัน"</td><td>400 วันหลังใช้งานครั้งล่าสุด</td></tr>
-      <tr><td>ตัวนับกันการกดรัว (มีหมายเลข IP)</td><td>ไม่เกิน 2 ชั่วโมง</td></tr>
-      <tr><td>แพ็กเกจและรายการซื้อ</td><td>400 วันหลังชำระ (นานกว่านั้นได้ถ้ากฎหมายบัญชีกำหนด) · ไม่ถูกลบเมื่อกด "ลบข้อมูลของฉัน" เพราะเป็นหลักฐานการชำระเงิน</td></tr>
+      <tr class="hd"><th>ข้อมูล</th><th>ลบอัตโนมัติเมื่อ</th></tr>
+      <tr><td data-l="">ทริป ที่นั่ง และประวัติของทริป (รวมเวลาขึ้นรถ และสรุปการเช็กชื่อ)</td><td data-l="ลบอัตโนมัติเมื่อ">60 วันหลังวันสุดท้ายของทริป หรือเมื่อคนจัดทริปลบทริป · สถานะของที่นั่งหายไปทันทีเมื่อยกเลิกที่นั่งนั้น</td></tr>
+      <tr><td data-l="">การเข้าสู่ระบบ (คุกกี้ในเครื่อง)</td><td data-l="ลบอัตโนมัติเมื่อ">30 วันหลังเข้าสู่ระบบ หรือเมื่อกดออกจากระบบ</td></tr>
+      <tr><td data-l="">รายการ "ทริปของฉัน / ที่นั่งของฉัน"</td><td data-l="ลบอัตโนมัติเมื่อ">400 วันหลังใช้งานครั้งล่าสุด</td></tr>
+      <tr><td data-l="">ตัวนับกันการกดรัว (มีหมายเลข IP)</td><td data-l="ลบอัตโนมัติเมื่อ">ไม่เกิน 2 ชั่วโมง</td></tr>
+      <tr><td data-l="">แพ็กเกจและรายการซื้อ</td><td data-l="ลบอัตโนมัติเมื่อ">400 วันหลังชำระ (นานกว่านั้นได้ถ้ากฎหมายบัญชีกำหนด) · ไม่ถูกลบเมื่อกด "ลบข้อมูลของฉัน" เพราะเป็นหลักฐานการชำระเงิน</td></tr>
     </table>
   </section>
 
