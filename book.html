@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="th">
 <head>
-<script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("in-line")}catch(e){}</script>
+<script>try{if(/\bLine\/|\bLIFF\b|\bLINE\b/i.test(navigator.userAgent)||/liff\.state|[?&]liff/.test(location.search))document.documentElement.classList.add("in-line")}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>
@@ -418,6 +418,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
       if (!liff.isInClient()) { resolve(false); return; }
+      document.documentElement.classList.add("in-line"); var vb = document.querySelector(".vb-bar"); if (vb) vb.style.display = "none"; // inside LINE: its own header already has the back button
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
       fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){
