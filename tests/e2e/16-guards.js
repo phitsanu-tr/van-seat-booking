@@ -20,10 +20,17 @@ const url=B+'/api/seats?t='+ID+'&v=v1';
 const rs=await Promise.all([1,2,3,4,5,6].map(n=>P.request.post(url,{data:{seat:n,name:'แพท'}})));
 const okN=rs.filter(r=>r.ok()).length;
 const got=(await (await A.request.get(B+'/api/trip?t='+ID+'&roster=1')).json()).roster.v1;
-log('limit burst: held by Pat',Object.keys(got).length,'<= 2',Object.keys(got).length<=2);
+log('limit burst: at most 2 held',Object.keys(got).length<=2);
 // 3) write from another website
 const x=await P.request.post(url,{data:{seat:9,name:'แพท'},headers:{origin:'https://evil.example'}});
 const y=await P.request.post(B+'/api/auth',{data:{logout:true},headers:{origin:'https://evil.example'}});
 log('cross-site write',x.status(),y.status());
+// 4) hold flood: one network can't keep every seat by sending different browser codes
+const rnd=()=>Array.from({length:16},()=>'abcdefghjkmnpqrstuvwxyz23456789'[Math.floor(Math.random()*31)]).join('');
+const hs=[];for(let n=1;n<=8;n++){const r=await P.request.post(B+'/api/seats',{data:{t:ID,v:'v1',hold:n,hc:rnd()}});hs.push(r.status());}
+log('hold flood: ok',hs.filter(s=>s===200).length,'<= 5 and refused',hs.filter(s=>s===429).length>=1);
+// 5) odd package code ("constructor") is refused, never turned into an order
+const sk=await P.request.post(B+'/api/pay',{data:{sku:'constructor'}});
+log('odd sku',sk.status()===400||sk.status()===403?'refused':'status '+sk.status());
 log('ERR',errs);await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

@@ -36,7 +36,7 @@ const SKUS = {
 };
 const PROMO_END = Date.parse("2027-02-05T23:59:59+07:00"); // launch prices: 5 Nov 2026 – 5 Feb 2027
 function promoOn(now) { return (now || Date.now()) <= PROMO_END; }
-function priceOf(sku, now) { const s = SKUS[sku]; if (!s) return null; const p = promoOn(now) && s.promo ? s.promo : s.amount; return { amount: p, regular: s.amount, promo: p < s.amount }; }
+function priceOf(sku, now) { const s = Object.prototype.hasOwnProperty.call(SKUS, sku) ? SKUS[sku] : null; if (!s) return null; const p = promoOn(now) && s.promo ? s.promo : s.amount; return { amount: p, regular: s.amount, promo: p < s.amount }; }
 
 const DEV = process.env.VSB_DEV_AUTH === "1" && !process.env.VERCEL;
 function enabled() { // on everywhere; PLANS_ON=0 switches packages off (the old test suite runs that way)

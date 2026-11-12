@@ -6,6 +6,7 @@
 // the network only limits how many holds can be made (many phones share one IP on mobile networks).
 const L = require("./_lib");
 const HOLD_SEC = 5 * 60;
+const MAX_HOLDS_IP = 5; // live holds one network may keep on one trip, whatever "browser codes" (hc) it sends: stops one person holding every seat
 const holdKey = (t, v, s) => "hold:" + t + ":" + v + ":" + s;
 
 module.exports = async function handler(req, res) {
@@ -67,8 +68,11 @@ module.exports = async function handler(req, res) {
       const prev = await L.redis(["GET", mineKey]);
       if (prev && prev !== hk) { try { await L.redis(["DEL", prev]); } catch (e) { /* best effort */ } } // one hold per network: the new one replaces the old
       if (prev === hk) await L.redis(["DEL", hk]); // same seat again: renew
+      const ipSet = "holdset:" + t + ":" + L.clientIp(req), mem = ((await L.redis(["SMEMBERS", ipSet])) || []).filter((k) => k !== hk && /^hold:[a-z0-9]+:[A-Za-z0-9]+:\d+$/.test(k));
+      if (mem.length) { const vals = (await L.redis(["MGET"].concat(mem))) || []; if (vals.filter(Boolean).length >= MAX_HOLDS_IP) return L.json(res, 429, { error: "too_many" }); }
       const ok = await L.redis(["SET", hk, id, "NX", "EX", String(HOLD_SEC)]);
       if (ok !== "OK") return L.json(res, 409, { error: "held" });
+      try { await L.pipeline([["SADD", ipSet, hk], ["EXPIRE", ipSet, String(HOLD_SEC * 2)]]); } catch (e) { /* best effort */ }
       await L.redis(["SET", mineKey, hk, "EX", String(HOLD_SEC)]);
       return L.json(res, 200, { hold: id, exp: Date.now() + HOLD_SEC * 1000 });
     }

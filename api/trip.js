@@ -184,6 +184,7 @@ module.exports = async function handler(req, res) {
       const helpers = Array.isArray(trip.helpers) ? trip.helpers.slice() : [];
       const hl = (await limitsOf(trip)).helpers;
       if (helpers.length >= hl) return L.json(res, 409, { error: hl < L.MAX_HELPERS || hl === 0 ? "plan_helpers" : "helpers_full", max: hl });
+      try { await P.getPlan(user.id); } catch (e) { /* best effort */ } // records "free" first, so joining a team never looks like an old organizer (launch gift)
       helpers.push({ u: user.id, n: user.name, at: Date.now() });
       const next = Object.assign({}, trip, { helpers });
       delete next.invite; // one person per invite link: it stops working once used

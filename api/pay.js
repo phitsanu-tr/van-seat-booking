@@ -166,7 +166,7 @@ module.exports = async function handler(req, res) {
         return L.json(res, 200, { order: publicOrder(await fulfil(o)) });
       }
       if (!(await P.getPlan(user.id)).on) return L.json(res, 403, { error: "plans_off" });
-      const s = P.SKUS[body.sku];
+      const s = Object.prototype.hasOwnProperty.call(P.SKUS, body.sku) ? P.SKUS[body.sku] : null;
       if (!s) return L.json(res, 400, { error: "bad_sku" });
       if (!stripeKey() && !DEV) return L.json(res, 503, { error: "pay_not_ready" });
       if (await L.rateLimited(req, user, "pay", 20, 3600)) return L.json(res, 429, { error: "too_many" });
