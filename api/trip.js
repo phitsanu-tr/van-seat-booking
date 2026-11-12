@@ -329,6 +329,7 @@ module.exports = async function handler(req, res) {
       const vl = P.limitsFor(plan, pb.usePass === true && lim0.on ? { plus: true } : null);
       const c = clean(pb, 0, vl.on ? vl.vans : 0);
       if (c.error) return L.json(res, c.error === "plan_vans" ? 402 : 400, { error: c.error, limit: c.limit });
+      { const mx = pb.usePass === true ? "" : P.horizon(plan); if (mx && c.value.startDate > mx) return L.json(res, 402, { error: "plan_date", max: mx, passes: plan.passes, tier: plan.tier }); }
       if (lim0.on && pb.usePass === true) { if (!(await P.usePass(user.id))) return L.json(res, 402, { error: "no_pass" }); plus = true; }
       let qm = "";
       if (!plus) { // a trip on a pass doesn't count toward the month
@@ -415,6 +416,10 @@ module.exports = async function handler(req, res) {
       const lt = await limitsOf(trip);
       const c = clean(body, trip.vans.length, lt.on ? lt.vans : 0, trip);
       if (c.error) return L.json(res, c.error === "plan_vans" ? 402 : 400, { error: c.error, limit: c.limit });
+      if (!trip.plus && c.value.startDate && c.value.startDate !== (trip.startDate || "")) { // moving a date later can't dodge the limit
+        const plan = await P.getPlan(trip.owner), mx = P.horizon(plan);
+        if (mx && c.value.startDate > mx) return L.json(res, 402, { error: "plan_date", max: mx, passes: plan.passes, tier: plan.tier });
+      }
       const oldIds = trip.vans.map((v) => v.id);
       const next = assignVanIds(c.value.vans.map((v) => ({ id: oldIds.includes(v.id) ? v.id : "", label: v.label, plate: v.plate })), oldIds);
       const kept = new Set(next.map((v) => v.id));

@@ -764,6 +764,7 @@ form label { position: relative; }
     add.disabled = full && !canUp; add.textContent = full ? (canUp ? "รถสูงสุด " + vanCap + " คัน · อัปเกรดเพื่อเพิ่ม" : "เพิ่มรถได้สูงสุด " + vanCap + " คัน") : "+ เพิ่มรถอีกคัน";
   }
   // the package doesn't allow this: explain, then packages / a per-trip pass
+  function thDate(v) { var d = typeof v === "number" ? new Date(v + 7 * 3600000) : new Date(v + "T00:00:00Z"); return d.getUTCDate() + " " + ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."][d.getUTCMonth()] + " " + String((d.getUTCFullYear() + 543) % 100); }
   function planSheet(kind) {
     var back = document.createElement("div"); back.className = "pk-back";
     var sheet = document.createElement("div"); sheet.className = "pk-sheet"; sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true");
@@ -775,6 +776,7 @@ form label { position: relative; }
     var p = document.createElement("p"); p.className = "cf-text";
     var TN = { free: "Free", standard: "Standard", premium: "Premium" }[PL.tier] || "Free";
     if (kind === "trips") { h.textContent = "เดือนนี้สร้างทริปครบ " + (PL.trips || 0) + " ทริปแล้ว"; p.textContent = "แพ็กเกจ " + TN + " สร้างทริปได้ " + (PL.trips || 0) + " ทริปต่อเดือน รอเดือนหน้า อัปเกรด หรือใช้ตั๋วรายทริป (ทริปที่ลบภายใน 24 ชม. และยังไม่มีคนจอง ได้โควตาคืน)"; }
+    else if (kind === "date") { h.textContent = "แพ็กเกจของคุณหมดก่อนวันเดินทางนี้"; p.textContent = "แพ็กเกจ " + TN + " ใช้ได้ถึง " + (PL.until ? thDate(PL.until) : "") + " สร้างทริปล่วงหน้าได้ถึง " + thDate(PL.maxStart) + " ต่ออายุเพื่อสร้างทริปที่เดินทางหลังจากนั้น"; }
     else { h.textContent = "เพิ่มรถได้สูงสุด " + vanCap + " คัน"; p.textContent = "แพ็กเกจ " + TN + " ใช้รถได้ " + vanCap + " คันต่อทริป อัปเกรด หรือใช้ตั๋วรายทริปกับทริปนี้เพื่อเพิ่มได้ถึง 5 คัน"; }
     var act = document.createElement("div"); act.className = "pk-act"; act.style.cssText = "display:flex;flex-direction:column;gap:8px";
     function done() { back.remove(); document.body.style.overflow = ""; }
@@ -803,7 +805,7 @@ form label { position: relative; }
       });
       btn("plain", "ดูแพ็กเกจ", function () { location.href = "/plans?next=" + encodeURIComponent(next); });
     } else {
-      btn("primary", "ดูแพ็กเกจ", function () { location.href = "/plans?next=" + encodeURIComponent(next); });
+      btn("primary", kind === "date" ? "ต่ออายุแพ็กเกจ" : "ดูแพ็กเกจ", function () { location.href = "/plans?next=" + encodeURIComponent(next); });
       if (!PL.plus) btn("plain", "ซื้อตั๋วรายทริป" + (PL.passPrice ? " " + PL.passPrice + "฿" : ""), function () { location.href = "/plans?next=" + encodeURIComponent(next) + "#pass"; });
     }
     sheet.appendChild(top); sheet.appendChild(p); sheet.appendChild(act); back.appendChild(sheet);
@@ -998,6 +1000,7 @@ form label { position: relative; }
         else if (data.error === "login_required") location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new");
         else if (data.error === "plan_trips") { PL.trips = data.limit; if (data.passes !== undefined) PL.passes = data.passes; planSheet("trips"); }
         else if (data.error === "plan_vans") planSheet("vans");
+        else if (data.error === "plan_date") { PL.maxStart = data.max; if (data.passes !== undefined) PL.passes = data.passes; planSheet("date"); }
         else if (data.error === "no_pass") { usePass = false; PL.plus = false; PL.passes = 0; var pn = $("passNote"); if (pn) pn.remove(); planSheet("trips"); }
         else toast(ERR[data.error] || "บันทึกไม่สำเร็จ ลองอีกครั้ง");
         return;
@@ -1218,7 +1221,7 @@ form label { position: relative; }
         var pd = pr.ok ? await pr.json() : null;
         if (pd && pd.on) {
           var tl = pd.tiers[pd.plan.tier] || pd.tiers.free;
-          PL = { on: true, tier: pd.plan.tier, vans: tl.vans, passes: pd.plan.passes, plus: false, trips: tl.trips, passPrice: ((pd.catalog || []).filter(function (c) { return c.sku === "pass"; })[0] || {}).amount };
+          PL = { on: true, tier: pd.plan.tier, vans: tl.vans, passes: pd.plan.passes, plus: false, until: pd.plan.until, maxStart: pd.plan.maxStart, trips: tl.trips, passPrice: ((pd.catalog || []).filter(function (c) { return c.sku === "pass"; })[0] || {}).amount };
           if (tl.trips && pd.plan.used >= tl.trips) {
             if (PL.passes > 0) { usePass = true; PL.plus = true; PL.vans = Math.max(PL.vans, pd.tiers.standard.vans); passNote(); }
             else setTimeout(function () { planSheet("trips"); }, 300);
@@ -1227,6 +1230,7 @@ form label { position: relative; }
         }
       } catch (x) { /* packages unknown: the server still checks */ }
     }
+    if (!editing && PL.maxStart && !PL.plus) { var sdl = $("startDate").closest("label"); if (sdl) { var hn = document.createElement("div"); hn.className = "cf-text"; hn.style.cssText = "font-size:12px;line-height:16px;color:var(--muted,#6b7280);margin-top:4px"; hn.textContent = "เลือกได้ถึง " + thDate(PL.maxStart) + " ตามอายุแพ็กเกจ"; sdl.appendChild(hn); } }
     renderVans();
     var rv0 = renderVans; renderVans = function () { rv0(); if (!editing) alignSteps(); else updSave(); };
     if (editing && !$("submit").disabled) { saved0 = formState(); updSave(); } // adding/removing a van changes the tallest step

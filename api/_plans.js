@@ -131,9 +131,16 @@ async function setPlan(uid, tier, days) {
   await L.redis(["SET", planKey(uid), JSON.stringify({ tier, until: tier === "free" ? 0 : Date.now() + days * DAY, src: "owner" })]);
 }
 
-function publicPlan(plan, extra) {
-  const t = TIERS[plan.tier] || TIERS.free;
-  return Object.assign({ on: !!plan.on, tier: plan.tier, name: t.name, until: plan.until, src: plan.src, passes: plan.passes, limits: { trips: t.trips, vans: t.vans, helpers: t.helpers, rounds: t.rounds } }, extra || {});
+// trips counted in a paid package's quota can start at most this long after the package ends (stops stocking up a year of trips on one month)
+const HORIZON_DAYS = 60;
+function horizon(plan) { // last allowed start date (YYYY-MM-DD, Thai time), or "" = no limit
+  if (!plan || !plan.on || plan.tier === "free" || !(plan.until > Date.now())) return "";
+  return new Date(plan.until + HORIZON_DAYS * DAY + 7 * 3600 * 1000).toISOString().slice(0, 10);
 }
 
-module.exports = { TESTERS, PROMO_END, promoOn, priceOf, revoke, TIERS, SKUS, LEGACY, DAY, enabled, getPlan, limitsFor, monthUsed, monthCap, monthNow, quotaKey, REFUND_HOURS, usePass, refundPass, grant, setPlan, publicPlan, planKey, passKey };
+function publicPlan(plan, extra) {
+  const t = TIERS[plan.tier] || TIERS.free;
+  return Object.assign({ on: !!plan.on, tier: plan.tier, maxStart: horizon(plan), name: t.name, until: plan.until, src: plan.src, passes: plan.passes, limits: { trips: t.trips, vans: t.vans, helpers: t.helpers, rounds: t.rounds } }, extra || {});
+}
+
+module.exports = { TESTERS, PROMO_END, promoOn, priceOf, revoke, TIERS, SKUS, LEGACY, DAY, enabled, getPlan, limitsFor, horizon, HORIZON_DAYS, monthUsed, monthCap, monthNow, quotaKey, REFUND_HOURS, usePass, refundPass, grant, setPlan, publicPlan, planKey, passKey };
