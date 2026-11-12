@@ -42,7 +42,7 @@ function withFlag(path, flag) {
 async function startSession(req, res, profile, back) {
   const sid = L.newId(32); // ~157 bits of randomness
   const sess = { u: profile.sub, n: String(profile.name || "").slice(0, 60), p: /^https:\/\//.test(profile.picture || "") ? String(profile.picture).slice(0, 300) : "", at: Date.now() };
-  await L.pipeline([["SET", "sess:" + sid, JSON.stringify(sess), "EX", String(L.SESSION_DAYS * 86400)],
+  await L.pipeline([["SET", "sess:" + sid, L.seal(JSON.stringify(sess)), "EX", String(L.SESSION_DAYS * 86400)],
     ["SADD", "usess:" + profile.sub, sid], ["EXPIRE", "usess:" + profile.sub, String(L.SESSION_DAYS * 86400)]]); // every device's session, so "delete my data" can end them all
   go(res, withFlag(back, "li=1"), [L.cookieStr(req, "vsb_s", sid, L.SESSION_DAYS * 86400), L.cookieStr(req, "vsb_st", "", 0)]);
 }
@@ -74,7 +74,7 @@ module.exports = async function handler(req, res) {
         if (!vr.ok || prof.sub !== u.id) return L.json(res, 200, { ok: true, changed: false }); // expired token or another account: leave the session alone
         const n = String(prof.name || "").slice(0, 60), p = /^https:\/\//.test(prof.picture || "") ? String(prof.picture).slice(0, 300) : "";
         if ((n || u.name) === u.name && p === u.pic) return L.json(res, 200, { ok: true, changed: false });
-        await L.pipeline([["SET", "sess:" + u.sid, JSON.stringify({ u: u.id, n: n || u.name, p, at: Date.now() }), "KEEPTTL"]]);
+        await L.pipeline([["SET", "sess:" + u.sid, L.seal(JSON.stringify({ u: u.id, n: n || u.name, p, at: Date.now() })), "KEEPTTL"]]);
         return L.json(res, 200, { ok: true, changed: true });
       }
       // LIFF login: front-end sends { liff_token, r } when running inside LINE
@@ -92,7 +92,7 @@ module.exports = async function handler(req, res) {
         const back = safeReturn(body.r);
         const sid = L.newId(32);
         const sess = { u: prof.sub, n: String(prof.name || "").slice(0, 60), p: /^https:\/\//.test(prof.picture || "") ? String(prof.picture).slice(0, 300) : "", at: Date.now() };
-        await L.pipeline([["SET", "sess:" + sid, JSON.stringify(sess), "EX", String(L.SESSION_DAYS * 86400)],
+        await L.pipeline([["SET", "sess:" + sid, L.seal(JSON.stringify(sess)), "EX", String(L.SESSION_DAYS * 86400)],
           ["SADD", "usess:" + prof.sub, sid], ["EXPIRE", "usess:" + prof.sub, String(L.SESSION_DAYS * 86400)]]);
         res.setHeader("Set-Cookie", [L.cookieStr(req, "vsb_s", sid, L.SESSION_DAYS * 86400)]);
         return L.json(res, 200, { ok: true, r: back });

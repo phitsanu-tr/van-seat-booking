@@ -1,3 +1,6 @@
 .DS_Store
 tests/node_modules/
 tests/out/
+.env
+.env.*
+*.pem

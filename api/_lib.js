@@ -189,6 +189,24 @@ function newId(len) {
 }
 
 // ---- accounts (LINE Login) ----
+// Sealing: AES-256-GCM for records that identify a person (sessions, orders). Key = DATA_KEY (64 hex chars) in the environment; without it
+// records are stored as plain JSON as before. open() reads both, so turning the key on (or rotating from none) never breaks old records.
+const DATA_KEY = /^[0-9a-f]{64}$/i.test(process.env.DATA_KEY || "") ? Buffer.from(process.env.DATA_KEY, "hex") : null;
+function seal(str) {
+  if (!DATA_KEY) return str;
+  const iv = crypto.randomBytes(12), c = crypto.createCipheriv("aes-256-gcm", DATA_KEY, iv);
+  const ct = Buffer.concat([c.update(String(str), "utf8"), c.final()]);
+  return "e1:" + Buffer.concat([iv, c.getAuthTag(), ct]).toString("base64");
+}
+function open(raw) {
+  if (!raw || typeof raw !== "string" || raw.slice(0, 3) !== "e1:") return raw;
+  if (!DATA_KEY) return null;
+  try {
+    const b = Buffer.from(raw.slice(3), "base64"), d = crypto.createDecipheriv("aes-256-gcm", DATA_KEY, b.subarray(0, 12));
+    d.setAuthTag(b.subarray(12, 28));
+    return Buffer.concat([d.update(b.subarray(28)), d.final()]).toString("utf8");
+  } catch (e) { return null; }
+}
 // Session cookie "vsb_s" (HttpOnly) -> Redis "sess:<id>" = {u, n, p}. u = LINE user id (never sent to other visitors).
 const SESSION_DAYS = 30;
 const MY_DAYS = 400; // "my trips" / "my seats" index lifetime, refreshed on every write
@@ -209,7 +227,7 @@ async function currentUser(req) {
   if (!sid || !/^[a-z0-9]{32}$/.test(sid)) return null;
   try {
     const raw = await redis(["GET", "sess:" + sid]);
-    const s = raw ? JSON.parse(raw) : null;
+    const s = raw ? JSON.parse(open(raw)) : null;
     return s && s.u ? { id: String(s.u), name: String(s.n || ""), pic: String(s.p || ""), sid } : null;
   } catch (e) { return null; }
 }
@@ -307,6 +325,6 @@ function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); retur
 
 module.exports = {
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, json,
-  tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
+  seal, open, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
   SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, crossSite, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, linePush, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };

@@ -74,7 +74,7 @@ module.exports = async function handler(req, res) {
       let paid = 0, paidN = 0, month = 0;
       const ym = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 7);
       raws.forEach((r) => {
-        let o = null; try { o = JSON.parse(r); } catch (e) { o = null; }
+        let o = null; try { o = JSON.parse(L.open(r)); } catch (e) { o = null; }
         if (!o) return;
         if (o.status === "paid") { paid += o.amount; paidN++; if (new Date((o.paidAt || o.at) + 7 * 3600e3).toISOString().slice(0, 7) === ym) month += o.amount; }
         orders.push({ id: o.id, name: o.name || "", tag: String(o.uid || "").slice(-6), sku: o.sku, label: (P.SKUS[o.sku] || {}).label || o.sku, amount: o.amount, status: o.status, at: o.at, paidAt: o.paidAt || 0, refundReq: o.refundReq || null });

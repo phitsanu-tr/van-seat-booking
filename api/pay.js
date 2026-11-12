@@ -38,8 +38,8 @@ function origin(req) {
   const host = String((req.headers && (req.headers["x-forwarded-host"] || req.headers.host)) || "").split(",")[0].trim();
   return (L.isHttps(req) ? "https://" : "http://") + host;
 }
-async function loadOrder(id) { try { return JSON.parse(await L.redis(["GET", "order:" + id])); } catch (e) { return null; } }
-async function saveOrder(o) { await L.redis(["SET", "order:" + o.id, JSON.stringify(o), "EX", String(ORDER_DAYS * 86400)]); }
+async function loadOrder(id) { try { return JSON.parse(L.open(await L.redis(["GET", "order:" + id]))); } catch (e) { return null; } }
+async function saveOrder(o) { await L.redis(["SET", "order:" + o.id, L.seal(JSON.stringify(o)), "EX", String(ORDER_DAYS * 86400)]); }
 const REFUND_DAYS = 7; // every package and pass: a refund can be asked for within 7 days of paying (terms, section 4)
 const REFUND_WHY = ["cant_use", "duplicate", "not_needed", "other"];
 function refundUntil(o) { return (o.paidAt || o.at || 0) + REFUND_DAYS * 86400 * 1000; }
@@ -126,7 +126,7 @@ module.exports = async function handler(req, res) {
       const ids = ((await L.redis(["LRANGE", "orders:" + user.id, "0", "49"])) || []).filter((x) => /^[a-z0-9]{12}$/.test(x));
       const raws = ids.length ? await L.pipeline(ids.map((id) => ["GET", "order:" + id])) : [];
       const orders = [];
-      raws.forEach((r) => { try { const o = JSON.parse(r); if (o && o.uid === user.id && (o.status === "paid" || o.status === "refunded")) orders.push(publicOrder(o)); } catch (e) { /* skip */ } });
+      raws.forEach((r) => { try { const o = JSON.parse(L.open(r)); if (o && o.uid === user.id && (o.status === "paid" || o.status === "refunded")) orders.push(publicOrder(o)); } catch (e) { /* skip */ } });
       return L.json(res, 200, { orders });
     }
     if (req.method === "GET" && q.order !== undefined) {
