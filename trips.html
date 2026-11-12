@@ -7,7 +7,7 @@
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>
-button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; } .vb-bar { padding: 0 !important; margin: -8px auto 8px !important; }.vb-bar{display:none !important}.hero{position:relative}.hx{position:absolute;right:0;top:4px;width:40px;height:40px;border-radius:50%;border:0;background:var(--tint,#eef1f3);color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0;line-height:0;cursor:pointer}.hx[hidden]{display:none}.hero .hx svg{width:20px !important;height:20px !important;display:block;flex:none;margin:0;position:static !important;inset:auto !important}</style>
+button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; } .vb-bar { padding: 0 !important; margin: -8px auto 8px !important; }.vb-bar{display:none !important}.hr{display:flex;align-items:center;justify-content:space-between;gap:12px}.hx{flex:none;height:36px;border-radius:18px;border:0;background:var(--tint,#eef1f3);color:#0b5f67;padding:0 16px;font:600 14px/20px var(--font-display);cursor:pointer}.hx[hidden]{display:none}.stp .s.done{cursor:pointer}.stp .s.done:active i{opacity:.8}</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
@@ -313,7 +313,7 @@ form label { position: relative; }
   <section class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht">
     <div class="hr">
       <h1 id="title">สร้างทริป</h1>
-      <button type="button" class="hx" id="closeX" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button type="button" class="hx" id="closeX">ยกเลิก</button>
       
     </div>
     <p id="lead">กรอกรายละเอียด แล้วแชร์ลิงก์ให้ผู้ร่วมทริป</p></div>
@@ -1123,13 +1123,18 @@ form label { position: relative; }
     $("closeX").hidden = editing || n === 1; // step 1 / editing: the bottom "ยกเลิก" already leaves; steps 2-3 only have "ย้อนกลับ"
     showStep(n);
     if (editing) { $("cancelBtn").textContent = "ยกเลิก"; alignSteps(); return; }
-    [].forEach.call($("stp").children, function (x, i) { x.className = "s" + (i + 1 < n ? " done" : i + 1 === n ? " on" : ""); x.firstChild.innerHTML = i + 1 < n ? CHK : String(i + 1); });
+    [].forEach.call($("stp").children, function (x, i) { x.className = "s" + (i + 1 < n ? " done" : i + 1 === n ? " on" : ""); if (i + 1 < n) { x.setAttribute("role", "button"); x.tabIndex = 0; x.setAttribute("aria-label", "กลับไปขั้นที่ " + (i + 1)); } else { x.removeAttribute("role"); x.removeAttribute("tabindex"); x.removeAttribute("aria-label"); } x.firstChild.innerHTML = i + 1 < n ? CHK : String(i + 1); });
     $("cancelBtn").textContent = n === 1 ? "ยกเลิก" : "ย้อนกลับ";
     $("submit").textContent = n === 3 ? "สร้างทริป" : "ถัดไป";
     fillStepSummary(); alignSteps();
     window.scrollTo(0, 0);
   }
   $("sumEdit").addEventListener("click", function () { setStep(1); });
+  [].forEach.call($("stp").children, function (x, i) { // a finished step can be tapped to go back and edit it (data stays); current / later steps are not tappable
+    function go() { if (!editing && x.classList.contains("done") && i + 1 < step) setStep(i + 1); }
+    x.addEventListener("click", go);
+    x.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+  });
   // the phone's / LINE's back button steps back one step while creating (3 -> 2 -> 1), then asks before leaving
   var guardOn = false;
   function armBack() { if (guardOn) return; try { history.pushState({ vsbGuard: 1 }, ""); guardOn = true; } catch (e) {} }
