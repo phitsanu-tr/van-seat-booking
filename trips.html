@@ -1117,7 +1117,7 @@ form label { position: relative; }
       d.appendChild(a); d.appendChild(b); box.appendChild(d);
     });
   }
-  function alignSteps() { document.body.classList.toggle("creating", !editing); } // fixed action bar instead of padding the steps
+  function alignSteps() { document.body.classList.add("creating"); } // fixed action bar instead of padding the steps
   function setStep(n) {
     step = n; $("stp").hidden = editing;
     $("cancelTop").hidden = editing || n === 1; // step 1 / editing: the bottom "ยกเลิก" already leaves; steps 2-3 only have "ย้อนกลับ"
