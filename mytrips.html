@@ -133,8 +133,8 @@ body.signed .top button.mkr:disabled{color:#9aa6ad}
 .hl .ct .b2{width:56px;height:4px;border-radius:2px;background:#e8ecef;margin-top:4px;overflow:hidden}
 .hl .ct .b2 i{display:block;height:100%;background:var(--mine)}
 .hl .chev{flex:none;width:16px;height:16px;color:#9aa5ac}
-/* header (12 Nov): the brand row (logo + name) only on the home tab; "＋" circle instead of the "สร้างทริป" text */
-body.signed:not(.t-home) .abar{display:none}
+/* header (12 Nov): no brand row; "＋" circle (home + trips tabs) instead of the "สร้างทริป" text */
+body.signed .abar{display:none}
 .abar .nm span{display:none}
 .abar a.ab-new,body.signed .top a.mkp.show{width:40px;height:40px;padding:0;border-radius:50%;background:var(--deep);display:grid !important;place-items:center;font-size:0;line-height:0;color:#fff}
 .abar a.ab-new[hidden]{display:none}
@@ -1577,7 +1577,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     else { T = "โปรไฟล์"; S = "บัญชีและแพ็กเกจของคุณ"; }
     $("ltT").textContent = T; $("ltS").textContent = S;
     document.body.classList.toggle("t-home", tab === "home");
-    $("mkTrip").classList.toggle("show", tab === "trips" && !!(D && D.trips.length));
+    $("mkTrip").classList.toggle("show", (tab === "trips" || tab === "home") && !!(D && D.trips.length));
     $("abNew").hidden = !(D && D.trips.length); // shortcut only for organizers; with no trips the home banner already offers it
 
     var rd = $("mkRead"); rd.classList.toggle("show", tab === "notif"); rd.disabled = !unreadN();
