@@ -473,7 +473,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
       fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){
-        if (me && me.user) { try { sessionStorage.removeItem("vsb_liff"); localStorage.removeItem("vsb_gone"); } catch (e) {} resolve(true); return; }
+        if (me && me.user) { try { sessionStorage.removeItem("vsb_liff"); localStorage.removeItem("vsb_gone"); } catch (e) {} try { var rt = liff.getIDToken(); if (rt && !sessionStorage.getItem("vsb_rf")) { sessionStorage.setItem("vsb_rf", "1"); fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ liff_token: rt, refresh: true }) }).then(function(r){ return r.json(); }).then(function(d){ if (d && d.changed) { try { localStorage.removeItem("vsb_me"); localStorage.removeItem("vsb_tb"); } catch (e) {} location.reload(); } }).catch(function(){}); } } catch (e) {}  /*LINE photo / name changed? the server takes the latest each time the app opens in LINE*/ resolve(true); return; }
         try { if (localStorage.getItem("vsb_gone")) { resolve(false); return; } } catch (e) {} // deleted my data on this device: no automatic sign-in until the person taps the button
         var tried = ""; try { tried = sessionStorage.getItem("vsb_liff"); } catch (e) {}
         var token = liff.getIDToken();

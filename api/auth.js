@@ -63,6 +63,19 @@ module.exports = async function handler(req, res) {
         res.setHeader("Set-Cookie", [L.cookieStr(req, "vsb_s", "", 0)]);
         return L.json(res, 200, { ok: true });
       }
+      // LIFF photo/name refresh: every time the app opens inside LINE the page sends a fresh ID token; if it is the same person, the session takes LINE's latest name and photo
+      if (body.liff_token && typeof body.liff_token === "string" && body.refresh === true) {
+        const u = await L.currentUser(req); const id = env("LINE_CHANNEL_ID");
+        if (!u || !id) return L.json(res, 200, { ok: true, changed: false });
+        if (await L.rateLimited(req, null, "refresh", 60, 600)) return L.json(res, 429, { error: "busy" });
+        const vr = await fetch(VERIFY_URL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ id_token: body.liff_token, client_id: id }).toString() });
+        const prof = await vr.json().catch(() => ({}));
+        if (!vr.ok || prof.sub !== u.id) return L.json(res, 200, { ok: true, changed: false }); // expired token or another account: leave the session alone
+        const n = String(prof.name || "").slice(0, 60), p = /^https:\/\//.test(prof.picture || "") ? String(prof.picture).slice(0, 300) : "";
+        if ((n || u.name) === u.name && p === u.pic) return L.json(res, 200, { ok: true, changed: false });
+        await L.pipeline([["SET", "sess:" + u.sid, JSON.stringify({ u: u.id, n: n || u.name, p, at: Date.now() }), "KEEPTTL"]]);
+        return L.json(res, 200, { ok: true, changed: true });
+      }
       // LIFF login: front-end sends { liff_token, r } when running inside LINE
       if (body.liff_token && typeof body.liff_token === "string") {
         if (await L.rateLimited(req, null, "login", 30, 600)) return L.json(res, 429, { error: "busy" });
