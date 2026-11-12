@@ -313,7 +313,7 @@ form label { position: relative; }
   <section class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht">
     <div class="hr">
       <h1 id="title">สร้างทริป</h1>
-      <button type="button" class="hx" id="closeX">ยกเลิก</button>
+      <button type="button" class="hx" id="cancelTop">ยกเลิก</button>
       
     </div>
     <p id="lead">กรอกรายละเอียด แล้วแชร์ลิงก์ให้ผู้ร่วมทริป</p></div>
@@ -660,7 +660,7 @@ form label { position: relative; }
     location.href = dest;
   });
 
-  $("closeX").addEventListener("click", async function () { // ✕ beside the title: leave the whole form (asks first when something was typed)
+  $("cancelTop").addEventListener("click", async function () { // ✕ beside the title: leave the whole form (asks first when something was typed)
     if (dirty && !(await askConfirm(editing ? "ออกโดยไม่บันทึก?" : "ยกเลิกการสร้างทริป?", "ข้อมูลที่กรอกไว้จะไม่ถูกบันทึก", "ออก"))) return;
     location.href = "/mytrips#trips";
   });
@@ -1120,7 +1120,7 @@ form label { position: relative; }
   function alignSteps() { document.body.classList.toggle("creating", !editing); } // fixed action bar instead of padding the steps
   function setStep(n) {
     step = n; $("stp").hidden = editing;
-    $("closeX").hidden = editing || n === 1; // step 1 / editing: the bottom "ยกเลิก" already leaves; steps 2-3 only have "ย้อนกลับ"
+    $("cancelTop").hidden = editing || n === 1; // step 1 / editing: the bottom "ยกเลิก" already leaves; steps 2-3 only have "ย้อนกลับ"
     showStep(n);
     if (editing) { $("cancelBtn").textContent = "ยกเลิก"; alignSteps(); return; }
     [].forEach.call($("stp").children, function (x, i) { x.className = "s" + (i + 1 < n ? " done" : i + 1 === n ? " on" : ""); if (i + 1 < n) { x.setAttribute("role", "button"); x.tabIndex = 0; x.setAttribute("aria-label", "กลับไปขั้นที่ " + (i + 1)); } else { x.removeAttribute("role"); x.removeAttribute("tabindex"); x.removeAttribute("aria-label"); } x.firstChild.innerHTML = i + 1 < n ? CHK : String(i + 1); });
