@@ -156,7 +156,7 @@ module.exports = async function handler(req, res) {
         const why = REFUND_WHY.indexOf(r.why) >= 0 ? r.why : "other";
         const note = String(r.note || "").replace(/\s+/g, " ").trim().slice(0, 300);
         await saveOrder(Object.assign({}, o, { refundReq: { at: Date.now(), why, note } }));
-        try { const w = (await L.redis(["SMEMBERS", "owner:watch"])) || []; if (w.length) await L.notify(w, { k: "refund_req", tn: (P.SKUS[o.sku] || {}).label || "", amt: o.amount, n: why }); } catch (e) { /* best effort */ }
+        try { const w = (await L.redis(["SMEMBERS", "owner:watch"])) || []; if (w.length) { const lbl = (P.SKUS[o.sku] || {}).label || ""; await L.notify(w, { k: "refund_req", tn: lbl, amt: o.amount, n: why }); await L.linePush(w, "VanTrip: มีคำขอคืนเงินใหม่\n" + lbl + " · " + o.amount + " บาท\nตรวจที่หน้า /owner"); } } catch (e) { /* best effort */ }
         return L.json(res, 200, { ok: true });
       }
       if (DEV && body.devPaid === true) { // local dev: no Stripe, finish the order right away
@@ -176,7 +176,7 @@ module.exports = async function handler(req, res) {
         const back = origin(req) + "/plans?order=" + o.id;
         const sess = await stripe("POST", "checkout/sessions", {
           mode: "payment", payment_method_types: ["promptpay", "card"], locale: "th",
-          line_items: [{ quantity: 1, price_data: { currency: "thb", unit_amount: pr.amount * 100, product_data: { name: "VanTrip · " + s.label, description: descOf(s), images: [origin(req) + "/pay-icon.png"] } } }],
+          line_items: [{ quantity: 1, price_data: { currency: "thb", unit_amount: pr.amount * 100, product_data: { name: s.label, description: descOf(s), images: [origin(req) + "/pay-icon.png"] } } }],
           success_url: back, cancel_url: back + "&c=1", client_reference_id: o.id, metadata: { order: o.id, sku: body.sku },
           expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         });

@@ -259,6 +259,20 @@ async function notify(uids, item, exceptUid) {
     await pipeline(cmds);
   } catch (e) { /* best effort: never breaks the action that caused it */ }
 }
+// Optional LINE push (Messaging API). Does nothing unless LINE_BOT_TOKEN is set (channel access token of the official account that
+// the users added as a friend; LINE user ids are shared inside one provider). Real LINE ids only; best effort, never throws.
+async function linePush(uids, text) {
+  try {
+    const token = pickEnv("LINE_BOT_TOKEN");
+    const to = Array.from(new Set((uids || []).filter((u) => /^U[0-9a-f]{32}$/.test(u)))).slice(0, 500);
+    if (!token || !to.length) return;
+    await fetch("https://api.line.me/v2/bot/message/multicast", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+      body: JSON.stringify({ to, messages: [{ type: "text", text: String(text).slice(0, 900) }] }),
+    });
+  } catch (e) { /* best effort */ }
+}
 // account ids of everyone booked in the trip, per van: { vanId: [uid, ...] }
 async function tripBookers(trip) {
   const out = {};
@@ -281,5 +295,5 @@ function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); retur
 module.exports = {
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, json,
   tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
-  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
+  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, linePush, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };
