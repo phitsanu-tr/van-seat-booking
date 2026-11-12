@@ -854,9 +854,9 @@ form label { position: relative; }
       d.appendChild(Object.assign(document.createElement("span"), { textContent: text })); box.appendChild(d);
     }
     var sd = $("startDate").value, ed = $("endDate").value, tm = $("departTime").value, mp = $("meetPoint").value.trim();
-    line("cal", sd ? dateRange(sd, ed || sd) : "");
     var rt2 = $("returnTime").value;
-    line("clk", tm ? (rt2 ? "รถออก " + tm.replace(":", ".") + " น. · ขากลับ " + rt2.replace(":", ".") + " น." : "ออกเดินทาง " + tm.replace(":", ".") + " น.") : "");
+    line("cal", (sd || tm) ? "ขาไป " + leg(sd, tm) : "");
+    line("clk", (ed || rt2) ? "ขากลับ " + leg(ed || sd, rt2) : "");
     line("pin", mp);
     var vs = rows.map(function (r) { return r.label; }).filter(Boolean);
     line("van", vs.length ? "รถตู้ " + vs.length + " คัน (" + vs.join(", ") + ")" : "");
@@ -1040,8 +1040,8 @@ form label { position: relative; }
   var newId = ""; // id of the trip just created (highlighted once on the list)
   $("delBtn").addEventListener("click", async function () {
     var t = loaded || {}, rws = [];
-    if (t.startDate || t.endDate) rws.push([SV.cal, dateRange(t.startDate, t.endDate)]);
-    if (t.departTime) rws.push([SV.clk, t.departTime + " น."]);
+    if (t.startDate || t.departTime) rws.push([SV.cal, "ขาไป " + leg(t.startDate, t.departTime)]);
+    if (t.endDate || t.returnTime) rws.push([SV.clk, "ขากลับ " + leg(t.endDate || t.startDate, t.returnTime)]);
     if (t.meetPoint) rws.push([SV.pin, t.meetPoint]);
     var ok = await askConfirm("ต้องการลบทริปนี้?", "ข้อมูลจะถูกลบถาวร ผู้จองและลิงก์ที่แชร์ออกไปจะใช้ไม่ได้", "ลบทริป", $("delBtn"),
       { name: t.name || "ทริปนี้", total: booked ? booked + " ที่นั่ง" : "ยังไม่มีผู้จอง", rows: rws,
@@ -1085,14 +1085,17 @@ form label { position: relative; }
   }
   var MS2 = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   function shortDate(v) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ""); return m ? (+m[3]) + " " + MS2[+m[2] - 1] + " " + String(+m[1] + 543).slice(2) : ""; }
+  var WD2 = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+  function dayS(v) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ""); if (!m) return ""; return WD2[new Date(+m[1], +m[2] - 1, +m[3]).getDay()] + " " + (+m[3]) + " " + MS2[+m[2] - 1] + " " + String(+m[1] + 543).slice(2); }
+  function leg(v, t) { return [dayS(v), t ? t.replace(":", ".") + " น." : ""].filter(Boolean).join(" · "); }
   function pkText(id) { var b = $(id).parentNode.querySelector(".pk span"); return b ? b.textContent : $(id).value; }
   function fillStepSummary() { // step 3 card (not the share sheet summary, which is fillSummary)
     var box = $("sumRows"); box.textContent = "";
     var sd = $("startDate").value, ed = $("endDate").value;
     var vl = rows.map(function (r) { return (r.label || "").trim(); }).filter(Boolean);
     [["ชื่อทริป", $("name").value.trim()], ["ผู้จัด", $("organizer").value.trim()],
-     ["ขาไป", [shortDate(sd), $("departTime").value ? $("departTime").value.replace(":", ".") + " น." : ""].filter(Boolean).join(" · ")],
-     ["ขากลับ", [shortDate(ed), $("returnTime").value ? $("returnTime").value.replace(":", ".") + " น." : ""].filter(Boolean).join(" · ")], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
+     ["ขาไป", leg(sd, $("departTime").value)],
+     ["ขากลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
      ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
      ["จองได้ต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["ที่นั่ง 1", "สงวนสำหรับผู้จัด ทุกคัน · ขึ้นชื่อ " + $("staffName").value] : null
     ].forEach(function (r) {
