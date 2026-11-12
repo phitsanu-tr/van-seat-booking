@@ -7,7 +7,7 @@
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>
-button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; } .vb-bar { padding: 0 !important; margin: -8px auto 8px !important; }.vb-bar{max-width:460px !important}</style>
+button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; } .vb-bar { padding: 0 !important; margin: -8px auto 8px !important; }.vb-bar{display:none !important}.hero{position:relative}.hx{position:absolute;right:0;top:4px;width:40px;height:40px;border-radius:50%;border:0;background:var(--tint,#eef1f3);color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0;line-height:0;cursor:pointer}.hero .hx svg{width:20px !important;height:20px !important;display:block;flex:none;margin:0;position:static !important;inset:auto !important}</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
@@ -313,6 +313,7 @@ form label { position: relative; }
   <section class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht">
     <div class="hr">
       <h1 id="title">สร้างทริป</h1>
+      <button type="button" class="hx" id="closeX" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       
     </div>
     <p id="lead">กรอกรายละเอียด แล้วแชร์ลิงก์ให้ผู้ร่วมทริป</p></div>
@@ -659,6 +660,10 @@ form label { position: relative; }
     location.href = dest;
   });
 
+  $("closeX").addEventListener("click", async function () { // ✕ beside the title: leave the whole form (asks first when something was typed)
+    if (dirty && !(await askConfirm(editing ? "ออกโดยไม่บันทึก?" : "ยกเลิกการสร้างทริป?", "ข้อมูลที่กรอกไว้จะไม่ถูกบันทึก", "ออก"))) return;
+    location.href = "/mytrips#trips";
+  });
   var topBack = document.querySelector(".vb-back"); // the arrow in the top bar asks first too
   if (topBack) topBack.addEventListener("click", async function (e) {
     e.preventDefault(); e.stopImmediatePropagation();
