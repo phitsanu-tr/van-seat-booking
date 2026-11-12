@@ -41,5 +41,21 @@
     function badge() { var n = window.VSBBell && VSBBell.ready ? VSBBell.unread : 0, b = document.getElementById("vtBadge"); b.hidden = !n; b.textContent = n > 99 ? "99+" : String(n); }
     if (window.VSBBell) { badge(); VSBBell.onChange(badge); }
   }
-  fetch("/api/auth?me=1", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.user) show(d.user); }).catch(function () {});
+  function readCache() { try { var c = JSON.parse(localStorage.getItem("vsb_tb") || "null"); return c && localStorage.getItem("vsb_in") === "1" && !localStorage.getItem("vsb_gone") ? c : null; } catch (e) { return null; } }
+  function paintAv(user) {
+    var av = document.getElementById("vtAv"); if (!av) return;
+    var ini = String(user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
+    var cur = av.querySelector("img"); if (user.pic && cur && cur.getAttribute("src") === user.pic) return;
+    av.textContent = ini; if (user.pic) { var im = document.createElement("img"); im.alt = ""; im.src = user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = ini; }; av.appendChild(im); }
+  }
+  var cached = readCache();
+  if (cached) show(cached); // known signed-in device: draw the menu in the first frame, then confirm with the server
+  fetch("/api/auth?me=1", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+    if (d && d.user) {
+      try { localStorage.setItem("vsb_tb", JSON.stringify({ name: d.user.name || "", pic: d.user.pic || "" })); } catch (e) {}
+      if (document.querySelector(".vt-bar")) paintAv(d.user); else show(d.user);
+    } else {
+      var b = document.querySelector(".vt-bar"); if (b) { b.remove(); document.body.classList.remove("vt-on"); }
+    }
+  }).catch(function () {});
 })();
