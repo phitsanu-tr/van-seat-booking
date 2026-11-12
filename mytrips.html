@@ -22,8 +22,8 @@ body.signed .top > div{height:auto !important;min-height:0;padding-top:12px !imp
 body.signed main{padding-top:12px !important}
 body.signed .top .ltl{display:block;min-width:0;flex:1}
 /* page header: plain large title + one short line, same height on every tab; only the tab's own button (if any) on the right */
-body.signed .top{background:transparent !important;padding:0 16px}
-body.signed .top > div{height:72px !important;padding:0 !important;gap:12px}
+body.signed .top{background:transparent !important;padding:0}
+body.signed .top > div{height:72px !important;padding:0 max(16px, env(safe-area-inset-left)) !important;gap:12px}
 /* app bar: logo tile + app name + short line */
 .abar{display:none}
 body.signed .abar{display:flex;align-items:center;gap:12px;max-width:460px;margin:0 auto;height:56px}
