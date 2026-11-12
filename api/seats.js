@@ -176,6 +176,12 @@ module.exports = async function handler(req, res) {
       const rec = { name, at, u: user.id, ln: user.name || "", lp: user.pic || "" }; // LINE name + photo: shown to the organizer team only
       const created = await L.redis(["HSETNX", key, String(seat), JSON.stringify(rec)]);
       if (created !== 1) return L.json(res, 409, { error: "taken" });
+      if (user && !isOwner && limit > 0) { // two bookings at the same moment can both pass the check above: count again now and give this one back if the person is over the limit
+        const all2 = await L.pipeline(trip.vans.map((x) => ["HGETALL", L.seatsKey(t, x.id)]));
+        let n2 = 0;
+        all2.forEach((flat) => { for (let i = 1; i < (flat || []).length; i += 2) { try { if (JSON.parse(flat[i]).u === user.id) n2++; } catch (e) { /* skip */ } } });
+        if (n2 > limit) { await L.hcas([{ key, field: seat, expect: JSON.stringify(rec), value: "" }]); return L.json(res, 403, { error: "seat_limit", limit }); }
+      }
       if (holder) { try { await L.redis(["DEL", hk]); } catch (e) { /* expires anyway */ } }
       { try { await L.pipeline([["SADD", L.mySeatsKey(user.id), t + "|" + van.id + "|" + seat], ["EXPIRE", L.mySeatsKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* the seat is booked; the index is best effort */ } }
       const exp = L.expireAtFor(trip);

@@ -602,6 +602,7 @@ form label { position: relative; }
   function editPath(id) { return "/trips/" + id; }
   if (T && q.get("card") === "guest") { location.replace("/" + T); return; } // the old SEAT PASS picture link: the booking page has the picture now
   var editing = !!T;
+  var revAtLoad = 0; // the trip's save counter when the form was filled (another organizer saving meanwhile is refused, not overwritten)
   var closedAtLoad = false; // the trip's "closed" flag when the form was filled
   var creating = q.get("new") === "1" || /^\/trips\/new\/?$/.test(location.pathname);
   var vansEl = document.getElementById("vans");
@@ -985,7 +986,7 @@ form label { position: relative; }
       closeAt: $("closeDate").value ? $("closeDate").value + "T" + ($("closeTime").value || "23:59") : ""
     };
     if (editing && $("closedNow").checked !== closedAtLoad) body.closed = $("closedNow").checked; // only when changed here: a form left open must not undo someone else's close/reopen
-    if (editing) body.t = T;
+    if (editing) { body.t = T; body.rev = revAtLoad; }
     else body.ck = CK; // one key per create page: a retry after a lost reply gets the same trip back, not a second one
     if (!editing && usePass) body.usePass = true;
     busy = true; $("submit").disabled = true; $("cancelBtn").disabled = true; $("submit").textContent = (editing ? "กำลังบันทึก..." : "กำลังสร้าง...");
@@ -1001,10 +1002,11 @@ form label { position: relative; }
         else if (data.error === "plan_vans") planSheet("vans");
         else if (data.error === "plan_date") { PL.maxStart = data.max; if (data.passes !== undefined) PL.passes = data.passes; planSheet("date"); }
         else if (data.error === "no_pass") { usePass = false; PL.plus = false; PL.passes = 0; var pn = $("passNote"); if (pn) pn.remove(); planSheet("trips"); }
+        else if (data.error === "stale") toast("ผู้จัดอีกคนเพิ่งแก้ทริปนี้ ปิดหน้านี้แล้วเปิดใหม่เพื่อดูข้อมูลล่าสุด");
         else toast(ERR[data.error] || "บันทึกไม่สำเร็จ ลองอีกครั้ง");
         return;
       }
-      dirty = false; closedAtLoad = !!(data.trip && data.trip.closed === true);
+      dirty = false; closedAtLoad = !!(data.trip && data.trip.closed === true); if (editing && data.trip) revAtLoad = data.trip.rev || 0;
       if (editing) {
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
         showResult(T, "saved", data.trip.name);
@@ -1216,7 +1218,7 @@ form label { position: relative; }
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
         (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
-        fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = closedAtLoad = t.closed === true;
+        fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = closedAtLoad = t.closed === true; revAtLoad = t.rev || 0;
         shown = { id: T }; $("shareBtn").hidden = false; $("dz").hidden = t.role === "helper"; // helpers edit, only the owner deletes
         booked = data.booked || 0; perVan = data.perVan || {}; loaded = t;
         if (data.limits && data.limits.on) { PL = { on: true, tier: data.limits.tier, vans: data.limits.vans, plus: !!data.limits.plus, passes: 0, trips: data.limits.trips }; if (PL.plus) passNote(); }

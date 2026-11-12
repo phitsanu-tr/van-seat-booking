@@ -125,7 +125,7 @@ function startApp() {
       res.setHeader("Content-Type", TYPES[path.extname(file)] || "application/octet-stream");
       res.setHeader("Cache-Control", "no-store");
       // same security headers as vercel.json
-      res.setHeader("X-Content-Type-Options", "nosniff"); res.setHeader("X-Frame-Options", "DENY"); res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
+      res.setHeader("X-Content-Type-Options", "nosniff"); res.setHeader("X-Frame-Options", "DENY"); res.setHeader("Content-Security-Policy", "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'");
       res.end(data);
     });
   });

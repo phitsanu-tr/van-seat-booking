@@ -414,6 +414,7 @@ module.exports = async function handler(req, res) {
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (!isManager(trip, user)) return deny(res, user);
+      if (body.rev !== undefined && Number(body.rev) !== (trip.rev || 0)) return L.json(res, 409, { error: "stale" }); // another organizer saved this trip after the form was opened
       const lt = await limitsOf(trip);
       const c = clean(body, trip.vans.length, lt.on ? lt.vans : 0, trip);
       if (c.error) return L.json(res, c.error === "plan_vans" ? 402 : 400, { error: c.error, limit: c.limit });
@@ -425,7 +426,7 @@ module.exports = async function handler(req, res) {
       const next = assignVanIds(c.value.vans.map((v) => ({ id: oldIds.includes(v.id) ? v.id : "", label: v.label, plate: v.plate })), oldIds);
       const kept = new Set(next.map((v) => v.id));
       const removed = oldIds.filter((id) => !kept.has(id));
-      const updated = Object.assign({}, trip, c.value, { vans: next, schemaVersion: 1, updatedAt: Date.now() });
+      const updated = Object.assign({}, trip, c.value, { vans: next, schemaVersion: 1, updatedAt: Date.now(), rev: (trip.rev || 0) + 1 });
       const bookers = await L.tripBookers(trip); // before removed vans lose their seats
       const cmds = [["SET", L.tripKey(t), JSON.stringify(updated)]];
       removed.forEach((id) => cmds.push(["DEL", L.seatsKey(t, id)]));
