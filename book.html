@@ -420,7 +420,8 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
       fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){
-        if (me && me.user) { try { sessionStorage.removeItem("vsb_liff"); } catch (e) {} resolve(true); return; }
+        if (me && me.user) { try { sessionStorage.removeItem("vsb_liff"); localStorage.removeItem("vsb_gone"); } catch (e) {} resolve(true); return; }
+        try { if (localStorage.getItem("vsb_gone")) { resolve(false); return; } } catch (e) {} // deleted my data on this device: no automatic sign-in until the person taps the button
         var tried = ""; try { tried = sessionStorage.getItem("vsb_liff"); } catch (e) {}
         var token = liff.getIDToken();
         if (tried || !token) { dg(tried ? "retry_blocked" : "no_token"); resolve(false); return; } // one try per tab: never loop
