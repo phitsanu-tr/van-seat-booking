@@ -339,7 +339,7 @@ module.exports = async function handler(req, res) {
       }
       const id = L.newId(8);
       const now = Date.now();
-      const trip = Object.assign({ id, schemaVersion: 1, createdAt: now, updatedAt: now, owner: user.id, ownerName: user.name }, c.value, plus ? { plus: true } : {}, qm ? { qm } : {});
+      const trip = Object.assign({ id, schemaVersion: 1, createdAt: now, updatedAt: now, owner: user.id, ownerName: user.name }, c.value, plus ? { plus: true } : {}, qm ? { qm } : {}, !plus && P.horizon(plan) ? { hz: P.horizon(plan) } : {});
       trip.vans = assignVanIds(trip.vans, []);
       const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
       if (ok !== "OK") { if (qm) await refundQuota(user, qm); if (plus) await P.refundPass(user.id); return L.json(res, 502, { error: "storage_error" }); }
@@ -416,8 +416,8 @@ module.exports = async function handler(req, res) {
       const lt = await limitsOf(trip);
       const c = clean(body, trip.vans.length, lt.on ? lt.vans : 0, trip);
       if (c.error) return L.json(res, c.error === "plan_vans" ? 402 : 400, { error: c.error, limit: c.limit });
-      if (!trip.plus && c.value.startDate && c.value.startDate !== (trip.startDate || "")) { // moving a date later can't dodge the limit
-        const plan = await P.getPlan(trip.owner), mx = P.horizon(plan);
+      if (!trip.plus && c.value.startDate && c.value.startDate !== (trip.startDate || "")) { // moving a date later can't dodge the limit, even after the package ended (trip.hz = the cap it was made under)
+        const plan = await P.getPlan(trip.owner), live = P.horizon(plan), mx = trip.hz && trip.hz > live ? trip.hz : live;
         if (mx && c.value.startDate > mx) return L.json(res, 402, { error: "plan_date", max: mx, passes: plan.passes, tier: plan.tier });
       }
       const oldIds = trip.vans.map((v) => v.id);

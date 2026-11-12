@@ -132,7 +132,7 @@ async function setPlan(uid, tier, days) {
 }
 
 // trips counted in a paid package's quota can start at most this long after the package ends (stops stocking up a year of trips on one month)
-const HORIZON_DAYS = 60;
+const HORIZON_DAYS = 30;
 function horizon(plan) { // last allowed start date (YYYY-MM-DD, Thai time), or "" = no limit
   if (!plan || !plan.on || plan.tier === "free" || !(plan.until > Date.now())) return "";
   return new Date(plan.until + HORIZON_DAYS * DAY + 7 * 3600 * 1000).toISOString().slice(0, 10);
