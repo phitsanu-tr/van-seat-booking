@@ -1064,7 +1064,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
   function renderTrip() {
     var factsEl = document.getElementById("tripFacts"), tabsEl = document.getElementById("tabs");
     if (!trip) return;
-    document.title = trip.name;
+    document.title = "VanTrip";
     var rows = [];
     var dr = dateRange(trip.startDate, trip.endDate);
     var IC = {
@@ -1200,7 +1200,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       if (!r.ok) {
         loadError = errorText(r, "โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า");
         skOff();
-        if (r.status === 404 && r.data && r.data.error === "no_trip") { document.body.classList.add("nf"); document.title = "หาทริปนี้ไม่เจอ"; return; }
+        if (r.status === 404 && r.data && r.data.error === "no_trip") { document.body.classList.add("nf"); document.title = "VanTrip"; return; }
         if (!loaded) renderAll();
         return;
       }
