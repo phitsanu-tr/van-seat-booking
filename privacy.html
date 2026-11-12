@@ -45,7 +45,12 @@ tr:last-child { margin-bottom: 0; }
 td { padding: 4px 0 !important; border-bottom: 0 !important; }
 td:first-child { font-weight: 600; }
 td[data-l]:not([data-l=""])::before { content: attr(data-l); display: block; font-size: 12px; line-height: 16px; color: var(--muted); font-weight: 500; }
-html.in-line .vb-bar{display:none !important}</style>
+html.in-line .vb-bar{display:none !important}html body.vt-on { padding-bottom: calc(89px + env(safe-area-inset-bottom, 0px)) !important; }
+.vt-bar { display: none !important; }
+body { padding-bottom: calc(89px + env(safe-area-inset-bottom, 0px)); }
+.lbk { position: fixed; z-index: 15; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid #e8ecef; padding: 12px max(16px, calc((100% - 460px) / 2)) calc(12px + env(safe-area-inset-bottom, 0px)); }
+.lbk button { display: block; width: 100%; height: 48px; border: 0; border-radius: 12px; background: #eef1f3; color: #1b1f22; font: 600 16px/24px var(--font-display, "Prompt", "Noto Sans Thai", sans-serif); cursor: pointer; }
+</style>
 </head>
 <body>
 <script src="/bell.js"></script><script>VSBBell.bar("/mytrips#account");</script>
@@ -131,6 +136,9 @@ html.in-line .vb-bar{display:none !important}</style>
   </section>
   <footer class="vfoot"></footer><script src="/footer.js"></script>
 </main>
+<div class="lbk"><button type="button" id="legalBack">ย้อนกลับ</button></div>
+<script>document.getElementById("legalBack").addEventListener("click", function () { var r = ""; try { r = new URL(document.referrer).origin; } catch (e) {} if (r === location.origin && history.length > 1) history.back(); else location.href = "/mytrips#account"; });</script>
+
 <script src="/tabbar.js" data-tab="acct"></script>
 </body>
 </html>
