@@ -177,7 +177,6 @@ a { color: inherit; }
 .avw { position: relative; flex: none; display: block; }
 .chv { font-size: 14px; line-height: 14px; margin-left: -2px; position: relative; top: 0px; }
 .lnb { flex: none; display: inline-flex; align-items: center; box-sizing: border-box; height: 16px; padding: 0px 8px 0 8px; position: relative; top: 0; border-radius: 8px; background: var(--lg); color: #fff; font: 700 10px/10px Arial, sans-serif; letter-spacing: .2px; }
-.wr { display: flex; align-items: center; gap: 8px; flex: none; }
 /* signed in: show the site bar with bell + pill (same as other pages) */
 #meView .who { display: none; }
 #meView .who .av { width: 36px; height: 36px; font-size: 16px; line-height: 24px}
@@ -287,12 +286,6 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .agrp { background: #f3f6f7; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
 .agrp .acti { height: 50px; padding: 0 12px; border-radius: 0; }
 .agrp .acti { position: relative; } .agrp .acti + .acti::before { content: ""; position: absolute; top: 0; left: 44px; right: 12px; border-top: 1px solid #e8ecef; }
-.wslim { position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px; border-radius: 16px; padding: 12px 12px 12px 16px; color: #fff; text-decoration: none; background: linear-gradient(160deg, var(--mine), var(--deep)); }
-.wslim .tx { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.wslim .tx b { font: 600 16px/24px var(--font-display); }
-.wslim .tx span { font-size: 12px; color: #d4ecee; line-height: 16px}
-.wslim .go { position: relative; flex: none; height: 40px; padding: 0 16px; border-radius: 12px; background: #fff; color: var(--mine); font: 600 14px/20px var(--font-display); display: flex; align-items: center; }
-.wslim .go { text-decoration: none; } .wslim .go:active { opacity: .85; }
 .vb-empty .eb svg { width: 20px; height: 20px; flex: none; margin: 0; display: block; }
 .vb-empty .eb { display: flex; width: 176px; justify-content: center; align-items: center; gap: 8px; border: 0; cursor: pointer; height: 48px; padding: 0 24px; margin: 20px auto 0; border-radius: 12px; background: var(--mine); color: #fff; font: 600 16px/24px var(--font-display); text-decoration: none; }
 .tk { flex-direction: row; gap: 0; padding: 0; overflow: hidden; }
@@ -461,7 +454,6 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .rrow .ra button { border-color: transparent; background: #f1f4f6; border-radius: 12px; padding: 0 12px; }
 .rrow .ra button.dg { background: #fbeceb; }
 .bprog .pl b { font-size: 20px; line-height: 28px}
-.pts b { font-size: 12px; line-height: 16px}
 .spick button { border-width: 1px; border-color: transparent; background: #f1f4f6; font-size: 14px; line-height: 20px}
 .spick button small { font-size: 12px; line-height: 16px}
 .spick button.on { border-color: var(--mine); background: var(--tint); }
@@ -611,7 +603,6 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     var t = $("toast"); t.textContent = msg; t.className = "toast" + (bad ? " bad" : ""); t.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 2800);
   }
-  function loginHref(back) { return "/api/auth?start=1&r=" + encodeURIComponent(back || "/mytrips"); }
   function meta(x, withVans) {
     var m = node("div", "meta"), add = function (svg, text) { if (!text) return; var s = node("span"); s.innerHTML = svg || ""; var i = node("i", null, text); s.appendChild(i); m.appendChild(s); };
     add(SV.cal, dateRange(x.startDate, x.endDate));

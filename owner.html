@@ -228,7 +228,6 @@ button { font:inherit; cursor:pointer; }
   }
   $("keyForm").addEventListener("submit", function (e) { e.preventDefault(); KEY = $("key").value.trim(); if (!KEY) return; try { sessionStorage.setItem("van-owner", KEY); } catch (x) {} $("key").value = ""; load(); });
   $("reload").addEventListener("click", load);
-  function load2() { api("GET").then(function (r) { if (r.status === 200) { var n = $("note").textContent; render(r.body); $("note").textContent = n; } }); }
   $("out").addEventListener("click", function () { try { sessionStorage.removeItem("van-owner"); } catch (e) {} KEY = ""; showKey(); say(""); });
   window.addEventListener("hashchange", function () { location.reload(); });
   if (KEY) load(); else showKey();

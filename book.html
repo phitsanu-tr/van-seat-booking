@@ -566,9 +566,6 @@ body.signed .hbar .lback svg{width:20px;height:20px}
   function readHold() { try { var h = JSON.parse(sessionStorage.getItem("vsb_hold") || "null"); return h && h.t === TRIP && h.exp > Date.now() ? h : null; } catch (e) { return null; } }
   function myHold(n) { var h = readHold(); return !!(h && h.v === curVan && h.s === n); }
   function heldByOther(n) { return !seats[n] && held[n] && !myHold(n); }
-  function holdClient() { // random id of this browser, only used so two people on the same mobile network do not cancel each other's hold
-    try { var c = localStorage.getItem("vsb_hc"); if (!c || !/^[a-z0-9]{16}$/.test(c)) { c = Array.from(crypto.getRandomValues(new Uint8Array(16)), function (x) { return "abcdefghijklmnopqrstuvwxyz0123456789"[x % 36]; }).join(""); localStorage.setItem("vsb_hc", c); } return c; } catch (e) { return ""; }
-  }
   // signed-in LINE account (from the seats API)
   var wantSeat = Number(params.get("seat")) || 0; // back from LINE sign-in: reopen the seat that was chosen
   if (params.has("li") || params.has("le") || params.has("seat")) { try { params.delete("li"); params.delete("le"); params.delete("seat"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params.toString() : "")); } catch (e) {} }
@@ -577,10 +574,6 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     if (IN_LINE) { b.href = "javascript:void(0)"; b.appendChild(document.createTextNode("เข้าสู่ระบบไม่สำเร็จ · ลองใหม่")); b.addEventListener("click", function () { try { sessionStorage.removeItem("vsb_liff"); } catch (e) {} location.reload(); }); }
     else { b.href = "https://liff.line.me/2012285472-FvtYKx00/" + TRIP + (curVan ? "?v=" + encodeURIComponent(curVan) : ""); b.appendChild(el("i", null, "LINE")); b.appendChild(document.createTextNode("เปิดใน LINE เพื่อจองที่นั่ง")); }
     w.appendChild(b); return w;
-  }
-  function loginHref(seatN) {
-    var back = "/" + TRIP + "?" + (curVan ? "v=" + encodeURIComponent(curVan) + "&" : "") + (seatN ? "seat=" + seatN : "");
-    return "/api/auth?start=1&r=" + encodeURIComponent(back.replace(/[?&]$/, ""));
   }
   function renderAcct() {
     var a = document.getElementById("acct"); if (!a || IMG_ONLY) return;

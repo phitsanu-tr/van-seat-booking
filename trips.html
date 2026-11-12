@@ -57,7 +57,6 @@ button { font: inherit; cursor: pointer; }
 
 .backdrop { overscroll-behavior: contain; position: fixed; inset: 0; z-index: 20; background: rgba(8, 14, 18, .6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
 .modal { width: 100%; max-width: 400px; background: var(--surface); border-radius: 24px; padding: 22px 20px 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 18px 50px rgba(0,0,0,.35); margin: auto; }
-.mt { font-family: var(--font-display); font-weight: 600; font-size: 20px; line-height: 28px; }
 .btn.ic { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn.ic svg { width: 16px; height: 16px; flex: none; }
 
@@ -937,15 +936,6 @@ form label { position: relative; }
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ""); if (!m) return null;
     return { d: +m[3], mo: +m[2] - 1, y: +m[1] + 543 };
   }
-  function dateRange(a, b) {
-    var x = thDate(a), y = thDate(b);
-    if (!x && !y) return "ยังไม่ระบุ";
-    if (!x || !y || (a === b)) { var o = x || y; return o.d + " " + MON[o.mo] + " " + o.y; }
-    if (x.y === y.y && x.mo === y.mo) return x.d + " – " + y.d + " " + MON[y.mo] + " " + y.y;
-    if (x.y === y.y) return x.d + " " + MON[x.mo] + " – " + y.d + " " + MON[y.mo] + " " + y.y;
-    return x.d + " " + MON[x.mo] + " " + x.y + " – " + y.d + " " + MON[y.mo] + " " + y.y;
-  }
-
   var ERR = {
     bad_name: "ระบุชื่อทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
     bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าสู่ระบบด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
@@ -1047,9 +1037,7 @@ form label { position: relative; }
     sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>'
   };
   function icon(path) { var s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("fill", "none"); s.setAttribute("stroke", "currentColor"); s.setAttribute("stroke-width", "2"); s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round"); s.setAttribute("aria-hidden", "true"); s.innerHTML = path; return s; }
-  function node(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   function todayIso() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
-  function isPast(t) { var last = t && (t.endDate || t.startDate); return !!last && last < todayIso(); }
   var booked = 0, loaded = null, perVan = {};
   var newId = ""; // id of the trip just created (highlighted once on the list)
   $("delBtn").addEventListener("click", async function () {
@@ -1100,7 +1088,6 @@ form label { position: relative; }
     [].forEach.call(document.querySelectorAll("#form [data-step]"), function (x) { var d = x.getAttribute("data-step"); x.hidden = editing ? d === "3" : d !== String(n); });
   }
   var MS2 = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-  function shortDate(v) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ""); return m ? (+m[3]) + " " + MS2[+m[2] - 1] + " " + String(+m[1] + 543).slice(2) : ""; }
   var WD2 = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
   function dayS(v) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ""); if (!m) return ""; return WD2[new Date(+m[1], +m[2] - 1, +m[3]).getDay()] + " " + (+m[3]) + " " + MS2[+m[2] - 1] + " " + String(+m[1] + 543).slice(2); }
   function leg(v, t) { return [dayS(v), t ? t.replace(":", ".") + " น." : ""].filter(Boolean).join(" · "); }
