@@ -98,13 +98,14 @@ details ol { margin: 8px 0 0; padding-left: 16px; }
 body { padding-bottom: calc(89px + env(safe-area-inset-bottom, 0px)); }
 html, body { overscroll-behavior: none; } .lbk { transform: translateZ(0); position: fixed; z-index: 15; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid #e8ecef; padding: 12px max(16px, calc((100% - 460px) / 2)) calc(12px + env(safe-area-inset-bottom, 0px)); }
 .lbk button { display: block; width: 100%; height: 48px; border: 0; border-radius: 12px; background: #eef1f3; color: #1b1f22; font: 600 16px/24px var(--font-display, "Prompt", "Noto Sans Thai", sans-serif); cursor: pointer; }
+.psk{display:flex;flex-direction:column;gap:12px}.psk .b{border-radius:16px;background:#eef1f3;position:relative;overflow:hidden}.psk .b::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);transform:translateX(-100%);animation:pskm 1.4s infinite}@keyframes pskm{to{transform:translateX(100%)}}@media (prefers-reduced-motion:reduce){.psk .b::after{animation:none}}
 </style>
 </head>
 <body>
 <script src="/bell.js"></script><script>VSBBell.bar("/mytrips#account");</script>
 <main id="app">
   <div class="hd"><b id="title">แพ็กเกจ</b><small id="sub">ผู้จองที่นั่งใช้ฟรีเสมอ จ่ายเฉพาะคนจัดทริป</small></div>
-  <div id="body"><div class="box"><div class="spin"></div></div></div>
+  <div id="body"><div class="psk" aria-hidden="true"><div class="b" style="height:172px;border-radius:24px"></div><div class="b" style="height:196px"></div><div class="b" style="height:196px"></div></div></div>
   <footer class="vfoot"></footer><script src="/footer.js"></script>
 </main>
 <div class="lbk"><button type="button" id="legalBack">ย้อนกลับ</button></div>

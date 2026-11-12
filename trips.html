@@ -7,7 +7,8 @@
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>
-button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; } .vb-bar { padding: 0 !important; margin: -8px auto 8px !important; }.vb-bar{display:none !important}.hr{display:flex;align-items:center;justify-content:space-between;gap:12px}.hx{flex:none;height:36px;border-radius:18px;border:0;background:var(--tint,#eef1f3);color:#0b5f67;padding:0 16px;font:600 14px/20px var(--font-display);cursor:pointer}.hx[hidden]{display:none}.stp .s.reach{cursor:pointer}.stp .s.reach:active i{opacity:.8}</style>
+button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; } .vb-bar { padding: 0 !important; margin: -8px auto 8px !important; }.vb-bar{display:none !important}.hr{display:flex;align-items:center;justify-content:space-between;gap:12px}.hx{flex:none;height:36px;border-radius:18px;border:0;background:var(--tint,#eef1f3);color:#0b5f67;padding:0 16px;font:600 14px/20px var(--font-display);cursor:pointer}.hx[hidden]{display:none}.stp .s.reach{cursor:pointer}.stp .s.reach:active i{opacity:.8}.edsk{width:100%;box-sizing:border-box;max-width:460px;margin:0 auto;padding:0;display:flex;flex-direction:column;gap:16px}.edsk[hidden]{display:none}.edsk .b{border-radius:16px;background:#eef1f3;position:relative;overflow:hidden}.edsk .b::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);transform:translateX(-100%);animation:edskm 1.4s infinite}@keyframes edskm{to{transform:translateX(100%)}}@media (prefers-reduced-motion:reduce){.edsk .b::after{animation:none}}
+</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
@@ -310,11 +311,12 @@ form label { position: relative; }
 </head>
 <body class="creating">
 <script src="/bell.js"></script><script>VSBBell.bar("/mytrips#trips");</script>
+<div class="edsk" id="edSk" hidden aria-hidden="true"><div><div style="font:600 24px/32px var(--font-display)">แก้ไขทริป</div><div style="font:14px/20px var(--font-body);color:var(--muted)">แก้ข้อมูลแล้วบันทึก ผู้ร่วมทริปเห็นทันที</div></div><div class="b" style="height:64px"></div><div class="b" style="height:248px"></div><div class="b" style="height:248px"></div></div>
 <main id="formMain" hidden>
   <section class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht">
     <div class="hr">
       <h1 id="title">สร้างทริป</h1>
-      <button type="button" class="hx" id="cancelTop">ยกเลิก</button>
+      <button type="button" class="hx" id="cancelTop" hidden>ยกเลิก</button>
       
     </div>
     <p id="lead">กรอกรายละเอียด แล้วแชร์ลิงก์ให้ผู้ร่วมทริป</p></div>
@@ -327,7 +329,7 @@ form label { position: relative; }
   </button>
 
   <form id="form" novalidate>
-   <div class="stp" id="stp" hidden><div class="s"><i>1</i><span>ข้อมูลทริป</span></div><div class="s"><i>2</i><span>จุดนัดพบและรถ</span></div><div class="s"><i>3</i><span>สรุปและยืนยัน</span></div></div>
+   <div class="stp" id="stp"><div class="s on"><i>1</i><span>ข้อมูลทริป</span></div><div class="s"><i>2</i><span>จุดนัดพบและรถ</span></div><div class="s"><i>3</i><span>สรุปและยืนยัน</span></div></div>
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></span><b>ข้อมูลทริป</b></div>
     <label>ชื่อทริป
       <span class="cnt" data-for="name"></span><input type="text" id="name" maxlength="60" placeholder="เช่น ดอยหลวงเชียงดาว (2 วัน 1 คืน)" required>
@@ -1208,7 +1210,7 @@ form label { position: relative; }
         }
       } catch (e) {}
     }
-    $("formMain").hidden = false;
+    if (editing) $("edSk").hidden = false; else $("formMain").hidden = false; // edit: skeleton until the trip is loaded, then the whole form appears at once
     if (editing) {
       document.querySelector(".hero").classList.add("is-edit"); $("title").textContent = "แก้ไขทริป"; $("lead").textContent = "แก้ข้อมูลแล้วบันทึก ผู้ร่วมทริปเห็นทันที"; document.title = "แก้ไขทริป";
       $("submit").textContent = "บันทึก";
@@ -1257,7 +1259,7 @@ form label { position: relative; }
     setStep(1);
     if (!editing) armBack();
   }
-  init();
+  init().then(function () {}, function () {}).then(function () { $("edSk").hidden = true; $("formMain").hidden = false; });
 })();
 </script>
 <script src="/tabbar.js" data-tab="trips"></script>

@@ -146,8 +146,9 @@ body.sk .skf { display: block; }
 .skf .sk:first-child { height: 22px; width: 60%; margin-top: 0; }
 .skpage { display: none; flex-direction: column; gap: 16px; }
 body.sk .skpage { display: flex; }
-body.sk main > :not(.skpage):not(.vfoot) { display: none; }
-.skpage .skh { height: 82px; border-radius: 16px; }
+body.sk main > :not(.skpage):not(.vfoot):not(#tripHdr) { display: none; }
+body.sk #tripHdr > :not(.hero) { display: none; }
+.skpage .skh { display: none; }
 .skpage .skf { display: block; margin-top: 0; }
 .skpage .skd { border: 1px solid var(--line); background: var(--surface); border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .skpage .skd .sk:first-child { height: 48px; border-radius: 12px; }
