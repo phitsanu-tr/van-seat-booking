@@ -1740,6 +1740,17 @@ var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใ�
     if (q.has("le")) { showLogin(); return; }
     var me = null;
     try { me = (await (await fetch("/api/auth?me=1", { cache: "no-store" })).json()).user; } catch (e) {}
+    if (!me && !q.has("le") && window.__liffReady && /\bLine\//i.test(navigator.userAgent || "")) {
+      // in LINE the automatic sign-in is still running (a fresh account, or after "delete my data"): wait for it instead of flashing the failure screen
+      var lv = $("loginView"); lv.textContent = ""; lv.hidden = false;
+      var wb = node("div"); wb.style.cssText = "min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:24px;text-align:center";
+      var wt = node("b", null, "กำลังเข้าสู่ระบบ…"); wt.style.cssText = "font:700 20px/28px var(--font-display);color:var(--ink)";
+      var ws = node("div", null, "รอสักครู่"); ws.style.cssText = "font:400 14px/20px var(--font-body);color:var(--muted)";
+      wb.appendChild(wt); wb.appendChild(ws); lv.appendChild(wb);
+      var ok = await Promise.race([window.__liffReady, new Promise(function (r) { setTimeout(function () { r(false); }, 8000); })]);
+      if (ok) { try { me = (await (await fetch("/api/auth?me=1", { cache: "no-store" })).json()).user; } catch (e) {} }
+      if (me) lv.hidden = true;
+    }
     if (!me) { showLogin(); return; }
     if (FOR_NEW) { location.replace(FOR_NEW); return; }
     $("meView").hidden = false; document.body.classList.add("signed"); setTab(tab); skeleton();
