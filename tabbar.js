@@ -35,7 +35,7 @@
       a("seats", "/mytrips#seats", "ที่นั่งที่จอง", icon("seats")) +
       a("notif", "/mytrips#notify", "แจ้งเตือน", icon("notif") + '<span class="nb" id="vtBadge" hidden></span>') +
       a("acct", "/mytrips#account", "โปรไฟล์", '<span class="av" id="vtAv"></span>');
-    document.body.appendChild(nav); document.body.classList.add("vt-on");
+    document.body.appendChild(nav); document.body.classList.add("vt-on"); document.documentElement.style.paddingBottom = "0"; /* the body padding already clears the bar + safe area; a page-level safe-area padding would add it twice */
     var av = document.getElementById("vtAv");
     if (user.pic) { var im = document.createElement("img"); im.alt = ""; im.src = user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = ini; }; av.appendChild(im); } else av.textContent = ini;
     function badge() { var n = window.VSBBell && VSBBell.ready ? VSBBell.unread : 0, b = document.getElementById("vtBadge"); b.hidden = !n; b.textContent = n > 99 ? "99+" : String(n); }
