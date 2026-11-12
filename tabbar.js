@@ -12,7 +12,7 @@
   };
   function icon(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + P[k] + "</svg>"; }
   var css =
-    ".vt-bar{position:fixed;left:0;right:0;bottom:0;padding:6px max(0px,calc((100% - 460px) / 2)) max(8px,env(safe-area-inset-bottom));background:#fff;display:flex;justify-content:space-around;align-items:flex-start;z-index:15;box-shadow:0 -2px 8px rgba(0,0,0,.04)}" +
+    ".vt-bar{transform:translateZ(0);will-change:transform;position:fixed;left:0;right:0;bottom:0;padding:6px max(0px,calc((100% - 460px) / 2)) max(8px,env(safe-area-inset-bottom));background:#fff;display:flex;justify-content:space-around;align-items:flex-start;z-index:15;box-shadow:0 -2px 8px rgba(0,0,0,.04)}" +
     ".vt-bar a{flex:1;height:50px;display:flex;flex-direction:column;align-items:center;gap:4px;font:500 12px/16px 'Prompt','Noto Sans Thai',system-ui,sans-serif;color:#8a949a;text-decoration:none;position:relative;white-space:nowrap}" +
     ".vt-bar svg{flex:none;width:24px;height:24px;stroke-width:1.8}" +
     ".vt-bar a.on{color:#0b5f67;font-weight:700}.vt-bar a.on svg{stroke-width:2.4}" +
