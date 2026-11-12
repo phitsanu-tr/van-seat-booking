@@ -195,6 +195,7 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .vch b { font: 600 14px/20px var(--font-display); }
 .vch .x { width: 36px; height: 36px; margin: -4px -4px -4px 0; border-radius: 12px; border-color: transparent; background: transparent; }
 .cf-title { margin: 0; font: 600 20px/28px var(--font-display); }
+.cf-note { margin: 12px 0 0; background: #fdf0dd; color: #8a5400; border-radius: 12px; padding: 8px 12px; font-size: 12px; line-height: 16px; text-align: left; }
 .cf-sum { margin: 0; padding: 12px; border: 1px solid #e8ecef; border-radius: 12px; background: color-mix(in srgb, var(--ink) 4%, var(--surface)); }
 .cf-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .cf-top b { font: 600 16px/24px var(--font-display); overflow-wrap: anywhere; }
@@ -708,6 +709,7 @@ form label { position: relative; }
           sb.appendChild(vg);
         }
         sheet.appendChild(sb);
+        if (sum.note) { var nt = document.createElement("div"); nt.className = "cf-note"; nt.textContent = sum.note; sheet.appendChild(nt); }
       }
       sheet.appendChild(act); back.appendChild(sheet);
       var prev = document.body.style.overflow;
@@ -1043,8 +1045,10 @@ form label { position: relative; }
     if (t.startDate || t.departTime) rws.push([SV.cal, "ขาไป " + leg(t.startDate, t.departTime)]);
     if (t.endDate || t.returnTime) rws.push([SV.clk, "ขากลับ " + leg(t.endDate || t.startDate, t.returnTime)]);
     if (t.meetPoint) rws.push([SV.pin, t.meetPoint]);
-    var ok = await askConfirm("ต้องการลบทริปนี้?", "ข้อมูลจะถูกลบถาวร ผู้จองและลิงก์ที่แชร์ออกไปจะใช้ไม่ได้", "ลบทริป", $("delBtn"),
+    var ok = await askConfirm("ต้องการลบทริปนี้?",
+      booked ? "รายชื่อผู้จองทั้ง " + booked + " ที่นั่งจะหายทั้งหมด และลิงก์ที่แชร์ไปจะเปิดไม่ได้" : "ข้อมูลจะถูกลบถาวร และลิงก์ที่แชร์ไปจะเปิดไม่ได้", "ลบทริป", $("delBtn"),
       { name: t.name || "ทริปนี้", total: booked ? booked + " ที่นั่ง" : "ยังไม่มีผู้จอง", rows: rws,
+        note: PL.on && !PL.plus ? "ลบแล้วไม่ได้โควตาทริปของเดือนนี้คืน ยกเว้นลบภายใน 24 ชม. หลังสร้างและยังไม่มีใครจอง" : "",
         vans: (t.vans || []).map(function (v) { return { label: v.label, plate: v.plate, n: perVan[v.id] || 0 }; }) });
     if (!ok) return;
     $("delBtn").disabled = true;
