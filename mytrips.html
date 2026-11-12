@@ -1629,6 +1629,20 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     document.body.appendChild(bd);
   }
 
+  function applyData(d, fromCache) {
+      lastSig = JSON.stringify(d); D = d; loadedAt = Date.now();
+      $("meName").textContent = d.user.name || "ผู้ใช้ LINE";
+      var av = $("av"); av.textContent = "";
+      if (d.user.pic) { var im = node("img"); im.alt = ""; im.src = d.user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1); }; av.appendChild(im); }
+      else av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
+      var nv = $("navAv"); nv.textContent = ""; var ini = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
+      if (d.user.pic) { var ni = node("img"); ni.alt = ""; ni.src = d.user.pic; ni.referrerPolicy = "no-referrer"; ni.onerror = function () { nv.textContent = ini; }; nv.appendChild(ni); } else nv.textContent = ini;
+      $("nTrips").textContent = d.trips.length; $("nSeats").textContent = d.seats.length;
+      renderTrips(d.trips); renderSeats(d.seats); HM.render(d); if (tab === "acct") renderAcctPane(); updateHead();
+      if (!fromCache) try { localStorage.setItem("vsb_in", "1"); localStorage.setItem("vsb_tb", JSON.stringify({ name: d.user.name || "", pic: d.user.pic || "" })); } catch (e) {}
+      if (wantAcct) { wantAcct = false; openAccount(); }
+      if (!fromCache) setTimeout(function () { preloadRosters(d.trips); }, 300); // after the page has drawn
+  }
   var lastSig = "";
   async function load(quiet) {
     try {
@@ -1638,23 +1652,13 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
       if (!r.ok) throw new Error();
       var sig = JSON.stringify(d);
       if (quiet && D && sig === lastSig) { loadedAt = Date.now(); return; } // nothing changed: keep the screen as it is, no redraw
-      lastSig = sig; D = d; loadedAt = Date.now();
-      $("meName").textContent = d.user.name || "ผู้ใช้ LINE";
-      var av = $("av"); av.textContent = "";
-      if (d.user.pic) { var im = node("img"); im.alt = ""; im.src = d.user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1); }; av.appendChild(im); }
-      else av.textContent = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
-      var nv = $("navAv"); nv.textContent = ""; var ini = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
-      if (d.user.pic) { var ni = node("img"); ni.alt = ""; ni.src = d.user.pic; ni.referrerPolicy = "no-referrer"; ni.onerror = function () { nv.textContent = ini; }; nv.appendChild(ni); } else nv.textContent = ini;
-      $("nTrips").textContent = d.trips.length; $("nSeats").textContent = d.seats.length;
-      renderTrips(d.trips); renderSeats(d.seats); HM.render(d); if (tab === "acct") renderAcctPane(); updateHead();
-      try { localStorage.setItem("vsb_in", "1"); localStorage.setItem("vsb_tb", JSON.stringify({ name: d.user.name || "", pic: d.user.pic || "" })); } catch (e) {}
-      if (wantAcct) { wantAcct = false; openAccount(); }
-      setTimeout(function () { preloadRosters(d.trips); }, 300); // after the page has drawn
+      try { localStorage.setItem("vsb_me", sig); } catch (e) {} // last good copy: next visit draws the whole page in the first frame
+      applyData(d);
     } catch (e) { toast("โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า", true); }
   }
   function showLogin() { // not signed in: in LINE this means the automatic sign-in failed, so offer a retry; elsewhere ask to open in LINE
     forgetRosters(); // another account or no session: drop the lists kept in this tab
-    try { localStorage.removeItem("vsb_in"); localStorage.removeItem("vsb_name"); } catch (e) {}
+    try { localStorage.removeItem("vsb_in"); localStorage.removeItem("vsb_name"); localStorage.removeItem("vsb_me"); localStorage.removeItem("vsb_tb"); } catch (e) {}
     $("meView").hidden = true; document.body.classList.remove("signed");
     var inLine = /\bLine\//i.test(navigator.userAgent || "");
     var le = new URLSearchParams(location.search).get("le");
@@ -1729,7 +1733,7 @@ var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใ�
   $("acctBtn2").addEventListener("click", openAccount);
   function goHome(msg) { // data deleted: show a closing page; in LINE the window closes by itself (button as a fallback)
     forgetRosters();
-    try { localStorage.removeItem("vsb_in"); localStorage.removeItem("vsb_name"); localStorage.setItem("vsb_gone", "1"); } catch (e) {}
+    try { localStorage.removeItem("vsb_in"); localStorage.removeItem("vsb_name"); localStorage.removeItem("vsb_me"); localStorage.removeItem("vsb_tb"); localStorage.setItem("vsb_gone", "1"); } catch (e) {}
     document.body.classList.remove("signed");
     var inLine = false;
     try { inLine = !!(window.liff && liff.isInClient()); } catch (e) {} // true only in the LIFF browser; LINE's in-app browser (opened from a plain link) can't be closed by the page
@@ -1776,6 +1780,7 @@ var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใ�
     if (!me) { showLogin(); return; }
     if (FOR_NEW) { location.replace(FOR_NEW); return; }
     $("meView").hidden = false; document.body.classList.add("signed"); setTab(tab); skeleton();
+    try { var cm = JSON.parse(localStorage.getItem("vsb_me") || "null"); if (cm && cm.user && cm.user.name === me.name && (cm.user.pic || "") === (me.pic || "")) applyData(cm, true); } catch (e) {} // same person as last time: draw their last data now, refresh quietly below
     try { var fl = sessionStorage.getItem("van-flash"); if (fl) { sessionStorage.removeItem("van-flash"); sessionStorage.removeItem("van-new"); setTimeout(function () { toast(fl); }, 300); } } catch (e) {}
     $("meName").textContent = me.name || "ผู้ใช้ LINE";
     updateHead();
@@ -1788,7 +1793,7 @@ var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใ�
     if (JOIN) { try { history.replaceState(null, "", "/mytrips"); } catch (e) {} await joinTeam(JOIN); JOIN = ""; setTab("trips"); }
     if (window.VSBBell) { if (!VSBBell.btn) VSBBell.mount($("bellHost")); VSBBell.onChange(function () { if (D) { renderTrips(D.trips); renderSeats(D.seats); HM.render(D); } if (tab === "notif") renderNotif(); updateHead(); }); VSBBell.load(); }
     if (new URLSearchParams(location.search).get("acct") === "1") { try { history.replaceState(null, "", "/mytrips" + (location.hash || "")); } catch (e) {} openAccount(); }
-    load();
+    load(true);
   })();
 })();
 </script>
