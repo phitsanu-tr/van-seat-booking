@@ -149,7 +149,7 @@ module.exports = async function handler(req, res) {
         const back = origin(req) + "/plans?order=" + o.id;
         const sess = await stripe("POST", "checkout/sessions", {
           mode: "payment", payment_method_types: ["promptpay", "card"], locale: "th",
-          line_items: [{ quantity: 1, price_data: { currency: "thb", unit_amount: pr.amount * 100, product_data: { name: "จองที่นั่งรถตู้ · " + s.label } } }],
+          line_items: [{ quantity: 1, price_data: { currency: "thb", unit_amount: pr.amount * 100, product_data: { name: "VanTrip · " + s.label } } }],
           success_url: back, cancel_url: back + "&c=1", client_reference_id: o.id, metadata: { order: o.id, sku: body.sku },
           expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         });

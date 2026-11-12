@@ -140,7 +140,7 @@
       bk.innerHTML = svg('<path d="M15 6l-6 6 6 6"/>'); bar.appendChild(bk);
       bk.addEventListener("click", function (e) { var r = ""; try { r = new URL(document.referrer).origin; } catch (x) {} if (r === location.origin && history.length > 1 && !/\/trips\//.test(document.referrer)) { e.preventDefault(); history.back(); } });
     }
-    var a = document.createElement("a"); a.className = "vb-brand"; a.href = "/mytrips"; a.textContent = "จองที่นั่งรถตู้";
+    var a = document.createElement("a"); a.className = "vb-brand"; a.href = "/mytrips"; a.textContent = "VanTrip";
     var h = document.createElement("span"); h.style.display = "flex"; bar.appendChild(a); bar.appendChild(h);
     document.body.insertBefore(bar, document.body.firstChild);
     B.load(); // no bell button here: notifications live in the bottom "แจ้งเตือน" tab

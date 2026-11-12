@@ -7,15 +7,15 @@
 button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; }</style>
 <script>/* signed in on this device: open the app right away */try{if(localStorage.getItem("vsb_in")==="1"&&!/[?&]le=/.test(location.search))location.replace("/mytrips"+(location.hash||""))}catch(e){}</script>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
-<title>จองที่นั่งรถตู้</title>
+<title>VanTrip</title>
 <meta name="description" content="สร้างทริปรถตู้แล้วแชร์ลิงก์ให้เพื่อนเลือกที่นั่งเอง ใช้บัญชี LINE ได้เลย ไม่ต้องสมัคร">
 <meta property="og:type" content="website">
-<meta property="og:title" content="จองที่นั่งรถตู้">
+<meta property="og:title" content="VanTrip">
 <meta property="og:description" content="สร้างทริปรถตู้แล้วแชร์ลิงก์ให้เพื่อนเลือกที่นั่งเอง ใช้บัญชี LINE ได้เลย ไม่ต้องสมัคร">
 <meta property="og:image" content="https://van-seat-booking.vercel.app/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="จองที่นั่งรถตู้ · แตะเพื่อเลือกที่นั่ง">
+<meta property="og:image:alt" content="VanTrip · แตะเพื่อเลือกที่นั่ง">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
 <style>
@@ -111,7 +111,7 @@ a.path:active { background: var(--tint); }
 </script>
 </head>
 <body>
-<div class="top"><div><span>จองที่นั่งรถตู้</span><span id="bellHost" style="display:flex;margin-left:auto"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div></div>
+<div class="top"><div><span>VanTrip</span><span id="bellHost" style="display:flex;margin-left:auto"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div></div>
 <main>
   <section class="hero">
     <div class="hr">

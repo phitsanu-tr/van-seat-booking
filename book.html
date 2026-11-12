@@ -6,15 +6,15 @@
 <style>
 button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; }</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
-<title>จองที่นั่งรถตู้</title>
+<title>VanTrip</title>
 <meta name="description" content="เลือกที่นั่งว่าง ใส่ชื่อ แล้วจองได้เลย">
 <meta property="og:type" content="website">
-<meta property="og:title" content="จองที่นั่งรถตู้">
+<meta property="og:title" content="VanTrip">
 <meta property="og:description" content="เลือกที่นั่งว่าง ใส่ชื่อ แล้วจองได้เลย">
 <meta property="og:image" content="https://van-seat-booking.vercel.app/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="จองที่นั่งรถตู้ · แตะเพื่อเลือกที่นั่ง">
+<meta property="og:image:alt" content="VanTrip · แตะเพื่อเลือกที่นั่ง">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
 <style>
@@ -441,7 +441,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
 <body class="sk">
 <main>
   <header class="trip" id="tripHdr">
-    <div class="hbar"><a class="lback" id="lback" href="/mytrips" aria-label="กลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><a class="brand" href="/mytrips">จองที่นั่งรถตู้</a><span class="bellhost" id="bellHost"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div>
+    <div class="hbar"><a class="lback" id="lback" href="/mytrips" aria-label="กลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><a class="brand" href="/mytrips">VanTrip</a><span class="bellhost" id="bellHost"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div>
     <div class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht"><h1>เลือกที่นั่ง</h1>
     <div class="org"><span>แตะที่ว่าง</span> <span>ใส่ชื่อ</span> <span>แล้วจองได้เลย</span></div></div></div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>

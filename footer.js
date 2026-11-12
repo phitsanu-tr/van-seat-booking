@@ -1,5 +1,5 @@
 // One footer for every page: a van driving along a dotted road from the left edge of the screen to the right,
-// a short travel line that changes every 4 s, and "© 2026 จองที่นั่งรถตู้ · ความเป็นส่วนตัว · เงื่อนไข · ติดต่อ".
+// a short travel line that changes every 4 s, and "© 2026 VanTrip · ความเป็นส่วนตัว · เงื่อนไข · ติดต่อ".
 // Use: <footer class="vfoot"></footer><script src="/footer.js"></script>  (a link to the page you're on becomes "กลับหน้าแรก")
 (function () {
   var CONTACT = "phitsanu.tr@outlook.com";
@@ -31,7 +31,7 @@
   function links() {
     var here = location.pathname.replace(/\/+$/, "") || "/", home = '<a href="/">กลับหน้าแรก</a>';
     var parts = [here === "/privacy" ? home : '<a href="/privacy">ความเป็นส่วนตัว</a>', here === "/terms" ? home : '<a href="/terms">เงื่อนไข</a>', '<a href="mailto:' + CONTACT + '">ติดต่อ</a>'];
-    return "© 2026 จองที่นั่งรถตู้ · " + parts.join(" · ");
+    return "© 2026 VanTrip · " + parts.join(" · ");
   }
 
   function mount(f) {
