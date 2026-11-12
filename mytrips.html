@@ -139,7 +139,7 @@ body.signed .abar{display:none}
 .abar a.ab-new,body.signed .top a.mkp.show{width:40px;height:40px;padding:0;border-radius:50%;background:var(--deep);display:grid !important;place-items:center;font-size:0;line-height:0;color:#fff}
 .abar a.ab-new[hidden]{display:none}
 .abar a.ab-new svg{width:20px;height:20px;stroke:#fff;stroke-width:2.4}
-body.signed .top a.mkp.show::before{content:"";width:20px;height:20px;background:no-repeat center/20px url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round'><path d='M12 5v14M5 12h14'/></svg>")}
+body.signed .top a.mkp.show{position:relative}body.signed .top a.mkp.show::before{content:"";position:absolute;left:50%;top:50%;margin:-10px 0 0 -10px;width:20px;height:20px;background:no-repeat center/20px url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round'><path d='M12 5v14M5 12h14'/></svg>")}
 </style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <title>VanTrip</title>
