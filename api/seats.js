@@ -11,6 +11,7 @@ const holdKey = (t, v, s) => "hold:" + t + ":" + v + ":" + s;
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
 
+  if (L.crossSite(req)) return L.json(res, 403, { error: "cross_site" });
   try {
     const body = req.method === "GET" ? {} : L.readBody(req);
     const t = L.tripId((req.query && req.query.t) || body.t);
@@ -188,14 +189,20 @@ module.exports = async function handler(req, res) {
       const seat = L.parseSeat(body.seat);
       if (seat === null) return L.json(res, 400, { error: "bad_seat" });
       if (!user) return L.json(res, 401, { error: "login_required" });
-      const raw = await L.redis(["HGET", key, String(seat)]);
-      if (raw === null) return L.json(res, 200, { ok: true });
-      let prev = {};
-      try { prev = JSON.parse(raw) || {}; } catch (e) { /* damaged entry */ }
-      // Only the person who booked the seat, or the trip's organizer, can cancel it.
-      if (!((prev.u && user.id === prev.u) || isOwner)) return L.json(res, 403, { error: "not_yours" });
-      if (closed && !isOwner) return L.json(res, 403, { error: "closed" }); // after closing, only the organizer changes the list
-      const removed = await L.redis(["HDEL", key, String(seat)]);
+      // read -> check it is theirs -> remove only if the seat is still exactly what was read. A check-in tick in between only
+      // changes the record, so read again and cancel that; a seat re-booked by someone else in between fails the ownership check.
+      let prev = {}, removed = 0;
+      for (let tries = 0; ; tries++) {
+        const raw = await L.redis(["HGET", key, String(seat)]);
+        if (raw === null) return L.json(res, 200, { ok: true });
+        prev = {};
+        try { prev = JSON.parse(raw) || {}; } catch (e) { /* damaged entry */ }
+        // Only the person who booked the seat, or the trip's organizer, can cancel it.
+        if (!((prev.u && user.id === prev.u) || isOwner)) return L.json(res, 403, { error: "not_yours" });
+        if (closed && !isOwner) return L.json(res, 403, { error: "closed" }); // after closing, only the organizer changes the list
+        if (await L.hcas([{ key, field: seat, expect: raw, value: "" }])) { removed = 1; break; }
+        if (tries >= 3) return L.json(res, 409, { error: "busy" });
+      }
       if (Number(removed) === 1) {
         if (prev.u) { try { await L.redis(["SREM", L.mySeatsKey(prev.u), t + "|" + van.id + "|" + seat]); } catch (e) { /* best effort */ } }
         if (prev.u && prev.u !== user.id) await L.notify([prev.u], { k: "seat_cancelled", t, tn: trip.name, vl: van.label, s: seat, by: role });

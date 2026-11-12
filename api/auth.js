@@ -49,6 +49,7 @@ async function startSession(req, res, profile, back) {
 
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
+  if (L.crossSite(req)) return L.json(res, 403, { error: "cross_site" });
   const q = req.query || {};
   try {
     if (req.method === "POST") {

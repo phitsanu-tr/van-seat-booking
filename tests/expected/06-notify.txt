@@ -4,7 +4,7 @@ B 1 trip_changed
 P 2 seat_moved,trip_changed
 Q 2 seat_renamed,trip_changed
 P tags [ 'ย้ายที่นั่งแล้ว' ] badge 2
-banner ที่นั่งของคุณถูกย้ายคัน 1 ที่ 3 → คัน 2 ที่ 5เมื่อสักครู่ · และอีก 1 รายการ (ดูที่กระดิ่ง)× chg dd [ 'พ. 2 ธ.ค. 69 · 20.30 น.' ]
+banner ที่นั่งของคุณถูกย้ายคัน 1 ที่ 3 → คัน 2 ที่ 5เมื่อสักครู่ · และอีก 1 รายการ (ดูที่กระดิ่ง)× chg dd [ '<วัน> · 20.30 น.' ]
 no bell button on booking page true
 after x: banner hidden true server 0 seat_moved,trip_changed
 Q after cancel 3 seat_cancelled,seat_renamed,trip_changed

@@ -169,6 +169,7 @@ function roundName(v) { return String(v == null ? "" : v).replace(/[\u0000-\u001
 
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
+  if (L.crossSite(req)) return L.json(res, 403, { error: "cross_site" });
   try {
     const user = await L.currentUser(req);
     const pb = req.method === "POST" ? L.readBody(req) : {};

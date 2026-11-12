@@ -23,9 +23,11 @@ async function currentSeats(t, v) {
 
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 404, { error: "not_configured" });
+  if (L.crossSite(req)) return L.json(res, 403, { error: "cross_site" });
   try {
     if (req.method === "POST") {
       const body = L.readBody(req);
+      if (await L.rateLimited(req, null, "mark", 60, 600)) return L.json(res, 429, { error: "too_many" }); // no sign-in here: cap how many codes one network can make
       const t = L.tripId(body.t);
       const trip = t && (await L.loadTrip(t));
       if (!trip) return L.json(res, 404, { error: "no_trip" });

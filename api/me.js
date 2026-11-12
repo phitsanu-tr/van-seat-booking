@@ -118,6 +118,7 @@ async function deleteAll(req, res, user, dropTrips) {
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
   if (req.method !== "GET" && req.method !== "DELETE" && req.method !== "POST") { res.setHeader("Allow", "GET, POST, DELETE"); return L.json(res, 405, { error: "method_not_allowed" }); }
+  if (L.crossSite(req)) return L.json(res, 403, { error: "cross_site" });
   try {
     const user = await L.currentUser(req);
     if (!user) return L.json(res, 401, { error: "login_required" });

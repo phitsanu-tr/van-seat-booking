@@ -118,6 +118,7 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { received: true });
     }
 
+    if (L.crossSite(req)) return L.json(res, 403, { error: "cross_site" });
     const user = await L.currentUser(req);
     if (!user) return L.json(res, 401, { error: "login_required" });
 

@@ -217,6 +217,16 @@ async function currentUser(req) {
 // so the avatar is not fetched from LINE again on every page load. Other people's photos keep their LINE address.
 function picUrl(pic) { return pic ? "/api/auth?pic=1&v=" + crypto.createHash("sha1").update(String(pic)).digest("hex").slice(0, 10) : ""; }
 function publicUser(u) { return u ? { name: u.name, pic: picUrl(u.pic) } : null; }
+// A request that changes something must come from this site's own pages: a browser always sends Origin on POST/PUT/PATCH/DELETE,
+// so another website can't sign a visitor in as someone else or post in their name. No Origin (server-to-server, tests) is let through.
+function crossSite(req) {
+  const m = String(req.method || "GET").toUpperCase();
+  if (m === "GET" || m === "HEAD" || m === "OPTIONS") return false;
+  const o = String((req.headers && req.headers.origin) || "");
+  if (!o) return false;
+  const host = String((req.headers && (req.headers["x-forwarded-host"] || req.headers.host)) || "").split(",")[0].trim().toLowerCase();
+  try { return new URL(o).host.toLowerCase() !== host; } catch (e) { return true; }
+}
 function clientIp(req) {
   return (String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim() || "unknown").slice(0, 64);
 }
@@ -298,5 +308,5 @@ function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); retur
 module.exports = {
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, json,
   tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
-  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, linePush, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
+  SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, crossSite, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, linePush, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };
