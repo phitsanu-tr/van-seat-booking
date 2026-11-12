@@ -46,7 +46,7 @@
     var av = document.getElementById("vtAv"); if (!av) return;
     var ini = String(user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
     var cur = av.querySelector("img"); if (user.pic && cur && cur.getAttribute("src") === user.pic) return;
-    av.textContent = ini; if (user.pic) { var im = document.createElement("img"); im.alt = ""; im.src = user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = ini; }; av.appendChild(im); }
+    av.textContent = ""; if (!user.pic) av.textContent = ini; if (user.pic) { var im = document.createElement("img"); im.alt = ""; im.src = user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = ini; }; av.appendChild(im); }
   }
   var cached = readCache();
   if (cached) show(cached); // known signed-in device: draw the menu in the first frame, then confirm with the server
