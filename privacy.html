@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="th">
 <head>
+<script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("in-line")}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>VanTrip</title>
@@ -44,7 +45,7 @@ tr:last-child { margin-bottom: 0; }
 td { padding: 4px 0 !important; border-bottom: 0 !important; }
 td:first-child { font-weight: 600; }
 td[data-l]:not([data-l=""])::before { content: attr(data-l); display: block; font-size: 12px; line-height: 16px; color: var(--muted); font-weight: 500; }
-</style>
+html.in-line .vb-bar{display:none !important}</style>
 </head>
 <body>
 <script src="/bell.js"></script><script>VSBBell.bar("/mytrips#account");</script>
