@@ -1,4 +1,4 @@
-home -> app /mytrips create button /trips/new
+home -> app /mytrips create link /trips/new
 /trips -> /mytrips
 /trips.html -> /mytrips
 edit button /trips/<id>

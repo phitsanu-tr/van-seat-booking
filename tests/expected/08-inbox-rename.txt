@@ -2,9 +2,9 @@ P before read 1/1
 P after read all 0/1
 P after new notify 1/2 (expect 1 unread of 2)
 P after read trip 0/2
-Q badge start 2
-Q badge after read+reload -
-Q badge after rename (no reload) 1 within ~{1..12}s
+no bell on booking page true
+banner hidden after read+reload true
+Q banner after rename (no reload) true within ~{1..15}s
 ticket buttons [ 'ดูผังที่นั่ง', '⋯' ]
 menu items [ 'แก้ชื่อบนผัง', 'ยกเลิกที่นั่ง' ]
 picker [ 'รถ 1 · ที่นั่ง 3แพท', 'รถ 2 · ที่นั่ง 5แพทสอง' ] input disabled true

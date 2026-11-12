@@ -1,5 +1,5 @@
-invite url http://localhost:8765/mytrips?join=…
-B sees login true เพื่อเข้าทีมผู้จัด
+invite url https://liff.line.me/2012285472-FvtYKx00/mytrips?join=…
+B (anon, LINE) retry screen 1
 B toast เข้าร่วมเป็นผู้ช่วยจัด ทริปทีม แล้ว url http://localhost:8765/mytrips#trips
 B role line คุณเป็นผู้ช่วยจัดทริปนี้
 B cancel Cat seat 200
@@ -9,13 +9,14 @@ B invite 403
 B edit page delete zone hidden true name ทริปทีม (แก้โดยผู้ช่วย)
 Dan reuse used link 404
 Dan join fresh 200
-Gus join 409 {"error":"helpers_full","max":2}
+invite when full 402 {"error":"plan_helpers","max":2}
 after transfer A role helper owner Bob helpers Ann,Dan
 A delete now 403
 hold 200 true
 Q sees held 1
 Q book held seat 409
-R back panel ที่นั่ง 6 hold stored 1
+R anon tap: login button 1 hold stored 0
+R back panel ที่นั่ง 6 hold stored 0
 R booked จองที่นั่ง 6 แล้ว hold cleared 0
-stats 7 1 2
+stats 6 1 2
 ERR []

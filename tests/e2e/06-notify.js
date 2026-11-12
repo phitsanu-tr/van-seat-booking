@@ -15,10 +15,10 @@ log('A',await inbox(A));log('B',await inbox(Bh));log('P',await inbox(P));log('Q'
 await P.goto(B+'/mytrips?f='+Date.now()+'#seats');await P.waitForTimeout(1500);log('P tags',await P.$$eval('.ntag',e=>e.map(x=>x.textContent)),'badge',await P.textContent('.vb-n'));await P.screenshot({path:S+'/n1.png'});
 // P booking page
 await P.goto(B+'/'+ID+'?v=v2');await P.waitForTimeout(1600);log('banner',(await P.textContent('#chgBan')).replace(/\s+/g,' '),'chg dd',await P.$$eval('.facts dd.chg',e=>e.map(x=>x.textContent)));await P.screenshot({path:S+'/n2.png'});
-await P.click('.vb-bell');await P.waitForTimeout(600);await P.screenshot({path:S+'/n3.png'});await P.click('.vb-close');
-await P.click('#chgBan .cx');await P.waitForTimeout(500);log('after x: banner hidden',await P.isHidden('#chgBan'),'badge hidden',await P.evaluate(()=>document.querySelector('.vb-n').hidden),'server',await inbox(P));
+log('no bell button on booking page',await P.locator('.vb-bell').count()===0);
+await P.click('#chgBan .cx');await P.waitForTimeout(500);log('after x: banner hidden',await P.isHidden('#chgBan'),'server',await inbox(P));
 // A cancels Q, then deletes trip
 await A.request.fetch(B+'/api/seats?t='+ID+'&v=v2',{method:'DELETE',data:{seat:1}});log('Q after cancel',await inbox(Q));
 await A.request.fetch(B+'/api/trip?t='+ID,{method:'DELETE'});log('P after delete',await inbox(P),'B',await inbox(Bh));
-await P.goto(B+'/');await P.waitForTimeout(1000);log('home badge',await P.textContent('.vb-n'));await P.click('.vb-bell');await P.waitForTimeout(500);await P.screenshot({path:S+'/n4.png'});
+await P.goto(B+'/mytrips?f='+Date.now()+'#notify');await P.waitForTimeout(1500);log('notify tab badge',await P.textContent('#navBadge').catch(()=>'(none)'),'items',await P.locator('.nf-item, .ni').count());await P.screenshot({path:S+'/n4.png'});
 log('ERR',errs);await b.close();})();

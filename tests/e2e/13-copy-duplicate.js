@@ -33,7 +33,7 @@ log('form',JSON.stringify(await form()),'lead',await A.textContent('#lead'));
 await A.screenshot({path:S+'/dup_form.png'});
 await A.click('#submit');await A.waitForTimeout(800);log('submit without dates ->',await A.$$eval('.fe',e=>e.map(x=>x.textContent)));
 await A.evaluate(([d1,d2])=>{const s=(id,v)=>{const e=document.getElementById(id);e.value=v;e.dispatchEvent(new Event('change',{bubbles:true}));};s('startDate',d1);s('endDate',d2);},[HLP.day(40),HLP.day(41)]);
-await A.click('#submit');await A.waitForTimeout(1800);
+await A.click('#submit');await A.waitForTimeout(600);await A.click('#submit');await A.waitForTimeout(600);await A.click('#submit');await A.waitForTimeout(1800);
 const me=await (await A.request.get(B+'/api/me')).json();const mine=me.trips.filter(t=>t.name==='เขาใหญ่ชิล ๆ');
 log('trips with that name',mine.length,'new id differs',mine.some(t=>t.id!==ID));
 const nt=mine.find(t=>t.id!==ID);const full=await (await A.request.get(B+'/api/trip?t='+nt.id+'&roster=1')).json();
@@ -42,7 +42,7 @@ const old=await (await A.request.get(B+'/api/trip?t='+ID+'&roster=1')).json();lo
 // --- someone else's trip can't be copied
 await P.goto(B+'/trips/new?copy='+ID);await P.waitForTimeout(1800);log('stranger copy: name empty',await P.inputValue('#name')==='','toast',await P.evaluate(()=>(document.querySelector('.toast')||{}).textContent||''));
 // --- finished trip card
-const done=await (await A.request.post(B+'/api/trip',{data:{name:'ทริปที่แล้ว',startDate:HLP.day(-5),endDate:HLP.day(-4),departTime:'06:00',vans:[{label:'A'}]}})).json();
+const done=await (await A.request.post(B+'/api/trip',{data:{meetPoint:'จุดนัดพบ',name:'ทริปที่แล้ว',startDate:HLP.day(-5),endDate:HLP.day(-4),departTime:'06:00',vans:[{label:'A'}]}})).json();
 await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);
 log('finished card links',await A.$$eval('.card.dim .dfoot > *',e=>e.map(x=>x.textContent)));
 await A.click('.card.dim .cpy');await A.waitForTimeout(1800);log('copy finished trip: name',await A.inputValue('#name'),'start empty',await A.inputValue('#startDate')==='');

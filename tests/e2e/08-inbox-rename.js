@@ -16,14 +16,13 @@ await put('08:00');log('P after new notify',await inbox(P),'(expect 1 unread of 
 await P.request.post(B+'/api/me',{data:{read:{t:ID}}});log('P after read trip',await inbox(P));
 // 3) bell updates on an open booking page without reload
 await Q.goto(B+'/'+ID+'?v=v1');await Q.waitForTimeout(1500);
-const badge=()=>Q.evaluate(()=>{const n=document.querySelector('.vb-n');return n&&!n.hidden?n.textContent:'-'});
-log('Q badge start',await badge());await Q.click('.vb-bell').catch(()=>{});await Q.waitForTimeout(500);await Q.click('.vb-close').catch(()=>{});
+log('no bell on booking page',await Q.locator('.vb-bell').count()===0);
 await Q.request.post(B+'/api/me',{data:{read:'all'}});
-await Q.reload();await Q.waitForTimeout(1500);log('Q badge after read+reload',await badge());await Q.mouse.move(100,300);
-// a notification that does not change the trip facts: organizer renames Q's seat
+await Q.reload();await Q.waitForTimeout(1500);log('banner hidden after read+reload',await Q.isHidden('#chgBan'));await Q.mouse.move(100,300);
+// a notification that does not change the trip facts: organizer renames Q's seat -> the change banner appears without a reload
 await A.request.fetch(B+'/api/seats?t='+ID+'&v=v1',{method:'PATCH',data:{seat:6,name:'ฉินนี่'}});
-let got='-',ms=0;for(;ms<20000;ms+=1000){await Q.mouse.move(100+ms%50,300);await Q.waitForTimeout(1000);got=await badge();if(got!=='-')break;}
-log('Q badge after rename (no reload)',got,'within ~'+(ms+1000)/1000+'s');
+let got=false,ms=0;for(;ms<20000;ms+=1000){await Q.mouse.move(100+ms%50,300);await Q.waitForTimeout(1000);if(!(await Q.isHidden('#chgBan').catch(()=>true))){got=true;break}}
+log('Q banner after rename (no reload)',got,'within ~'+(ms+1000)/1000+'s');
 // 5) rename menu: multi-seat (P) and single-seat (Q)
 await P.goto(B+'/mytrips?f='+Date.now()+'#seats');await P.waitForTimeout(1500);
 log('ticket buttons',await P.$$eval('.tk .acts:last-child .ab, .acts.am2 .ab',e=>e.map(x=>x.textContent)));

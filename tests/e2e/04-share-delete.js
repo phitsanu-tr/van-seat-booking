@@ -3,7 +3,7 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
 await p.goto(B+'/api/auth?start=1&as=Ann&r=%2F');await p.waitForTimeout(400);
-const tr=await (await p.request.post(B+'/api/trip',{data:{name:'ทดสอบรูป',organizer:'ทัวร์',startDate:HLP.day(45),departTime:'08:00',vans:[{label:'1'}]}})).json();const ID=tr.id;log('token in response?','token' in tr);
+const tr=await (await p.request.post(B+'/api/trip',{data:{meetPoint:'จุดนัดพบ',name:'ทดสอบรูป',organizer:'ทัวร์',startDate:HLP.day(45),departTime:'08:00',vans:[{label:'1'}]}})).json();const ID=tr.id;log('token in response?','token' in tr);
 await p.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'แอน'}});
 await p.goto(B+'/'+ID);await p.waitForTimeout(1200);log('mine tint',await p.locator('.seat.mine').count());
 await p.click('#shareImg');await p.waitForTimeout(2500);log('poster',await p.evaluate(()=>{const i=document.querySelector('#imgBackdrop img');return i?i.naturalWidth+'x'+i.naturalHeight:'none'}));
