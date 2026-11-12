@@ -1492,30 +1492,49 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     if (trip.organizer) { ctx.fillStyle = "rgba(255,255,255,.75)"; ctx.font = '400 ' + (10 * CU) + 'px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, trip.organizer, IW, 1)[0], X, (52 + 24 * titleLines.length + 11) * CU); }
     ctx.textBaseline = "alphabetic";
     y = HH + 4 * CU;
-    // ---- facts: date + departure on one row, meeting point below (no icons, no lines)
+    // ---- facts: rounded cells (go / return side by side, meeting point full width) on the white page
     {
-      y += 40;
-
-      // facts
-      var go = (trip.startDate || trip.departTime) ? leg(trip.startDate, trip.departTime) : "", back = (trip.endDate || trip.returnTime) ? leg(trip.endDate || trip.startDate, trip.returnTime) : ""; // same wording as the trip card
-      function fact(label, val, fx, fy, fw) {
-        ctx.textAlign = "left"; ctx.fillStyle = MUTED; ctx.font = '400 28px "Noto Sans Thai", sans-serif'; ctx.fillText(label, fx, fy + 28);
-        ctx.fillStyle = INK; ctx.font = '600 36px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, val, fw, 1)[0], fx, fy + 76);
+      y += 34;
+      var CX = 36, CWD = CW - 2 * CX, CP = X - CX, CGAP = 16, CRAD = 30, CBG = "#eef6f7";
+      var goD = (trip.startDate || trip.departTime) ? dayS(trip.startDate) : "", goT = trip.departTime ? trip.departTime.replace(":", ".") + " น." : "";
+      var bkD = (trip.endDate || trip.returnTime) ? dayS(trip.endDate || trip.startDate) : "", bkT = trip.returnTime ? trip.returnTime.replace(":", ".") + " น." : "";
+      function cell(label, d, t, col, cx, cy, cw) {
+        var ch = 20 + 36 + (d ? 46 : 0) + (t ? 46 : 0) + 20;
+        ctx.fillStyle = CBG; rrect(ctx, cx, cy, cw, ch, CRAD); ctx.fill();
+        ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+        ctx.fillStyle = "#6b767c"; ctx.font = '400 28px "Noto Sans Thai", sans-serif'; ctx.fillText(label, cx + CP, cy + 48);
+        var ly = cy + 56;
+        if (d) { ctx.fillStyle = INK; ctx.font = '600 36px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, d, cw - 2 * CP, 1)[0], cx + CP, ly + 36); ly += 46; }
+        if (t) { ctx.fillStyle = col; ctx.font = '600 36px "Noto Sans Thai", sans-serif'; ctx.fillText(t, cx + CP, ly + 36); }
+        return ch;
       }
-      var any = false;
-      if (go || back) {
-        if (go) fact("ขาไป", go, X, y, IW * 0.48);
-        if (back) fact("ขากลับ", back, go ? X + IW * 0.52 : X, y, IW * 0.48);
-        y += 112; any = true;
+      var hasGo = !!(goD || goT), hasBk = !!(bkD || bkT);
+      if (hasGo && hasBk) {
+        var hw = (CWD - CGAP) / 2, h1 = cell("ขาไป", goD, goT, "#0b7a85", CX, y, hw), h2 = cell("ขากลับ", bkD, bkT, "#d8344f", CX + hw + CGAP, y, hw);
+        y += Math.max(h1, h2) + CGAP;
+      } else if (hasGo || hasBk) {
+        y += cell(hasGo ? "ขาไป" : "ขากลับ", hasGo ? goD : bkD, hasGo ? goT : bkT, hasGo ? "#0b7a85" : "#d8344f", CX, y, CWD) + CGAP;
       }
-      if (trip.meetPoint) { fact("นัดพบ", trip.meetPoint, X, y, IW); y += 112; any = true; }
-      if (any) y -= 8;
+      if (trip.meetPoint) {
+        ctx.font = '600 36px "Noto Sans Thai", sans-serif';
+        var mTx = CX + CP + 40 + 18, mLines = wrapText(ctx, trip.meetPoint, CX + CWD - CP - mTx, 2), mh2 = 20 + 36 + 46 * mLines.length + 20;
+        ctx.fillStyle = CBG; rrect(ctx, CX, y, CWD, mh2, CRAD); ctx.fill();
+        ctx.save(); ctx.translate(CX + CP, y + (mh2 - 40) / 2); ctx.scale(40 / 24, 40 / 24); ctx.strokeStyle = "#0b7a85"; ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.lineJoin = "round";
+        ctx.stroke(new Path2D("M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z")); ctx.beginPath(); ctx.arc(12, 10, 2.5, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+        ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+        ctx.fillStyle = "#6b767c"; ctx.font = '400 28px "Noto Sans Thai", sans-serif'; ctx.fillText("จุดนัดพบ", mTx, y + 48);
+        ctx.fillStyle = INK; ctx.font = '600 36px "Noto Sans Thai", sans-serif';
+        mLines.forEach(function (ln, i) { ctx.fillText(ln, mTx, y + 56 + 36 + i * 46); });
+        y += mh2 + CGAP;
+      }
+      y -= CGAP;
     }
     // ---- map card
-    y += 34;
-    var MX = 34, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k;
-    var mh = 24 + 54 + 14 + PH + 30;
-    ctx.fillStyle = "#f3f6f7"; rrect(ctx, MX, y, MW, mh, 50); ctx.fill();
+    y += 24;
+    var MX = 36, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k;
+    var mh = 24 + 54 + 14 + PH + 30, FHF = useQr ? 220 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + 24 + FHF)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
+    mh += extra;
+    ctx.fillStyle = "#f3f6f7"; rrect(ctx, MX, y, MW, mh, 45); ctx.fill();
     var cnt = Object.keys(seats).length, ry = y + 24 + 38;
     var hasLeft = (multi && cur) || (cur && cur.plate);
     // right (or centred when nothing is on the left): "8 / 10" with a muted total
@@ -1542,36 +1561,34 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       var pl = wrapText(ctx, cur.plate, rx - lblW - 20 - lx - preW, 1)[0];
       if (pl) ctx.fillText(pl, lx + preW, ry - 2);
     }
-    var PX = MX + (MW - PW) / 2, PY = y + 24 + 54 + 14;
+    var PX = MX + (MW - PW) / 2, PY = y + 24 + 54 + 14 + extra / 2;
     drawPlan(ctx, PX, PY, k);
     drawSeats(ctx, PX, PY, k, PW);
-    y += mh + 34;
+    y += mh + 24;
     // ---- footer
     var url = "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var shortUrl = location.host + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var d = new Date(), pad = function (v) { return (v < 10 ? "0" : "") + v; };
     var stamp = "อัปเดตเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + pad(d.getHours()) + "." + pad(d.getMinutes()) + " น.";
-    var withQr = useQr;
-    var FH = withQr ? 206 : 142;
-    ctx.fillStyle = "#eef1f3"; ctx.fillRect(0, y, CW, FH);
+    var withQr = useQr, FH = FHF;
+    ctx.fillStyle = "#0b5f67"; ctx.fillRect(0, y, CW, FH); // teal band, full width
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
-    var fx0 = X, fw = IW - (withQr ? 190 : 0);
-    ctx.fillStyle = TEAL; ctx.font = '600 32px Prompt, "Noto Sans Thai", sans-serif';
-    ctx.fillText("จองที่นั่งที่", fx0, y + 56);
-    ctx.fillStyle = INK; ctx.font = '400 30px "Noto Sans Thai", sans-serif';
-    var su = shortUrl; while (su.length > 8 && ctx.measureText(su).width > fw) su = su.slice(0, -2) + "…";
-    ctx.fillText(su, fx0, y + 100);
-    ctx.fillStyle = "#5f6b73"; ctx.font = '400 28px "Noto Sans Thai", sans-serif'; // same relative size/colour as the admin card (10px on a 358px card)
-    ctx.fillText(stamp, fx0, y + FH - 24);
+    var ql = 172, tx0 = X;
     if (withQr) {
-      var qs = 117, tl = qs + 20, tx = X + IW - tl, ty = y + 18;
-      ctx.fillStyle = "#ffffff"; rrect(ctx, tx, ty, tl, tl, 24); ctx.fill();
-      ctx.strokeStyle = "#0b5f67"; ctx.lineWidth = 5; rrect(ctx, tx, ty, tl, tl, 24); ctx.stroke();
-      drawQr(ctx, url, tx + 10, ty + 10, qs, "#0b5f67");
-      ctx.fillStyle = TEAL; ctx.font = '600 24px Prompt, "Noto Sans Thai", sans-serif'; ctx.textAlign = "center";
-      fillC(ctx, "สแกนเพื่อจอง", tx + tl / 2, y + FH - 20); ctx.textAlign = "left";
+      var qy = y + (FH - ql) / 2;
+      ctx.fillStyle = "#ffffff"; rrect(ctx, tx0, qy, ql, ql, 26); ctx.fill();
+      drawQr(ctx, url, tx0 + 12, qy + 12, ql - 24, "#0b5f67");
+      tx0 += ql + 34;
     }
-    var total = y + FH; posterFixed = total - PH;
+    var fw = CW - X - tx0, bt = y + (FH - 128) / 2;
+    ctx.fillStyle = "#ffffff"; ctx.font = '600 41px Prompt, "Noto Sans Thai", sans-serif';
+    ctx.fillText(withQr ? "สแกนเพื่อจองที่นั่ง" : "จองที่นั่งที่", tx0, bt + 40);
+    ctx.fillStyle = "#bfe9ed"; ctx.font = '400 30px "Noto Sans Thai", sans-serif';
+    var su = shortUrl; while (su.length > 8 && ctx.measureText(su).width > fw) su = su.slice(0, -2) + "…";
+    ctx.fillText(su, tx0, bt + 84);
+    ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.font = '400 26px "Noto Sans Thai", sans-serif';
+    ctx.fillText(stamp, tx0, bt + 122);
+    var total = y + FH; posterFixed = total - extra - PH;
     // ---- compose onto a light backdrop with rounded corners
     var OW = 1544, k = OW / CW; // same output width as the seat pass / admin pass cards (386 x 4)
     var out = document.createElement("canvas"); out.width = OW; out.height = Math.max(Math.round(total * k), Math.round(OW * 16 / 9));
