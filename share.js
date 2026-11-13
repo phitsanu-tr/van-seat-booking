@@ -22,10 +22,12 @@
     if (back) body.push(row("←", "เที่ยวกลับ " + back));
     if (t.meetPoint) body.push(row("📍", t.meetPoint));
     return { type: "bubble", size: "mega",
-      hero: { type: "image", url: ORIGIN + "/og.png", size: "full", aspectRatio: "20:13", aspectMode: "cover" },
+      hero: { type: "image", url: ORIGIN + "/share-card.png", size: "full", aspectRatio: "20:9", aspectMode: "cover" },
       body: { type: "box", layout: "vertical", spacing: "md", contents: body },
-      footer: { type: "box", layout: "vertical", contents: [{ type: "button", style: "primary", color: "#0e7c86", height: "sm",
-        action: { type: "uri", label: t.closed ? "ดูผังที่นั่ง" : "เลือกที่นั่ง", uri: liffUrl(t.id) } }] } };
+      footer: { type: "box", layout: "vertical", spacing: "md", contents: [{ type: "button", style: "primary", color: "#0e7c86", height: "sm",
+        action: { type: "uri", label: t.closed ? "ดูผังที่นั่ง" : "เลือกที่นั่ง", uri: liffUrl(t.id) } },
+        { type: "text", size: "xs", color: "#7a858c", align: "center", wrap: true, contents: [
+          { type: "span", text: "หรือใส่รหัส " }, { type: "span", text: String(t.id), weight: "bold", color: "#0e7c86" }, { type: "span", text: " ที่หน้าหลักแอป" }] }] } };
   }
   var ready = null;
   function ensure() { // the page may or may not have loaded/initialised the LIFF SDK already
