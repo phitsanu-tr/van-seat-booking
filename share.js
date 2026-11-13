@@ -15,7 +15,7 @@
     var al = end ? "end" : "start";
     return { type: "box", layout: "vertical", flex: 1, contents: [
       txt(label, { size: "12px", color: SUB, align: al }),
-      txt(time ? String(time).replace(":", ".") : "–", { size: "20px", weight: "bold", color: TXT, align: al }),
+      txt(time ? String(time) : "–", { size: "20px", weight: "bold", color: TXT, align: al }),
       txt(date || " ", { size: "12px", color: "#4a555c", align: al })] };
   }
   function line(label, value, o) { // table row: grey label left, bold value right, thin rule above (except the first)

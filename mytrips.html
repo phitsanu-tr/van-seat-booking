@@ -606,7 +606,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     function side(lbl, iso, tm, cls, sub) {
       var s = node("div", "s" + (cls ? " " + cls : "")); s.appendChild(node("small", null, lbl));
       var day = sub || dayLabel(iso, withYear);
-      if (tm) { s.appendChild(node("b", null, tm.replace(":", "."))); if (day) s.appendChild(node("span", null, day)); }
+      if (tm) { s.appendChild(node("b", null, tm)); if (day) s.appendChild(node("span", null, day)); }
       else { s.appendChild(node("b", "d", day || "ไม่ระบุวัน")); s.appendChild(node("span", "q", "ไม่ระบุเวลา")); } // keeps both sides on the same three lines
       return s;
     }
