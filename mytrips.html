@@ -1149,9 +1149,20 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
       cpb.addEventListener("click", function () { copyText(rosterText(st.trip, st.roster, !st.closed && !st.ended), "คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย"); });
       tools.appendChild(cpb);
       var dlb = node("button", null); dlb.type = "button"; dlb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MI.dl + '</svg>'; dlb.appendChild(document.createTextNode("ดาวน์โหลด")); dlb.setAttribute("aria-haspopup", "menu");
+      // Inside LINE (LIFF) the app can't open print windows or download files, so it asks the server for a
+      // 10-minute link and has LINE open it in the real browser instead.
+      async function viaBrowser(csv) {
+        var r = null;
+        try { r = await (await fetch("/api/roster", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ t: x.id }) })).json(); } catch (e) { r = null; }
+        if (!r || !r.k) { toast("สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง", true); return; }
+        var url = location.origin + "/api/roster?k=" + r.k + (csv ? "&csv=1" : "");
+        try { liff.openWindow({ url: url, external: true }); toast(csv ? "เปิดในเบราว์เซอร์แล้ว ไฟล์จะดาวน์โหลดที่นั่น" : "เปิดหน้าพิมพ์ในเบราว์เซอร์แล้ว"); }
+        catch (e) { toast("เปิดเบราว์เซอร์ไม่ได้ ลองเปิดแอปใน Safari/Chrome", true); }
+      }
+      var inLiff = false; try { inLiff = !!(window.liff && liff.isInClient && liff.isInClient()); } catch (e) { inLiff = false; }
       dlb.addEventListener("click", function (e) { e.stopPropagation(); openMenu(dlb, [
-        ["หน้าพิมพ์ / PDF", "doc", "", function () { printRoster(st.trip, st.roster); }],
-        ["ไฟล์ Excel (CSV)", "dl", "", function () { downloadCSV(st.trip, st.roster); }],
+        ["หน้าพิมพ์ / PDF", "doc", "", function () { if (inLiff) viaBrowser(false); else printRoster(st.trip, st.roster); }],
+        ["ไฟล์ Excel (CSV)", "dl", "", function () { if (inLiff) viaBrowser(true); else downloadCSV(st.trip, st.roster); }],
       ]); });
       tools.appendChild(dlb);
       tools.style.gridTemplateColumns = "1fr 1fr"; // close/reopen lives in the ⋯ manage menu
