@@ -31,9 +31,11 @@
       txt(t.name || "จองที่นั่งรถตู้", { weight: "bold", size: "20px", color: TXT, margin: "8px" })] };
     var timeBox = { type: "box", layout: "horizontal", borderWidth: "1px", borderColor: LINE_C, cornerRadius: "12px", paddingAll: "12px", contents: [
       half("เที่ยวไป", t.departTime, short(t.startDate), false),
-      { type: "box", layout: "vertical", flex: 0, width: "32px", justifyContent: "center", alignItems: "center", contents: [
-        txt("→", { size: "20px", weight: "bold", color: TEAL, align: "center", wrap: false }),
-        txt("←", { size: "20px", weight: "bold", color: "#e5484d", align: "center", wrap: false })] },
+      { type: "box", layout: "vertical", flex: 0, width: "44px", alignItems: "center", contents: [ // a hairline with a round ⇄ badge in the middle
+        { type: "box", layout: "vertical", flex: 1, width: "1px", backgroundColor: LINE_C, contents: [] },
+        { type: "box", layout: "vertical", flex: 0, width: "32px", height: "32px", cornerRadius: "16px", borderWidth: "1px", borderColor: LINE_C, justifyContent: "center", alignItems: "center",
+          contents: [txt("⇄", { size: "16px", weight: "bold", color: TEAL, align: "center", wrap: false })] },
+        { type: "box", layout: "vertical", flex: 1, width: "1px", backgroundColor: LINE_C, contents: [] }] },
       half("เที่ยวกลับ", t.returnTime, short(t.endDate), true)] };
     var rows = [], n = Number(t.vans) || 0;
     if (t.meetPoint) rows.push(line("จุดนัดพบ", t.meetPoint));
