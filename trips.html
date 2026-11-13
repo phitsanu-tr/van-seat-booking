@@ -346,11 +346,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
    </section>
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><b>กำหนดการเดินทาง</b></div>
     <div class="tl">
-      <div class="grp"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><b>เที่ยวไป</b></div>
+      <div class="grp"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><b>ออกเดินทาง</b></div>
         <label>วันออกเดินทาง <input type="date" id="startDate"></label>
         <label>เวลารถออก <input type="time" id="departTime"></label>
       </div>
-      <div class="grp r"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span><b>เที่ยวกลับ</b></div>
+      <div class="grp r"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span><b>เดินทางกลับ</b></div>
         <label>วันเดินทางกลับ <input type="date" id="endDate"></label>
         <label>เวลารถออก <input type="time" id="returnTime"></label>
       </div>
@@ -565,8 +565,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   if (s && e && t) {
     dateField(s, "วันออกเดินทาง", function () { var v = s.value; return v && v < todayIso() ? v : todayIso(); }); // a saved past date (editing an old trip) stays selectable
     dateField(e, "วันเดินทางกลับ", function () { return s.value || todayIso(); });
-    timeField(t, "เวลารถออก เที่ยวไป");
-    var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออก เที่ยวกลับ");
+    timeField(t, "เวลารถออกเดินทาง");
+    var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกเดินทางกลับ");
   }
   // "จองได้สูงสุดต่อคน": the app's own picker (like the calendar) instead of the phone's select wheel; 0 = no limit
   function maxField(input) {
@@ -880,8 +880,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     var sd = $("startDate").value, ed = $("endDate").value, tm = $("departTime").value, mp = $("meetPoint").value.trim();
     var rt2 = $("returnTime").value;
-    line("cal", (sd || tm) ? "เที่ยวไป " + leg(sd, tm) : "");
-    line("clk", (ed || rt2) ? "เที่ยวกลับ " + leg(ed || sd, rt2) : "");
+    line("cal", (sd || tm) ? "ออกเดินทาง " + leg(sd, tm) : "");
+    line("clk", (ed || rt2) ? "เดินทางกลับ " + leg(ed || sd, rt2) : "");
     line("pin", mp);
     var vs = rows.map(function (r) { return r.label; }).filter(Boolean);
     line("van", vs.length ? "รถตู้ " + vs.length + " คัน (" + vs.join(", ") + ")" : "");
@@ -970,8 +970,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!$(f[0]).value) { var c = fieldErr($(f[0]), f[1]); first = first || c; }
     });
     if (c1 && $("startDate").value && $("endDate").value && $("endDate").value < $("startDate").value) { var ed = fieldErr($("endDate"), "วันกลับต้องไม่ก่อนวันไป"); first = first || ed; }
-    if (c1 && !$("departTime").value) { var tc = fieldErr($("departTime"), "ระบุเวลารถออกเที่ยวไป"); first = first || tc; }
-    if (c1 && !$("returnTime").value) { var rc = fieldErr($("returnTime"), "ระบุเวลารถออกเที่ยวกลับ"); first = first || rc; }
+    if (c1 && !$("departTime").value) { var tc = fieldErr($("departTime"), "ระบุเวลารถออกเดินทาง"); first = first || tc; }
+    if (c1 && !$("returnTime").value) { var rc = fieldErr($("returnTime"), "ระบุเวลารถออกเดินทางกลับ"); first = first || rc; }
     if (c2 && !$("meetPoint").value.trim()) { var mc = fieldErr($("meetPoint"), "ระบุจุดนัดพบ"); first = first || mc; }
     var seen = {}, dupBad = false;
     if (c2) [].forEach.call(vansEl.querySelectorAll("input.vn"), function (inp, i) {
@@ -1057,8 +1057,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var newId = ""; // id of the trip just created (highlighted once on the list)
   $("delBtn").addEventListener("click", async function () {
     var t = loaded || {}, rws = [];
-    if (t.startDate || t.departTime) rws.push([SV.cal, "เที่ยวไป " + leg(t.startDate, t.departTime)]);
-    if (t.endDate || t.returnTime) rws.push([SV.clk, "เที่ยวกลับ " + leg(t.endDate || t.startDate, t.returnTime)]);
+    if (t.startDate || t.departTime) rws.push([SV.cal, "ออกเดินทาง " + leg(t.startDate, t.departTime)]);
+    if (t.endDate || t.returnTime) rws.push([SV.clk, "เดินทางกลับ " + leg(t.endDate || t.startDate, t.returnTime)]);
     if (t.meetPoint) rws.push([SV.pin, t.meetPoint]);
     var ok = await askConfirm("ต้องการลบทริปนี้?",
       booked ? "รายชื่อผู้จองทั้ง " + booked + " ที่นั่งจะหายทั้งหมด และลิงก์ที่แชร์ไปจะเปิดไม่ได้" : "ข้อมูลจะถูกลบถาวร และลิงก์ที่แชร์ไปจะเปิดไม่ได้", "ลบทริป", $("delBtn"),
@@ -1112,8 +1112,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var sd = $("startDate").value, ed = $("endDate").value;
     var vl = rows.map(function (r) { return (r.label || "").trim(); }).filter(Boolean);
     [["ชื่อทริป", $("name").value.trim()], ["ผู้จัด", $("organizer").value.trim()],
-     ["เที่ยวไป", leg(sd, $("departTime").value)],
-     ["เที่ยวกลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
+     ["ออกเดินทาง", leg(sd, $("departTime").value)],
+     ["เดินทางกลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
      ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
      ["จำกัดที่นั่งต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["ที่นั่ง 1", "กันไว้ให้ผู้จัด ทุกคัน · ขึ้นชื่อ " + $("staffName").value] : null
     ].forEach(function (r) {

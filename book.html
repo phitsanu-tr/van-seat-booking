@@ -1083,8 +1083,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'
     };
     // เที่ยวไป / เที่ยวกลับ: day + time on one line ("ส. 28 พ.ย. 69 · 21.00 น."), a small visible label above each value
-    if (trip.startDate || trip.departTime) rows.push(["เที่ยวไป", leg(trip.startDate, trip.departTime), "cal", CHG.date ? "date" : "time"]);
-    if (trip.endDate || trip.returnTime) rows.push(["เที่ยวกลับ", leg(trip.endDate || trip.startDate, trip.returnTime), "cal", CHG.date ? "date" : "rtime"]);
+    if (trip.startDate || trip.departTime) rows.push(["ออกเดินทาง", leg(trip.startDate, trip.departTime), "cal", CHG.date ? "date" : "time"]);
+    if (trip.endDate || trip.returnTime) rows.push(["เดินทางกลับ", leg(trip.endDate || trip.startDate, trip.returnTime), "cal", CHG.date ? "date" : "rtime"]);
     if (trip.meetPoint) rows.push(["จุดนัดพบ", trip.meetPoint, "pin", "meet"]);
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน (" + trip.vans.length * TOTAL + " ที่นั่ง)", "van"]);
     factsEl.textContent = "";
@@ -1516,10 +1516,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       }
       var hasGo = !!(goD || goT), hasBk = !!(bkD || bkT);
       if (hasGo && hasBk) {
-        var hw = (CWD - CGAP) / 2, h1 = cell("เที่ยวไป", goD, goT, "#0b7a85", CX, y, hw), h2 = cell("เที่ยวกลับ", bkD, bkT, "#d8344f", CX + hw + CGAP, y, hw);
+        var hw = (CWD - CGAP) / 2, h1 = cell("ออกเดินทาง", goD, goT, "#0b7a85", CX, y, hw), h2 = cell("เดินทางกลับ", bkD, bkT, "#d8344f", CX + hw + CGAP, y, hw);
         y += Math.max(h1, h2) + CGAP;
       } else if (hasGo || hasBk) {
-        y += cell(hasGo ? "เที่ยวไป" : "เที่ยวกลับ", hasGo ? goD : bkD, hasGo ? goT : bkT, hasGo ? "#0b7a85" : "#d8344f", CX, y, CWD) + CGAP;
+        y += cell(hasGo ? "ออกเดินทาง" : "เดินทางกลับ", hasGo ? goD : bkD, hasGo ? goT : bkT, hasGo ? "#0b7a85" : "#d8344f", CX, y, CWD) + CGAP;
       }
       if (trip.meetPoint) {
         ctx.font = '600 36px "Noto Sans Thai", sans-serif';
@@ -1667,8 +1667,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var u = inviteLink(), L = [], T = trip || {};
     if (await VSBShare.send({ id: TRIP, name: T.name, organizer: T.organizer, vans: (T.vans || []).length, staffSeat: !!T.staffSeat, limit: seatLimit, startDate: T.startDate, endDate: T.endDate, departTime: T.departTime, returnTime: T.returnTime, meetPoint: T.meetPoint, closed: closed || ended })) return; // a card in the chat; otherwise the text link below
     L.push("🚐 " + (T.name || "จองที่นั่งรถตู้"), "");
-    if (T.startDate || T.departTime) L.push("📅 เที่ยวไป " + leg(T.startDate, T.departTime));
-    if (T.endDate || T.returnTime) L.push("🔁 เที่ยวกลับ " + leg(T.endDate || T.startDate, T.returnTime));
+    if (T.startDate || T.departTime) L.push("📅 ออกเดินทาง " + leg(T.startDate, T.departTime));
+    if (T.endDate || T.returnTime) L.push("🔁 เดินทางกลับ " + leg(T.endDate || T.startDate, T.returnTime));
     if (T.meetPoint) L.push("📍 " + T.meetPoint);
     L.push("", closed || ended ? "ดูผังที่นั่ง 👇" : "จองที่นั่งได้ที่นี่ 👇"); // closed: the link only shows the seat map
     var lead = L.join("\n");
