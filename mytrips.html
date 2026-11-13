@@ -1151,7 +1151,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
       });
       sh.appendChild(tabs);
       if (st.tab === "board") return drawBoard();
-      var tools = node("div", "rtools"), cpb = node("button", null); cpb.type = "button"; cpb.innerHTML = COPY_SVG; cpb.appendChild(document.createTextNode("คัดลอกรายชื่อ"));
+      var tools = node("div", "rtools"), cpb = node("button", null); cpb.type = "button"; cpb.innerHTML = COPY_SVG; cpb.appendChild(document.createTextNode("คัดลอก"));
       cpb.addEventListener("click", function () { copyText(rosterText(st.trip, st.roster, !st.closed && !st.ended), "คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย"); });
       tools.appendChild(cpb);
       var dlb = node("button", null); dlb.type = "button"; dlb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MI.dl + '</svg>'; dlb.appendChild(document.createTextNode("ดาวน์โหลด")); dlb.setAttribute("aria-haspopup", "menu");
@@ -1172,7 +1172,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
       ]); });
       tools.appendChild(dlb);
       if (!st.ended) {
-        var imb = node("button", null, "นำเข้า"); imb.type = "button";
+        var imb = node("button", null); imb.type = "button"; imb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>'; imb.appendChild(document.createTextNode("นำเข้า"));
         imb.addEventListener("click", function () { st.imp = { tab: "file", rows: null, prev: null, text: "", err: "" }; st.mode = "import"; draw(); });
         tools.appendChild(imb);
       }
