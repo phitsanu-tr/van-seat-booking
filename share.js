@@ -26,12 +26,8 @@
   }
   function limitText(n) { return n === 0 ? "ไม่จำกัด" : n === 1 ? "1 ที่นั่ง" : "ไม่เกิน " + n + " ที่นั่ง"; }
   function bubble(t) {
-    var chip = { type: "box", layout: "vertical", flex: 0, borderWidth: "1px", borderColor: "#ffffffaa", cornerRadius: "8px", paddingTop: "1px", paddingBottom: "1px", paddingStart: "8px", paddingEnd: "8px",
-      contents: [txt(String(t.id), { size: "12px", weight: "bold", color: "#ffffff", wrap: false })] };
-    var org = t.organizer ? txt(String(t.organizer), { size: "12px", color: "#ffffffcc", maxLines: 1, flex: 1 }) : { type: "filler" };
     var head = { type: "box", layout: "vertical", backgroundColor: "#0e7c86", paddingAll: "12px", contents: [
-      txt(t.name || "จองที่นั่งรถตู้", { weight: "bold", size: "16px", color: "#ffffff" }),
-      { type: "box", layout: "horizontal", alignItems: "center", margin: "4px", contents: [org, chip] }] };
+      txt(t.name || "จองที่นั่งรถตู้", { weight: "bold", size: "16px", color: "#ffffff" })] };
     var body = [frame([{ type: "box", layout: "horizontal", contents: [
       half("เที่ยวไป", t.departTime, short(t.startDate), false),
       { type: "box", layout: "vertical", flex: 0, width: "28px", justifyContent: "center", alignItems: "center", contents: [
