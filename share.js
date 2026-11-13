@@ -19,14 +19,14 @@
       txt(date || " ", { size: "12px", color: "#4a555c", align: al })] };
   }
   function line(label, value, o) { // table row: grey label left, bold value right, thin rule above (except the first)
-    return { type: "box", layout: "horizontal", paddingTop: "10px", paddingBottom: "10px", spacing: "12px", contents: [
+    return { type: "box", layout: "horizontal", paddingTop: "12px", paddingBottom: "12px", spacing: "12px", contents: [
       txt(label, { size: "12px", color: SUB, flex: 0, wrap: false, gravity: "center" }),
       txt(value, { size: "14px", weight: "bold", color: (o && o.color) || TXT, align: "end", flex: 1, gravity: "center" })] };
   }
   function limitText(n) { return n === 0 ? "ไม่จำกัด" : n === 1 ? "1 ที่นั่ง" : "ไม่เกิน " + n + " ที่นั่ง"; }
   function bubble(t) {
-    var head = { type: "box", layout: "vertical", alignItems: "flex-start", backgroundColor: "#e6f3f3", paddingAll: "14px", contents: [
-      { type: "box", layout: "vertical", flex: 0, backgroundColor: "#ffffff", cornerRadius: "20px", paddingTop: "2px", paddingBottom: "2px", paddingStart: "10px", paddingEnd: "10px",
+    var head = { type: "box", layout: "vertical", alignItems: "flex-start", backgroundColor: "#e6f3f3", paddingAll: "16px", contents: [
+      { type: "box", layout: "vertical", flex: 0, backgroundColor: "#ffffff", cornerRadius: "20px", paddingTop: "4px", paddingBottom: "4px", paddingStart: "12px", paddingEnd: "12px",
         contents: [txt("ทริปรถตู้", { size: "12px", weight: "bold", color: TEAL, wrap: false })] },
       txt(t.name || "จองที่นั่งรถตู้", { weight: "bold", size: "20px", color: TXT, margin: "8px" })] };
     var timeBox = { type: "box", layout: "horizontal", borderWidth: "1px", borderColor: LINE_C, cornerRadius: "12px", paddingAll: "12px", contents: [
@@ -47,7 +47,7 @@
     body.push({ type: "box", layout: "vertical", margin: "8px", contents: table });
     return { type: "bubble", size: "mega",
       header: head,
-      body: { type: "box", layout: "vertical", paddingAll: "14px", paddingBottom: "6px", contents: body },
+      body: { type: "box", layout: "vertical", paddingAll: "16px", paddingBottom: "8px", contents: body },
       footer: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "8px", contents: [{ type: "button", style: "primary", color: "#0b5f67", height: "sm",
         action: { type: "uri", label: t.closed ? "ดูผังที่นั่ง" : "เลือกที่นั่ง", uri: liffUrl(t.id) } }] } };
   }
