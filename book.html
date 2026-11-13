@@ -97,6 +97,7 @@ header.trip { display: block; }
 .facts svg { flex: none; width: 16px; height: 16px; color: var(--mine); margin-top: 4px; }
 .facts dt { position: absolute; width: 2px; height: 2px; overflow: hidden; clip: rect(0 0 0 0); }
 .facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.deck, .seat { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; } /* a long press on the map must not start selecting text */
 .deck { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
 .tlbl { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 16px 0; font-size: 14px; color: var(--muted); line-height: 20px}
 .tlbl .tl { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 600; }
