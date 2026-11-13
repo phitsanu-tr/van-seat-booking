@@ -297,16 +297,14 @@ form label { position: relative; }
 .pk-nm .pk-m.w { grid-column: span 2; }
 .pk-note { margin: -4px 0 0; font-size: 14px; line-height: 20px; color: var(--muted); }
 
-/* วันและเวลา: one tinted block per leg, an arrow badge instead of numbers (→ ขาไป, ← ขากลับ) */
+/* วันและเวลา: one plain white block per leg, a grey arrow badge instead of numbers (→ ขาไป, ← ขากลับ) */
 .tl { display: grid; gap: 10px; }
-.tl .grp { display: grid; gap: 12px; background: #eef6f7; border-radius: 14px; padding: 12px 12px 14px; }
-.tl .grp.r { background: #fdf0f1; }
+.tl .grp { display: grid; gap: 12px; background: #fff; border: 1px solid #e3e8eb; border-radius: 14px; padding: 12px 12px 14px; }
 .tl .grp > .gh { display: flex; align-items: center; gap: 8px; font: 700 16px/24px var(--font-display); color: var(--ink); }
-.tl .gh .dot { width: 24px; height: 24px; border-radius: 50%; background: var(--mine); color: #fff; display: grid; place-items: center; flex: none; }
-.tl .grp.r .gh .dot { background: #e5484d; }
+.tl .gh .dot { width: 24px; height: 24px; border-radius: 50%; background: #eef1f3; color: #3b454c; display: grid; place-items: center; flex: none; }
 .tl .gh .dot svg { width: 14px; height: 14px; }
 .tl label small { display: inline-block; margin-left: 4px; padding: 0 8px; border-radius: 10px; background: #fff; color: #d6454a; font: 500 12px/18px var(--font-body); }
-.tl label input { margin-top: 0; border-color: transparent; }
+.tl label input { margin-top: 0; }
 </style>
 <script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("inline")}catch(e){}</script>
 <link rel="stylesheet" href="/ui.css">
