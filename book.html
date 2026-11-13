@@ -466,7 +466,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
 
   <div class="vsw" id="viewSw" role="tablist" aria-label="เลือกมุมมอง">
     <button type="button" role="tab" id="swMap" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h6a3 3 0 013 3v6H7z"/><path d="M5 13h14v3a2 2 0 01-2 2H7a2 2 0 01-2-2z"/><path d="M8 18v2M16 18v2"/></svg>ผังที่นั่ง</button>
-    <button type="button" role="tab" id="swList" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>รายชื่อผู้จอง</button>
+    <button type="button" role="tab" id="swList" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>รายชื่อ</button>
   </div>
 
   <section class="sheet" id="sheetView" aria-label="ผังที่นั่งรถตู้">
@@ -516,7 +516,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
   </div>
 
   <section class="list" id="listView" hidden>
-    <h2>รายชื่อผู้จอง<small id="listSub"></small></h2>
+    <h2>ใครจองแล้วบ้าง<small id="listSub"></small></h2>
     <ul id="list"></ul>
   </section>
   </section>
@@ -1031,7 +1031,7 @@ body.signed .hbar .lback svg{width:20px;height:20px}
       if (m) li.appendChild(el("span", "me", "ที่นั่งของคุณ"));
       listEl.appendChild(li);
     });
-    if (loaded && !booked.length) listEl.appendChild(el("li", "none", "ยังไม่มีผู้จอง"));
+    if (loaded && !booked.length) listEl.appendChild(el("li", "none", "ยังไม่มีใครจอง แตะที่ว่างในผังเพื่อจองเลย"));
     if (loaded && booked.length && free.length) {
       var fl = el("li", "free"); fl.appendChild(el("b", null, "ที่นั่งว่าง")); fl.appendChild(document.createTextNode(free.join(" · "))); listEl.appendChild(fl);
     }
