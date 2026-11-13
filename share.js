@@ -42,7 +42,11 @@
     if (t.limit != null && isFinite(Number(t.limit))) rows.push(line("จองได้ต่อคน", limitText(Number(t.limit))));
     if (n > 0) rows.push(line("รถตู้", n + " คัน · " + (n * 10 - (t.staffSeat ? n : 0)) + " ที่นั่ง"));
     rows.push(line("รหัสทริป", String(t.id), { color: TEAL }));
-    var body = [timeBox], table = [];
+    var body = [], table = [];
+    if (t.tripDays) body.push({ type: "box", layout: "horizontal", paddingBottom: "8px", contents: [ // the trip's own days, before the van's departure and return
+      txt("ทริป", { size: "12px", color: SUB, flex: 0, gravity: "center", wrap: false }),
+      txt(String(t.tripDays), { size: "14px", weight: "bold", color: TEAL, align: "end", gravity: "center" })] });
+    body.push(timeBox);
     rows.forEach(function (r, i) { if (i) table.push({ type: "separator", color: "#e8eced" }); table.push(r); });
     body.push({ type: "box", layout: "vertical", margin: "8px", contents: table });
     return { type: "bubble", size: "mega",

@@ -343,6 +343,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <label>ชื่อผู้จัด / บริษัททัวร์ <small>(ไม่บังคับ)</small>
       <span class="cnt" data-for="organizer"></span><input type="text" id="organizer" maxlength="60" placeholder="เช่น ทัวร์ตัวตึง">
     </label>
+    <label>ช่วงวันของทริป <small>(ไม่บังคับ)</small>
+      <span class="cnt" data-for="tripDays"></span><input type="text" id="tripDays" maxlength="40" placeholder="เช่น 2 วัน 1 คืน · 15–16 ม.ค.">
+    </label>
    </section>
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><b>กำหนดการเดินทาง</b></div>
     <div class="tl">
@@ -846,7 +849,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   $("lineBtn").addEventListener("click", function (e) { // inside LINE: send a card into a chat; elsewhere (or when the picker is off) the text link on the button works as before
     if (!shown || !window.VSBShare) return;
     e.preventDefault(); var href = this.href;
-    VSBShare.send({ id: shown.id, name: $("name").value.trim(), organizer: $("organizer").value.trim(), startDate: $("startDate").value, endDate: $("endDate").value, departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value.trim(), vans: rows.length, staffSeat: $("staffSeat").checked, limit: Number($("maxPer").value) })
+    VSBShare.send({ id: shown.id, name: $("name").value.trim(), organizer: $("organizer").value.trim(), tripDays: $("tripDays").value.trim(), startDate: $("startDate").value, endDate: $("endDate").value, departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value.trim(), vans: rows.length, staffSeat: $("staffSeat").checked, limit: Number($("maxPer").value) })
       .then(function (sent) { if (!sent) location.href = href; });
   });
   function showResult(id, created, name) {
@@ -991,7 +994,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     if (only) { setStep(step + 1); return; }
     var body = {
-      name: $("name").value, organizer: $("organizer").value, startDate: $("startDate").value, endDate: $("endDate").value,
+      name: $("name").value, organizer: $("organizer").value, tripDays: $("tripDays").value, startDate: $("startDate").value, endDate: $("endDate").value,
       departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value,
       vans: rows.map(function (r) { return { id: r.id, label: r.label.trim(), plate: (r.plate || "").trim() }; }),
       maxPerPerson: Number($("maxPer").value),
@@ -1089,7 +1092,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var data = await res.json();
       if (!res.ok || !data.trip) { if (res.status !== 401) toast("คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย", true); return; }
       var t = data.trip;
-      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
+      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("tripDays").value = t.tripDays || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
       (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
       rows = t.vans.map(function (v) { return { id: "", label: v.label, plate: v.plate || "" }; });
       $("lead").textContent = "คัดลอกจากทริปเดิมแล้ว เลือกวันเดินทางใหม่ได้เลย";
@@ -1164,7 +1167,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   // editing: "บันทึก" is faded until something differs from what was loaded (back to faded if the change is undone)
   var saved0 = null;
   function formState() {
-    return JSON.stringify([$("name").value.trim(), $("organizer").value.trim(), $("startDate").value, $("endDate").value, $("departTime").value, $("returnTime").value,
+    return JSON.stringify([$("name").value.trim(), $("organizer").value.trim(), $("tripDays").value.trim(), $("startDate").value, $("endDate").value, $("departTime").value, $("returnTime").value,
       $("meetPoint").value.trim(), $("staffSeat").checked, $("staffName").value, rows.map(function (r) { return [r.id, (r.label || "").trim(), (r.plate || "").trim()]; }), $("maxPer").value,
       $("closeDate").value, $("closeTime").value, $("closedNow").checked]);
   }
@@ -1197,7 +1200,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   ["input", "change"].forEach(function (ev) { $("form").addEventListener(ev, function () { setTimeout(updSave, 0); }); });
   // character counters on the three text fields (Thai vowels and tone marks count as characters)
   var CNT = [];
-  [["name", 60], ["organizer", 60], ["meetPoint", 60]].forEach(function (f) {
+  [["name", 60], ["organizer", 60], ["tripDays", 40], ["meetPoint", 60]].forEach(function (f) {
     var inp = $(f[0]), c = document.querySelector('.cnt[data-for="' + f[0] + '"]'); if (!inp || !c) return;
     function u() { var n = inp.value.length; c.textContent = n + "/" + f[1]; c.classList.toggle("low", f[1] - n < 5); }
     inp.addEventListener("input", u); CNT.push(u); u();
@@ -1227,7 +1230,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         }
         if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
         var t = data.trip; staffGapL = data.staffGaps || [];
-        $("name").value = t.name; $("organizer").value = t.organizer || ""; $("startDate").value = t.startDate || "";
+        $("name").value = t.name; $("organizer").value = t.organizer || ""; $("tripDays").value = t.tripDays || ""; $("startDate").value = t.startDate || "";
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
         (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
