@@ -539,7 +539,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-<script src="/bell.js"></script>
+<script src="/bell.js"></script><script src="/share.js"></script>
 <script>
 (function () {
   var TOTAL = 10;
@@ -1660,9 +1660,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     lineUrl = location.origin + location.pathname + "?" + qs.join("&");
     return lineUrl;
   }
-  function inviteLink() { return location.origin + "/" + TRIP; } // short link: this page hands over to LIFF by itself inside LINE
+  function inviteLink() { return "https://liff.line.me/2012285472-FvtYKx00/" + TRIP; }
   async function shareFriend() {
     var u = inviteLink(), L = [], T = trip || {};
+    if (await VSBShare.send({ id: TRIP, name: T.name, startDate: T.startDate, endDate: T.endDate, departTime: T.departTime, returnTime: T.returnTime, meetPoint: T.meetPoint, closed: closed || ended })) return; // a card in the chat; otherwise the text link below
     L.push("🚐 " + (T.name || "จองที่นั่งรถตู้"), "");
     if (T.startDate || T.departTime) L.push("📅 เที่ยวไป " + leg(T.startDate, T.departTime));
     if (T.endDate || T.returnTime) L.push("🔁 เที่ยวกลับ " + leg(T.endDate || T.startDate, T.returnTime));

@@ -316,7 +316,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 </style>
 </head>
 <body class="creating">
-<script src="/bell.js"></script><script>VSBBell.bar("/mytrips#trips");</script>
+<script src="/bell.js"></script><script src="/share.js"></script><script>VSBBell.bar("/mytrips#trips");</script>
 <div class="edsk" id="edSk" hidden aria-hidden="true"><div><div style="font:600 24px/32px var(--font-display)">แก้ไขทริป</div><div style="font:14px/20px var(--font-body);color:var(--muted)">แก้ข้อมูลแล้วบันทึก ผู้ร่วมทริปเห็นทันที</div></div><div class="b" style="height:64px"></div><div class="b" style="height:248px"></div><div class="b" style="height:248px"></div></div>
 <main id="formMain" hidden>
   <section class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht">
@@ -837,12 +837,18 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     rows.push({ id: "", label: letter(rows.length) }); renderVans();
   });
 
-  function link(path) { return location.origin + path; } // short link: the booking page hands over to LIFF by itself when opened inside LINE
+  function link(path) { return "https://liff.line.me/2012285472-FvtYKx00" + path; } // LIFF link: opens inside LINE and signs in by itself
   var shown = null; // {id} of the trip whose link the sheet shows
   var shareLink = "";
   var OK_DOT = '<span class="okdot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span>';
   var SHARE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
   // created: true = just created · "saved" = just saved · false = "แชร์ลิงก์" on the edit page
+  $("lineBtn").addEventListener("click", function (e) { // inside LINE: send a card into a chat; elsewhere (or when the picker is off) the text link on the button works as before
+    if (!shown || !window.VSBShare) return;
+    e.preventDefault(); var href = this.href;
+    VSBShare.send({ id: shown.id, name: $("name").value.trim(), startDate: $("startDate").value, endDate: $("endDate").value, departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value.trim() })
+      .then(function (sent) { if (!sent) location.href = href; });
+  });
   function showResult(id, created, name) {
     shown = { id: id }; goList = created === true;
     var share = shareLink = link("/" + id);
