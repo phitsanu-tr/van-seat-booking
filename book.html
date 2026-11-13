@@ -253,6 +253,8 @@ body.sk #tripHdr > :not(.hero) { display: none; }
   .seat:not(.taken):not(.mine):hover .no { color: var(--mine); }
   .seat:not(.taken):not(.mine):hover::after { background: var(--mine); }
 }
+.seat:not(.taken):not(.mine):active .no { color: var(--mine); }
+.seat:not(.taken):not(.mine):active::after { background: var(--mine); }
 .seat:not(.taken):not(.mine):active { background: color-mix(in srgb, var(--mine) 14%, transparent); box-shadow: inset 0 0 0 2px var(--mine); transform: scale(.97); }
 .seat.taken { background: color-mix(in srgb, var(--taken) 94%, transparent); cursor: default; }
 .seat.taken .no { color: var(--ink); }
@@ -1719,5 +1721,6 @@ body.signed .hbar .lback svg{width:20px;height:20px}
 </script>
 <script>(function(){var b=document.getElementById("lback");if(!b)return;b.addEventListener("click",function(e){var r="";try{r=new URL(document.referrer).origin;}catch(x){}if(r===location.origin&&history.length>1){e.preventDefault();history.back();}});})();</script>
 <script src="/tabbar.js" data-tab="seats"></script>
+<script>document.addEventListener("touchstart", function () {}, { passive: true }); // lets iOS apply :active (the pressed seat colour)</script>
 </body>
 </html>
