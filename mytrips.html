@@ -361,7 +361,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .vchips button { height: 34px; padding: 0 12px; border-radius: 100px; border: 1.5px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 600; color: var(--muted); line-height: 20px}
 .vchips button.on { border-color: var(--amber); background: var(--amber-tint); color: var(--amber); }
 .rlist { display: flex; flex-direction: column; border: 1px solid var(--edge); border-radius: 16px; overflow: hidden; border-color: #e8ecef; }
-.sheet > .rlist { flex-shrink: 1; min-height: 54px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; } /* a long roster scrolls inside the sheet; title and Close stay put */
+.rlist .ntl { display:block; color:#0b5f67; } .sheet > .rlist { flex-shrink: 1; min-height: 54px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; } /* a long roster scrolls inside the sheet; title and Close stay put */
 .rrow { display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid var(--edge); }
 .rrow:last-child { border-bottom: 0; }
 .rrow .no { flex: none; width: 32px; height: 32px; border-radius: 12px; background: var(--tint); color: var(--deep); font: 600 16px/32px var(--font-display); text-align: center; font-size: 16px; }
@@ -675,11 +675,11 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
   function isoT(ts) { if (!ts) return ""; var d = new Date(Number(ts) + 7 * 3600 * 1000); return d.toISOString().slice(0, 16).replace("T", " "); }
   function eh(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function downloadCSV(trip, roster) {
-    var rows = [["ทริป", "รถ", "ที่นั่ง", "ชื่อผู้จอง", "จองเมื่อ", "ขึ้นรถ"]];
+    var rows = [["ทริป", "รถ", "ที่นั่ง", "ชื่อผู้จอง", "จองเมื่อ", "ขึ้นรถ", "หมายเหตุ"]];
     trip.vans.forEach(function (v) {
       var seats = roster[v.id] || {};
       Object.keys(seats).map(Number).sort(function (a, b) { return a - b; }).forEach(function (n) {
-        var s = seats[n]; rows.push([trip.name || "", "รถ " + v.label, n, s.name, isoT(s.at), s.c ? "ขึ้นแล้ว" : ""]);
+        var s = seats[n]; rows.push([trip.name || "", "รถ " + v.label, n, s.name, isoT(s.at), s.c ? "ขึ้นแล้ว" : "", s.nt || ""]);
       });
     });
     var blob = new Blob(["\ufeff" + rows.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n")], { type: "text/csv;charset=utf-8" });
@@ -698,7 +698,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
       h += '<table><tr><th class=c>ที่</th><th>ชื่อผู้จอง</th><th>จองเมื่อ</th><th class=c>ขึ้นรถ</th><th class=nt>หมายเหตุ</th></tr>';
       for (n = 1; n <= 10; n++) {
         var s = seats[n];
-        h += s ? '<tr><td class=c>' + n + '</td><td>' + eh(s.name) + '</td><td>' + eh(when(s.at)) + '</td><td class="c chk">' + (s.c ? "✓" : "") + '</td><td></td></tr>'
+        h += s ? '<tr><td class=c>' + n + '</td><td>' + eh(s.name) + '</td><td>' + eh(when(s.at)) + '</td><td class="c chk">' + (s.c ? "✓" : "") + '</td><td>' + eh(s.nt || "") + '</td></tr>'
                : '<tr class=e><td class=c>' + n + '</td><td>— ว่าง —</td><td></td><td></td><td></td></tr>';
       }
       h += '</table>';
@@ -1132,7 +1132,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
         if (!sh.style.height) sh.style.height = (ROSTER_H[x.id] || Math.round(window.innerHeight * 0.7)) + "px";
         return;
       }
-      if (st.mode === "list") drawList(); else if (st.mode === "rename") drawRename(); else drawMove();
+      if (st.mode === "list") drawList(); else if (st.mode === "rename") drawRename(); else if (st.mode === "note") drawNote(); else drawMove();
     }
     function drawList() {
       sheetHead(sh, "รายชื่อผู้จอง", close);
@@ -1165,13 +1165,16 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
         nums.forEach(function (n) {
           var s = seats[n], row = node("div", "rrow");
           row.appendChild(node("div", "no", String(n)));
-          var nm = node("div", "nm2"); nm.appendChild(node("b", null, s.name)); nm.appendChild(node("small", null, when(s.at) + (s.a ? "" : " · ผู้จองลบบัญชีแล้ว"))); row.appendChild(nm);
+          var nm = node("div", "nm2"); nm.appendChild(node("b", null, s.name)); nm.appendChild(node("small", null, when(s.at) + (s.a ? "" : " · ผู้จองลบบัญชีแล้ว")));
+          if (s.nt) { var ntl = node("small", "ntl"); ntl.textContent = "📝 " + s.nt; nm.appendChild(ntl); } row.appendChild(nm);
           if (!st.ended) {
             var ra = node("div", "ra");
             var b1 = node("button", null, "แก้ชื่อ"); b1.type = "button"; b1.addEventListener("click", function () { st.sel = { v: st.van, s: n, name: s.name }; st.mode = "rename"; draw(); });
             var b2 = node("button", null, "ย้าย"); b2.type = "button"; b2.addEventListener("click", function () { st.sel = { v: st.van, s: n, name: s.name, tv: st.van, ts: null }; st.mode = "move"; draw(); });
             var b3 = node("button", "dg", "ยกเลิก"); b3.type = "button"; b3.addEventListener("click", function () { cancelOne(st.van, n, s.name, b3); });
-            ra.appendChild(b1); ra.appendChild(b2); ra.appendChild(b3); row.appendChild(ra);
+            var b0 = node("button", null, s.nt ? "📝" : "โน้ต"); b0.type = "button"; b0.setAttribute("aria-label", "หมายเหตุ ที่นั่ง " + n);
+            b0.addEventListener("click", function () { st.sel = { v: st.van, s: n, name: s.name, nt: s.nt || "" }; st.mode = "note"; draw(); });
+            ra.appendChild(b0); ra.appendChild(b1); ra.appendChild(b2); ra.appendChild(b3); row.appendChild(ra);
           }
           list.appendChild(row);
         });
@@ -1396,6 +1399,22 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
         go.disabled = true; var r = await seatApi("PATCH", x.id, st.sel.v, { seat: st.sel.s, name: name });
         if (!r.ok) { toast(apiErr(r.data), true); go.disabled = false; return; }
         toast("แก้ชื่อแล้ว"); st.mode = "list"; fetchRoster();
+      });
+      acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
+      setTimeout(function () { inp.focus(); }, 50);
+    }
+    function drawNote() {
+      sh.appendChild(node("h3", null, "หมายเหตุ · ที่นั่ง " + st.sel.s));
+      sh.appendChild(node("p", null, "คัน " + vanLabel(st.sel.v) + " · " + st.sel.name + " · เห็นเฉพาะทีมผู้จัด เช่น จุดขึ้นรถ จ่ายเงินแล้ว (ไม่เกิน 80 ตัว)"));
+      var inp = node("input", "nin"); inp.type = "text"; inp.value = st.sel.nt; inp.maxLength = 80; inp.autocomplete = "off";
+      sh.appendChild(inp);
+      var acts = node("div", "acts"), back = node("button", "b-plain", "ย้อนกลับ"), go = node("button", "b-danger", "บันทึก");
+      go.style.background = "var(--mine)"; go.style.borderColor = "var(--mine)"; back.type = go.type = "button";
+      back.addEventListener("click", function () { st.mode = "list"; draw(); });
+      go.addEventListener("click", async function () {
+        go.disabled = true; var r = await seatApi("PATCH", x.id, st.sel.v, { seat: st.sel.s, note: inp.value });
+        if (!r.ok) { toast(apiErr(r.data), true); go.disabled = false; return; }
+        toast(inp.value.trim() ? "บันทึกหมายเหตุแล้ว" : "ลบหมายเหตุแล้ว"); st.mode = "list"; fetchRoster();
       });
       acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
       setTimeout(function () { inp.focus(); }, 50);

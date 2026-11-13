@@ -77,6 +77,27 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { hold: id, exp: Date.now() + HOLD_SEC * 1000 });
     }
 
+    if (req.method === "PATCH" && body.note !== undefined) {
+      // organizer's note on a seat (pickup point, who paid, ...): follows the passenger when moved, gone when cancelled.
+      // Passengers never see it; it shows in the roster sheet and the downloaded list.
+      if (!user) return L.json(res, 401, { error: "login_required" });
+      if (!isOwner) return L.json(res, 403, { error: "not_owner" });
+      const seat = L.parseSeat(body.seat);
+      if (seat === null) return L.json(res, 400, { error: "bad_seat" });
+      const nt = String(body.note || "").replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, 80);
+      let rec = null;
+      for (let tries = 0; ; tries++) {
+        const raw = await L.redis(["HGET", key, String(seat)]);
+        rec = null; try { rec = JSON.parse(raw); } catch (e) { rec = null; }
+        if (!rec) return L.json(res, 404, { error: "no_seat" });
+        if ((rec.nt || "") === nt) break;
+        if (nt) rec.nt = nt; else delete rec.nt;
+        if (await L.hcas([{ key, field: seat, expect: raw, value: JSON.stringify(rec) }])) break;
+        if (tries >= 3) return L.json(res, 409, { error: "busy" });
+      }
+      return L.json(res, 200, { ok: true, note: nt });
+    }
+
     if (req.method === "PATCH" && body.board !== undefined) {
       // organizer's own note on a seat: boarded on the trip day (c = time). Stored in the seat record,
       // so they follow the passenger when the seat is moved and vanish when it is cancelled. Passengers never see them.
@@ -191,6 +212,7 @@ module.exports = async function handler(req, res) {
       const exp = L.expireAtFor(trip);
       const live = exp && exp > Math.floor(Date.now() / 1000);
       if (live) { try { await L.redis(["EXPIREAT", key, String(exp)]); } catch (e) { /* best effort */ } } // a new van hash has no TTL yet
+      L.bump("seat_book");
       await L.logEvent(t, { e: "book", v: van.id, s: seat, n: name, u: user.id, at }, live ? exp : undefined);
       return L.json(res, 200, { ok: true, at });
     }
@@ -214,6 +236,7 @@ module.exports = async function handler(req, res) {
         if (tries >= 3) return L.json(res, 409, { error: "busy" });
       }
       if (Number(removed) === 1) {
+        L.bump("seat_cancel");
         if (prev.u) { try { await L.redis(["SREM", L.mySeatsKey(prev.u), t + "|" + van.id + "|" + seat]); } catch (e) { /* best effort */ } }
         if (prev.u && prev.u !== user.id) await L.notify([prev.u], { k: "seat_cancelled", t, tn: trip.name, vl: van.label, s: seat, by: role });
         await L.logEvent(t, { e: "cancel", v: van.id, s: seat, n: String(prev.name || ""), u: user.id, ou: prev.u, by: isOwner && user.id !== prev.u ? role : undefined, at: Date.now() });

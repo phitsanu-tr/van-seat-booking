@@ -66,6 +66,12 @@ button { font:inherit; cursor:pointer; }
       <div class="stat"><b id="sOwners">0</b><span>เจ้าของทริป</span></div>
       <div class="stat"><b id="sHelpers">0</b><span>ผู้ช่วยจัด</span></div>
     </div>
+    <div class="card" id="useCard">
+      <b>การใช้งาน (ตัวนับรวมรายวัน ไม่ระบุตัวตน)</b>
+      <div class="stats"><div class="stat"><b id="u7t">0</b><span>ทริปใหม่ 7 วัน</span></div><div class="stat"><b id="u7s">0</b><span>จองที่นั่ง 7 วัน</span></div><div class="stat"><b id="u7l">0</b><span>ล็อกอิน 7 วัน</span></div></div>
+      <div class="stats"><div class="stat"><b id="u30t">0</b><span>ทริปใหม่ 30 วัน</span></div><div class="stat"><b id="u30s">0</b><span>จองที่นั่ง 30 วัน</span></div><div class="stat"><b id="u30b">0</b><span>ยอดจ่าย 30 วัน (฿)</span></div></div>
+      <div id="useDays" style="font-size:12px;line-height:18px;color:var(--muted);display:flex;flex-direction:column;gap:2px"></div>
+    </div>
     <div class="card" id="payCard">
       <b>แพ็กเกจและการชำระเงิน</b>
       <p id="payNote" style="margin:0;font-size:14px;color:var(--muted)"></p>
@@ -181,6 +187,24 @@ button { font:inherit; cursor:pointer; }
     $("note").textContent = data.trips.length ? "ใหม่สุดอยู่บน" + (data.truncated ? " · แสดงไม่ครบ (เกิน 1000)" : "") : "ยังไม่มีทริป";
   }
 
+  function loadUse() {
+    api("GET", "?stats30=1").then(function (r) {
+      if (r.status !== 200) return;
+      var days = (r.body && r.body.days) || [], g = function (h, k) { return (h && h[k]) || 0; };
+      var sum = function (n, k) { var t = 0; days.slice(0, n).forEach(function (x) { t += g(x.h, k); }); return t; };
+      $("u7t").textContent = sum(7, "trip_new") + sum(7, "trip_pass"); $("u7s").textContent = sum(7, "seat_book"); $("u7l").textContent = sum(7, "login");
+      $("u30t").textContent = sum(30, "trip_new") + sum(30, "trip_pass"); $("u30s").textContent = sum(30, "seat_book"); $("u30b").textContent = sum(30, "baht").toLocaleString();
+      var box = $("useDays"); box.textContent = "";
+      days.slice(0, 10).forEach(function (x) {
+        var parts = [];
+        if (g(x.h, "trip_new") + g(x.h, "trip_pass")) parts.push("ทริป " + (g(x.h, "trip_new") + g(x.h, "trip_pass")));
+        if (g(x.h, "seat_book")) parts.push("จอง " + g(x.h, "seat_book") + (g(x.h, "seat_cancel") ? " (ยกเลิก " + g(x.h, "seat_cancel") + ")" : ""));
+        if (g(x.h, "login")) parts.push("ล็อกอิน " + g(x.h, "login"));
+        if (g(x.h, "order_paid")) parts.push("จ่าย " + g(x.h, "order_paid") + " รายการ " + g(x.h, "baht") + "฿");
+        box.appendChild(el("div", null, x.d.slice(5) + " · " + (parts.length ? parts.join(" · ") : "—")));
+      });
+    });
+  }
   function loadPay() {
     api("GET", "?orders=1").then(function (r) {
       if (r.status !== 200) return;
@@ -218,7 +242,7 @@ button { font:inherit; cursor:pointer; }
       .then(function (x) { say(x.ok ? (x.j.tester ? "[แพ็กเกจเปิด] " : "[แพ็กเกจปิด] ") + "ให้สิทธิ์ " + (x.j.owner || "") + " แล้ว: " + x.j.plan.name + (x.j.plan.until ? " ถึง " + fmtDay(x.j.plan.until) : "") + " · ตั๋ว " + x.j.plan.passes + " ใบ" : "ไม่สำเร็จ: " + (x.j.error || "")); });
   });
   function load() {
-    say(""); loadPay();
+    say(""); loadPay(); loadUse();
     api("GET").then(function (r) {
       if (r.status === 200) { $("keyForm").hidden = true; $("app").hidden = false; $("out").hidden = false; render(r.body); return; }
       try { sessionStorage.removeItem("van-owner"); } catch (e) {}

@@ -54,6 +54,7 @@ async function fulfil(o) {
   if (first !== "OK") return (await loadOrder(o.id)) || o;
   try { await P.grant(o.uid, o.sku, "paid"); } catch (e) { await L.redis(["DEL", "orderdone:" + o.id]); throw e; } // let the next check try again
   const next = Object.assign({}, o, { status: "paid", paidAt: Date.now() });
+  L.bump("order_paid"); L.bump("baht", o.amount || 0);
   await saveOrder(next);
   if (o.pi) { try { await L.redis(["SET", "orderpi:" + o.pi, o.id, "EX", String(ORDER_DAYS * 86400)]); } catch (e) { /* best effort */ } } // refunds find the order by it
   const s = P.SKUS[o.sku] || {};
@@ -172,6 +173,7 @@ module.exports = async function handler(req, res) {
       if (await L.rateLimited(req, user, "pay", 20, 3600)) return L.json(res, 429, { error: "too_many" });
       const pr = P.priceOf(body.sku);
       const o = { id: L.newId(12), uid: user.id, name: user.name, sku: body.sku, amount: pr.amount, status: "open", at: Date.now() };
+      L.bump("order_open");
       let url = "";
       if (stripeKey()) {
         const back = origin(req) + "/plans?order=" + o.id;

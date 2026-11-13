@@ -259,6 +259,12 @@ async function rateLimited(req, user, scope, max, windowSec) {
     return Number(out[0]) > max;
   } catch (e) { return false; }
 }
+// Daily, anonymous usage counters: stat:<YYYY-MM-DD> (Thai time) -> {login, trip_new, seat_book, ...}.
+// Totals only, never who. Best effort: a failed count never breaks the request that triggered it.
+function statDay(offsetDays) { return new Date(Date.now() + 7 * 3600 * 1000 - (offsetDays || 0) * 86400 * 1000).toISOString().slice(0, 10); }
+async function bump(field, n) {
+  try { const k = "stat:" + statDay(); await pipeline([["HINCRBY", k, field, String(n == null ? 1 : Math.round(n))], ["EXPIRE", k, String(400 * 86400)]]); } catch (e) { /* best effort */ }
+}
 function myTripsKey(uid) { return "mytrips:" + uid; }
 function mySeatsKey(uid) { return "myseats:" + uid; }
 // Trip managers: the owner (created the trip) and up to MAX_HELPERS co-organizers who joined with the owner's invite link.
@@ -327,6 +333,6 @@ function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); retur
 
 module.exports = {
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, json,
-  seal, open, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
+  seal, open, statDay, bump, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
   SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, crossSite, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, linePush, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };

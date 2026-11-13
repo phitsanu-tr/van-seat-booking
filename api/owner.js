@@ -67,6 +67,17 @@ module.exports = async function handler(req, res) {
       return L.json(res, 403, { error: "bad_key" });
     }
 
+    if (req.method === "GET" && req.query && req.query.stats30 !== undefined) {
+      const days = Array.from({ length: 30 }, (_, i) => L.statDay(i)); // today first
+      const got = await L.pipeline(days.map((d) => ["HGETALL", "stat:" + d]));
+      const out = days.map((d, i) => {
+        const flat = got[i] || [], h = {};
+        for (let j = 0; j + 1 < flat.length; j += 2) h[flat[j]] = Number(flat[j + 1]) || 0;
+        return { d, h };
+      });
+      return L.json(res, 200, { days: out });
+    }
+
     if (req.method === "GET" && req.query && req.query.orders !== undefined) {
       const ids = ((await L.redis(["LRANGE", "orders:all", "0", "299"])) || []).filter((x) => /^[a-z0-9]{12}$/.test(x));
       const raws = ids.length ? await L.pipeline(ids.map((id) => ["GET", "order:" + id])) : [];

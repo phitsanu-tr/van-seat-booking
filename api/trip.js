@@ -159,7 +159,7 @@ function rosterPayload(trip, user, all) {
     const flat = all[i] || [], seats = {};
     for (let j = 0; j + 1 < flat.length; j += 2) {
       const n = L.parseSeat(flat[j]); if (n === null) continue;
-      try { const r = JSON.parse(flat[j + 1]); if (r && r.name) seats[n] = Object.assign({ name: String(r.name), at: r.at }, r.u ? { a: 1 } : {}, user && r.u === user.id ? { m: 1 } : {}, r.c ? { c: r.c } : {}, r.c && r.cb ? { cb: r.cb } : {}); /* c = boarded, cb = ticked by (organizers only) */ } catch (e) { /* skip */ }
+      try { const r = JSON.parse(flat[j + 1]); if (r && r.name) seats[n] = Object.assign({ name: String(r.name), at: r.at }, r.u ? { a: 1 } : {}, user && r.u === user.id ? { m: 1 } : {}, r.c ? { c: r.c } : {}, r.c && r.cb ? { cb: r.cb } : {}, r.nt ? { nt: String(r.nt) } : {}); /* c = boarded, cb = ticked by (organizers only) */ } catch (e) { /* skip */ }
     }
     roster[v.id] = seats; perVan[v.id] = Math.floor(flat.length / 2); booked += perVan[v.id];
   });
@@ -348,6 +348,7 @@ module.exports = async function handler(req, res) {
       if (trip.staffSeat) { try { await reserveStaff(trip, trip.vans.map((v) => v.id)); } catch (e) { /* the trip exists; seats can be booked by hand */ } }
       await L.applyExpiry(trip); // after the STAFF seats so their van lists get the trip's expiry too
       if (ck) { try { await L.redis(["SET", ck, id, "EX", "86400"]); } catch (e) { /* best effort */ } }
+      L.bump(plus ? "trip_pass" : "trip_new");
       { try { await L.pipeline([["SADD", L.myTripsKey(user.id), id], ["EXPIRE", L.myTripsKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* best effort */ } }
       return L.json(res, 200, { id, trip: tripSummary(trip, user) });
     }

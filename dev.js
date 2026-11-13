@@ -53,6 +53,7 @@ function run(cmd) {
       let h = store.get(key); if (!(h instanceof Map)) { h = new Map(); store.set(key, h); }
       if (h.has(String(a[0]))) return 0; h.set(String(a[0]), String(a[1])); return 1;
     }
+    case "HINCRBY": { let h = store.get(key); if (!(h instanceof Map)) { h = new Map(); store.set(key, h); } const n = num(h.get(a[0])) + num(a[1]); h.set(a[0], String(n)); return n; }
     case "HSET": { let h = store.get(key); if (!(h instanceof Map)) { h = new Map(); store.set(key, h); } let added = 0; for (let i = 0; i + 1 < a.length; i += 2) { if (!h.has(String(a[i]))) added++; h.set(String(a[i]), String(a[i + 1])); } return added; }
     case "SADD": { let st = store.get(key); if (!(st instanceof Set)) { st = new Set(); store.set(key, st); } let n = 0; a.forEach((m) => { if (!st.has(String(m))) { st.add(String(m)); n++; } }); return n; }
     case "SREM": { const st = store.get(key); if (!(st instanceof Set)) return 0; let n = 0; a.forEach((m) => { if (st.delete(String(m))) n++; }); return n; }
