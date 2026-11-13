@@ -21,13 +21,15 @@
     if (go) body.push(row("→", "เที่ยวไป " + go));
     if (back) body.push(row("←", "เที่ยวกลับ " + back));
     if (t.meetPoint) body.push(row("📍", t.meetPoint));
+    body.push({ type: "box", layout: "baseline", spacing: "sm", contents: [
+      { type: "text", text: "🔑", size: "sm", flex: 0 },
+      { type: "text", size: "sm", color: "#4a555c", wrap: true, flex: 1, contents: [
+        { type: "span", text: "รหัสทริป " }, { type: "span", text: String(t.id), weight: "bold", color: "#0e7c86" }] }] });
     return { type: "bubble", size: "mega",
       hero: { type: "image", url: ORIGIN + "/share-card.png", size: "full", aspectRatio: "20:9", aspectMode: "cover" },
       body: { type: "box", layout: "vertical", spacing: "md", contents: body },
       footer: { type: "box", layout: "vertical", spacing: "md", contents: [{ type: "button", style: "primary", color: "#0e7c86", height: "sm",
-        action: { type: "uri", label: t.closed ? "ดูผังที่นั่ง" : "เลือกที่นั่ง", uri: liffUrl(t.id) } },
-        { type: "text", size: "xs", color: "#7a858c", align: "center", wrap: true, contents: [
-          { type: "span", text: "หรือใส่รหัส " }, { type: "span", text: String(t.id), weight: "bold", color: "#0e7c86" }, { type: "span", text: " ที่หน้าหลักแอป" }] }] } };
+        action: { type: "uri", label: t.closed ? "ดูผังที่นั่ง" : "เลือกที่นั่ง", uri: liffUrl(t.id) } }] } };
   }
   var ready = null;
   function ensure() { // the page may or may not have loaded/initialised the LIFF SDK already
