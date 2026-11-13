@@ -444,6 +444,10 @@ body.signed .hbar .lback svg{width:20px;height:20px}
 </script>
 <script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("inline")}catch(e){}</script>
 <link rel="stylesheet" href="/ui.css">
+<style>/* app screens behave like an app: a long press doesn't select text or open the iOS callout; typing fields and the legal pages stay selectable */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+</style>
 </head>
 <body class="sk">
 <main>
