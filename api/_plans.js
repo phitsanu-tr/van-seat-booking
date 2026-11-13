@@ -16,6 +16,7 @@
 const L = require("./_lib");
 
 const DAY = 86400 * 1000;
+const KEEP = String(730 * 86400); // plan/passes records: gone two years after the last change (dormant accounts leave nothing behind)
 const LAUNCH_GIFT_DAYS = 90; // accounts that already organized trips before packages started get Standard for free this long
 
 const TIERS = {
@@ -56,10 +57,10 @@ async function getPlan(uid) {
   try { p = raw ? JSON.parse(raw) : null; } catch (e) { p = null; }
   if (!p && Number(hadTrips) === 1 && on) {
     p = { tier: "standard", until: Date.now() + LAUNCH_GIFT_DAYS * DAY, src: "gift" };
-    try { await L.redis(["SET", planKey(uid), JSON.stringify(p), "NX"]); } catch (e) { /* best effort */ }
+    try { await L.redis(["SET", planKey(uid), JSON.stringify(p), "NX", "EX", KEEP]); } catch (e) { /* best effort */ }
   }
   if (!p) p = { tier: "free", until: 0, src: "" }; // first look: remember "free" so a later first trip doesn't count as an old account
-  if (!raw && p.tier === "free" && on) { try { await L.redis(["SET", planKey(uid), JSON.stringify(p), "NX"]); } catch (e) { /* best effort */ } }
+  if (!raw && p.tier === "free" && on) { try { await L.redis(["SET", planKey(uid), JSON.stringify(p), "NX", "EX", KEEP]); } catch (e) { /* best effort */ } }
   const live = p.tier !== "free" && p.until > Date.now();
   return { tier: live ? p.tier : "free", until: live ? p.until : 0, src: live ? p.src || "" : "", lastTier: p.tier, lastUntil: p.until || 0, passes: Math.max(0, Number(passes) || 0), on };
 }
@@ -91,6 +92,7 @@ function monthCap(lim) { return !lim || !lim.on ? LEGACY_MONTH : lim.trips || SP
 
 async function usePass(uid) { // takes one pass; false when there is none
   const n = Number(await L.redis(["DECR", passKey(uid)]));
+  try { await L.redis(["EXPIRE", passKey(uid), KEEP]); } catch (e) { /* best effort */ }
   if (n < 0) { try { await L.redis(["INCR", passKey(uid)]); } catch (e) { /* best effort */ } return false; }
   return true;
 }
@@ -100,7 +102,7 @@ async function refundPass(uid) { try { await L.redis(["INCR", passKey(uid)]); } 
 async function grant(uid, sku, src) {
   const s = SKUS[sku];
   if (!s) throw new Error("bad_sku");
-  if (s.kind === "pass") { await L.redis(["INCR", passKey(uid)]); return; }
+  if (s.kind === "pass") { await L.pipeline([["INCR", passKey(uid)], ["EXPIRE", passKey(uid), KEEP]]); return; }
   let cur = null;
   try { cur = JSON.parse(await L.redis(["GET", planKey(uid)])); } catch (e) { cur = null; }
   const now = Date.now();
@@ -111,7 +113,7 @@ async function grant(uid, sku, src) {
     else if (rank[cur.tier] > rank[s.tier]) { tier = cur.tier; from = cur.until; }           // cheaper than the current one: extend the current one
     // upgrade: the new package starts now (the rest of the cheaper one is dropped)
   }
-  await L.redis(["SET", planKey(uid), JSON.stringify({ tier, until: from + s.days * DAY, src: src || "paid" })]);
+  await L.redis(["SET", planKey(uid), JSON.stringify({ tier, until: from + s.days * DAY, src: src || "paid" }), "EX", KEEP]);
 }
 
 // a refunded order: take back what it gave (the plan's days, or one unused pass)
@@ -123,12 +125,12 @@ async function revoke(uid, sku) {
   try { cur = JSON.parse(await L.redis(["GET", planKey(uid)])); } catch (e) { cur = null; }
   if (!cur || cur.tier === "free") return;
   const until = (cur.until || 0) - s.days * DAY;
-  await L.redis(["SET", planKey(uid), JSON.stringify(until > Date.now() ? Object.assign({}, cur, { until }) : { tier: "free", until: 0, src: "refund" })]);
+  await L.redis(["SET", planKey(uid), JSON.stringify(until > Date.now() ? Object.assign({}, cur, { until }) : { tier: "free", until: 0, src: "refund" }), "EX", KEEP]);
 }
 // owner console: set a package directly (tier "free" ends it)
 async function setPlan(uid, tier, days) {
   if (!TIERS[tier]) throw new Error("bad_tier");
-  await L.redis(["SET", planKey(uid), JSON.stringify({ tier, until: tier === "free" ? 0 : Date.now() + days * DAY, src: "owner" })]);
+  await L.redis(["SET", planKey(uid), JSON.stringify({ tier, until: tier === "free" ? 0 : Date.now() + days * DAY, src: "owner" }), "EX", KEEP]);
 }
 
 // trips counted in a paid package's quota can start at most this long after the package ends (stops stocking up a year of trips on one month)

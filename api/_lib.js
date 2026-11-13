@@ -246,7 +246,9 @@ function crossSite(req) {
   try { return new URL(o).host.toLowerCase() !== host; } catch (e) { return true; }
 }
 function clientIp(req) {
-  return (String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim() || "unknown").slice(0, 64);
+  // the network's mark in Redis keys (rate limits, seat holds): a one-way hash, so no plain IP address is ever stored
+  const ip = String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim();
+  return ip ? crypto.createHash("sha256").update("vsb:" + ip).digest("hex").slice(0, 16) : "unknown";
 }
 // Fixed-window counter: true when this caller (signed-in user, else network) went over `max` in the current window.
 async function rateLimited(req, user, scope, max, windowSec) {
