@@ -345,11 +345,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><b>วันและเวลา</b></div>
     <div class="tl">
       <div class="grp"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><b>เที่ยวไป</b></div>
-        <label>วันที่ <input type="date" id="startDate"></label>
+        <label>วันออกเดินทาง <input type="date" id="startDate"></label>
         <label>เวลารถออก <input type="time" id="departTime"></label>
       </div>
       <div class="grp r"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span><b>เที่ยวกลับ</b></div>
-        <label>วันที่ <input type="date" id="endDate"></label>
+        <label>วันเดินทางกลับ <input type="date" id="endDate"></label>
         <label>เวลารถออก <input type="time" id="returnTime"></label>
       </div>
     </div>
@@ -561,7 +561,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 
   var s = document.getElementById("startDate"), e = document.getElementById("endDate"), t = document.getElementById("departTime");
   if (s && e && t) {
-    dateField(s, "วันเดินทางไป", function () { var v = s.value; return v && v < todayIso() ? v : todayIso(); }); // a saved past date (editing an old trip) stays selectable
+    dateField(s, "วันออกเดินทาง", function () { var v = s.value; return v && v < todayIso() ? v : todayIso(); }); // a saved past date (editing an old trip) stays selectable
     dateField(e, "วันเดินทางกลับ", function () { return s.value || todayIso(); });
     timeField(t, "เวลารถออก เที่ยวไป");
     var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออก เที่ยวกลับ");
@@ -958,7 +958,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var first = null, bad = false;
     var only = (!editing && step < 3) ? step : 0, c1 = !only || only === 1, c2 = !only || only === 2; // creating: "ถัดไป" checks only this step
     if (c1 && !$("name").value.trim()) { first = fieldErr($("name"), ERR.bad_name); }
-    if (c1) [["startDate", "ระบุวันที่เดินทางไป"], ["endDate", "ระบุวันที่เดินทางกลับ"]].forEach(function (f) {
+    if (c1) [["startDate", "ระบุวันออกเดินทาง"], ["endDate", "ระบุวันเดินทางกลับ"]].forEach(function (f) {
       if (!$(f[0]).value) { var c = fieldErr($(f[0]), f[1]); first = first || c; }
     });
     if (c1 && $("startDate").value && $("endDate").value && $("endDate").value < $("startDate").value) { var ed = fieldErr($("endDate"), "วันกลับต้องไม่ก่อนวันไป"); first = first || ed; }
