@@ -13,7 +13,7 @@ function summary(trip, perVan) {
   const booked = trip.vans.reduce((a, v) => a + (perVan[v.id] || 0), 0);
   return {
     id: trip.id, name: trip.name, organizer: trip.organizer || "", startDate: trip.startDate || "", endDate: trip.endDate || "",
-    departTime: trip.departTime || "", returnTime: trip.returnTime || "", meetPoint: trip.meetPoint || "", tripDays: trip.tripDays || "", vans: trip.vans.length, booked, total: trip.vans.length * L.TOTAL_SEATS,
+    departTime: trip.departTime || "", returnTime: trip.returnTime || "", meetPoint: trip.meetPoint || "", tripDays: L.tripDaysText(trip.tripN, trip.tripStart), vans: trip.vans.length, booked, total: trip.vans.length * L.TOTAL_SEATS,
     ended: L.tripEnded(trip), closed: L.bookingClosed(trip), closeAt: trip.closeAt || "", staffSeat: !!trip.staffSeat, limit: L.maxPerPerson(trip),
   };
 }

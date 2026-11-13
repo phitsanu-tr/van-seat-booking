@@ -3,7 +3,7 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function ctx(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));return p;}
 const A=await ctx('Ann');await A.goto(B+'/api/auth?start=1&as=Ann&r=%2F');
-const tr=await (await A.request.post(B+'/api/trip',{data:{meetPoint:'จุดนัดพบ',name:'ทดสอบกัน',startDate:HLP.day(45),vans:[{label:'1'}]}})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:2,tripStart:'2099-01-01',meetPoint:'จุดนัดพบ',name:'ทดสอบกัน',startDate:HLP.day(45),vans:[{label:'1'}]}})).json();const ID=tr.id;
 // two anonymous phones, same network (same IP here) — holds are placed through the API now (hc = browser id)
 const hold=async(hc,seat)=>await fetch(B+'/api/seats?t='+ID+'&v=v1',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({hold:seat,hc})});
 const held=async()=>JSON.stringify((await (await fetch(B+'/api/seats?t='+ID+'&v=v1')).json()).held);

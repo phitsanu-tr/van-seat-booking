@@ -34,7 +34,7 @@ async function refundQuota(user, month) {
 }
 
 // text limits (characters, Thai vowels/tone marks count): a trip saved before these limits keeps its longer text until that field is edited
-const LIM = { name: 60, organizer: 60, tripDays: 40, meetPoint: 60, label: 4, plate: 25 };
+const LIM = { name: 60, organizer: 60, meetPoint: 60, label: 4, plate: 25 };
 function clean(body, vanCap, planVans, prev) {
   const s = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
   const keep = (v, n, old) => { const t = String(v == null ? "" : v).trim(); return old && t === old ? t : t.slice(0, n); };
@@ -64,7 +64,12 @@ function clean(body, vanCap, planVans, prev) {
   }
   const meetPoint = keep(body.meetPoint, LIM.meetPoint, prev && prev.meetPoint);
   if (!meetPoint && !(prev && !prev.meetPoint)) return { error: "bad_meet" }; // required (an old trip saved without one may stay without)
-  const value = { name, organizer: keep(body.organizer, LIM.organizer, prev && prev.organizer), tripDays: keep(body.tripDays, LIM.tripDays, prev && prev.tripDays), startDate, endDate, departTime, returnTime, meetPoint, vans: outVans };
+  const tripN = Number(body.tripN), tripStart = s(body.tripStart, 10);
+  const noTD = body.tripN === undefined || body.tripN === null || body.tripN === "";
+  if (noTD && !tripStart && prev && !prev.tripN) { /* an old trip saved without trip days may stay without */ }
+  else if (!Number.isInteger(tripN) || tripN < 1 || tripN > 14 || !DATE_RE.test(tripStart)) return { error: "bad_tripdays" }; // required: how many days the trip lasts and its first day
+  const value = { name, organizer: keep(body.organizer, LIM.organizer, prev && prev.organizer), startDate, endDate, departTime, returnTime, meetPoint, vans: outVans };
+  if (!noTD) { value.tripN = tripN; value.tripStart = tripStart; }
   if (body.maxPerPerson !== undefined && body.maxPerPerson !== null && body.maxPerPerson !== "") {
     const m = Number(body.maxPerPerson);
     if (!Number.isInteger(m) || m < 0 || m > 50) return { error: "bad_max" };

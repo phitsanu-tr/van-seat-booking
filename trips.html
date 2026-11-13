@@ -263,6 +263,19 @@ select.sel { border-color: #dde3e7!important; }
 .dz b { font-size: 16px; line-height: 24px}
 
 /* create trip in 3 steps (editing stays one page) */
+.tdw { display: flex; flex-direction: column; gap: 8px; }
+.tdw .tdl { font-weight: 600; font-size: 14px; line-height: 20px; }
+.tdw .tds { display: flex; gap: 8px; }
+.tdw .tds button { flex: 1; height: 40px; border-radius: 12px; border: 1.5px solid #dde3e7; background: var(--surface); color: var(--ink); font: 500 14px/20px var(--font-body); }
+.tdw .tds button.on { background: #0b5f67; border-color: #0b5f67; color: #fff; font-weight: 700; }
+.tdw .tdn { display: flex; align-items: center; justify-content: space-between; height: 48px; padding: 0 8px; border: 1.5px solid #dde3e7; border-radius: 12px; background: var(--surface); }
+.tdw .tdn[hidden] { display: none; }
+.tdw .tdn button { width: 32px; height: 32px; border-radius: 8px; border: 0; background: #e6f3f3; color: #0b5f67; font: 700 20px/32px var(--font-display); }
+.tdw .tdn button:disabled { opacity: .4; }
+.tdw .tdn b { font: 600 16px/24px var(--font-display); }
+.tdw .tdp { background: #e6f3f3; border-radius: 12px; padding: 8px 12px; font: 700 14px/20px var(--font-body); color: #0b5f67; }
+.tdw .tdp[hidden], .tdw label[hidden] { display: none; }
+.tdw.bad .tds button:not(.on) { border-color: var(--danger); }
 .stp { display: flex; align-items: flex-start; margin: 0 0 4px; padding: 0 4px; }
 .stp .s { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
 .stp .s:not(:last-child)::after { content: ""; position: absolute; top: 14px; left: calc(50% + 20px); right: calc(-50% + 20px); height: 2px; border-radius: 2px; background: #dde3e7; }
@@ -343,9 +356,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <label>ชื่อผู้จัด / บริษัททัวร์ <small>(ไม่บังคับ)</small>
       <span class="cnt" data-for="organizer"></span><input type="text" id="organizer" maxlength="60" placeholder="เช่น ทัวร์ตัวตึง">
     </label>
-    <label>ช่วงวันของทริป <small>(ไม่บังคับ)</small>
-      <span class="cnt" data-for="tripDays"></span><input type="text" id="tripDays" maxlength="40" placeholder="เช่น 2 วัน 1 คืน · 15–16 ม.ค.">
-    </label>
+    <div class="tdw" id="tdw"><div class="tdl">ช่วงวันของทริป</div>
+      <div class="tds" id="tds"><button type="button" data-k="day">เดย์ทริป</button><button type="button" data-k="night">ค้างคืน</button></div>
+      <div class="tdn" id="tdnRow" hidden><button type="button" id="tdMinus" aria-label="ลดจำนวนวัน">−</button><b id="tdVal"></b><button type="button" id="tdPlus" aria-label="เพิ่มจำนวนวัน">+</button></div>
+      <label id="tdsRow" hidden>วันแรกของทริป <input type="date" id="tripStart"></label>
+      <div class="tdp" id="tdPrev" hidden></div>
+      <input type="hidden" id="tripN" value="">
+    </div>
    </section>
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><b>กำหนดการเดินทาง</b></div>
     <div class="tl">
@@ -596,6 +613,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   if (mp) maxField(mp);
   var cd = document.getElementById("closeDate"), ct = document.getElementById("closeTime");
   if (cd && ct) { dateField(cd, "ปิดรับจองวันที่", todayIso); timeField(ct, "ปิดรับจองเวลา"); }
+  var tst = document.getElementById("tripStart"); if (tst) dateField(tst, "วันแรกของทริป", function () { var v = tst.value; return v && v < todayIso() ? v : todayIso(); });
 })();
 </script>
 <script>
@@ -622,6 +640,24 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var COPY = /^[a-z0-9]{3,16}$/i.test(q.get("copy") || "") ? q.get("copy").toLowerCase() : ""; // /trips/new?copy=<trip>: start from an existing trip
 
   function $(id) { return document.getElementById(id); }
+  // trip days: "เดย์ทริป" or "ค้างคืน" + number of days (nights follow: days − 1) + the first day; required, except on an old trip saved without them
+  var tdRequired = true;
+  function tdPaint() {
+    var n = Number($("tripN").value) || 0;
+    [].forEach.call($("tds").querySelectorAll("button"), function (b) { b.classList.toggle("on", n ? (b.getAttribute("data-k") === "day") === (n === 1) : false); });
+    $("tdnRow").hidden = n < 2; $("tdsRow").hidden = !n;
+    if (n >= 2) { $("tdVal").textContent = n + " วัน " + (n - 1) + " คืน"; $("tdMinus").disabled = n <= 2; $("tdPlus").disabled = n >= 14; }
+    var tx = n ? VSBShare.tripText(n, $("tripStart").value) : ""; $("tdPrev").hidden = !tx; $("tdPrev").textContent = tx;
+  }
+  function tdSet(n, start) {
+    $("tripN").value = n ? String(n) : ""; $("tripStart").value = start || ""; tdPaint();
+    tdRequired = !editing || !!n; // an old trip without trip days is not forced to fill them
+  }
+  function tdPick(n) { $("tripN").value = String(n); if (!$("tripStart").value && $("startDate").value) { $("tripStart").value = $("startDate").value; $("tripStart").dispatchEvent(new Event("change", { bubbles: true })); } tdPaint(); $("tdw").classList.remove("bad"); $("tdw").dispatchEvent(new Event("change", { bubbles: true })); }
+  $("tds").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; var cur = Number($("tripN").value) || 0; tdPick(b.getAttribute("data-k") === "day" ? 1 : (cur >= 2 ? cur : 2)); });
+  $("tdMinus").addEventListener("click", function () { tdPick(Math.max(2, (Number($("tripN").value) || 2) - 1)); });
+  $("tdPlus").addEventListener("click", function () { tdPick(Math.min(14, (Number($("tripN").value) || 2) + 1)); });
+  $("tripStart").addEventListener("change", tdPaint);
   function letter(i) { return String.fromCharCode(65 + (i % 26)); }
 
   var ERR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg>';
@@ -849,7 +885,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   $("lineBtn").addEventListener("click", function (e) { // inside LINE: send a card into a chat; elsewhere (or when the picker is off) the text link on the button works as before
     if (!shown || !window.VSBShare) return;
     e.preventDefault(); var href = this.href;
-    VSBShare.send({ id: shown.id, name: $("name").value.trim(), organizer: $("organizer").value.trim(), tripDays: $("tripDays").value.trim(), startDate: $("startDate").value, endDate: $("endDate").value, departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value.trim(), vans: rows.length, staffSeat: $("staffSeat").checked, limit: Number($("maxPer").value) })
+    VSBShare.send({ id: shown.id, name: $("name").value.trim(), organizer: $("organizer").value.trim(), tripDays: VSBShare.tripText($("tripN").value, $("tripStart").value), startDate: $("startDate").value, endDate: $("endDate").value, departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value.trim(), vans: rows.length, staffSeat: $("staffSeat").checked, limit: Number($("maxPer").value) })
       .then(function (sent) { if (!sent) location.href = href; });
   });
   function showResult(id, created, name) {
@@ -953,7 +989,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     return { d: +m[3], mo: +m[2] - 1, y: +m[1] + 543 };
   }
   var ERR = {
-    bad_name: "ระบุชื่อทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
+    bad_name: "ระบุชื่อทริป", bad_tripdays: "ระบุช่วงวันของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
     bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าสู่ระบบด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
     quota_month: "เดือนนี้คุณสร้างทริปครบ 30 ทริปแล้ว ลองใหม่เดือนหน้านะ",
@@ -969,6 +1005,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var first = null, bad = false;
     var only = (!editing && step < 3) ? step : 0, c1 = !only || only === 1, c2 = !only || only === 2; // creating: "ถัดไป" checks only this step
     if (c1 && !$("name").value.trim()) { first = fieldErr($("name"), ERR.bad_name); }
+    if (c1 && (tdRequired || $("tripN").value || $("tripStart").value)) { // trip days: required (an old trip saved without them may stay without)
+      if (!$("tripN").value) { var tk = fieldErr($("tds"), "เลือกเดย์ทริปหรือค้างคืน"); $("tdw").classList.add("bad"); first = first || tk; }
+      else if (!$("tripStart").value) { var ts = fieldErr($("tripStart"), "ระบุวันแรกของทริป"); first = first || ts; }
+    }
     if (c1) [["startDate", "ระบุวันเดินทางไป"], ["endDate", "ระบุวันเดินทางกลับ"]].forEach(function (f) {
       if (!$(f[0]).value) { var c = fieldErr($(f[0]), f[1]); first = first || c; }
     });
@@ -994,7 +1034,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     if (only) { setStep(step + 1); return; }
     var body = {
-      name: $("name").value, organizer: $("organizer").value, tripDays: $("tripDays").value, startDate: $("startDate").value, endDate: $("endDate").value,
+      name: $("name").value, organizer: $("organizer").value, tripN: $("tripN").value, tripStart: $("tripStart").value, startDate: $("startDate").value, endDate: $("endDate").value,
       departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value,
       vans: rows.map(function (r) { return { id: r.id, label: r.label.trim(), plate: (r.plate || "").trim() }; }),
       maxPerPerson: Number($("maxPer").value),
@@ -1010,7 +1050,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       var data = {}; try { data = await res.json(); } catch (x) {}
       if (!res.ok) {
-        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime", bad_meet: "meetPoint", bad_close: "closeDate" };
+        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime", bad_meet: "meetPoint", bad_tripdays: "tds", bad_close: "closeDate" };
         if (map[data.error]) { focusFirst(fieldErr($(map[data.error]), ERR[data.error])); }
         else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input.vn"); if (v0) { fieldErr(v0, ERR.bad_vans, v0.closest(".vf")); focusFirst(v0); } else toast(ERR.bad_vans); }
         else if (data.error === "login_required") location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new");
@@ -1092,7 +1132,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var data = await res.json();
       if (!res.ok || !data.trip) { if (res.status !== 401) toast("คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย", true); return; }
       var t = data.trip;
-      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; $("tripDays").value = t.tripDays || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
+      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; tdSet(t.tripN, t.tripStart); $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
       (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
       rows = t.vans.map(function (v) { return { id: "", label: v.label, plate: v.plate || "" }; });
       $("lead").textContent = "คัดลอกจากทริปเดิมแล้ว เลือกวันเดินทางใหม่ได้เลย";
@@ -1167,7 +1207,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   // editing: "บันทึก" is faded until something differs from what was loaded (back to faded if the change is undone)
   var saved0 = null;
   function formState() {
-    return JSON.stringify([$("name").value.trim(), $("organizer").value.trim(), $("tripDays").value.trim(), $("startDate").value, $("endDate").value, $("departTime").value, $("returnTime").value,
+    return JSON.stringify([$("name").value.trim(), $("organizer").value.trim(), $("tripN").value, $("tripStart").value, $("startDate").value, $("endDate").value, $("departTime").value, $("returnTime").value,
       $("meetPoint").value.trim(), $("staffSeat").checked, $("staffName").value, rows.map(function (r) { return [r.id, (r.label || "").trim(), (r.plate || "").trim()]; }), $("maxPer").value,
       $("closeDate").value, $("closeTime").value, $("closedNow").checked]);
   }
@@ -1200,7 +1240,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   ["input", "change"].forEach(function (ev) { $("form").addEventListener(ev, function () { setTimeout(updSave, 0); }); });
   // character counters on the three text fields (Thai vowels and tone marks count as characters)
   var CNT = [];
-  [["name", 60], ["organizer", 60], ["tripDays", 40], ["meetPoint", 60]].forEach(function (f) {
+  [["name", 60], ["organizer", 60], ["meetPoint", 60]].forEach(function (f) {
     var inp = $(f[0]), c = document.querySelector('.cnt[data-for="' + f[0] + '"]'); if (!inp || !c) return;
     function u() { var n = inp.value.length; c.textContent = n + "/" + f[1]; c.classList.toggle("low", f[1] - n < 5); }
     inp.addEventListener("input", u); CNT.push(u); u();
@@ -1230,7 +1270,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         }
         if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
         var t = data.trip; staffGapL = data.staffGaps || [];
-        $("name").value = t.name; $("organizer").value = t.organizer || ""; $("tripDays").value = t.tripDays || ""; $("startDate").value = t.startDate || "";
+        $("name").value = t.name; $("organizer").value = t.organizer || ""; tdSet(t.tripN, t.tripStart); $("startDate").value = t.startDate || "";
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
         (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });

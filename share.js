@@ -4,6 +4,14 @@
 (function () {
   var LIFF_ID = "2012285472-FvtYKx00", ORIGIN = "https://van-seat-booking.vercel.app";
   var MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."], DOW = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+  function tripText(n, start) { // same wording as the server's tripDaysText
+    n = Number(n); var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(start || ""));
+    if (!Number.isInteger(n) || n < 1 || !m) return "";
+    var a = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])), b = new Date(a.getTime() + (n - 1) * 86400000);
+    var d1 = a.getUTCDate() + " " + MON[a.getUTCMonth()], d2 = b.getUTCDate() + " " + MON[b.getUTCMonth()];
+    if (n === 1) return "เดย์ทริป · " + d1;
+    return n + " วัน " + (n - 1) + " คืน · " + (a.getUTCMonth() === b.getUTCMonth() ? a.getUTCDate() + "–" + d2 : d1 + "–" + d2);
+  }
   function liffUrl(id) { return "https://liff.line.me/" + LIFF_ID + "/" + id; }
   function short(iso) { // "ศ. 15 ม.ค." — no year, so it fits the narrow half of the card
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || "")); if (!m) return "";
@@ -80,5 +88,5 @@
         .then(function () { return true; }, function () { return false; });
     }).catch(function () { return false; });
   }
-  window.VSBShare = { send: send, liffUrl: liffUrl };
+  window.VSBShare = { send: send, liffUrl: liffUrl, tripText: tripText };
 })();

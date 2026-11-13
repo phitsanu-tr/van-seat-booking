@@ -4,7 +4,7 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 async function ctx(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));return p;}
 async function user(n){const p=await ctx(n);await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),C=await user('Cat');
-const tr=await (await A.request.post(B+'/api/trip',{data:{meetPoint:'จุดนัดพบ',name:'ทริปทีม',startDate:HLP.day(45),vans:[{label:'1'}]}})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:2,tripStart:'2099-01-01',meetPoint:'จุดนัดพบ',name:'ทริปทีม',startDate:HLP.day(45),vans:[{label:'1'}]}})).json();const ID=tr.id;
 await C.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:4,name:'แคท'}});
 // A creates invite in UI
 await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);await A.click('.mgb:has-text("ผู้ช่วยจัดทริป")');await A.waitForTimeout(700);await A.screenshot({path:S+'/t1.png'});
@@ -16,7 +16,7 @@ await Bp.goto(B+'/api/auth?start=1&as=Bob&r='+encodeURIComponent('/mytrips?join=
 await Bp.screenshot({path:S+'/t3.png'});log('B role line',await Bp.textContent('.rolep').catch(()=>'none'));
 // helper rights
 log('B cancel Cat seat',(await Bp.request.fetch(B+'/api/seats?t='+ID+'&v=v1',{method:'DELETE',data:{seat:4}})).status());
-log('B PUT trip',(await Bp.request.fetch(B+'/api/trip',{method:'PUT',data:{t:ID,name:'ทริปทีม (แก้โดยผู้ช่วย)',startDate:HLP.day(45),meetPoint:'จุดนัดพบ',vans:[{id:'v1',label:'1'}]}})).status());
+log('B PUT trip',(await Bp.request.fetch(B+'/api/trip',{method:'PUT',data:{t:ID,name:'ทริปทีม (แก้โดยผู้ช่วย)',startDate:HLP.day(45),tripN:2,tripStart:'2099-01-01',meetPoint:'จุดนัดพบ',vans:[{id:'v1',label:'1'}]}})).status());
 log('B DELETE trip',(await Bp.request.fetch(B+'/api/trip?t='+ID,{method:'DELETE'})).status());
 log('B invite',(await Bp.request.post(B+'/api/trip',{data:{t:ID,invite:true}})).status());
 await Bp.goto(B+'/trips/'+ID);await Bp.reload();await Bp.waitForTimeout(1500);log('B edit page delete zone hidden',await Bp.evaluate(()=>document.getElementById('dz').hidden),'name',await Bp.inputValue('#name'));

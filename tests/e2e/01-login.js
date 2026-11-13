@@ -5,7 +5,7 @@ async function ctx(){const c=await b.newContext({viewport:{width:390,height:844}
 async function pg(c,n){const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));return p;}
 log('anon create:',(await fetch(B+'/api/trip',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:'x',vans:[{label:'1'}]})})).status);
 const cA=await ctx();const A=await pg(cA,'A');await A.goto(B+'/api/auth?start=1&as=Ann&r=%2F');await A.waitForTimeout(600);
-const tr=await (await A.request.post(B+'/api/trip',{data:{meetPoint:'จุดนัดพบ',name:'ทริปทดสอบ',startDate:HLP.day(20),vans:[{label:'1'}]}})).json();const ID=tr.id;log('A create ok',!!ID);
+const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:2,tripStart:'2099-01-01',meetPoint:'จุดนัดพบ',name:'ทริปทดสอบ',startDate:HLP.day(20),vans:[{label:'1'}]}})).json();const ID=tr.id;log('A create ok',!!ID);
 const VAN=(tr.trip&&tr.trip.vans[0].id)||'v1';const sc=await fetch(B+'/api/seats?t='+ID+'&v='+VAN,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({seat:2,name:'anon'})});log('anon book:',sc.status);
 const cN=await ctx();const N=await pg(cN,'N');await N.goto(B+'/'+ID);await N.waitForTimeout(1000);log('chip hidden for anon (LINE-first)',await N.locator('#acct').isHidden());
 await N.click('.seat >> nth=1');await N.waitForTimeout(300);log('anon panel: lg',await N.locator('.lgbtn').count(),'input',await N.locator('#nameInput').count(),'note',await N.locator('.lgnote').count());await N.screenshot({path:S+'/7_forced.png'});

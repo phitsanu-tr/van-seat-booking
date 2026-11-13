@@ -75,8 +75,20 @@ async function loadTrip(t) {
   return null;
 }
 
+// "2 วัน 1 คืน · 15–16 ม.ค." / "เดย์ทริป · 15 ม.ค." from the trip's day count and first day (same wording on every screen and in the share card)
+const TH_MON_S = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+function tripDaysText(n, start) {
+  n = Number(n); const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(start || ""));
+  if (!Number.isInteger(n) || n < 1 || !m) return "";
+  const a = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])), b = new Date(a.getTime() + (n - 1) * 86400000);
+  const d1 = a.getUTCDate() + " " + TH_MON_S[a.getUTCMonth()], d2 = b.getUTCDate() + " " + TH_MON_S[b.getUTCMonth()];
+  if (n === 1) return "เดย์ทริป · " + d1;
+  const range = a.getUTCMonth() === b.getUTCMonth() ? a.getUTCDate() + "–" + d2 : d1 + "–" + d2;
+  return n + " วัน " + (n - 1) + " คืน · " + range;
+}
 function publicTrip(trip) {
   const { owner, ownerName, helpers, invite, board, ...rest } = trip; // never send account ids (owner, helpers) or the invite code to passengers
+  rest.tripDays = tripDaysText(trip.tripN, trip.tripStart);
   return rest;
 }
 
@@ -333,6 +345,6 @@ function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); retur
 
 module.exports = {
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, json,
-  seal, open, statDay, bump, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
+  seal, open, statDay, bump, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripDaysText, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
   SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, crossSite, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, linePush, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };

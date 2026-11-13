@@ -4,7 +4,7 @@ const bkk=m=>new Date(Date.now()+7*3600e3+m*60e3).toISOString().slice(0,16); // 
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function user(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2,hasTouch:true});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),P=await user('Pat'),Q=await user('Qin');
-const base={name:'ทริปปิดจอง',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'07:00',returnTime:'17:00',meetPoint:'BTS หมอชิต',vans:[{label:'1'}]};
+const base={name:'ทริปปิดจอง',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'07:00',returnTime:'17:00',tripN:2,tripStart:'2099-01-01',meetPoint:'BTS หมอชิต',vans:[{label:'1'}]};
 const tr=await (await A.request.post(B+'/api/trip',{data:base})).json();const ID=tr.id;
 const seats=(p,m,d)=>p.request.fetch(B+'/api/seats?t='+ID+'&v=v1',{method:m,data:d});
 const st=async r=>r.status()+(r.status()>=400?' '+((await r.json().catch(()=>({}))).error||''):'');
