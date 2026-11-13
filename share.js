@@ -39,8 +39,8 @@
       half("เดินทางกลับ", t.returnTime, short(t.endDate), true)] };
     var rows = [], n = Number(t.vans) || 0;
     if (t.meetPoint) rows.push(line("จุดนัดพบ", t.meetPoint));
-    if (n > 0) rows.push(line("รถตู้", n + " คัน · " + (n * 10 - (t.staffSeat ? n : 0)) + " ที่นั่ง"));
     if (t.limit != null && isFinite(Number(t.limit))) rows.push(line("จองได้ต่อคน", limitText(Number(t.limit))));
+    if (n > 0) rows.push(line("รถตู้", n + " คัน · " + (n * 10 - (t.staffSeat ? n : 0)) + " ที่นั่ง"));
     rows.push(line("รหัสทริป", String(t.id), { color: TEAL }));
     var body = [timeBox], table = [];
     rows.forEach(function (r, i) { if (i) table.push({ type: "separator", color: "#e8eced" }); table.push(r); });
