@@ -32,8 +32,8 @@
     var nav = document.createElement("nav"); nav.className = "vt-bar"; nav.setAttribute("aria-label", "เมนูหลัก");
     nav.innerHTML =
       a("home", "/mytrips", "หน้าหลัก", icon("home")) +
-      a("trips", "/mytrips#trips", "ทริปที่จัด", icon("trips")) +
-      a("seats", "/mytrips#seats", "ที่นั่งที่จอง", icon("seats")) +
+      a("trips", "/mytrips#trips", "ทริปของฉัน", icon("trips")) +
+      a("seats", "/mytrips#seats", "ที่นั่งของฉัน", icon("seats")) +
       a("notif", "/mytrips#notify", "แจ้งเตือน", icon("notif") + '<span class="nb" id="vtBadge" hidden></span>') +
       a("acct", "/mytrips#account", "โปรไฟล์", '<span class="av" id="vtAv"></span>');
     document.body.appendChild(nav); document.body.classList.add("vt-on"); document.documentElement.style.paddingBottom = "0"; /* the body padding already clears the bar + safe area; a page-level safe-area padding would add it twice */
