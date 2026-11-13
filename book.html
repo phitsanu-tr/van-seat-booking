@@ -412,7 +412,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 body.signed .hbar .acct{display:none !important}
 body.signed .hbar .lback{display:inline-flex;align-items:center;gap:4px;width:36px;justify-content:center;height:36px;margin:0 0 8px -8px;font:600 16px/24px var(--font-display);color:#0b5f67;text-decoration:none}
 body.signed .hbar .lback svg{width:20px;height:20px}
-body.signed .hero h1{font:700 26px/32px var(--font-display)} /* same title size as the bottom-menu pages */
+html.sgn .hero h1,body.signed .hero h1{font:700 26px/32px var(--font-display)} /* same title size as the bottom-menu pages */
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
@@ -448,6 +448,7 @@ body.signed .hero h1{font:700 26px/32px var(--font-display)} /* same title size 
 })();
 </script>
 <script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("inline")}catch(e){}</script>
+<script>try{if(localStorage.getItem("vsb_in")==="1")document.documentElement.classList.add("sgn")}catch(e){}</script>
 <link rel="stylesheet" href="/ui.css">
 <style>/* app screens behave like an app: a long press doesn't select text or open the iOS callout; typing fields and the legal pages stay selectable */
 body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
