@@ -677,7 +677,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (nums.length && free.length) L.push("ว่าง: " + free.join(", "));
     });
     if (trip.vans.length > 1) L.push("", "รวม " + all + "/" + trip.vans.length * 10 + " ที่นั่ง");
-    L.push("", open ? "จองที่นั่งได้ที่นี่ 👇" : trip.closedNow ? "ปิดรับจองแล้ว · ดูผังที่นั่ง 👇" : "ดูผังที่นั่ง 👇", "https://liff.line.me/2012285472-FvtYKx00/" + trip.id);
+    L.push("", open ? "จองที่นั่งได้ที่นี่ 👇" : trip.closedNow ? "ปิดรับจองแล้ว · ดูผังที่นั่ง 👇" : "ดูผังที่นั่ง 👇", location.origin + "/" + trip.id); // short link; the page itself hands over to LIFF inside LINE
     return L.join("\n");
   }
 
@@ -800,7 +800,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
 
   function shareTrip(x) {
-    var u = "https://liff.line.me/2012285472-FvtYKx00/" + x.id, L = ["🚐 " + (x.name || "จองที่นั่งรถตู้"), ""], dr = dateRange(x.startDate, x.endDate);
+    var u = location.origin + "/" + x.id, L = ["🚐 " + (x.name || "จองที่นั่งรถตู้"), ""], dr = dateRange(x.startDate, x.endDate);
     if (dr) L.push("📅 " + dr);
     var tm = x.departTime ? x.departTime.replace(":", ".") + " น." : "";
     if (tm && x.meetPoint) L.push("📍 " + tm + " - " + x.meetPoint); else if (tm) L.push("⏰ " + tm); else if (x.meetPoint) L.push("📍 " + x.meetPoint);

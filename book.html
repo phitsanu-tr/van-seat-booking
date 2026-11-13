@@ -421,7 +421,11 @@ body.signed .hbar .lback svg{width:20px;height:20px}
     var dg=function(c){try{navigator.sendBeacon("/api/auth",new Blob([JSON.stringify({diag:c})],{type:"application/json"}));}catch(e){}};
     if (!window.liff) { resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
-      if (!liff.isInClient()) { resolve(false); return; }
+      if (!liff.isInClient()) {
+        // opened from a chat link in LINE's plain in-app browser: hand over to the LIFF link once (never loops)
+        try { if (/\bLine\//i.test(navigator.userAgent) && !sessionStorage.getItem("vsb_hand")) { sessionStorage.setItem("vsb_hand", "1"); location.replace("https://liff.line.me/" + LIFF_ID + location.pathname + location.search); return; } } catch (e) {}
+        resolve(false); return;
+      }
       document.documentElement.classList.add("in-line"); var vb = document.querySelector(".vb-bar"); if (vb) vb.style.display = "none"; // inside LINE: its own header already has the back button
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
@@ -1656,7 +1660,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     lineUrl = location.origin + location.pathname + "?" + qs.join("&");
     return lineUrl;
   }
-  function inviteLink() { return "https://liff.line.me/2012285472-FvtYKx00/" + TRIP; }
+  function inviteLink() { return location.origin + "/" + TRIP; } // short link: this page hands over to LIFF by itself inside LINE
   async function shareFriend() {
     var u = inviteLink(), L = [], T = trip || {};
     L.push("🚐 " + (T.name || "จองที่นั่งรถตู้"), "");
