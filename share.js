@@ -24,6 +24,7 @@
         { type: "box", layout: "vertical", flex: 0, borderWidth: "1px", borderColor: "#ffffffaa", cornerRadius: "8px", paddingTop: "1px", paddingBottom: "1px", paddingStart: "8px", paddingEnd: "8px",
           contents: [{ type: "text", text: String(t.id), size: "xs", weight: "bold", color: "#ffffff" }] }] },
       { type: "text", text: t.name || "จองที่นั่งรถตู้", weight: "bold", size: "sm", wrap: true, color: "#ffffff", margin: "sm" }] };
+    if (t.organizer) head.contents.push({ type: "text", text: String(t.organizer), size: "xxs", color: "#ffffffcc", maxLines: 1, margin: "xs" }); // organizer under the title, one line
     var body = [{ type: "box", layout: "horizontal", borderWidth: "1px", borderColor: "#dbe7e8", cornerRadius: "12px", paddingAll: "12px", contents: [
       half("เที่ยวไป", t.departTime, go, false),
       { type: "box", layout: "vertical", flex: 0, width: "28px", justifyContent: "center", alignItems: "center", contents: [

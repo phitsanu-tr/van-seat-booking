@@ -1663,7 +1663,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function inviteLink() { return "https://liff.line.me/2012285472-FvtYKx00/" + TRIP; }
   async function shareFriend() {
     var u = inviteLink(), L = [], T = trip || {};
-    if (await VSBShare.send({ id: TRIP, name: T.name, startDate: T.startDate, endDate: T.endDate, departTime: T.departTime, returnTime: T.returnTime, meetPoint: T.meetPoint, closed: closed || ended })) return; // a card in the chat; otherwise the text link below
+    if (await VSBShare.send({ id: TRIP, name: T.name, organizer: T.organizer, startDate: T.startDate, endDate: T.endDate, departTime: T.departTime, returnTime: T.returnTime, meetPoint: T.meetPoint, closed: closed || ended })) return; // a card in the chat; otherwise the text link below
     L.push("🚐 " + (T.name || "จองที่นั่งรถตู้"), "");
     if (T.startDate || T.departTime) L.push("📅 เที่ยวไป " + leg(T.startDate, T.departTime));
     if (T.endDate || T.returnTime) L.push("🔁 เที่ยวกลับ " + leg(T.endDate || T.startDate, T.returnTime));
