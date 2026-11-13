@@ -468,6 +468,13 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .sgrid button { border-width: 1px; border-color: transparent; background: #f1f4f6; }
 .sgrid button small { font-size: 10px; line-height: 14px}
 </style>
+<script>
+/* LINE opens liff.line.me/<id>/<trip> as <endpoint>?liff.state=/<trip>; on the home pages send it straight to that trip's booking page */
+(function(){try{var q=new URLSearchParams(location.search),s=q.get("liff.state");
+if(!s&&location.hash.indexOf("liff.state=")>=0)s=decodeURIComponent(location.hash.split("liff.state=")[1].split("&")[0]);
+var m=s&&/^\/?(?:mytrips\/)?([a-hj-km-np-z2-9]{6,8})(?:[\/?#].*)?$/.exec(s);
+if(m)location.replace("/"+m[1]);}catch(e){}})();
+</script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 (function(){
