@@ -846,7 +846,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   $("lineBtn").addEventListener("click", function (e) { // inside LINE: send a card into a chat; elsewhere (or when the picker is off) the text link on the button works as before
     if (!shown || !window.VSBShare) return;
     e.preventDefault(); var href = this.href;
-    VSBShare.send({ id: shown.id, name: $("name").value.trim(), organizer: $("organizer").value.trim(), startDate: $("startDate").value, endDate: $("endDate").value, departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value.trim() })
+    VSBShare.send({ id: shown.id, name: $("name").value.trim(), organizer: $("organizer").value.trim(), startDate: $("startDate").value, endDate: $("endDate").value, departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value.trim(), vans: rows.length, staffSeat: $("staffSeat").checked, limit: Number($("maxPer").value) })
       .then(function (sent) { if (!sent) location.href = href; });
   });
   function showResult(id, created, name) {

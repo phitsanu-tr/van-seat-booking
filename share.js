@@ -9,34 +9,43 @@
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || "")); if (!m) return "";
     return DOW[new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay()] + " " + (+m[3]) + " " + MON[+m[2] - 1];
   }
-  function half(label, time, date, end) { // one side of the schedule frame: label, big time, small date
+  var LINE_C = "#dbe7e8", TXT = "#1b1f22", SUB = "#5d6b73";
+  function txt(text, o) { var x = { type: "text", text: text, wrap: true }; for (var k in o) x[k] = o[k]; return x; }
+  function frame(contents, o) { // one bordered box (1px, 12px radius) — every info box on the card looks the same
+    var x = { type: "box", layout: "vertical", borderWidth: "1px", borderColor: LINE_C, cornerRadius: "12px", paddingTop: "8px", paddingBottom: "8px", paddingStart: "12px", paddingEnd: "12px", contents: contents };
+    for (var k in o) x[k] = o[k];
+    return x;
+  }
+  function info(label, value, flex) { return frame([txt(label, { size: "12px", color: SUB }), txt(value, { size: "14px", color: TXT })], flex ? { flex: 1 } : null); }
+  function half(label, time, date, end) { // one side of the schedule box: label, big time, small date
     var al = end ? "end" : "start";
     return { type: "box", layout: "vertical", flex: 1, contents: [
-      { type: "text", text: label, size: "xxs", color: "#5d6b73", align: al },
-      { type: "text", text: time ? String(time).replace(":", ".") : "–", size: "lg", weight: "bold", color: "#1b1f22", align: al },
-      { type: "text", text: date || " ", size: "xxs", color: "#4a555c", align: al }] };
+      txt(label, { size: "12px", color: SUB, align: al }),
+      txt(time ? String(time).replace(":", ".") : "–", { size: "20px", weight: "bold", color: TXT, align: al }),
+      txt(date || " ", { size: "12px", color: "#4a555c", align: al })] };
   }
+  function limitText(n) { return n === 0 ? "ไม่จำกัด" : n === 1 ? "1 ที่นั่ง" : "ไม่เกิน " + n + " ที่นั่ง"; }
   function bubble(t) {
-    var go = short(t.startDate), back = short(t.endDate);
+    var chip = { type: "box", layout: "vertical", flex: 0, borderWidth: "1px", borderColor: "#ffffffaa", cornerRadius: "8px", paddingTop: "1px", paddingBottom: "1px", paddingStart: "8px", paddingEnd: "8px",
+      contents: [txt(String(t.id), { size: "12px", weight: "bold", color: "#ffffff", wrap: false })] };
+    var org = t.organizer ? txt(String(t.organizer), { size: "12px", color: "#ffffffcc", maxLines: 1, flex: 1 }) : { type: "filler" };
     var head = { type: "box", layout: "vertical", backgroundColor: "#0e7c86", paddingAll: "12px", contents: [
-      { type: "box", layout: "horizontal", alignItems: "center", contents: [
-        { type: "text", text: "VANTRIP · ตั๋วรถตู้", size: "xxs", weight: "bold", color: "#ffffffcc", flex: 1 },
-        { type: "box", layout: "vertical", flex: 0, borderWidth: "1px", borderColor: "#ffffffaa", cornerRadius: "8px", paddingTop: "1px", paddingBottom: "1px", paddingStart: "8px", paddingEnd: "8px",
-          contents: [{ type: "text", text: String(t.id), size: "xs", weight: "bold", color: "#ffffff" }] }] },
-      { type: "text", text: t.name || "จองที่นั่งรถตู้", weight: "bold", size: "sm", wrap: true, color: "#ffffff", margin: "sm" }] };
-    if (t.organizer) head.contents.push({ type: "text", text: String(t.organizer), size: "xxs", color: "#ffffffcc", maxLines: 1, margin: "xs" }); // organizer under the title, one line
-    var body = [{ type: "box", layout: "horizontal", borderWidth: "1px", borderColor: "#dbe7e8", cornerRadius: "12px", paddingAll: "12px", contents: [
-      half("เที่ยวไป", t.departTime, go, false),
+      txt(t.name || "จองที่นั่งรถตู้", { weight: "bold", size: "16px", color: "#ffffff" }),
+      { type: "box", layout: "horizontal", alignItems: "center", margin: "4px", contents: [org, chip] }] };
+    var body = [frame([{ type: "box", layout: "horizontal", contents: [
+      half("เที่ยวไป", t.departTime, short(t.startDate), false),
       { type: "box", layout: "vertical", flex: 0, width: "28px", justifyContent: "center", alignItems: "center", contents: [
-        { type: "text", text: "→", size: "lg", weight: "bold", color: "#0e7c86", align: "center" },
-        { type: "text", text: "←", size: "lg", weight: "bold", color: "#e5484d", align: "center" }] },
-      half("เที่ยวกลับ", t.returnTime, back, true)] }];
-    if (t.meetPoint) body.push({ type: "box", layout: "baseline", spacing: "sm", margin: "sm", contents: [
-      { type: "text", text: "📍", size: "xs", flex: 0 },
-      { type: "text", text: t.meetPoint, size: "xs", color: "#4a555c", wrap: true, flex: 1 }] });
+        txt("→", { size: "20px", weight: "bold", color: "#0e7c86", align: "center", wrap: false }),
+        txt("←", { size: "20px", weight: "bold", color: "#e5484d", align: "center", wrap: false })] },
+      half("เที่ยวกลับ", t.returnTime, short(t.endDate), true)] }], { paddingAll: "12px" })];
+    if (t.meetPoint) body.push(info("จุดนัดพบ", t.meetPoint, false));
+    var row = [], n = Number(t.vans) || 0;
+    if (n > 0) row.push(info("รถตู้", n + " คัน · " + (n * 10 - (t.staffSeat ? n : 0)) + " ที่นั่ง", true));
+    if (t.limit != null && isFinite(Number(t.limit))) row.push(info("จองได้ต่อคน", limitText(Number(t.limit)), true));
+    if (row.length) body.push({ type: "box", layout: "horizontal", spacing: "8px", contents: row });
     return { type: "bubble", size: "mega",
       header: head,
-      body: { type: "box", layout: "vertical", paddingAll: "12px", contents: body },
+      body: { type: "box", layout: "vertical", paddingAll: "12px", spacing: "8px", contents: body },
       footer: { type: "box", layout: "vertical", paddingAll: "10px", paddingTop: "0px", contents: [{ type: "button", style: "primary", color: "#0e7c86", height: "sm",
         action: { type: "uri", label: t.closed ? "ดูผังที่นั่ง" : "เลือกที่นั่ง", uri: liffUrl(t.id) } }] } };
   }
@@ -55,7 +64,7 @@
     });
     return ready;
   }
-  function send(t) { // t: {id, name, startDate, endDate, departTime, returnTime, meetPoint, closed}
+  function send(t) { // t: {id, name, organizer, startDate, endDate, departTime, returnTime, meetPoint, vans (count), staffSeat, limit (0 = none), closed}
     return ensure().then(function (ok) {
       if (!ok || !t || !t.id) return false;
       try {
