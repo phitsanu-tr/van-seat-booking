@@ -352,7 +352,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       </div>
       <div class="grp r"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span><b>ขากลับ</b></div>
         <label>วันที่ <input type="date" id="endDate"></label>
-        <label>เวลารถออก <small>(ไม่บังคับ)</small> <input type="time" id="returnTime"></label>
+        <label>เวลารถออก <input type="time" id="returnTime"></label>
       </div>
     </div>
    </section>
@@ -964,7 +964,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!$(f[0]).value) { var c = fieldErr($(f[0]), f[1]); first = first || c; }
     });
     if (c1 && $("startDate").value && $("endDate").value && $("endDate").value < $("startDate").value) { var ed = fieldErr($("endDate"), "วันกลับต้องไม่ก่อนวันไป"); first = first || ed; }
-    if (c1 && !$("departTime").value) { var tc = fieldErr($("departTime"), "ระบุเวลาออกเดินทาง"); first = first || tc; }
+    if (c1 && !$("departTime").value) { var tc = fieldErr($("departTime"), "ระบุเวลารถออกขาไป"); first = first || tc; }
+    if (c1 && !$("returnTime").value) { var rc = fieldErr($("returnTime"), "ระบุเวลารถออกขากลับ"); first = first || rc; }
     if (c2 && !$("meetPoint").value.trim()) { var mc = fieldErr($("meetPoint"), "ระบุจุดนัดพบ"); first = first || mc; }
     var seen = {}, dupBad = false;
     if (c2) [].forEach.call(vansEl.querySelectorAll("input.vn"), function (inp, i) {

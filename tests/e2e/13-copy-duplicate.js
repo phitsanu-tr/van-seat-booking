@@ -3,7 +3,7 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function user(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2,permissions:['clipboard-read','clipboard-write']});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),P=await user('Pat'),Q=await user('Qin');
-const tr=await (await A.request.post(B+'/api/trip',{data:{name:'เขาใหญ่ชิล ๆ',organizer:'ทัวร์ตัวตึง',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'07:00',meetPoint:'BTS หมอชิต',maxPerPerson:2,vans:[{label:'1',plate:'กข 1234'},{label:'2'}]}})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:{name:'เขาใหญ่ชิล ๆ',organizer:'ทัวร์ตัวตึง',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'07:00',returnTime:'17:00',meetPoint:'BTS หมอชิต',maxPerPerson:2,vans:[{label:'1',plate:'กข 1234'},{label:'2'}]}})).json();const ID=tr.id;
 await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'แพท'}});await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:1,name:'แพทสอง'}});
 await Q.request.post(B+'/api/seats?t='+ID+'&v=v2',{data:{seat:5,name:'ฉิน'}});
 const clip=()=>A.evaluate(()=>navigator.clipboard.readText());
