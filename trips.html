@@ -297,14 +297,16 @@ form label { position: relative; }
 .pk-nm .pk-m.w { grid-column: span 2; }
 .pk-note { margin: -4px 0 0; font-size: 14px; line-height: 20px; color: var(--muted); }
 
-/* วันและเวลา as a little timeline: 1 ขาไป -> 2 ขากลับ */
-.tl { position: relative; padding-left: 36px; display: grid; gap: 20px; }
-.tl::before { content: ""; position: absolute; left: 11px; top: 16px; bottom: 16px; border-left: 2px dashed #9fd3d8; }
-.tl .grp { position: relative; display: grid; gap: 12px; }
-.tl .grp > .dot { position: absolute; left: -36px; top: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--mine); color: #fff; display: grid; place-items: center; font: 700 12px/24px var(--font-display); }
-.tl .grp > .dot.r { background: #e5484d; }
-.tl .grp > b { font: 700 14px/24px var(--font-display); color: var(--ink); }
-.tl label input { margin-top: 0; }
+/* วันและเวลา: one tinted block per leg, an arrow badge instead of numbers (→ ขาไป, ← ขากลับ) */
+.tl { display: grid; gap: 10px; }
+.tl .grp { display: grid; gap: 12px; background: #eef6f7; border-radius: 14px; padding: 12px 12px 14px; }
+.tl .grp.r { background: #fdf0f1; }
+.tl .grp > .gh { display: flex; align-items: center; gap: 8px; font: 700 16px/24px var(--font-display); color: var(--ink); }
+.tl .gh .dot { width: 24px; height: 24px; border-radius: 50%; background: var(--mine); color: #fff; display: grid; place-items: center; flex: none; }
+.tl .grp.r .gh .dot { background: #e5484d; }
+.tl .gh .dot svg { width: 14px; height: 14px; }
+.tl label small { display: inline-block; margin-left: 4px; padding: 0 8px; border-radius: 10px; background: #fff; color: #d6454a; font: 500 12px/18px var(--font-body); }
+.tl label input { margin-top: 0; border-color: transparent; }
 </style>
 <script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("inline")}catch(e){}</script>
 <link rel="stylesheet" href="/ui.css">
@@ -344,11 +346,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
    </section>
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><b>วันและเวลา</b></div>
     <div class="tl">
-      <div class="grp"><span class="dot" aria-hidden="true">1</span><b>ขาไป</b>
+      <div class="grp"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><b>ขาไป</b></div>
         <label>วันที่ <input type="date" id="startDate"></label>
         <label>เวลารถออก <input type="time" id="departTime"></label>
       </div>
-      <div class="grp"><span class="dot r" aria-hidden="true">2</span><b>ขากลับ</b>
+      <div class="grp r"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span><b>ขากลับ</b></div>
         <label>วันที่ <input type="date" id="endDate"></label>
         <label>เวลารถออก <small>(ไม่บังคับ)</small> <input type="time" id="returnTime"></label>
       </div>
