@@ -12,31 +12,31 @@
   function half(label, time, date, end) { // one side of the schedule frame: label, big time, small date
     var al = end ? "end" : "start";
     return { type: "box", layout: "vertical", flex: 1, contents: [
-      { type: "text", text: label, size: "xs", color: "#5d6b73", align: al },
-      { type: "text", text: time ? String(time).replace(":", ".") : "–", size: "xxl", weight: "bold", color: "#1b1f22", align: al },
-      { type: "text", text: date || " ", size: "xs", color: "#4a555c", align: al }] };
+      { type: "text", text: label, size: "xxs", color: "#5d6b73", align: al },
+      { type: "text", text: time ? String(time).replace(":", ".") : "–", size: "lg", weight: "bold", color: "#1b1f22", align: al },
+      { type: "text", text: date || " ", size: "xxs", color: "#4a555c", align: al }] };
   }
   function bubble(t) {
     var go = short(t.startDate), back = short(t.endDate);
-    var head = { type: "box", layout: "vertical", backgroundColor: "#0e7c86", paddingAll: "16px", contents: [
+    var head = { type: "box", layout: "vertical", backgroundColor: "#0e7c86", paddingAll: "12px", contents: [
       { type: "box", layout: "horizontal", alignItems: "center", contents: [
         { type: "text", text: "VANTRIP · ตั๋วรถตู้", size: "xxs", weight: "bold", color: "#ffffffcc", flex: 1 },
         { type: "box", layout: "vertical", flex: 0, borderWidth: "1px", borderColor: "#ffffffaa", cornerRadius: "8px", paddingTop: "1px", paddingBottom: "1px", paddingStart: "8px", paddingEnd: "8px",
           contents: [{ type: "text", text: String(t.id), size: "xs", weight: "bold", color: "#ffffff" }] }] },
-      { type: "text", text: t.name || "จองที่นั่งรถตู้", weight: "bold", size: "lg", wrap: true, color: "#ffffff", margin: "sm" }] };
+      { type: "text", text: t.name || "จองที่นั่งรถตู้", weight: "bold", size: "sm", wrap: true, color: "#ffffff", margin: "sm" }] };
     var body = [{ type: "box", layout: "horizontal", borderWidth: "1px", borderColor: "#dbe7e8", cornerRadius: "12px", paddingAll: "12px", contents: [
       half("เที่ยวไป", t.departTime, go, false),
       { type: "box", layout: "vertical", flex: 0, width: "28px", justifyContent: "center", alignItems: "center", contents: [
         { type: "text", text: "→", size: "lg", weight: "bold", color: "#0e7c86", align: "center" },
         { type: "text", text: "←", size: "lg", weight: "bold", color: "#e5484d", align: "center" }] },
       half("เที่ยวกลับ", t.returnTime, back, true)] }];
-    if (t.meetPoint) body.push({ type: "box", layout: "baseline", spacing: "sm", margin: "md", contents: [
-      { type: "text", text: "📍", size: "sm", flex: 0 },
-      { type: "text", text: t.meetPoint, size: "sm", color: "#4a555c", wrap: true, flex: 1 }] });
+    if (t.meetPoint) body.push({ type: "box", layout: "baseline", spacing: "sm", margin: "sm", contents: [
+      { type: "text", text: "📍", size: "xs", flex: 0 },
+      { type: "text", text: t.meetPoint, size: "xs", color: "#4a555c", wrap: true, flex: 1 }] });
     return { type: "bubble", size: "mega",
       header: head,
-      body: { type: "box", layout: "vertical", paddingAll: "16px", contents: body },
-      footer: { type: "box", layout: "vertical", contents: [{ type: "button", style: "primary", color: "#0e7c86", height: "sm",
+      body: { type: "box", layout: "vertical", paddingAll: "12px", contents: body },
+      footer: { type: "box", layout: "vertical", paddingAll: "10px", paddingTop: "0px", contents: [{ type: "button", style: "primary", color: "#0e7c86", height: "sm",
         action: { type: "uri", label: t.closed ? "ดูผังที่นั่ง" : "เลือกที่นั่ง", uri: liffUrl(t.id) } }] } };
   }
   var ready = null;
