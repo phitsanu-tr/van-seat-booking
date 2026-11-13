@@ -306,7 +306,7 @@ form label { position: relative; }
 .tl .gh .dot svg { width: 22px; height: 22px; }
 .tl .grp > .gh { margin-bottom: -4px; } /* heading sits 12px above its first field */
 .tl .gh b { font-weight: inherit; } /* <b> inside a 700 heading rendered at 900 */
-.tl label .pk { margin-top: 8px; } /* same label-to-field gap as the text fields */
+form label > .pk { margin-top: 8px; } /* same 8px label-to-field gap as the text fields (dates, times, limit picker) */
 </style>
 <script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("inline")}catch(e){}</script>
 <link rel="stylesheet" href="/ui.css">
@@ -335,7 +335,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   </button>
 
   <form id="form" novalidate>
-   <div class="stp" id="stp"><div class="s on"><i>1</i><span>รายละเอียดทริป</span></div><div class="s"><i>2</i><span>จุดนัดพบและรถ</span></div><div class="s"><i>3</i><span>สรุปและยืนยัน</span></div></div>
+   <div class="stp" id="stp"><div class="s on"><i>1</i><span>รายละเอียดทริป</span></div><div class="s"><i>2</i><span>จุดนัดพบและรถตู้</span></div><div class="s"><i>3</i><span>สรุปและยืนยัน</span></div></div>
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></span><b>รายละเอียดทริป</b></div>
     <label>ชื่อทริปของคุณ
       <span class="cnt" data-for="name"></span><input type="text" id="name" maxlength="60" placeholder="เช่น ดอยหลวงเชียงดาว (2 วัน 1 คืน)" required>
@@ -356,19 +356,19 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       </div>
     </div>
    </section>
-   <section class="card fg" data-step="2"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 1114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><b>จุดนัดพบและรถ</b></div>
+   <section class="card fg" data-step="2"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 1114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><b>จุดนัดพบและรถตู้</b></div>
     <label>จุดนัดพบ
       <span class="cnt" data-for="meetPoint"></span><input type="text" id="meetPoint" maxlength="60" placeholder="เช่น ลานจอดรถ BTS หมอชิต">
     </label>
     <div>
-      <div class="vh" style="font-weight:600;font-size:14px;margin-bottom:8px">รถตู้ <small>(คันละ 10 ที่นั่ง)</small></div>
+      <div class="vh" style="font-weight:600;font-size:14px;margin-bottom:8px">จำนวนรถตู้ <small>(คันละ 10 ที่นั่ง)</small></div>
       <div class="vans" id="vans"></div>
       <button type="button" class="btn plain small" id="addVan" style="margin-top:8px">+ เพิ่มรถอีกคัน</button>
     </div>
-    <label class="swl stf"><span class="swt"><b>สงวนที่นั่ง 1 สำหรับผู้จัด</b><small>ใช้กับรถทุกคัน · ผู้ร่วมทริปจองที่นั่งนี้ไม่ได้</small></span><input type="checkbox" id="staffSeat" class="sw ok" role="switch"></label>
+    <label class="swl stf"><span class="swt"><b>กันที่นั่ง 1 ไว้ให้ผู้จัด</b><small>ใช้กับรถทุกคัน · ผู้ร่วมทริปจองที่นั่งนี้ไม่ได้</small></span><input type="checkbox" id="staffSeat" class="sw ok" role="switch"></label>
     <div class="stn" id="staffNameRow" hidden><span>ชื่อที่แสดง</span><input type="hidden" id="staffName" value="STAFF"><button type="button" data-n="STAFF">STAFF</button><button type="button" data-n="ไกด์">ไกด์</button><button type="button" data-n="ผู้จัด">ผู้จัด</button></div>
-    <div class="stw" id="staffGap" hidden><span></span><button type="button" id="staffRestore">สงวนคืน</button></div>
-    <label>จองได้สูงสุดต่อคน <small>(รวมทุกคัน · คนจัดทริปไม่จำกัด)</small>
+    <div class="stw" id="staffGap" hidden><span></span><button type="button" id="staffRestore">กันคืน</button></div>
+    <label>จำกัดที่นั่งต่อคน <small>(รวมทุกคัน · คนจัดทริปไม่จำกัด)</small>
       <input type="hidden" id="maxPer" value="1">
     </label>
    </section>
@@ -578,7 +578,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     input.parentNode.appendChild(b); sync();
     var ALL = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "0"];
     b.addEventListener("click", function () {
-      var sheet = shell("จองได้สูงสุดต่อคน", b);
+      var sheet = shell("จำกัดที่นั่งต่อคน", b);
       sheet.appendChild(el("p", "pk-note", "รวมทุกคัน · คนจัดทริปและผู้ช่วยจองได้ไม่จำกัด"));
       var g = el("div", "pk-nm"), cur = input.value || "1";
       ALL.forEach(function (v) {
@@ -757,7 +757,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       }
       d.appendChild(h);
       var two = document.createElement("div"); two.className = "vf";
-      var l1 = document.createElement("label"); l1.appendChild(document.createTextNode("ชื่อคัน"));
+      var l1 = document.createElement("label"); l1.appendChild(document.createTextNode("ชื่อรถ"));
       var inp = document.createElement("input"); inp.type = "text"; inp.className = "vn"; inp.maxLength = 4; inp.value = r.label;
       inp.placeholder = "เช่น A หรือ 1"; inp.setAttribute("aria-label", "ชื่อรถคันที่ " + (i + 1));
       inp.autocapitalize = "characters"; inp.autocomplete = "off"; inp.spellcheck = false;
@@ -767,7 +767,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         r.label = v;
       });
       l1.appendChild(inp);
-      var l2 = document.createElement("label"); l2.innerHTML = "ทะเบียน <small>(ไม่บังคับ)</small>";
+      var l2 = document.createElement("label"); l2.innerHTML = "ทะเบียนรถ <small>(ไม่บังคับ)</small>";
       var pl = document.createElement("input"); pl.type = "text"; pl.className = "vp"; pl.maxLength = 25; pl.value = r.plate || "";
       pl.placeholder = "เช่น 1 กข 2025 พิษณุโลก"; pl.setAttribute("aria-label", "ทะเบียนรถคันที่ " + (i + 1)); pl.autocomplete = "off";
       pl.addEventListener("input", function () { r.plate = pl.value; });
@@ -776,7 +776,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       vansEl.appendChild(d);
     });
     var add = $("addVan"), full = rows.length >= vanCap, canUp = PL.on && PL.tier !== "premium";
-    add.disabled = full && !canUp; add.textContent = full ? (canUp ? "รถสูงสุด " + vanCap + " คัน · อัปเกรดเพื่อเพิ่ม" : "เพิ่มรถได้สูงสุด " + vanCap + " คัน") : "+ เพิ่มรถอีกคัน";
+    add.disabled = full && !canUp; add.textContent = full ? (canUp ? "แพ็กเกจนี้เพิ่มรถได้ " + vanCap + " คัน · อัปเกรดเพื่อเพิ่ม" : "เพิ่มรถได้สูงสุด " + vanCap + " คัน") : "+ เพิ่มรถอีกคัน";
   }
   // the package doesn't allow this: explain, then packages / a per-trip pass
   function thDate(v) { var d = typeof v === "number" ? new Date(v + 7 * 3600000) : new Date(v + "T00:00:00Z"); return d.getUTCDate() + " " + ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."][d.getUTCMonth()] + " " + String((d.getUTCFullYear() + 543) % 100); }
@@ -1018,7 +1018,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();
         showResult(T, "saved", data.trip.name);
         staffGapL = data.staffGaps || []; staffUi();
-        if (data.staffSkipped) toast("ที่นั่ง 1 คัน " + data.staffSkipped.join(", ") + " มีคนจองแล้ว จึงไม่ได้สงวนไว้");
+        if (data.staffSkipped) toast("ที่นั่ง 1 คัน " + data.staffSkipped.join(", ") + " มีคนจองแล้ว จึงไม่ได้กันไว้");
       } else {
         T = data.id; editing = true; setStep(1); // now an edit page: one page, all cards
         history.replaceState(null, "", editPath(T));
@@ -1109,7 +1109,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
      ["เที่ยวไป", leg(sd, $("departTime").value)],
      ["เที่ยวกลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
      ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
-     ["จองได้ต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["ที่นั่ง 1", "สงวนสำหรับผู้จัด ทุกคัน · ขึ้นชื่อ " + $("staffName").value] : null
+     ["จำกัดที่นั่งต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["ที่นั่ง 1", "กันไว้ให้ผู้จัด ทุกคัน · ขึ้นชื่อ " + $("staffName").value] : null
     ].forEach(function (r) {
       if (!r || !r[1]) return;
       var d = document.createElement("div"); d.className = "r";
@@ -1162,7 +1162,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       $("meetPoint").value.trim(), $("staffSeat").checked, $("staffName").value, rows.map(function (r) { return [r.id, (r.label || "").trim(), (r.plate || "").trim()]; }), $("maxPer").value,
       $("closeDate").value, $("closeTime").value, $("closedNow").checked]);
   }
-  // "สงวนที่นั่ง 1 สำหรับผู้จัด": name chips show only while the switch is on
+  // "กันที่นั่ง 1 ไว้ให้ผู้จัด": name chips show only while the switch is on
   var staffGapL = []; // vans whose seat 1 was cancelled (edit page, from the server)
   function staffUi() {
     $("staffNameRow").hidden = !$("staffSeat").checked;
@@ -1176,10 +1176,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     try {
       var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: T, staffRestore: true }) });
       var d = await r.json();
-      if (!r.ok) { toast("สงวนคืนไม่สำเร็จ ลองอีกครั้ง"); return; }
+      if (!r.ok) { toast("กันที่นั่งคืนไม่สำเร็จ ลองอีกครั้ง"); return; }
       staffGapL = d.gaps || []; staffUi();
-      if (d.taken && d.taken.length) toast("ที่นั่ง 1 คัน " + d.taken.join(", ") + " มีคนจองแล้ว จึงสงวนคืนไม่ได้");
-      else toast("สงวนที่นั่ง 1 คืนแล้ว", false, true);
+      if (d.taken && d.taken.length) toast("ที่นั่ง 1 คัน " + d.taken.join(", ") + " มีคนจองแล้ว จึงกันคืนไม่ได้");
+      else toast("กันที่นั่ง 1 คืนแล้ว", false, true);
     } catch (x) { toast("เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง"); }
     finally { b.disabled = false; }
   });
