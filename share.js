@@ -52,7 +52,7 @@
       try {
         if (!liff.isInClient() || !liff.isLoggedIn() || !liff.isApiAvailable("shareTargetPicker")) return false;
       } catch (e) { return false; }
-      return liff.shareTargetPicker([{ type: "flex", altText: (t.name || "จองที่นั่งรถตู้") + " · จองที่นั่งได้ที่นี่ " + liffUrl(t.id), contents: bubble(t) }])
+      return liff.shareTargetPicker([{ type: "flex", altText: "🚐 " + (t.name || "จองที่นั่งรถตู้") + " · เลือกที่นั่ง", contents: bubble(t) }])
         .then(function () { return true; }, function () { return false; });
     }).catch(function () { return false; });
   }
