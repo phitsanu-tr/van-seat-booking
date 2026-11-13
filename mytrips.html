@@ -670,6 +670,58 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
     return L.join("\n");
   }
 
+  // ---- download the passenger list: a print page (save as PDF) or a CSV file for Excel ----
+  function csvCell(v) { v = String(v == null ? "" : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  function isoT(ts) { if (!ts) return ""; var d = new Date(Number(ts) + 7 * 3600 * 1000); return d.toISOString().slice(0, 16).replace("T", " "); }
+  function eh(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function downloadCSV(trip, roster) {
+    var rows = [["ทริป", "รถ", "ที่นั่ง", "ชื่อผู้จอง", "จองเมื่อ", "ขึ้นรถ"]];
+    trip.vans.forEach(function (v) {
+      var seats = roster[v.id] || {};
+      Object.keys(seats).map(Number).sort(function (a, b) { return a - b; }).forEach(function (n) {
+        var s = seats[n]; rows.push([trip.name || "", "รถ " + v.label, n, s.name, isoT(s.at), s.c ? "ขึ้นแล้ว" : ""]);
+      });
+    });
+    var blob = new Blob(["\ufeff" + rows.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n")], { type: "text/csv;charset=utf-8" });
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = "รายชื่อ-" + String(trip.name || "ทริป").replace(/[\\/:*?"<>|]+/g, " ").trim().slice(0, 60) + ".csv";
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+    toast("ดาวน์โหลดไฟล์ CSV แล้ว เปิดใน Excel ได้เลย");
+  }
+  function printRoster(trip, roster) {
+    var dr = dateRange(trip.startDate, trip.endDate), tm = trip.departTime ? "ออก " + trip.departTime.replace(":", ".") + " น." : "";
+    var h = "";
+    trip.vans.forEach(function (v) {
+      var seats = roster[v.id] || {}, n, cnt = 0; for (n = 1; n <= 10; n++) if (seats[n]) cnt++;
+      h += '<h2>รถคัน ' + eh(v.label) + (v.plate ? " · " + eh(v.plate) : "") + ' <small>' + cnt + '/10 ที่</small></h2>';
+      h += '<table><tr><th class=c>ที่</th><th>ชื่อผู้จอง</th><th>จองเมื่อ</th><th class=c>ขึ้นรถ</th><th class=nt>หมายเหตุ</th></tr>';
+      for (n = 1; n <= 10; n++) {
+        var s = seats[n];
+        h += s ? '<tr><td class=c>' + n + '</td><td>' + eh(s.name) + '</td><td>' + eh(when(s.at)) + '</td><td class="c chk">' + (s.c ? "✓" : "") + '</td><td></td></tr>'
+               : '<tr class=e><td class=c>' + n + '</td><td>— ว่าง —</td><td></td><td></td><td></td></tr>';
+      }
+      h += '</table>';
+    });
+    var html = '<!doctype html><html lang=th><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>รายชื่อ — ' + eh(trip.name || "") + '</title>'
+      + '<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap" rel=stylesheet>'
+      + '<style>body{font-family:Prompt,"Noto Sans Thai",sans-serif;color:#111;margin:0;padding:28px 30px;max-width:640px;margin:0 auto}'
+      + 'h1{font-size:19px;margin:0;color:#0b5f67}.sub{font-size:12.5px;color:#555;margin-top:4px;line-height:1.6}'
+      + 'h2{font-size:13.5px;margin:22px 0 8px}h2 small{color:#777;font-weight:400}'
+      + 'table{width:100%;border-collapse:collapse;font-size:12.5px}th{background:#eef6f7;color:#0b5f67;text-align:left;padding:6px 10px;font-weight:600;font-size:11.5px}'
+      + 'td{padding:6px 10px;border-bottom:1px solid #eef1f3}tr.e td{color:#bbb}.c{text-align:center;width:40px}.nt{width:30%}.chk{color:#0b8457;font-weight:700}'
+      + '.foot{margin-top:24px;font-size:10.5px;color:#999}'
+      + '.pbar{position:sticky;top:0;background:#0b5f67;margin:-28px -30px 20px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center}'
+      + '.pbar button{background:#fff;color:#0b5f67;border:0;border-radius:9px;padding:8px 18px;font:600 13px Prompt,sans-serif}.pbar span{color:#fff;font-size:12px}'
+      + '@media print{.pbar{display:none}body{padding:0}}</style>'
+      + '<div class=pbar><span>กด "พิมพ์" แล้วเลือกบันทึกเป็น PDF ได้</span><button onclick="print()">พิมพ์</button></div>'
+      + '<h1>รายชื่อผู้โดยสาร — ' + eh(trip.name || "") + '</h1>'
+      + '<div class=sub>' + eh([dr, tm].filter(Boolean).join(" · ")) + (trip.meetPoint ? '<br>จุดนัดพบ: ' + eh(trip.meetPoint) : "") + '</div>'
+      + h + '<div class=foot>พิมพ์จาก VanTrip · ' + eh(when(Date.now())) + '</div>';
+    var w = null; try { w = window.open("", "_blank"); } catch (e) { w = null; }
+    if (!w || !w.document) { toast("เปิดหน้าพิมพ์ไม่ได้ ลองเปิดแอปในเบราว์เซอร์ภายนอก (Safari/Chrome)", true); return; }
+    w.document.write(html); w.document.close();
+  }
   // ---- share the booking link (same as the booking page's "ส่งให้เพื่อน") ----
   // sheet title with a × at the top right (sheets that only show things; sheets that ask a question keep their buttons)
   function sheetHead(sh, title, onClose) {
@@ -878,7 +930,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
   }
 
   // ---- small pop-up menu under a button (never a browser dialog) ----
-  var MI = { pen: '<path d="M4 20h4l10-10-4-4L4 16v4zM13.5 6.5l4 4"/>', trash: '<path d="M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13"/>' };
+  var MI = { pen: '<path d="M4 20h4l10-10-4-4L4 16v4zM13.5 6.5l4 4"/>', trash: '<path d="M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13"/>', doc: '<path d="M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6"/>', dl: '<path d="M12 4v10m0 0l-4-4m4 4l4-4M5 20h14"/>' };
   function openMenu(anchor, items) {
     var old = document.querySelector(".pmenu"); if (old) { old._done(); if (old._for === anchor) return; }
     var m = node("div", "pmenu"); m.setAttribute("role", "menu"); m._for = anchor;
@@ -1096,7 +1148,13 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
       var tools = node("div", "rtools"), cpb = node("button", null); cpb.type = "button"; cpb.innerHTML = COPY_SVG; cpb.appendChild(document.createTextNode("คัดลอกรายชื่อ"));
       cpb.addEventListener("click", function () { copyText(rosterText(st.trip, st.roster, !st.closed && !st.ended), "คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย"); });
       tools.appendChild(cpb);
-      tools.style.gridTemplateColumns = "1fr"; // close/reopen lives in the ⋯ manage menu
+      var dlb = node("button", null); dlb.type = "button"; dlb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MI.dl + '</svg>'; dlb.appendChild(document.createTextNode("ดาวน์โหลด")); dlb.setAttribute("aria-haspopup", "menu");
+      dlb.addEventListener("click", function (e) { e.stopPropagation(); openMenu(dlb, [
+        ["หน้าพิมพ์ / PDF", "doc", "", function () { printRoster(st.trip, st.roster); }],
+        ["ไฟล์ Excel (CSV)", "dl", "", function () { downloadCSV(st.trip, st.roster); }],
+      ]); });
+      tools.appendChild(dlb);
+      tools.style.gridTemplateColumns = "1fr 1fr"; // close/reopen lives in the ⋯ manage menu
       sh.appendChild(tools);
       if (st.closed && !st.ended) { var cn = node("div", "cnote"); cn.innerHTML = LOCK_SVG; cn.appendChild(node("span", null, "ปิดรับจองอยู่ · ผู้จองจองหรือยกเลิกเองไม่ได้ คุณยังจัดการที่นั่งด้านล่างได้")); sh.appendChild(cn); }
       if (st.trip.vans.length > 1) sh.appendChild(chips(function (id) { st.van = id; draw(); }, st.van));
