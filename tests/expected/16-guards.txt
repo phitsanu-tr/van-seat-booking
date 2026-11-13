@@ -3,4 +3,6 @@ limit burst: at most 2 held true
 cross-site write 403 403
 hold flood: ok 5 <= 5 and refused true
 odd sku refused
+import dry-run: counts {"new":1,"auto":1,"same":0,"note":0,"err":2} booked none true
+import apply: created 2 seat8 มานี total 4
 ERR []

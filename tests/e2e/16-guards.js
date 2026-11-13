@@ -32,5 +32,12 @@ log('hold flood: ok',hs.filter(s=>s===200).length,'<= 5 and refused',hs.filter(s
 // 5) odd package code ("constructor") is refused, never turned into an order
 const sk=await P.request.post(B+'/api/pay',{data:{sku:'constructor'}});
 log('odd sku',sk.status()===400||sk.status()===403?'refused':'status '+sk.status());
+// 6) import: dry run changes nothing, apply books, conflicts and unknown vans are reported per row
+const imp=async(apply,rows)=>(await (await A.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{t:ID,v:'v1',import:{rows,defVan:'v1',apply}}})).json());
+const rows=[{v:'',s:'8',name:'มานี',note:'จ่ายแล้ว'},{v:'',s:'',name:'ชูใจ',note:''},{v:'',s:'8',name:'ปิติ',note:''},{v:'9',s:'',name:'วีระ',note:''}];
+const d1=await imp(false,rows);const r0=(await (await A.request.get(B+'/api/trip?t='+ID+'&roster=1')).json()).roster.v1;
+log('import dry-run: counts',JSON.stringify(d1.counts),'booked none',!r0[8]);
+const d2=await imp(true,rows);const r1=(await (await A.request.get(B+'/api/trip?t='+ID+'&roster=1')).json()).roster.v1;
+log('import apply: created',d2.created,'seat8',r1[8]&&r1[8].name,'total',Object.keys(r1).length);
 log('ERR',errs);await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

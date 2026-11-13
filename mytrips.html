@@ -1132,7 +1132,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
         if (!sh.style.height) sh.style.height = (ROSTER_H[x.id] || Math.round(window.innerHeight * 0.7)) + "px";
         return;
       }
-      if (st.mode === "list") drawList(); else if (st.mode === "rename") drawRename(); else if (st.mode === "note") drawNote(); else drawMove();
+      if (st.mode === "list") drawList(); else if (st.mode === "rename") drawRename(); else if (st.mode === "note") drawNote(); else if (st.mode === "import") drawImport(); else drawMove();
     }
     function drawList() {
       sheetHead(sh, "รายชื่อผู้จอง", close);
@@ -1165,7 +1165,12 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
         ["ไฟล์ Excel (CSV)", "dl", "", function () { if (inLiff) viaBrowser(true); else downloadCSV(st.trip, st.roster); }],
       ]); });
       tools.appendChild(dlb);
-      tools.style.gridTemplateColumns = "1fr 1fr"; // close/reopen lives in the ⋯ manage menu
+      if (!st.ended) {
+        var imb = node("button", null, "นำเข้า"); imb.type = "button";
+        imb.addEventListener("click", function () { st.imp = { tab: "file", rows: null, prev: null, text: "", err: "" }; st.mode = "import"; draw(); });
+        tools.appendChild(imb);
+      }
+      tools.style.gridTemplateColumns = st.ended ? "1fr 1fr" : "1fr 1fr 1fr"; // close/reopen lives in the ⋯ manage menu
       sh.appendChild(tools);
       if (st.closed && !st.ended) { var cn = node("div", "cnote"); cn.innerHTML = LOCK_SVG; cn.appendChild(node("span", null, "ปิดรับจองอยู่ · ผู้จองจองหรือยกเลิกเองไม่ได้ คุณยังจัดการที่นั่งด้านล่างได้")); sh.appendChild(cn); }
       if (st.trip.vans.length > 1) sh.appendChild(chips(function (id) { st.van = id; draw(); }, st.van));
@@ -1413,6 +1418,125 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
       });
       acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
       setTimeout(function () { inp.focus(); }, 50);
+    }
+    // ---- import passengers: CSV file or pasted text -> preview (dry run) -> confirm ----
+    function parseCSV(text) {
+      text = String(text || "").replace(/^﻿/, "");
+      var first = text.split(/\r?\n/)[0] || "", d = ",";
+      [",", ";", "\t"].forEach(function (c) { if (first.split(c).length > first.split(d).length) d = c; });
+      var rows = [], row = [], cell = "", q = false;
+      for (var i = 0; i < text.length; i++) {
+        var ch = text[i];
+        if (q) { if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+        else if (ch === '"') q = true;
+        else if (ch === d) { row.push(cell); cell = ""; }
+        else if (ch === "\n" || ch === "\r") { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(cell); cell = ""; rows.push(row); row = []; }
+        else cell += ch;
+      }
+      if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+      return rows.filter(function (r) { return r.some(function (c) { return String(c).trim() !== ""; }); });
+    }
+    function rowsFromTable(tb) {
+      if (!tb.length) return [];
+      var h = tb[0].map(function (c) { return String(c).trim(); }), col = { v: -1, s: -1, name: -1, note: -1 };
+      h.forEach(function (c, i) { if (/^รถ|คัน|van/i.test(c)) col.v = i; else if (/ที่นั่ง|^ที่$|seat/i.test(c)) col.s = i; else if (/ชื่อ|name/i.test(c)) col.name = i; else if (/หมายเหตุ|โน้ต|note/i.test(c)) col.note = i; });
+      var body = tb.slice(1);
+      if (col.name < 0) { col = { v: -1, s: -1, name: 0, note: 1 }; body = tb; }
+      return body.map(function (r) {
+        var g = function (k) { return col[k] >= 0 && r[col[k]] != null ? String(r[col[k]]).trim() : ""; };
+        return { v: g("v"), s: g("s"), name: g("name"), note: g("note") };
+      }).filter(function (r) { return r.name || r.s; });
+    }
+    function rowsFromPaste(text) {
+      return String(text || "").split(/\r?\n/).map(function (ln) {
+        ln = ln.trim().replace(/^[-•*]\s*/, ""); if (!ln) return null;
+        var note = "", m = /^(.*?)\s*[|\t]\s*(.*)$/.exec(ln); if (m) { ln = m[1]; note = m[2]; }
+        var seat = "", n = /^(\d{1,2})\s*[.):\-]?\s+(.+)$/.exec(ln); if (n) { seat = n[1]; ln = n[2]; }
+        return { v: "", s: seat, name: ln.trim(), note: note.trim() };
+      }).filter(Boolean);
+    }
+    async function readFileText(f) {
+      var buf = await f.arrayBuffer();
+      try { return new TextDecoder("utf-8", { fatal: true }).decode(buf); }
+      catch (e) { try { return new TextDecoder("windows-874").decode(buf); } catch (e2) { return new TextDecoder("utf-8").decode(buf); } }
+    }
+    function drawImport() {
+      var im = st.imp;
+      sh.appendChild(node("h3", null, "นำเข้ารายชื่อ"));
+      sh.appendChild(node("p", null, "ไฟล์หรือข้อความจะถูกตรวจให้ดูก่อน ยังไม่บันทึกจนกว่าจะกดยืนยัน · นำเข้าเพิ่มได้อย่างเดียว ไม่ลบหรือเปลี่ยนชื่อคนเดิม"));
+      var prev = im.prev;
+      if (!prev) {
+        var tabs = node("div", "rtabs");
+        [["file", "ไฟล์ CSV"], ["paste", "วางข้อความ"]].forEach(function (tb) {
+          var b = node("button", im.tab === tb[0] ? "on" : null, tb[1]); b.type = "button";
+          b.addEventListener("click", function () { im.tab = tb[0]; im.err = ""; draw(); });
+          tabs.appendChild(b);
+        });
+        sh.appendChild(tabs);
+        if (im.tab === "file") {
+          sh.appendChild(node("p", null, "1) โหลดไฟล์ตัวอย่าง แล้วกรอกใน Excel (คอลัมน์: รถ, ที่นั่ง, ชื่อผู้จอง, หมายเหตุ · เว้นที่นั่งไว้ได้ ระบบจัดให้)"));
+          var tb1 = node("button", "b-plain", "โหลดไฟล์ตัวอย่าง"); tb1.type = "button";
+          tb1.addEventListener("click", async function () {
+            var inL = false; try { inL = !!(window.liff && liff.isInClient && liff.isInClient()); } catch (e) {}
+            if (inL) {
+              var r = null; try { r = await (await fetch("/api/roster", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ t: x.id }) })).json(); } catch (e) {}
+              if (!r || !r.k) { toast("สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง", true); return; }
+              try { liff.openWindow({ url: location.origin + "/api/roster?k=" + r.k + "&tpl=1", external: true }); toast("เปิดในเบราว์เซอร์แล้ว ไฟล์จะดาวน์โหลดที่นั่น"); } catch (e) { toast("เปิดเบราว์เซอร์ไม่ได้", true); }
+              return;
+            }
+            var rows = [["รถ", "ที่นั่ง", "ชื่อผู้จอง", "หมายเหตุ"]], q = function (v) { v = String(v == null ? "" : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+            Object.keys(st.roster || {}).forEach(function (vid) { var seats = st.roster[vid] || {}; Object.keys(seats).map(Number).sort(function (a, b) { return a - b; }).forEach(function (n) { rows.push([vanLabel(vid), n, seats[n].name, seats[n].nt || ""]); }); });
+            if (rows.length === 1) rows.push([vanLabel(st.van), "", "", ""]);
+            var blob = new Blob(["﻿" + rows.map(function (r) { return r.map(q).join(","); }).join("\r\n")], { type: "text/csv;charset=utf-8" });
+            var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "ไฟล์ตัวอย่าง.csv"; document.body.appendChild(a); a.click(); a.remove();
+          });
+          sh.appendChild(tb1);
+          sh.appendChild(node("p", null, "2) เลือกไฟล์ที่กรอกแล้ว"));
+          var fi = document.createElement("input"); fi.type = "file"; fi.accept = ".csv,text/csv,text/plain"; fi.className = "nin";
+          fi.addEventListener("change", async function () {
+            if (!fi.files[0]) return;
+            try { im.rows = rowsFromTable(parseCSV(await readFileText(fi.files[0]))); } catch (e) { im.err = "อ่านไฟล์ไม่ได้ ลองบันทึกเป็น CSV อีกครั้ง"; draw(); return; }
+            im.err = im.rows.length ? "" : "ไม่พบรายชื่อในไฟล์"; if (im.rows.length) await runPreview(); else draw();
+          });
+          sh.appendChild(fi);
+          var alt = node("button", "b-plain", "เลือกไฟล์ไม่ได้? วางข้อความแทน"); alt.type = "button"; alt.addEventListener("click", function () { im.tab = "paste"; draw(); }); sh.appendChild(alt);
+        } else {
+          sh.appendChild(node("p", null, "วางรายชื่อบรรทัดละ 1 คน · ใส่เลขที่นั่งนำหน้าได้ (เช่น 5 สมชาย) · หมายเหตุใส่หลังเครื่องหมาย | "));
+          var ta = document.createElement("textarea"); ta.className = "nin"; ta.rows = 7; ta.value = im.text; ta.placeholder = "สมชาย\n5 สมหญิง | จ่ายแล้ว\nวิชัย";
+          ta.addEventListener("input", function () { im.text = ta.value; });
+          sh.appendChild(ta);
+          var pv = node("button", "b-danger", "ตรวจรายชื่อ"); pv.type = "button"; pv.style.background = "var(--mine)"; pv.style.borderColor = "var(--mine)";
+          pv.addEventListener("click", async function () { im.rows = rowsFromPaste(ta.value); if (!im.rows.length) { im.err = "ยังไม่มีรายชื่อ"; draw(); return; } await runPreview(); });
+          sh.appendChild(pv);
+        }
+        if (im.err) sh.appendChild(node("p", "cnote", im.err));
+        var bk = node("button", "b-plain", "ย้อนกลับ"); bk.type = "button"; bk.addEventListener("click", function () { st.mode = "list"; draw(); }); sh.appendChild(bk);
+        return;
+      }
+      var c = prev.counts || {};
+      sh.appendChild(node("p", null, "ใหม่ " + (c.new || 0) + " · จัดที่ให้ " + (c.auto || 0) + " · ไม่เปลี่ยน " + (c.same || 0) + " · อัปเดตหมายเหตุ " + (c.note || 0) + " · ติดปัญหา " + (c.err || 0) + " (ข้ามแถวที่ติดปัญหา)"));
+      var list = node("div", "rlist");
+      (prev.items || []).forEach(function (it) {
+        var r = node("div", "rrow"); r.appendChild(node("div", "no", it.s || "–"));
+        var m = node("div", "nm2"); m.appendChild(node("b", null, it.name || "")); m.appendChild(node("small", it.st === "err" ? "ntl" : null, it.msg || (it.st === "auto" ? "จัดที่ให้อัตโนมัติ" : it.st === "same" ? "มีอยู่แล้ว" : "")));
+        r.appendChild(m); list.appendChild(r);
+      });
+      sh.appendChild(list);
+      var acts = node("div", "acts"), back = node("button", "b-plain", "แก้ไฟล์"), go = node("button", "b-danger", "ยืนยันนำเข้า");
+      go.style.background = "var(--mine)"; go.style.borderColor = "var(--mine)"; back.type = go.type = "button";
+      var okN = (c.new || 0) + (c.auto || 0) + (c.note || 0); if (!okN) go.disabled = true;
+      back.addEventListener("click", function () { im.prev = null; draw(); });
+      go.addEventListener("click", async function () {
+        go.disabled = true; var r = await seatApi("POST", x.id, st.van, { import: { rows: im.rows, defVan: st.van, apply: true } });
+        if (!r.ok) { toast(apiErr(r.data), true); go.disabled = false; return; }
+        toast("นำเข้าแล้ว " + (r.data.created || 0) + " คน"); st.mode = "list"; fetchRoster();
+      });
+      acts.appendChild(back); acts.appendChild(go); sh.appendChild(acts);
+    }
+    async function runPreview() {
+      var im = st.imp, r = await seatApi("POST", x.id, st.van, { import: { rows: im.rows.slice(0, 300), defVan: st.van, apply: false } });
+      if (!r.ok) { im.err = apiErr(r.data); draw(); return; }
+      im.prev = r.data; draw();
     }
     function drawNote() {
       sh.appendChild(node("h3", null, "หมายเหตุ · ที่นั่ง " + st.sel.s));

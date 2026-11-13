@@ -54,6 +54,13 @@ function csvOf(trip, perVan) {
   return "﻿" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n");
 }
 
+function tplOf(trip, perVan) { // the import template: the list as it is now, in the columns the importer reads
+  const rows = [["รถ", "ที่นั่ง", "ชื่อผู้จอง", "หมายเหตุ"]];
+  trip.vans.forEach((v, i) => { const seats = perVan[i]; Object.keys(seats).map(Number).sort((a, b) => a - b).forEach((n) => rows.push([v.label, n, seats[n].name, seats[n].nt || ""])); });
+  if (rows.length === 1) rows.push([trip.vans[0].label, "", "", ""]);
+  return "\ufeff" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n");
+}
+
 function htmlOf(trip, perVan) {
   const tm = trip.departTime ? "ออก " + trip.departTime.replace(":", ".") + " น." : "";
   let h = "";
@@ -112,11 +119,12 @@ module.exports = async function handler(req, res) {
       res.statusCode = 200;
       res.setHeader("Cache-Control", "no-store");
       res.setHeader("X-Robots-Tag", "noindex, nofollow");
-      if (req.query.csv !== undefined) {
+      if (req.query.csv !== undefined || req.query.tpl !== undefined) {
+        const tpl = req.query.tpl !== undefined;
         res.setHeader("Content-Type", "text/csv; charset=utf-8");
-        const fn = encodeURIComponent(("รายชื่อ-" + String(trip.name || "ทริป").replace(/[\\/:*?"<>|]+/g, " ").trim().slice(0, 60)) + ".csv");
+        const fn = encodeURIComponent(((tpl ? "ไฟล์ตัวอย่าง-" : "รายชื่อ-") + String(trip.name || "ทริป").replace(/[\\/:*?"<>|]+/g, " ").trim().slice(0, 60)) + ".csv");
         res.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + fn);
-        return res.end(csvOf(trip, perVan));
+        return res.end(tpl ? tplOf(trip, perVan) : csvOf(trip, perVan));
       }
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       return res.end(htmlOf(trip, perVan));

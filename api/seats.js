@@ -145,6 +145,92 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { ok: true, name, at: rec.at });
     }
 
+    if (req.method === "POST" && body.import !== undefined) {
+      // organizer imports a passenger list (from a CSV file or pasted text, parsed by the page). apply:false = check only
+      // (nothing is written); apply:true = write the rows that passed. Seats are written with HSETNX, so a seat someone
+      // took in the meantime is never overwritten. An existing seat with the same name is left alone (a new note is added).
+      if (!user) return L.json(res, 401, { error: "login_required" });
+      if (!isOwner) return L.json(res, 403, { error: "not_owner" });
+      if (L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
+      if (await L.rateLimited(req, user, "import", 30, 600)) return L.json(res, 429, { error: "too_many" });
+      const im = body.import || {}, rowsIn = Array.isArray(im.rows) ? im.rows.slice(0, 300) : [];
+      if (!rowsIn.length) return L.json(res, 400, { error: "no_rows" });
+      const allSeats = await L.pipeline(trip.vans.map((x) => ["HGETALL", L.seatsKey(t, x.id)]));
+      const cur = {}, used = {};
+      trip.vans.forEach((x, i) => {
+        const flat = allSeats[i] || [], m = {};
+        for (let j = 0; j + 1 < flat.length; j += 2) { const n = L.parseSeat(flat[j]); if (n === null) continue; try { const r = JSON.parse(flat[j + 1]); if (r && r.name) m[n] = r; } catch (e) { /* skip */ } }
+        cur[x.id] = m; used[x.id] = new Set(Object.keys(m).map(Number));
+      });
+      const findVan = (txt) => {
+        const s = String(txt || "").trim().toLowerCase(), f = s.replace(/^(รถคัน|รถตู้|รถ|คัน|van)\s*/, "");
+        return trip.vans.find((x) => x.id.toLowerCase() === s || String(x.label).toLowerCase() === s || String(x.label).toLowerCase() === f) || null;
+      };
+      const defVan = trip.vans.find((x) => x.id === String(im.defVan || "")) || null;
+      const items = rowsIn.map((r, i) => ({ i, st: "", msg: "", name: "", nt: "", van: null, seat: 0, raw: r || {} }));
+      // 1) validate names / vans; 2) explicit seats; 3) rows without a seat take the next free one
+      items.forEach((it) => {
+        const r = it.raw, rawName = String(r.name == null ? "" : r.name).replace(/\s+/g, " ").trim();
+        if (!rawName) { it.st = "err"; it.msg = "ไม่มีชื่อ"; return; }
+        const name = L.cleanName(rawName).text;
+        if (name !== rawName || !L.hasBaseLetter(name)) { it.st = "err"; it.msg = "ชื่อมีตัวอักษรที่ไม่รองรับ (ใช้ได้เฉพาะไทย/อังกฤษ)"; return; }
+        if (L.reservedName(name, true)) { it.st = "err"; it.msg = "ชื่อนี้ใช้ไม่ได้"; return; }
+        it.name = name;
+        it.nt = String(r.note == null ? "" : r.note).replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, 80);
+        const vt = String(r.v == null ? "" : r.v).trim();
+        if (vt) { it.van = findVan(vt); if (!it.van) { it.st = "err"; it.msg = "ไม่มีรถคัน " + vt.slice(0, 12) + " ในทริปนี้"; } }
+        else it.van = defVan;
+      });
+      items.forEach((it) => {
+        if (it.st) return;
+        const st = String(it.raw.s == null ? "" : it.raw.s).trim();
+        if (!st) return;
+        const n = L.parseSeat(st);
+        if (n === null) { it.st = "err"; it.msg = "เลขที่นั่งไม่ถูกต้อง (1–" + L.TOTAL_SEATS + ")"; return; }
+        const van = it.van || trip.vans[0]; it.van = van; it.seat = n;
+        const have = cur[van.id][n];
+        if (have) {
+          if (have.name === it.name) { it.st = it.nt && it.nt !== (have.nt || "") ? "note" : "same"; it.msg = it.st === "note" ? "เพิ่มหมายเหตุ" : "มีอยู่แล้ว"; }
+          else { it.st = "err"; it.msg = "ที่นั่ง " + n + " มีคนจองแล้ว (" + String(have.name).slice(0, 20) + ")"; }
+          return;
+        }
+        if (used[van.id].has(n)) { it.st = "err"; it.msg = "ที่นั่ง " + n + " ซ้ำกับแถวก่อนหน้า"; return; }
+        used[van.id].add(n); it.st = "new";
+      });
+      items.forEach((it) => {
+        if (it.st) return;
+        const pool = it.van ? [it.van] : trip.vans;
+        for (const van of pool) {
+          for (let n = trip.staffSeat ? 2 : 1; n <= L.TOTAL_SEATS; n++) if (!used[van.id].has(n)) { used[van.id].add(n); it.van = van; it.seat = n; it.st = "auto"; return; }
+        }
+        it.st = "err"; it.msg = "ไม่มีที่ว่าง" + (it.van ? " ในรถคัน " + it.van.label : "");
+      });
+      let created = 0;
+      if (im.apply === true) {
+        const todo = items.filter((it) => it.st === "new" || it.st === "auto");
+        const at = Date.now();
+        if (todo.length) {
+          const res1 = await L.pipeline(todo.map((it) => ["HSETNX", L.seatsKey(t, it.van.id), String(it.seat), JSON.stringify(Object.assign({ name: it.name, at, u: user.id, ln: user.name || "", lp: user.pic || "" }, it.nt ? { nt: it.nt } : {}))]));
+          todo.forEach((it, k) => { if (Number(res1[k]) === 1) { created++; it.done = true; } else { it.st = "err"; it.msg = "มีคนจองไปก่อนแล้ว"; } });
+        }
+        for (const it of items.filter((x) => x.st === "note")) {
+          const k2 = L.seatsKey(t, it.van.id), raw = await L.redis(["HGET", k2, String(it.seat)]); let rec = null; try { rec = JSON.parse(raw); } catch (e) { rec = null; }
+          if (rec && rec.name === it.name) { rec.nt = it.nt; await L.hcas([{ key: k2, field: it.seat, expect: raw, value: JSON.stringify(rec) }]); }
+        }
+        const made = items.filter((x) => x.done);
+        if (made.length) {
+          try { await L.pipeline([["SADD", L.mySeatsKey(user.id)].concat(made.map((x) => t + "|" + x.van.id + "|" + x.seat)), ["EXPIRE", L.mySeatsKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* index is best effort */ }
+          const exp = L.expireAtFor(trip), live = exp && exp > Math.floor(Date.now() / 1000);
+          if (live) { for (const vv of new Set(made.map((x) => x.van.id))) { try { await L.redis(["EXPIREAT", L.seatsKey(t, vv), String(exp)]); } catch (e) { /* best effort */ } } }
+          for (const x of made) await L.logEvent(t, { e: "book", v: x.van.id, s: x.seat, n: x.name, u: user.id, by: role, at }, live ? exp : undefined);
+          L.bump("seat_book", made.length);
+        }
+      }
+      const counts = { new: 0, auto: 0, same: 0, note: 0, err: 0 };
+      items.forEach((it) => { counts[it.st] = (counts[it.st] || 0) + 1; });
+      return L.json(res, 200, { ok: true, applied: im.apply === true, created, counts, items: items.map((it) => ({ i: it.i, st: it.st, msg: it.msg, name: it.name, nt: it.nt, vl: it.van ? it.van.label : "", s: it.seat || 0 })) });
+    }
+
     if (req.method === "POST" && body.move) {
       // organizer moves a passenger to another seat / van; an occupied target swaps the two seats
       if (!user) return L.json(res, 401, { error: "login_required" });
