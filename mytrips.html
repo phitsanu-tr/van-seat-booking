@@ -610,7 +610,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       else { s.appendChild(node("b", "d", day || "ไม่ระบุวัน")); s.appendChild(node("span", "q", "ไม่ระบุเวลา")); } // keeps both sides on the same three lines
       return s;
     }
-    box.appendChild(side("ออกเดินทาง", x.startDate, x.departTime));
+    box.appendChild(side("เดินทางไป", x.startDate, x.departTime));
     var back = x.endDate || x.startDate, same = !x.endDate || x.endDate === x.startDate;
     if ((x.endDate && !same) || x.returnTime) { // a same-day trip with no return time shows the way out only
       box.insertAdjacentHTML("beforeend", '<div class="mid"><svg viewBox="0 0 40 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h32M31 1l5 4-5 4M36 15H4M9 11l-5 4 5 4"/></svg></div>');
