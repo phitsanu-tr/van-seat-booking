@@ -585,7 +585,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var now = new Date(Date.now() + 7 * 3600 * 1000), today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
     return Math.round((Date.UTC(p.y, p.m - 1, p.d) - today) / 86400000);
   }
-  // ticket box "ขาไป 21.00 → ขากลับ 13.00" with the day under each time; withYear on the wider trips card
+  // ticket box "เที่ยวไป 21.00 → เที่ยวกลับ 13.00" with the day under each time; withYear on the wider trips card
   var WD = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
   function dayLabel(iso, withYear) {
     var p = parseD(iso); if (!p) return "";
@@ -601,11 +601,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       else { s.appendChild(node("b", "d", day || "ไม่ระบุวัน")); s.appendChild(node("span", "q", "ไม่ระบุเวลา")); } // keeps both sides on the same three lines
       return s;
     }
-    box.appendChild(side("ขาไป", x.startDate, x.departTime));
+    box.appendChild(side("เที่ยวไป", x.startDate, x.departTime));
     var back = x.endDate || x.startDate, same = !x.endDate || x.endDate === x.startDate;
     if ((x.endDate && !same) || x.returnTime) { // a same-day trip with no return time shows the way out only
       box.insertAdjacentHTML("beforeend", '<div class="mid"><svg viewBox="0 0 40 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h32M31 1l5 4-5 4M36 15H4M9 11l-5 4 5 4"/></svg></div>');
-      box.appendChild(side("ขากลับ", back, x.returnTime, "rr", same && x.returnTime ? "วันเดียวกัน" : ""));
+      box.appendChild(side("เที่ยวกลับ", back, x.returnTime, "rr", same && x.returnTime ? "วันเดียวกัน" : ""));
     } else box.classList.add("one");
     return box;
   }
@@ -1242,7 +1242,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var ROUND_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg>';
     var CLOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
     var PEN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10-10-4-4L4 16v4zM13.5 6.5l4 4"/></svg>';
-    var ROUND_NAMES = ["ขาไป", "ขากลับ", "แวะพัก", "แวะกินข้าว", "วันที่ 2"];
+    var ROUND_NAMES = ["เที่ยวไป", "เที่ยวกลับ", "แวะพัก", "แวะกินข้าว", "วันที่ 2"];
     function board() { var b = st.board || {}; return { cur: b.cur || { i: 1, name: "", at: 0, by: "" }, hist: b.hist || [] }; }
     function roundTitle(r) { return "รอบที่ " + r.i + (r.name ? " · " + r.name : ""); }
     function stamp(ts) { // "15.32 น." today, "30 ต.ค. 15.32 น." on another day
@@ -1305,7 +1305,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var shut = function () { bd2.remove(); };
       bd2.addEventListener("click", function (e) { if (e.target === bd2) shut(); });
             d.appendChild(node("h3", null, isNew ? "เริ่มเช็กรอบใหม่" : "ตั้งชื่อรอบที่ " + cur.i));
-      d.appendChild(node("p", null, isNew ? (inN ? "ติ๊กของรอบที่ " + cur.i + " (" + inN + " คน) จะถูกล้าง ทุกคนกลับเป็น “ยังไม่ขึ้นรถ” · สรุปรอบนี้เก็บไว้ในประวัติ" : "ทุกคนจะเริ่มเป็น “ยังไม่ขึ้นรถ” · สรุปรอบที่ " + cur.i + " เก็บไว้ในประวัติ") : "เช่น ขาไป ขากลับ หรือจุดที่แวะ · ทีมผู้จัดเห็นชื่อนี้ทุกเครื่อง"));
+      d.appendChild(node("p", null, isNew ? (inN ? "ติ๊กของรอบที่ " + cur.i + " (" + inN + " คน) จะถูกล้าง ทุกคนกลับเป็น “ยังไม่ขึ้นรถ” · สรุปรอบนี้เก็บไว้ในประวัติ" : "ทุกคนจะเริ่มเป็น “ยังไม่ขึ้นรถ” · สรุปรอบที่ " + cur.i + " เก็บไว้ในประวัติ") : "เช่น เที่ยวไป เที่ยวกลับ หรือจุดที่แวะ · ทีมผู้จัดเห็นชื่อนี้ทุกเครื่อง"));
       var inp = node("input", "nin"); inp.type = "text"; inp.maxLength = 24; inp.autocomplete = "off"; inp.placeholder = isNew ? "ชื่อรอบ (ไม่บังคับ)" : "ชื่อรอบ";
       inp.value = isNew ? "" : cur.name || ""; inp.setAttribute("aria-label", "ชื่อรอบ"); d.appendChild(inp);
       var qs = node("div", "vchips");

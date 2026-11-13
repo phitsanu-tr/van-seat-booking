@@ -165,7 +165,7 @@ function rosterPayload(trip, user, all) {
   });
   return { trip: tripSummary(trip, user), booked, perVan, roster, board: trip.board || null, ended: L.tripEnded(trip), team: team(trip, user) };
 }
-function roundName(v) { return String(v == null ? "" : v).replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 24); } // check-in round label, e.g. "ขากลับ"
+function roundName(v) { return String(v == null ? "" : v).replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 24); } // check-in round label, e.g. "เที่ยวกลับ"
 
 module.exports = async function handler(req, res) {
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
