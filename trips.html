@@ -298,13 +298,15 @@ form label { position: relative; }
 .pk-note { margin: -4px 0 0; font-size: 14px; line-height: 20px; color: var(--muted); }
 
 /* วันและเวลา: one plain white block per leg, a bare coloured arrow, no circle (green out, red back) instead of numbers (→ เที่ยวไป, ← เที่ยวกลับ) */
-.tl { display: grid; gap: 10px; }
-.tl .grp { display: grid; gap: 12px; background: #fff; border: 1px solid #e3e8eb; border-radius: 14px; padding: 12px 12px 14px; }
+.tl { display: grid; gap: 16px; } /* same 16px rhythm as the cards and fields around it */
+.tl .grp { display: grid; gap: 16px; background: #fff; border: 1px solid #e3e8eb; border-radius: 14px; padding: 12px 12px 14px; }
 .tl .grp > .gh { display: flex; align-items: center; gap: 8px; font: 700 16px/24px var(--font-display); color: var(--ink); }
 .tl .gh .dot { display: grid; place-items: center; flex: none; color: var(--mine); }
 .tl .grp.r .gh .dot { color: #e5484d; }
 .tl .gh .dot svg { width: 22px; height: 22px; }
-.tl label input { margin-top: 0; }
+.tl .grp > .gh { margin-bottom: -4px; } /* heading sits 12px above its first field */
+.tl .gh b { font-weight: inherit; } /* <b> inside a 700 heading rendered at 900 */
+.tl label .pk { margin-top: 8px; } /* same label-to-field gap as the text fields */
 </style>
 <script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("inline")}catch(e){}</script>
 <link rel="stylesheet" href="/ui.css">
