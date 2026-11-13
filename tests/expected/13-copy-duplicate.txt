@@ -26,7 +26,7 @@ closed true card share แชร์ผัง
 reopened false
 duplicate link /trips/new?copy=<id>
 form {"name":"เขาใหญ่ชิล ๆ","org":"ทัวร์ตัวตึง","start":"","end":"","time":"07:00","meet":"BTS หมอชิต","max":"2","close":"","vans":["1","กข 1234","2"]} lead คัดลอกจากทริปเดิมแล้ว เลือกวันเดินทางใหม่ได้เลย
-submit without dates -> [ 'ระบุวันที่เดินทางไป', 'ระบุวันที่เดินทางกลับ' ]
+submit without dates -> [ 'ระบุวันออกเดินทาง', 'ระบุวันเดินทางกลับ' ]
 trips with that name 2 new id differs true
 new trip {"vans":["1/กข 1234","2"],"max":2,"booked":0,"dates":true}
 original untouched true 3
