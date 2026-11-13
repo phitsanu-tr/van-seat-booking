@@ -22,6 +22,7 @@
     ".vt-bar .av img{width:100%;height:100%;object-fit:cover;display:block}" +
     ".vt-bar a.on .av{box-shadow:0 0 0 2px #fff,0 0 0 4px #0b5f67}" +
     "body.vt-on .toast,body.vt-on .tst{bottom:calc(88px + env(safe-area-inset-bottom,0px)) !important}" +
+    "body.vt-on .vfoot{position:sticky;bottom:calc(72px + max(8px,env(safe-area-inset-bottom)));background:#fff;padding-top:10px;z-index:5}" +
     "body.vt-on{padding-bottom:calc(72px + max(8px,env(safe-area-inset-bottom))) !important}";
   function show(user) {
     if (document.querySelector(".vt-bar")) return;

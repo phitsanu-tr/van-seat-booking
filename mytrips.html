@@ -9,6 +9,7 @@ button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every
 /* app (signed in): page title + bell on top, 4-tab bar at the bottom, the same in LINE and in any browser */
 .tabbar{transform:translateZ(0);will-change:transform;position:fixed;left:0;right:0;bottom:0;height:auto;padding-top:6px;padding-bottom:max(8px,env(safe-area-inset-bottom));background:#fff;display:none;justify-content:space-around;align-items:flex-start;z-index:15;box-shadow:0 -2px 8px rgba(0,0,0,.04)} /* 56px bar + bottom gap (8px, or the iPhone home bar) */
 body.signed .tabbar,html.vt-known .tabbar{display:flex}
+body.signed .vfoot,html.vt-known .vfoot{position:sticky;bottom:calc(72px + max(8px,env(safe-area-inset-bottom)));background:#fff;padding-top:10px;z-index:5} /* one fixed spot above the tab bar on every tab: no jump between short and tall pages */
 .tabbar a,.tabbar button{flex:1;height:50px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;background:none;border:0;padding:0;font:500 12px/16px var(--font-display);color:#8a949a;text-decoration:none;cursor:pointer;position:relative;white-space:nowrap}
 .tabbar svg{flex:none;width:24px;height:24px;stroke-width:1.8}
 .tabbar .on,html.vt-t-home #navHome,html.vt-t-trips #navTrips,html.vt-t-seats #navSeats,html.vt-t-notif #navNotif,html.vt-t-acct #navAcct{color:var(--deep);font-weight:700}
