@@ -428,6 +428,12 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .nin:focus { outline: none; border-color: var(--mine); }
 .sheet p { margin: 0; color: var(--muted); font-size: 14px; line-height: 20px}
 .sheet .acts button { height: 48px; border-radius: 12px; font-size: 16px; font-weight: 600; line-height: 24px}
+.sheet .impb { display: block; width: 100%; height: 48px; margin: 8px 0; border-radius: 12px; font: 600 16px/24px var(--font-body); }
+.sheet .impb.b-plain { border: 0; }
+.sheet .impb.pri { background: var(--mine); color: #fff; border: 0; }
+.sheet input[type=file].nin { height: auto; padding: 10px 12px; font-size: 14px; }
+.sheet input[type=file].nin::file-selector-button { height: 36px; padding: 0 14px; margin-right: 10px; border: 0; border-radius: 10px; background: #f1f4f6; color: var(--ink); font: 600 14px var(--font-body); }
+.sheet textarea.nin { height: auto; padding: 12px; line-height: 1.5; margin-bottom: 4px; }
 .b-plain { background: #f1f4f6; border: 1.5px solid var(--line); color: var(--ink); border-color: transparent; }
 .b-danger { background: var(--danger); border: 1.5px solid var(--danger); color: #fff; }
 .b-soft { background: #f1f4f6; border: 1.5px solid transparent; color: var(--ink); } .b-soft:active { background: #e4e9ec; }
@@ -1475,7 +1481,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
         sh.appendChild(tabs);
         if (im.tab === "file") {
           sh.appendChild(node("p", null, "1) โหลดไฟล์ตัวอย่าง แล้วกรอกใน Excel (คอลัมน์: รถ, ที่นั่ง, ชื่อผู้จอง, หมายเหตุ · เว้นที่นั่งไว้ได้ ระบบจัดให้)"));
-          var tb1 = node("button", "b-plain", "โหลดไฟล์ตัวอย่าง"); tb1.type = "button";
+          var tb1 = node("button", "b-plain impb", "โหลดไฟล์ตัวอย่าง"); tb1.type = "button";
           tb1.addEventListener("click", async function () {
             var inL = false; try { inL = !!(window.liff && liff.isInClient && liff.isInClient()); } catch (e) {}
             if (inL) {
@@ -1499,18 +1505,18 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
             im.err = im.rows.length ? "" : "ไม่พบรายชื่อในไฟล์"; if (im.rows.length) await runPreview(); else draw();
           });
           sh.appendChild(fi);
-          var alt = node("button", "b-plain", "เลือกไฟล์ไม่ได้? วางข้อความแทน"); alt.type = "button"; alt.addEventListener("click", function () { im.tab = "paste"; draw(); }); sh.appendChild(alt);
+          var alt = node("button", "b-plain impb", "เลือกไฟล์ไม่ได้? วางข้อความแทน"); alt.type = "button"; alt.addEventListener("click", function () { im.tab = "paste"; draw(); }); sh.appendChild(alt);
         } else {
           sh.appendChild(node("p", null, "วางรายชื่อบรรทัดละ 1 คน · ใส่เลขที่นั่งนำหน้าได้ (เช่น 5 สมชาย) · หมายเหตุใส่หลังเครื่องหมาย | "));
           var ta = document.createElement("textarea"); ta.className = "nin"; ta.rows = 7; ta.value = im.text; ta.placeholder = "สมชาย\n5 สมหญิง | จ่ายแล้ว\nวิชัย";
           ta.addEventListener("input", function () { im.text = ta.value; });
           sh.appendChild(ta);
-          var pv = node("button", "b-danger", "ตรวจรายชื่อ"); pv.type = "button"; pv.style.background = "var(--mine)"; pv.style.borderColor = "var(--mine)";
+          var pv = node("button", "pri impb", "ตรวจรายชื่อ"); pv.type = "button";
           pv.addEventListener("click", async function () { im.rows = rowsFromPaste(ta.value); if (!im.rows.length) { im.err = "ยังไม่มีรายชื่อ"; draw(); return; } await runPreview(); });
           sh.appendChild(pv);
         }
         if (im.err) sh.appendChild(node("p", "cnote", im.err));
-        var bk = node("button", "b-plain", "ย้อนกลับ"); bk.type = "button"; bk.addEventListener("click", function () { st.mode = "list"; draw(); }); sh.appendChild(bk);
+        var bk = node("button", "b-plain impb", "ย้อนกลับ"); bk.type = "button"; bk.addEventListener("click", function () { st.mode = "list"; draw(); }); sh.appendChild(bk);
         return;
       }
       var c = prev.counts || {};
