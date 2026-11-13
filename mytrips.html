@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="th">
 <head>
-<script>try{if(localStorage.getItem("vsb_in")==="1"&&!localStorage.getItem("vsb_gone")&&localStorage.getItem("vsb_tb"))document.documentElement.classList.add("vt-known")}catch(e){}try{document.documentElement.classList.add("vt-t-"+({"#trips":"trips","#seats":"seats","#account":"acct","#notify":"notif"}[location.hash]||"home"))}catch(e){}</script>
+<script>try{if(!window.__go&&localStorage.getItem("vsb_in")==="1"&&!localStorage.getItem("vsb_gone")&&localStorage.getItem("vsb_tb"))document.documentElement.classList.add("vt-known")}catch(e){}try{document.documentElement.classList.add("vt-t-"+({"#trips":"trips","#seats":"seats","#account":"acct","#notify":"notif"}[location.hash]||"home"))}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <style>
@@ -473,7 +473,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 (function(){try{var q=new URLSearchParams(location.search),s=q.get("liff.state");
 if(!s&&location.hash.indexOf("liff.state=")>=0)s=decodeURIComponent(location.hash.split("liff.state=")[1].split("&")[0]);
 var m=s&&/^\/?(?:mytrips\/)?([a-hj-km-np-z2-9]{6,8})(?:[\/?#].*)?$/.exec(s);
-if(m)location.replace("/"+m[1]);}catch(e){}})();
+if(m)window.__go=m[1];}catch(e){}})();
 </script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
@@ -481,8 +481,9 @@ if(m)location.replace("/"+m[1]);}catch(e){}})();
   var LIFF_ID = "2012285472-FvtYKx00";
   window.__liffReady = new Promise(function(resolve){
     var dg=function(c,w){window.__liffWhy=c+(w?" · "+w:"");try{navigator.sendBeacon("/api/auth",new Blob([JSON.stringify({diag:c})],{type:"application/json"}));}catch(e){}};
-    if (!window.liff) { resolve(false); return; }
+    if (!window.liff) { if(window.__go){location.replace("/"+window.__go);return;} resolve(false); return; }
     liff.init({ liffId: LIFF_ID }).then(function(){
+      if(window.__go){ if(!liff.isLoggedIn()){ liff.login({ redirectUri: location.origin+"/" }); } else location.replace("/"+window.__go); return; }
       if (!liff.isInClient()) { resolve(false); return; }
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       // session cookie is HttpOnly, so ask the server whether we are signed in
