@@ -34,7 +34,7 @@
       { type: "box", layout: "vertical", flex: 0, width: "44px", alignItems: "center", contents: [ // a hairline with a round ⇄ badge in the middle
         { type: "box", layout: "vertical", flex: 1, width: "1px", backgroundColor: LINE_C, contents: [] },
         { type: "box", layout: "vertical", flex: 0, width: "32px", height: "32px", cornerRadius: "16px", borderWidth: "1px", borderColor: LINE_C, justifyContent: "center", alignItems: "center",
-          contents: [txt("⇄", { size: "16px", weight: "bold", color: TEAL, align: "center", wrap: false })] },
+          contents: [{ type: "image", url: ORIGIN + "/swap-icon.png", size: "16px", aspectRatio: "1:1", aspectMode: "fit" }] }, // two bold arrows (a PNG: LINE draws the ⇄ character thin)
         { type: "box", layout: "vertical", flex: 1, width: "1px", backgroundColor: LINE_C, contents: [] }] },
       half("เที่ยวกลับ", t.returnTime, short(t.endDate), true)] };
     var rows = [], n = Number(t.vans) || 0;
