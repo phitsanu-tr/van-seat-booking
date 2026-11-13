@@ -27,7 +27,7 @@
   function bubble(t) {
     var head = { type: "box", layout: "vertical", alignItems: "flex-start", backgroundColor: "#e6f3f3", paddingAll: "12px", contents: [
       { type: "box", layout: "vertical", flex: 0, backgroundColor: "#ffffff", cornerRadius: "20px", paddingTop: "4px", paddingBottom: "4px", paddingStart: "12px", paddingEnd: "12px",
-        contents: [txt("ทริปรถตู้", { size: "12px", weight: "bold", color: TEAL, wrap: false })] },
+        contents: [txt("VanTrip · จองที่นั่ง", { size: "12px", weight: "bold", color: TEAL, wrap: false })] },
       txt(t.name || "จองที่นั่งรถตู้", { weight: "bold", size: "20px", color: TXT, margin: "8px" })] };
     var timeBox = { type: "box", layout: "horizontal", borderWidth: "1px", borderColor: LINE_C, cornerRadius: "12px", paddingAll: "12px", contents: [
       half("เที่ยวไป", t.departTime, short(t.startDate), false),
