@@ -763,8 +763,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var n = Number($("tripN").value) || 0, none = !n && tdRequired, lk = n === 1, sd = !!$("startDate").value, dt = !!$("departTime").value, ed = !!$("endDate").value;
     $("tdLock").hidden = !none;
     var rt = !!$("returnTime").value; // a field that already holds a value stays open; only empty ones wait for the step before
-    var pre = lk ? "เลือกวันที่เดินทางก่อน" : "เลือกวันเดินทางไปก่อน";
-    var rules = { startDate: [none, pre], departTime: [none || (!sd && !dt), pre], endDate: [none || lk || (!sd && !ed), pre], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? (lk ? pre : "เลือกวันเดินทางกลับก่อน") : "เลือกเวลารถออกขาไปก่อน"] };
+    var wait = !!n && !$("tripStart").value; // the trip day (first day) is not chosen yet: nothing below can be chosen
+    var first = lk ? "เลือกวันที่จัดทริปก่อน" : "เลือกวันแรกของทริปก่อน", pre = wait ? first : "เลือกวันเดินทางไปก่อน";
+    var rules = { startDate: [none || (wait && !sd), first], departTime: [none || ((wait || !sd) && !dt), pre], endDate: [none || lk || ((wait || !sd) && !ed), pre], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? (wait ? first : lk ? "เลือกวันที่จัดทริปก่อน" : "เลือกวันเดินทางกลับก่อน") : "เลือกเวลารถออกขาไปก่อน"] };
     Object.keys(rules).forEach(function (k) {
       var lb = $(k).closest("label"), pb = lb && lb.querySelector(".pk"); if (!pb) return;
       var off = rules[k][0]; lb.classList.toggle("lockd", off); pb.disabled = off;
