@@ -267,11 +267,12 @@ select.sel { border-color: #dde3e7!important; }
 .tdw .tds { display: flex; gap: 8px; }
 .tdw .tds button { flex: 1; height: 40px; border-radius: 12px; border: 1.5px solid #dde3e7; background: var(--surface); color: var(--ink); font: 500 14px/20px var(--font-body); }
 .tdw .tds button.on { background: #0b5f67; border-color: #0b5f67; color: #fff; font-weight: 700; }
-.tdw .tdb { display: flex; gap: 8px; }
-.tdw .tdb[hidden] { display: none; }
-.tdw .tdb button { width: 36px; height: 36px; border-radius: 10px; border: 0; background: var(--surface); color: #0b5f67; font: 700 20px/36px var(--font-display); }
-.tdw .tdb button:disabled { opacity: .4; }
-.tdw .tdp { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 48px; background: #e6f3f3; border-radius: 12px; padding: 6px 6px 6px 12px; font: 700 14px/20px var(--font-body); color: #0b5f67; }
+.tdw .tdn { display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 8px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface); }
+.tdw .tdn[hidden] { display: none; }
+.tdw .tdn button { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid #9fb9bd; background: var(--surface); color: #0b5f67; font: 700 22px/36px var(--font-display); }
+.tdw .tdn button:disabled { opacity: .4; }
+.tdw .tdn b { font: 600 16px/24px var(--font-display); }
+.tdw .tdp { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #e6f3f3; border-radius: 12px; padding: 12px; font: 700 14px/20px var(--font-body); color: #0b5f67; }
 .tdw .tdp[hidden], .tdw label[hidden] { display: none; }
 .tdw { gap: 16px; }
 .pk-floor { font: 400 14px/20px var(--font-body); color: var(--muted); margin: -8px 0 8px; }
@@ -374,7 +375,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <div class="tdw" id="tdw" role="group" aria-label="รูปแบบทริป">
       <div class="tds" id="tds"><button type="button" data-k="day">เดย์ทริป</button><button type="button" data-k="night">ค้างคืน</button></div>
       <label id="tdsRow" hidden><span id="tdsLab">วันแรกของทริป</span> <input type="date" id="tripStart"></label>
-      <div class="tdp" id="tdPrev" hidden><span id="tdPrevT"></span><span class="tdb" id="tdnRow" hidden><button type="button" id="tdMinus" aria-label="ลดจำนวนวัน">−</button><button type="button" id="tdPlus" aria-label="เพิ่มจำนวนวัน">+</button></span></div>
+      <div class="tdn" id="tdnRow" hidden><button type="button" id="tdMinus" aria-label="ลดจำนวนวัน">−</button><b id="tdVal"></b><button type="button" id="tdPlus" aria-label="เพิ่มจำนวนวัน">+</button></div>
+      <div class="tdp" id="tdPrev" hidden><span id="tdPrevT"></span></div>
       <input type="hidden" id="tripN" value="">
     </div>
    </section>
@@ -710,8 +712,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var n = Number($("tripN").value) || 0, sd = $("startDate").value, ts = $("tripStart").value, lab = $("endDate").closest("label");
     [].forEach.call($("tds").querySelectorAll("button"), function (b) { b.classList.toggle("on", n ? (b.getAttribute("data-k") === "day") === (n === 1) : false); });
     $("tdnRow").hidden = n < 2; $("tdsRow").hidden = n < 1; $("tdsLab").textContent = n === 1 ? "วันที่เดินทาง" : "วันแรกของทริป";
-    if (n >= 2) { $("tdMinus").disabled = n <= 2; $("tdPlus").disabled = n >= 15; }
-    var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (n === 1) tx = "เดย์ทริป · ไปและกลับวันเดียวกัน"; if (!tx && n >= 2) tx = n + " วัน " + (n - 1) + " คืน"; $("tdPrev").hidden = !tx; $("tdPrevT").textContent = tx;
+    if (n >= 2) { $("tdVal").textContent = n + " วัน " + (n - 1) + " คืน"; $("tdMinus").disabled = n <= 2; $("tdPlus").disabled = n >= 15; }
+    var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (n === 1) tx = "เดย์ทริป · ไปและกลับวันเดียวกัน"; else if (tx) tx = tx.split(" · ")[1] || tx;
+    $("tdPrev").hidden = !tx; $("tdPrevT").textContent = tx; // overnight: count has its own row, strip shows dates only
     // day trip: the return date is the departure date (locked); overnight: suggest the last day of the trip while it was not typed
     var lk = n === 1;
     if (lk) { // day trip: the day chosen above is the departure and the return date
