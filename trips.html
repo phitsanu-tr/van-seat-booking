@@ -722,9 +722,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (n >= 2 && ts) { // the dates must stay inside the trip's window: leave 2 days before / 2 days after at most (a saved date stays as it is)
       var ms = function (d) { return Date.parse(d + "T00:00:00Z"); }, last = addDays(ts, n - 1);
       var sv = $("startDate").value, bad = sv && (sv > ts || ms(ts) - ms(sv) > 2 * 86400000) && $("startDate").dataset.keep !== sv;
-      if (bad) { $("startDate").value = ""; dn = putNote(dl, dn, "เปลี่ยนช่วงวัน กรุณาเลือกวันเดินทางไปใหม่"); }
+      if (bad) { $("startDate").value = ""; $("departTime").value = ""; dn = putNote(dl, dn, "เปลี่ยนช่วงวัน กรุณาเลือกวันและเวลาเดินทางไปใหม่"); }
       var ev = $("endDate").value, bad2 = ev && (ev < last || ms(ev) - ms(last) > 2 * 86400000) && $("endDate").dataset.keep !== ev;
-      if (bad2 || (ev && ev < last)) { $("endDate").value = ""; if (!endAuto) en = putNote(lab, en, "เปลี่ยนช่วงวัน กรุณาเลือกวันกลับใหม่"); endAuto = false; }
+      if (bad2 || (ev && ev < last)) { $("endDate").value = ""; $("returnTime").value = ""; if (!endAuto) en = putNote(lab, en, "เปลี่ยนช่วงวัน กรุณาเลือกวันและเวลากลับใหม่"); endAuto = false; }
     } else { if (en && n < 2) en.hidden = true; if (dn && n < 2) dn.hidden = true; }
     stepLock();
   }
