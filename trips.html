@@ -275,6 +275,9 @@ select.sel { border-color: #dde3e7!important; }
 .tdw .tdn b { font: 600 16px/24px var(--font-display); }
 .tdw .tdp { background: #e6f3f3; border-radius: 12px; padding: 8px 12px; font: 700 14px/20px var(--font-body); color: #0b5f67; }
 .tdw .tdp[hidden], .tdw label[hidden] { display: none; }
+.pk-floor { font: 400 12px/16px var(--font-body); color: var(--muted); text-align: center; padding: 4px 0; }
+.pk-floor.bad { color: var(--danger); font-weight: 600; }
+.pk-time .pk-col > div.off { opacity: .3; }
 .lockd .pk { pointer-events: none; background: #f3f6f7; color: var(--muted); }
 .lockd .lkn { font: 400 12px/16px var(--font-body); color: #0b5f67; }
 .tdw.bad .tds button:not(.on) { border-color: var(--danger); }
@@ -549,15 +552,15 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     upd();
   }
 
-  function timeField(input, title) {
+  function timeField(input, title, floorFn) { // floorFn() -> minutes of the day the time must be after, or null
     var b = btn("pk ph", "<span></span>"), sp = b.lastChild;
     var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
     function sync() { var ok = /^\d{2}:\d{2}$/.test(input.value); sp.textContent = ok ? input.value + " น." : "ระบุเวลา"; b.classList.toggle("ph", !ok); }
     Object.defineProperty(input, "value", { get: function () { return desc.get.call(input); }, set: function (v) { desc.set.call(input, v); sync(); } });
     input.type = "hidden"; input.parentNode.appendChild(b); sync();
-    b.addEventListener("click", function () { openTime(input, title, b); });
+    b.addEventListener("click", function () { openTime(input, title, b, floorFn ? floorFn() : null); });
   }
-  function openTime(input, title, trigger) {
+  function openTime(input, title, trigger, floor) {
     // minutes in 5-minute steps; "now" rounds up to the next step; an odd saved minute (older trips) stays in the list
     function up5(d) { var t = d.getHours() * 60 + Math.ceil(d.getMinutes() / 5) * 5; return [Math.floor(t / 60) % 24, t % 60]; }
     var m = /^(\d{2}):(\d{2})$/.exec(input.value), n0 = up5(new Date()), h = m ? +m[1] : n0[0], mi = m ? +m[2] : n0[1];
@@ -574,14 +577,25 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     fill(H, 24, 0, function (i) { h = i; }); fill(M, MINS.length, MINS, function (i) { mi = MINS[i]; });
     wrap.appendChild(H); wrap.appendChild(el("div", "pk-colon", ":")); wrap.appendChild(M); sheet.appendChild(wrap);
+    var floorTx = null;
+    if (floor != null) { floorTx = el("div", "pk-floor", "เวลากลับต้องหลัง " + p2(Math.floor(floor / 60)) + ":" + p2(floor % 60) + " น."); sheet.appendChild(floorTx); }
+    function paintFloor() { // times that are not after the departure are greyed out
+      if (floor == null) return;
+      [].forEach.call(H.children, function (c, k) { c.classList.toggle("off", k * 60 + 55 <= floor); });
+      [].forEach.call(M.children, function (c, k) { c.classList.toggle("off", h * 60 + MINS[k] <= floor); });
+    }
     function go(i, mv) { var j = MINS.indexOf(mv); H.scrollTop = i * 44; M.scrollTop = j * 44; [[H, i], [M, j]].forEach(function (p) { [].forEach.call(p[0].children, function (c, k) { c.classList.toggle("on", k === p[1]); }); }); h = i; mi = mv; }
     var aux = el("div", "pk-aux"), clr = btn("pk-pill q", "ล้างเวลา"), now = btn("pk-pill", "ตอนนี้");
     clr.style.visibility = input.value ? "visible" : "hidden";
     clr.addEventListener("click", function () { input.value = ""; input.dispatchEvent(new Event("change", { bubbles: true })); close(); });
     now.addEventListener("click", function () { var n = up5(new Date()); H.style.scrollBehavior = M.style.scrollBehavior = "smooth"; H.scrollTo({ top: n[0] * 44, behavior: "smooth" }); M.scrollTo({ top: Math.max(0, MINS.indexOf(n[1])) * 44, behavior: "smooth" }); });
     aux.appendChild(clr); aux.appendChild(now); sheet.appendChild(aux);
-    actions(sheet, function () { input.value = p2(h) + ":" + p2(mi); input.dispatchEvent(new Event("change", { bubbles: true })); close(); });
-    go(h, mi);
+    actions(sheet, function () {
+      if (floor != null && h * 60 + mi <= floor) { floorTx.classList.add("bad"); return; } // not after the departure: stay open
+      input.value = p2(h) + ":" + p2(mi); input.dispatchEvent(new Event("change", { bubbles: true })); close();
+    });
+    [H, M].forEach(function (c) { c.addEventListener("scroll", paintFloor); });
+    go(h, mi); paintFloor();
   }
 
   var s = document.getElementById("startDate"), e = document.getElementById("endDate"), t = document.getElementById("departTime");
@@ -589,7 +603,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     dateField(s, "วันเดินทางไป", function () { var v = s.value; return v && v < todayIso() ? v : todayIso(); }); // a saved past date (editing an old trip) stays selectable
     dateField(e, "วันเดินทางกลับ", function () { return s.value || todayIso(); });
     timeField(t, "เวลารถออกเดินทางไป");
-    var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกเดินทางกลับ");
+    var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกเดินทางกลับ", function () { // day trip: the van must be back after it left
+      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm ? +dm[1] * 60 + +dm[2] : null; });
   }
   // "จองได้สูงสุดต่อคน": the app's own picker (like the calendar) instead of the phone's select wheel; 0 = no limit
   function maxField(input) {
@@ -1009,6 +1024,15 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     plan_vans: "แพ็กเกจของคุณเพิ่มรถได้ไม่เกินนี้", plan_trips: "เปิดทริปครบตามแพ็กเกจแล้ว", no_pass: "ตั๋วรายทริปหมดแล้ว",
     too_many: "ใส่รหัสผิดหลายครั้งเกินไป รอสักครู่แล้วลองใหม่"
   };
+
+  function tdTimeCheck() { // day trip: tell right away when the return time is not after the departure time
+    var lab = $("returnTime").closest("label"), old = lab.querySelector(".fe"), pk = lab.querySelector(".pk");
+    var bad = $("tripN").value === "1" && $("departTime").value && $("returnTime").value && $("returnTime").value <= $("departTime").value;
+    if (bad) { if (!old) fieldErr($("returnTime"), ERR.bad_daytime); }
+    else if (old && old.textContent === ERR.bad_daytime) { old.remove(); if (pk) { pk.classList.remove("bad"); pk.removeAttribute("aria-invalid"); } lab.classList.remove("bad"); }
+  }
+  $("form").addEventListener("change", tdTimeCheck);
+  $("tdw").addEventListener("change", tdTimeCheck);
 
   $("form").addEventListener("submit", async function (e) {
     e.preventDefault();
