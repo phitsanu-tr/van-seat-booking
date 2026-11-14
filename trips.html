@@ -241,7 +241,7 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .vf { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px; }
 .vf > * { min-width: 0; }
 input.vp::placeholder { font-size: 14px; line-height: 20px} /* long example text still fits on 360px phones */
-.toast { position: fixed; z-index: 40; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); width: max-content; max-width: min(92vw, 360px); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 20px; text-align: center; box-shadow: 0 8px 28px rgba(0, 0, 0, .3); animation: toastIn .2s ease-out; cursor: pointer; }
+.toast { position: fixed; z-index: 50; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); width: max-content; max-width: min(92vw, 360px); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 20px; text-align: center; box-shadow: 0 8px 28px rgba(0, 0, 0, .3); animation: toastIn .2s ease-out; cursor: pointer; }
 .toast:not(.ok) { background: #b3261e; color: #fff; }
 .toast svg { display: none; }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } }
