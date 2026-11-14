@@ -799,7 +799,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   $("tdMinus").addEventListener("click", function () { tdPick(Math.max(2, (Number($("tripN").value) || 2) - 1)); });
   $("tdPlus").addEventListener("click", function () { tdPick(Math.min(15, (Number($("tripN").value) || 2) + 1)); });
   $("tripStart").addEventListener("change", tdPaint);
-  if (!editing && !COPY) tdSet(2, ""); // a new trip starts as an overnight trip (the usual one); the day is still to be chosen
   $("startDate").addEventListener("change", function () { var nn = $("startDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; tdPaint(); }); $("departTime").addEventListener("change", tdPaint); $("returnTime").addEventListener("change", stepLock); $("endDate").addEventListener("change", function () { endAuto = false; stepLock(); var nn = $("endDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; }); tdPaint();
   function letter(i) { return String.fromCharCode(65 + (i % 26)); }
 
