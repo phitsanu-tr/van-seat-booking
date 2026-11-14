@@ -105,7 +105,7 @@ module.exports = async function handler(req, res) {
       if (ev && obj && (ev.type === "checkout.session.completed" || ev.type === "checkout.session.async_payment_succeeded") && obj.payment_status === "paid") {
         const id = obj.metadata && obj.metadata.order;
         const o = /^[a-z0-9]{12}$/.test(id || "") ? await loadOrder(id) : null;
-        if (o && o.sess === obj.id) await fulfil(Object.assign({}, o, { pi: obj.payment_intent || o.pi }));
+        if (o && o.sess === obj.id) { await fulfil(Object.assign({}, o, { pi: obj.payment_intent || o.pi })); L.audit({ e: "paid", u: o.uid, o: o.id, sku: o.sku, amt: o.amount }); }
       }
       if (ev && obj && ev.type === "charge.refunded" && obj.refunded === true && obj.payment_intent) {
         const id = await L.redis(["GET", "orderpi:" + obj.payment_intent]);
@@ -113,6 +113,7 @@ module.exports = async function handler(req, res) {
         if (o && o.status === "paid" && (await L.redis(["SET", "orderref:" + o.id, "1", "NX", "EX", String(ORDER_DAYS * 86400)])) === "OK") {
           await P.revoke(o.uid, o.sku);
           await saveOrder(Object.assign({}, o, { status: "refunded", refundedAt: Date.now() }));
+          await L.audit({ e: "refunded", u: o.uid, o: o.id, sku: o.sku, amt: o.amount });
           await L.notify([o.uid], { k: "plan_refunded", tn: (P.SKUS[o.sku] || {}).label || "", amt: o.amount });
         }
       }
@@ -158,6 +159,7 @@ module.exports = async function handler(req, res) {
         const why = REFUND_WHY.indexOf(r.why) >= 0 ? r.why : "other";
         const note = String(r.note || "").replace(/\s+/g, " ").trim().slice(0, 300);
         await saveOrder(Object.assign({}, o, { refundReq: { at: Date.now(), why, note } }));
+        L.audit({ e: "refund_request", u: user.id, o: o.id, sku: o.sku, why });
         try { const w = (await L.redis(["SMEMBERS", "owner:watch"])) || []; if (w.length) { const lbl = (P.SKUS[o.sku] || {}).label || ""; await L.notify(w, { k: "refund_req", tn: lbl, amt: o.amount, n: why }); await L.linePush(w, "VanTrip: มีคำขอคืนเงินใหม่\n" + lbl + " · " + o.amount + " บาท\nตรวจที่หน้า /owner"); } } catch (e) { /* best effort */ }
         return L.json(res, 200, { ok: true });
       }
@@ -193,6 +195,7 @@ module.exports = async function handler(req, res) {
     res.setHeader("Allow", "GET, POST");
     return L.json(res, 405, { error: "method_not_allowed" });
   } catch (e) {
+    await L.errLog("pay", req, e);
     return L.json(res, 502, { error: String(e.message || "").indexOf("stripe_") === 0 ? "pay_error" : "storage_error" });
   }
 };

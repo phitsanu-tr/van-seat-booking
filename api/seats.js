@@ -340,6 +340,7 @@ module.exports = async function handler(req, res) {
     res.setHeader("Allow", "GET, POST, PATCH, DELETE");
     return L.json(res, 405, { error: "method_not_allowed" });
   } catch (e) {
+    await L.errLog("seats", req, e);
     return L.json(res, 502, { error: "storage_error" });
   }
 };

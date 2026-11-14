@@ -381,6 +381,7 @@ module.exports = async function handler(req, res) {
       await L.applyExpiry(trip); // after the STAFF seats so their van lists get the trip's expiry too
       if (ck) { try { await L.redis(["SET", ck, id, "EX", "86400"]); } catch (e) { /* best effort */ } }
       L.bump(plus ? "trip_pass" : "trip_new");
+      L.audit({ e: "trip_create", u: user.id, t: id, tn: trip.name, q: plus ? "pass" : "month" });
       { try { await L.pipeline([["SADD", L.myTripsKey(user.id), id], ["EXPIRE", L.myTripsKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* best effort */ } }
       return L.json(res, 200, { id, trip: tripSummary(trip, user) });
     }
@@ -440,6 +441,7 @@ module.exports = async function handler(req, res) {
       if (trip.invite && trip.invite.c) cmds.push(["DEL", "inv:" + trip.invite.c]);
       trip.vans.forEach((v) => cmds.push(["DEL", L.seatsKey(t, v.id)]));
       await L.pipeline(cmds);
+      await L.audit({ e: "trip_delete", u: user.id, t, tn: trip.name, refunded: refunded ? 1 : 0, age_h: Math.round((Date.now() - (trip.createdAt || 0)) / 3600000) });
       await L.notify([].concat(...Object.values(bookers), L.teamIds(trip)), { k: "trip_deleted", t, tn: trip.name, by: "owner" }, user.id);
       return L.json(res, 200, { ok: true, refunded });
     }
@@ -489,12 +491,14 @@ module.exports = async function handler(req, res) {
       if (gone.size) await L.notify(Array.from(gone), { k: "van_removed", t, tn: updated.name, vl: L.vanLabel(trip, removed[0]), by }, user.id);
       if (ch.length) await L.notify([].concat(...next.map((v) => bookers[v.id] || []), L.teamIds(updated)), { k: "trip_changed", t, tn: updated.name, ch, by }, user.id);
       let gapsNow; try { gapsNow = updated.staffSeat ? (await staffGaps(updated)).map((v) => v.label) : undefined; } catch (e) { /* shown next load */ }
+      L.audit({ e: "trip_edit", u: user.id, t, tn: updated.name, rev: updated.rev });
       return L.json(res, 200, { ok: true, trip: tripSummary(updated, user), staffSkipped: staffSkipped.length ? staffSkipped : undefined, staffGaps: gapsNow });
     }
 
     res.setHeader("Allow", "GET, POST, PUT, DELETE");
     return L.json(res, 405, { error: "method_not_allowed" });
   } catch (e) {
+    await L.errLog("trip", req, e);
     return L.json(res, 502, { error: "storage_error" });
   }
 };

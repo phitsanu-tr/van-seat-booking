@@ -151,6 +151,27 @@ async function logEvent(t, ev, tripExpSec) {
   } catch (e) { /* ignore */ }
 }
 
+
+// Account activity ("audit:all" newest first, last 2000, kept 180 days): who created/edited/deleted a trip, quota given back, refunds, grants.
+// Ids and trip names only (no phone, no seat names). Best effort: never breaks the request it records.
+async function audit(ev) {
+  try {
+    const clean = { at: Date.now() };
+    Object.keys(ev).forEach((k) => { if (ev[k] !== undefined && ev[k] !== "") clean[k] = typeof ev[k] === "string" ? ev[k].slice(0, 80) : ev[k]; });
+    const cmds = [["LPUSH", "audit:all", JSON.stringify(clean)], ["LTRIM", "audit:all", "0", "1999"], ["EXPIRE", "audit:all", String(180 * 86400)]];
+    if (clean.u) cmds.push(["LPUSH", "audit:u:" + clean.u, JSON.stringify(clean)], ["LTRIM", "audit:u:" + clean.u, "0", "99"], ["EXPIRE", "audit:u:" + clean.u, String(180 * 86400)]);
+    await pipeline(cmds);
+  } catch (e) { /* ignore */ }
+}
+// Server errors ("errors:all", last 200, kept 30 days): where, which request, what failed. Also printed so Vercel's logs have it.
+async function errLog(where, req, err) {
+  try {
+    const msg = String((err && err.message) || err || "").replace(/https?:\/\/\S+/g, "[url]").slice(0, 160);
+    console.error("api-error", where, msg);
+    await pipeline([["LPUSH", "errors:all", JSON.stringify({ at: Date.now(), w: where, m: req && req.method, msg })], ["LTRIM", "errors:all", "0", "199"], ["EXPIRE", "errors:all", String(30 * 86400)]]);
+  } catch (e) { /* ignore */ }
+}
+
 // Booking names: Thai + English letters only, up to 16, no spaces/digits/symbols.
 // Thai vowel/tone marks must follow a consonant (or another mark); leading vowels (เ แ โ ใ ไ) may start a name.
 const NAME_MAX = 16;
@@ -345,6 +366,6 @@ function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); retur
 
 module.exports = {
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, json,
-  seal, open, statDay, bump, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripDaysText, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
+  audit, errLog, seal, open, statDay, bump, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripDaysText, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
   SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, crossSite, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, linePush, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };

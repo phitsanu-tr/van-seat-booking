@@ -78,6 +78,11 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { days: out });
     }
 
+    if (req.method === "GET" && req.query && (req.query.audit !== undefined || req.query.errors !== undefined)) { // newest first; ?audit=<user id> narrows to one account
+      const u = String(req.query.audit || ""), k = req.query.errors !== undefined ? "errors:all" : /^U[0-9a-f]{32}$/.test(u) ? "audit:u:" + u : "audit:all";
+      const rows = (await L.redis(["LRANGE", k, "0", "199"])) || [];
+      return L.json(res, 200, { rows: rows.map((r) => { try { return JSON.parse(r); } catch (e) { return null; } }).filter(Boolean) });
+    }
     if (req.method === "GET" && req.query && req.query.orders !== undefined) {
       const ids = ((await L.redis(["LRANGE", "orders:all", "0", "299"])) || []).filter((x) => /^[a-z0-9]{12}$/.test(x));
       const raws = ids.length ? await L.pipeline(ids.map((id) => ["GET", "order:" + id])) : [];
@@ -117,6 +122,7 @@ module.exports = async function handler(req, res) {
         if (!P.TIERS[g.tier] || (g.tier !== "free" && (!Number.isInteger(days) || days < 1 || days > 3660))) return L.json(res, 400, { error: "bad_grant" });
         await P.setPlan(trip.owner, g.tier, days);
       }
+      await L.audit({ e: "grant", u: trip.owner, t, tester: g.tester !== undefined ? (g.tester ? 1 : 0) : undefined, passes: g.passes !== undefined ? Number(g.passes) : undefined, tier: g.tier, days: g.days !== undefined ? Number(g.days) : undefined });
       const plan = await P.getPlan(trip.owner);
       return L.json(res, 200, { ok: true, owner: trip.ownerName || "", plan: P.publicPlan(plan), tester: plan.on });
     }
@@ -166,6 +172,7 @@ module.exports = async function handler(req, res) {
     res.setHeader("Allow", "GET, POST, DELETE");
     return L.json(res, 405, { error: "method_not_allowed" });
   } catch (e) {
+    await L.errLog("owner", req, e);
     return L.json(res, 502, { error: "storage_error" });
   }
 };

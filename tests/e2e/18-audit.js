@@ -1,0 +1,13 @@
+const HLP=require('../helpers');const {chromium}=require(HLP.PW);const B=HLP.BASE;const log=(...a)=>console.log(...a);
+(async()=>{const b=await chromium.launch(HLP.launchOpts);const c=await b.newContext();const p=await c.newPage();
+await p.goto(B+'/api/auth?start=1&as=Audit&r=%2F');await p.waitForTimeout(400);
+const tr=await (await p.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(30),meetPoint:'จุดนัดพบ',name:'ทริปบันทึก',organizer:'ทัวร์',startDate:HLP.day(30),departTime:'08:00',vans:[{label:'1'}]}})).json();const id=tr.id;
+await p.request.put(B+'/api/trip',{data:{t:id,rev:0,tripN:1,tripStart:HLP.day(30),meetPoint:'จุดนัดพบ',name:'ทริปบันทึก2',organizer:'ทัวร์',startDate:HLP.day(30),departTime:'08:00',vans:[{label:'1'}]}});
+await p.request.delete(B+'/api/trip?t='+id);
+const H={'x-owner-key':'test-owner-key-1234567'};
+const a=await (await p.request.get(B+'/api/owner?audit',{headers:H})).json();
+log('events newest first',(a.rows||[]).map(r=>r.e).slice(0,3).join(','));
+const d=(a.rows||[])[0]||{};log('delete row: refunded',d.refunded,'name',d.tn,'has id',!!d.t,'has seat names',JSON.stringify(d).includes('ผู้'));
+log('errors list ok',Array.isArray((await (await p.request.get(B+'/api/owner?errors',{headers:H})).json()).rows));
+log('no key blocked',(await p.request.get(B+'/api/owner?audit')).status());
+log('ERR',[]);await b.close();})();
