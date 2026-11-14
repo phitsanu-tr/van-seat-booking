@@ -780,7 +780,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     Object.keys(rules).forEach(function (k) {
       var lb = $(k).closest("label"), pb = lb && lb.querySelector(".pk"); if (!pb) return;
       var off = rules[k][0]; lb.classList.toggle("lockd", off); pb.disabled = off;
-      if (off && !none && rules[k][1]) pb.setAttribute("data-lockmsg", rules[k][1]); else pb.removeAttribute("data-lockmsg");
+      var msg = none ? "เลือกรูปแบบทริปก่อน" : rules[k][1]; if (off && msg) pb.setAttribute("data-lockmsg", msg); else pb.removeAttribute("data-lockmsg");
     });
   }
   function tdSet(n, start) {
