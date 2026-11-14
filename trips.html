@@ -275,7 +275,7 @@ select.sel { border-color: #dde3e7!important; }
 .tdw .tdn b { font: 600 16px/24px var(--font-display); }
 .tdw .tdp { background: #e6f3f3; border-radius: 12px; padding: 8px 12px; font: 700 14px/20px var(--font-body); color: #0b5f67; }
 .tdw .tdp[hidden], .tdw label[hidden] { display: none; }
-.pk-floor { font: 400 12px/16px var(--font-body); color: var(--muted); text-align: center; padding: 4px 0; }
+.pk-floor { font: 400 12px/16px var(--font-body); color: var(--muted); margin: -8px 0 8px; }
 .pk-floor.bad { color: var(--danger); font-weight: 600; }
 .pk-time .pk-col > div.off { opacity: .3; }
 .lockd .pk { pointer-events: none; background: #f3f6f7; color: var(--muted); }
@@ -578,7 +578,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     fill(H, 24, 0, function (i) { h = i; }); fill(M, MINS.length, MINS, function (i) { mi = MINS[i]; });
     wrap.appendChild(H); wrap.appendChild(el("div", "pk-colon", ":")); wrap.appendChild(M); sheet.appendChild(wrap);
     var floorTx = null;
-    if (floor != null) { floorTx = el("div", "pk-floor", floor.msg); sheet.appendChild(floorTx); }
+    if (floor != null) { floorTx = el("div", "pk-floor", floor.msg); sheet.insertBefore(floorTx, wrap); }
     function paintFloor() { // times that are not after the departure are greyed out
       if (floor == null) return;
       [].forEach.call(H.children, function (c, k) { c.classList.toggle("off", k * 60 + 55 <= floor.f); });
@@ -591,7 +591,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     now.addEventListener("click", function () { var n = up5(new Date()); H.style.scrollBehavior = M.style.scrollBehavior = "smooth"; H.scrollTo({ top: n[0] * 44, behavior: "smooth" }); M.scrollTo({ top: Math.max(0, MINS.indexOf(n[1])) * 44, behavior: "smooth" }); });
     aux.appendChild(clr); aux.appendChild(now); sheet.appendChild(aux);
     actions(sheet, function () {
-      if (floor != null && h * 60 + mi <= floor.f) { floorTx.classList.add("bad"); return; } // not after the departure: stay open
+      if (floor != null && h * 60 + mi <= floor.f) { floorTx.classList.add("bad"); floorTx.textContent = floor.bad; return; } // not after the departure: stay open
       input.value = p2(h) + ":" + p2(mi); input.dispatchEvent(new Event("change", { bubbles: true })); close();
     });
     var snapT = null;
@@ -611,9 +611,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     dateField(e, "วันเดินทางกลับ", function () { return s.value || todayIso(); });
     timeField(t, "เวลารถออกเดินทางไป", function () { // leaving today: not earlier than now (5-minute steps)
       if (s.value !== todayIso() || t.dataset.keep === t.value + "|" + s.value) return null;
-      var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; return { f: f, msg: "ต้องไม่ก่อนเวลาปัจจุบัน (ตั้งแต่ " + p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60) + " น.)" }; });
+      var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from + " น." }; });
     var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกเดินทางกลับ", function () { // day trip: the van must be back after it left
-      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm ? { f: +dm[1] * 60 + +dm[2], msg: "เวลากลับต้องหลัง " + t.value + " น." } : null; });
+      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm ? { f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value + " น." } : null; });
   }
   // "จองได้สูงสุดต่อคน": the app's own picker (like the calendar) instead of the phone's select wheel; 0 = no limit
   function maxField(input) {
