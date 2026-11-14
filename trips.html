@@ -552,7 +552,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     upd();
   }
 
-  function timeField(input, title, floorFn) { // floorFn() -> minutes of the day the time must be after, or null
+  function timeField(input, title, floorFn) { // floorFn() -> {f: minutes of the day the time must be after, msg} or null
     var b = btn("pk ph", "<span></span>"), sp = b.lastChild;
     var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
     function sync() { var ok = /^\d{2}:\d{2}$/.test(input.value); sp.textContent = ok ? input.value + " น." : "ระบุเวลา"; b.classList.toggle("ph", !ok); }
@@ -578,11 +578,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     fill(H, 24, 0, function (i) { h = i; }); fill(M, MINS.length, MINS, function (i) { mi = MINS[i]; });
     wrap.appendChild(H); wrap.appendChild(el("div", "pk-colon", ":")); wrap.appendChild(M); sheet.appendChild(wrap);
     var floorTx = null;
-    if (floor != null) { floorTx = el("div", "pk-floor", "เวลากลับต้องหลัง " + p2(Math.floor(floor / 60)) + ":" + p2(floor % 60) + " น."); sheet.appendChild(floorTx); }
+    if (floor != null) { floorTx = el("div", "pk-floor", floor.msg); sheet.appendChild(floorTx); }
     function paintFloor() { // times that are not after the departure are greyed out
       if (floor == null) return;
-      [].forEach.call(H.children, function (c, k) { c.classList.toggle("off", k * 60 + 55 <= floor); });
-      [].forEach.call(M.children, function (c, k) { c.classList.toggle("off", h * 60 + MINS[k] <= floor); });
+      [].forEach.call(H.children, function (c, k) { c.classList.toggle("off", k * 60 + 55 <= floor.f); });
+      [].forEach.call(M.children, function (c, k) { c.classList.toggle("off", h * 60 + MINS[k] <= floor.f); });
     }
     function go(i, mv) { var j = MINS.indexOf(mv); H.scrollTop = i * 44; M.scrollTop = j * 44; [[H, i], [M, j]].forEach(function (p) { [].forEach.call(p[0].children, function (c, k) { c.classList.toggle("on", k === p[1]); }); }); h = i; mi = mv; }
     var aux = el("div", "pk-aux"), clr = btn("pk-pill q", "ล้างเวลา"), now = btn("pk-pill", "ตอนนี้");
@@ -591,7 +591,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     now.addEventListener("click", function () { var n = up5(new Date()); H.style.scrollBehavior = M.style.scrollBehavior = "smooth"; H.scrollTo({ top: n[0] * 44, behavior: "smooth" }); M.scrollTo({ top: Math.max(0, MINS.indexOf(n[1])) * 44, behavior: "smooth" }); });
     aux.appendChild(clr); aux.appendChild(now); sheet.appendChild(aux);
     actions(sheet, function () {
-      if (floor != null && h * 60 + mi <= floor) { floorTx.classList.add("bad"); return; } // not after the departure: stay open
+      if (floor != null && h * 60 + mi <= floor.f) { floorTx.classList.add("bad"); return; } // not after the departure: stay open
       input.value = p2(h) + ":" + p2(mi); input.dispatchEvent(new Event("change", { bubbles: true })); close();
     });
     [H, M].forEach(function (c) { c.addEventListener("scroll", paintFloor); });
@@ -602,9 +602,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   if (s && e && t) {
     dateField(s, "วันเดินทางไป", function () { var v = s.value; return v && v < todayIso() ? v : todayIso(); }); // a saved past date (editing an old trip) stays selectable
     dateField(e, "วันเดินทางกลับ", function () { return s.value || todayIso(); });
-    timeField(t, "เวลารถออกเดินทางไป");
+    timeField(t, "เวลารถออกเดินทางไป", function () { // leaving today: not earlier than now (5-minute steps)
+      if (s.value !== todayIso() || t.dataset.keep === t.value + "|" + s.value) return null;
+      var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; return { f: f, msg: "ต้องไม่ก่อนเวลาปัจจุบัน (ตั้งแต่ " + p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60) + " น.)" }; });
     var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกเดินทางกลับ", function () { // day trip: the van must be back after it left
-      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm ? +dm[1] * 60 + +dm[2] : null; });
+      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm ? { f: +dm[1] * 60 + +dm[2], msg: "เวลากลับต้องหลัง " + t.value + " น." } : null; });
   }
   // "จองได้สูงสุดต่อคน": the app's own picker (like the calendar) instead of the phone's select wheel; 0 = no limit
   function maxField(input) {
@@ -1017,7 +1019,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     return { d: +m[3], mo: +m[2] - 1, y: +m[1] + 543 };
   }
   var ERR = {
-    bad_name: "ระบุชื่อทริป", bad_tripdays: "ระบุช่วงวันของทริป", bad_daytrip: "เดย์ทริปไปกลับวันเดียวกัน", bad_daytime: "เวลากลับต้องหลังเวลาออก", bad_tripstart: "วันเดินทางไปต้องไม่หลังวันแรกของทริป", bad_tripend: "วันเดินทางกลับต้องไม่ก่อนวันสุดท้ายของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
+    bad_name: "ระบุชื่อทริป", bad_tripdays: "ระบุช่วงวันของทริป", bad_timepast: "เวลานี้ผ่านไปแล้ว", bad_daytrip: "เดย์ทริปไปกลับวันเดียวกัน", bad_daytime: "เวลากลับต้องหลังเวลาออก", bad_tripstart: "วันเดินทางไปต้องไม่หลังวันแรกของทริป", bad_tripend: "วันเดินทางกลับต้องไม่ก่อนวันสุดท้ายของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
     bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าสู่ระบบด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
     quota_month: "เดือนนี้คุณสร้างทริปครบ 30 ทริปแล้ว ลองใหม่เดือนหน้านะ",
@@ -1031,6 +1033,18 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (bad) { if (!old) fieldErr($("returnTime"), ERR.bad_daytime); }
     else if (old && old.textContent === ERR.bad_daytime) { old.remove(); if (pk) { pk.classList.remove("bad"); pk.removeAttribute("aria-invalid"); } lab.classList.remove("bad"); }
   }
+  function pastDepart() { // leaving today at a time that has passed (a saved old time that was not changed is fine)
+    var sd = $("startDate").value, dt = $("departTime").value; if (!sd || !dt) return false;
+    var n = new Date(), td = n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2) + "-" + ("0" + n.getDate()).slice(-2);
+    if (sd !== td || $("departTime").dataset.keep === dt + "|" + sd) return false;
+    return Number(dt.slice(0, 2)) * 60 + Number(dt.slice(3, 5)) < Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5;
+  }
+  function departCheck() {
+    var lab = $("departTime").closest("label"), old = lab.querySelector(".fe"), pk = lab.querySelector(".pk");
+    if (pastDepart()) { if (!old) fieldErr($("departTime"), "เวลานี้ผ่านไปแล้ว"); }
+    else if (old && old.textContent === "เวลานี้ผ่านไปแล้ว") { old.remove(); if (pk) { pk.classList.remove("bad"); pk.removeAttribute("aria-invalid"); } lab.classList.remove("bad"); }
+  }
+  $("form").addEventListener("change", function () { departCheck(); });
   $("form").addEventListener("change", tdTimeCheck);
   $("tdw").addEventListener("change", tdTimeCheck);
 
@@ -1060,6 +1074,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     });
     if (c1 && $("startDate").value && $("endDate").value && $("endDate").value < $("startDate").value) { var ed = fieldErr($("endDate"), "วันกลับต้องไม่ก่อนวันไป"); first = first || ed; }
     if (c1 && !$("departTime").value) { var tc = fieldErr($("departTime"), "ระบุเวลารถออกเดินทางไป"); first = first || tc; }
+    else if (c1 && pastDepart()) { var tp = fieldErr($("departTime"), "เวลานี้ผ่านไปแล้ว"); first = first || tp; }
     if (c1 && !$("returnTime").value) { var rc = fieldErr($("returnTime"), "ระบุเวลารถออกเดินทางกลับ"); first = first || rc; }
     if (c2 && !$("meetPoint").value.trim()) { var mc = fieldErr($("meetPoint"), "ระบุจุดนัดพบ"); first = first || mc; }
     var seen = {}, dupBad = false;
@@ -1096,7 +1111,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       var data = {}; try { data = await res.json(); } catch (x) {}
       if (!res.ok) {
-        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime", bad_meet: "meetPoint", bad_tripdays: "tds", bad_daytrip: "endDate", bad_daytime: "returnTime", bad_tripstart: "startDate", bad_tripend: "endDate", bad_close: "closeDate" };
+        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime", bad_meet: "meetPoint", bad_tripdays: "tds", bad_timepast: "departTime", bad_daytrip: "endDate", bad_daytime: "returnTime", bad_tripstart: "startDate", bad_tripend: "endDate", bad_close: "closeDate" };
         if (map[data.error]) { focusFirst(fieldErr($(map[data.error]), ERR[data.error])); }
         else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input.vn"); if (v0) { fieldErr(v0, ERR.bad_vans, v0.closest(".vf")); focusFirst(v0); } else toast(ERR.bad_vans); }
         else if (data.error === "login_required") location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new");
@@ -1317,7 +1332,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
         var t = data.trip; staffGapL = data.staffGaps || [];
         $("name").value = t.name; $("organizer").value = t.organizer || ""; tdSet(t.tripN, t.tripStart); $("startDate").value = t.startDate || "";
-        $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
+        $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("departTime").dataset.keep = (t.departTime || "") + "|" + (t.startDate || ""); $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
         (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
         fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = closedAtLoad = t.closed === true; revAtLoad = t.rev || 0;

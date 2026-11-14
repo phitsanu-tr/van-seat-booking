@@ -45,6 +45,10 @@ function clean(body, vanCap, planVans, prev) {
   if (startDate && !DATE_RE.test(startDate)) return { error: "bad_date" };
   if (endDate && !DATE_RE.test(endDate)) return { error: "bad_date" };
   if (departTime && !TIME_RE.test(departTime)) return { error: "bad_time" };
+  if (startDate && departTime && !(prev && prev.startDate === startDate && prev.departTime === departTime)) { // a new departure today must not be in the past (Bangkok time, 10 minutes of grace)
+    const bk = new Date(Date.now() + 7 * 3600 * 1000).toISOString();
+    if (startDate === bk.slice(0, 10) && (+bk.slice(11, 13) * 60 + +bk.slice(14, 16)) - 10 > +departTime.slice(0, 2) * 60 + +departTime.slice(3, 5)) return { error: "bad_timepast" };
+  }
   const returnTime = s(body.returnTime, 5); // optional: when the van leaves for home
   if (returnTime && !TIME_RE.test(returnTime)) return { error: "bad_time" };
   const vans = Array.isArray(body.vans) ? body.vans : [];
