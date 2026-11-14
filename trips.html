@@ -716,7 +716,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     [].forEach.call($("tds").querySelectorAll("button"), function (b) { b.classList.toggle("on", n ? (b.getAttribute("data-k") === "day") === (n === 1) : false); });
     $("tdnRow").hidden = n < 2; $("tdsRow").hidden = n < 1; $("tdsLab").textContent = n === 1 ? "วันเดินทาง" : "วันแรกของทริป";
     if (n >= 2) { $("tdVal").textContent = n + " วัน " + (n - 1) + " คืน"; $("tdMinus").disabled = n <= 2; $("tdPlus").disabled = n >= 15; }
-    var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (n === 1) tx = "ไป-กลับวันเดียวกัน" + ((sd || ts) ? " · " + (VSBShare.tripText(1, sd || ts).split(" · ")[1] || "") : ""); else if (tx) { var pp = tx.split(" · "); if (pp[1]) tx = pp[1] + " (" + pp[0] + ")"; }
+    var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (n === 1) tx = (sd || ts) ? "ทริปวันที่ " + (VSBShare.tripText(1, sd || ts).split(" · ")[1] || "") + " (ไป-กลับวันเดียวกัน)" : ""; else if (tx) { var pp = tx.split(" · "); if (pp[1]) tx = "ทริปวันที่ " + pp[1] + " (" + pp[0] + ")"; }
     $("tdPrev").hidden = !tx; $("tdPrevT").textContent = tx;
     // day trip: the return date is the departure date (locked); overnight: suggest the last day of the trip while it was not typed
     var lk = n === 1;
