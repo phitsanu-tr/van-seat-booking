@@ -679,6 +679,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; $("tdPrev").hidden = !tx; $("tdPrev").textContent = tx;
     // day trip: the return date is the departure date (locked); overnight: suggest the last day of the trip while it was not typed
     var lk = n === 1; lab.classList.toggle("lockd", lk);
+    var lpk = lab.querySelector(".pk"); if (lpk) lpk.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
     var note = lab.querySelector(".lkn"); if (lk && !note) { note = document.createElement("i"); note.className = "lkn"; note.textContent = "วันเดียวกัน"; lab.appendChild(note); } if (note) note.hidden = !lk;
     if (lk && sd && $("endDate").value !== sd) { $("endDate").value = sd; endAuto = true; }
     if (n >= 2 && !ts && sd) { $("tripStart").value = ts = sd; } // first day follows the departure date until chosen
