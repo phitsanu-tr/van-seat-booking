@@ -68,8 +68,20 @@ function clean(body, vanCap, planVans, prev) {
   const noTD = body.tripN === undefined || body.tripN === null || body.tripN === "";
   if (noTD && !tripStart && prev && !prev.tripN) { /* an old trip saved without trip days may stay without */ }
   else if (!Number.isInteger(tripN) || tripN < 1 || tripN > 14 || !DATE_RE.test(tripStart)) return { error: "bad_tripdays" }; // required: how many days the trip lasts and its first day
+  let tripStartOut = tripStart;
+  if (!noTD) {
+    if (tripN === 1) { // day trip: the van goes and comes back the same day
+      if (endDate && endDate !== startDate) return { error: "bad_daytrip" };
+      if (departTime && returnTime && returnTime <= departTime) return { error: "bad_daytime" };
+      tripStartOut = startDate;
+    } else { // overnight: the van may leave before the first day, and must not come back before the last day
+      if (startDate && tripStart < startDate) return { error: "bad_tripstart" };
+      const last = new Date(Date.parse(tripStart + "T00:00:00Z") + (tripN - 1) * 86400000).toISOString().slice(0, 10);
+      if (endDate && endDate < last) return { error: "bad_tripend" };
+    }
+  }
   const value = { name, organizer: keep(body.organizer, LIM.organizer, prev && prev.organizer), startDate, endDate, departTime, returnTime, meetPoint, vans: outVans };
-  if (!noTD) { value.tripN = tripN; value.tripStart = tripStart; }
+  if (!noTD) { value.tripN = tripN; value.tripStart = tripStartOut; }
   if (body.maxPerPerson !== undefined && body.maxPerPerson !== null && body.maxPerPerson !== "") {
     const m = Number(body.maxPerPerson);
     if (!Number.isInteger(m) || m < 0 || m > 50) return { error: "bad_max" };

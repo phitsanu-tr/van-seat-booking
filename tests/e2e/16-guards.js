@@ -6,9 +6,9 @@ const errs=[];const log=(...a)=>console.log(...a);
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function user(n){const c=await b.newContext({viewport:{width:390,height:844}});const p=await c.newPage();await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(500);return p}
 const A=await user('Ann'),P=await user('Pat');
-const tr=await (await A.request.post(B+'/api/trip',{data:{name:'ทริปกันทับ',startDate:HLP.day(5),endDate:HLP.day(6),departTime:'07:00',tripN:2,tripStart:'2099-01-01',meetPoint:'BTS',maxPerPerson:2,vans:[{label:'1'}]}})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:{name:'ทริปกันทับ',startDate:HLP.day(5),endDate:HLP.day(6),departTime:'07:00',tripN:2,tripStart:HLP.day(5),meetPoint:'BTS',maxPerPerson:2,vans:[{label:'1'}]}})).json();const ID=tr.id;
 // 1) stale edit
-const base={t:ID,name:'ทริปกันทับ',startDate:HLP.day(5),endDate:HLP.day(6),departTime:'07:00',tripN:2,tripStart:'2099-01-01',meetPoint:'BTS',maxPerPerson:2,vans:[{id:'v1',label:'1'}]};
+const base={t:ID,name:'ทริปกันทับ',startDate:HLP.day(5),endDate:HLP.day(6),departTime:'07:00',tripN:2,tripStart:HLP.day(5),meetPoint:'BTS',maxPerPerson:2,vans:[{id:'v1',label:'1'}]};
 const g=await (await A.request.get(B+'/api/trip?t='+ID)).json();const rev0=g.trip.rev||0;
 const e1=await A.request.fetch(B+'/api/trip',{method:'PUT',data:Object.assign({},base,{name:'แก้รอบแรก',rev:rev0})});
 const e2=await A.request.fetch(B+'/api/trip',{method:'PUT',data:Object.assign({},base,{name:'แก้จากฟอร์มเก่า',rev:rev0})});

@@ -3,10 +3,10 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function user(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),Bh=await user('Bob'),P=await user('Pat'),Q=await user('Qin');
-const tr=await (await A.request.post(B+'/api/trip',{data:{name:'น้ำตกสายรุ้งละอองดาว',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'21:00',tripN:2,tripStart:'2099-01-01',meetPoint:'BTS หมอชิต',vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:{name:'น้ำตกสายรุ้งละอองดาว',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'21:00',tripN:2,tripStart:HLP.day(20),meetPoint:'BTS หมอชิต',vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;
 const inv=await (await A.request.post(B+'/api/trip',{data:{t:ID,invite:true}})).json();await Bh.request.post(B+'/api/trip',{data:{join:inv.invite.code}});
 await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'แพท'}});await Q.request.post(B+'/api/seats?t='+ID+'&v=v2',{data:{seat:1,name:'ฉิน'}});
-const put=await A.request.fetch(B+'/api/trip',{method:'PUT',data:{t:ID,name:'น้ำตกสายรุ้งละอองดาว',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'20:30',tripN:2,tripStart:'2099-01-01',meetPoint:'BTS หมอชิต',vans:[{id:'v1',label:'1'},{id:'v2',label:'2'}]}});log('put',put.status());
+const put=await A.request.fetch(B+'/api/trip',{method:'PUT',data:{t:ID,name:'น้ำตกสายรุ้งละอองดาว',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'20:30',tripN:2,tripStart:HLP.day(20),meetPoint:'BTS หมอชิต',vans:[{id:'v1',label:'1'},{id:'v2',label:'2'}]}});log('put',put.status());
 await Bh.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{move:{fromVan:'v1',fromSeat:3,toVan:'v2',toSeat:5}}});
 await A.request.fetch(B+'/api/seats?t='+ID+'&v=v2',{method:'PATCH',data:{seat:1,name:'ฉินนี่'}});
 const inbox=async p=>{const d=await (await p.request.get(B+'/api/me?inbox=1')).json();return d.unread+' '+d.items.map(x=>x.k).join(',')};

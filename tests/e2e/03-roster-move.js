@@ -3,7 +3,7 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function user(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(500);return p;}
 const A=await user('Ann'),P=await user('Bob'),C=await user('Cat');
-const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:2,tripStart:'2099-01-01',meetPoint:'จุดนัดพบ',name:'ทริปจัดการ',startDate:HLP.day(45),vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(45),meetPoint:'จุดนัดพบ',name:'ทริปจัดการ',startDate:HLP.day(45),vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;
 await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'บ็อบ'}});await C.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:4,name:'แคท'}});
 const ros=async()=>JSON.stringify((await (await A.request.get(B+'/api/trip?t='+ID+'&roster=1',{headers:{'x-admin-key':'o'}})).json()).roster);
 log('roster0',await ros());

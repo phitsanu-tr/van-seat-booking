@@ -5,7 +5,7 @@ const errs=[];const log=(...a)=>console.log(...a);const path=u=>{const x=new URL
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function user(n,ua){const c=await b.newContext({viewport:{width:390,height:844},userAgent:ua||LINE});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann');
-const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:2,tripStart:'2099-01-01',meetPoint:'จุดนัดพบ',name:'ทริปลิงก์',startDate:HLP.day(20),departTime:'07:00',vans:[{label:'1'}]}})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(20),meetPoint:'จุดนัดพบ',name:'ทริปลิงก์',startDate:HLP.day(20),departTime:'07:00',vans:[{label:'1'}]}})).json();const ID=tr.id;
 await A.goto(B+'/');await A.waitForTimeout(1500);log('home -> app',path(A.url()),'create link',await A.getAttribute('a.tc[href="/trips/new"], a[href="/trips/new"]','href'));
 await A.goto(B+'/trips');await A.waitForTimeout(800);log('/trips ->',path(A.url()));
 await A.goto(B+'/trips.html');await A.waitForTimeout(800);log('/trips.html ->',path(A.url()));

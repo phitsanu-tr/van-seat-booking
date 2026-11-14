@@ -3,8 +3,8 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function user(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),P=await user('Pat'),Q=await user('Qin');
-const tr=await (await A.request.post(B+'/api/trip',{data:{name:'เขาใหญ่ชิล ๆ',startDate:HLP.day(50),departTime:'07:00',tripN:2,tripStart:'2099-01-01',meetPoint:'BTS หมอชิต',vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;
-const put=t=>A.request.fetch(B+'/api/trip',{method:'PUT',data:{t:ID,name:'เขาใหญ่ชิล ๆ',startDate:HLP.day(50),departTime:t,tripN:2,tripStart:'2099-01-01',meetPoint:'BTS หมอชิต',vans:[{id:'v1',label:'1'},{id:'v2',label:'2'}]}});
+const tr=await (await A.request.post(B+'/api/trip',{data:{name:'เขาใหญ่ชิล ๆ',startDate:HLP.day(50),departTime:'07:00',tripN:1,tripStart:HLP.day(50),meetPoint:'BTS หมอชิต',vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;
+const put=t=>A.request.fetch(B+'/api/trip',{method:'PUT',data:{t:ID,name:'เขาใหญ่ชิล ๆ',startDate:HLP.day(50),departTime:t,tripN:1,tripStart:HLP.day(50),meetPoint:'BTS หมอชิต',vans:[{id:'v1',label:'1'},{id:'v2',label:'2'}]}});
 const inbox=async p=>{const d=await (await p.request.get(B+'/api/me?inbox=1')).json();return d.unread+'/'+d.items.length};
 await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'แพท'}});
 await P.request.post(B+'/api/seats?t='+ID+'&v=v2',{data:{seat:5,name:'แพทสอง'}});
