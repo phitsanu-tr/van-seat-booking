@@ -1338,7 +1338,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (n > 1 && /^\d{4}-\d{2}-\d{2}$/.test(ts)) lastD = new Date(Date.parse(ts + "T00:00:00Z") + (n - 1) * 86400000).toISOString().slice(0, 10);
     [["#", "รายละเอียดทริป"], ["ชื่อทริป", $("name").value.trim()], ["ผู้จัด / บริษัททัวร์", $("organizer").value.trim()],
      ["รูปแบบทริป", n === 1 ? "เดย์ทริป · ไป-กลับวันเดียว" : n > 1 ? "ค้างคืน · " + n + " วัน " + (n - 1) + " คืน" : ""],
-     [n === 1 ? "วันที่จัดทริป" : "ช่วงวันของทริป", lastD ? dayS(ts) + " – " + dayS(lastD) : dayS(ts)],
+     ["วันที่จัดทริป", lastD ? dayS(ts) + " – " + dayS(lastD) : dayS(ts)],
      ["#", "กำหนดการเดินทาง"], ["รถออกขาไป", leg(sd, $("departTime").value)],
      ["รถออกขากลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""],
      ["#", "จุดนัดพบและรถตู้"], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
