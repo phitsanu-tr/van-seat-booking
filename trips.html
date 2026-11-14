@@ -195,6 +195,7 @@ input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mi
 .cf-title { margin: 0; font: 600 20px/28px var(--font-display); display: flex; align-items: center; gap: 8px; padding-right: 40px; }
 .cf-ic { flex: none; width: 24px; height: 24px; border-radius: 100px; background: var(--danger); color: #fff; display: grid; place-items: center; }
 .cf-ic svg { width: 14px; height: 14px; }
+.cf-ic.warn { background: #b87500; }
 .cf-note { margin: 0; background: #fdf0dd; color: #8a5400; border-radius: 12px; padding: 12px; font-size: 12px; line-height: 16px; text-align: left; }
 .cf-sum { margin: 0; padding: 16px; border: 1px solid #e8ecef; border-radius: 16px; background: color-mix(in srgb, var(--ink) 4%, var(--surface)); }
 .cf-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
@@ -869,7 +870,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var back = document.createElement("div"); back.className = "pk-back";
       var sheet = document.createElement("div"); sheet.className = "pk-sheet"; sheet.setAttribute("role", "alertdialog"); sheet.setAttribute("aria-modal", "true"); sheet.setAttribute("aria-label", title);
       var h = document.createElement("h2"); h.className = "cf-title";
-      if (/^ลบ/.test(okLabel || "")) { var ci = document.createElement("span"); ci.className = "cf-ic"; ci.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3"/></svg>'; h.appendChild(ci); }
+      { var del = /^ลบ/.test(okLabel || ""), ci = document.createElement("span"); ci.className = "cf-ic" + (del ? "" : " warn"); ci.innerHTML = del ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v6M12 17v.5"/></svg>'; h.appendChild(ci); }
       h.appendChild(document.createTextNode(title));
       var xb = document.createElement("button"); xb.type = "button"; xb.className = "mclose"; xb.setAttribute("aria-label", "ปิด"); xb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
       var p = document.createElement("p"); p.className = "cf-text"; p.textContent = text;
