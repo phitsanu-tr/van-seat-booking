@@ -279,6 +279,7 @@ body.sk #tripHdr > :not(.hero) { display: none; }
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 .backdrop[hidden] { display: none !important; }
+.backdrop { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .modal {
   background: var(--surface); border-radius: 24px; padding: 22px 20px 16px; width: 100%; max-width: 340px;
   display: flex; flex-direction: column; gap: 16px; box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
@@ -291,7 +292,7 @@ body.sk #tripHdr > :not(.hero) { display: none; }
 #backdrop .modal { position: relative; margin: auto; max-width: 400px; padding: 20px; border-radius: 24px; border: 0; box-shadow: 0 18px 50px rgba(0, 0, 0, .35); }
 #backdrop .modal::before { display: none; }
 #backdrop .modal .actions button { flex: 1 1 0; min-width: 0; }
-.mx { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
+.mx { position: absolute; top: 16px; right: 20px; width: 36px; height: 36px; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
 .minfo { flex: none; height: 58px; box-sizing: border-box; padding: 0 16px; border-radius: 12px; font-size: 16px; background: var(--bg); display: flex; flex-direction: column; justify-content: center; line-height: 24px; color: var(--ink); }
 .minfo b { font-weight: 600; }
 .minfo.warn { background: color-mix(in srgb, var(--sel) 18%, var(--surface)); border: 1px solid color-mix(in srgb, var(--sel) 55%, var(--line)); padding: 0 16px; }
