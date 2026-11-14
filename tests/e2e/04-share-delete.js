@@ -19,5 +19,6 @@ await q.goto(B+'/trips/'+ID+'?card=guest&img=1');await q.waitForTimeout(1200);lo
 await p.goto(B+'/trips/'+ID);await p.reload();await p.waitForTimeout(1500);await p.click('#delBtn');await p.waitForTimeout(400);
 const btns=await p.$$eval('button',bs=>bs.filter(x=>x.offsetParent&&/ลบทริป/.test(x.textContent)).map(x=>x.id||x.className));log('confirm btns',btns);
 await p.evaluate(()=>{const x=[...document.querySelectorAll('button')].filter(x=>x.offsetParent&&/ลบทริป/.test(x.textContent)&&x.id!=='delBtn');x[x.length-1].click()});await p.waitForTimeout(1500);
+log('delete sheet',await p.evaluate(()=>[document.getElementById('mState').textContent.trim(),document.getElementById('mSub').textContent.trim(),!document.getElementById('toList').hidden].join(' | ')));await p.click('#toList');await p.waitForTimeout(1500);
 log('after delete url',p.url(),'status',(await fetch(B+'/api/seats?t='+ID)).status);
 log('ERR',errs);await b.close();})();
