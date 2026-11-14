@@ -71,7 +71,7 @@ function clean(body, vanCap, planVans, prev) {
   const tripN = Number(body.tripN), tripStart = s(body.tripStart, 10);
   const noTD = body.tripN === undefined || body.tripN === null || body.tripN === "";
   if (noTD && !tripStart && prev && !prev.tripN) { /* an old trip saved without trip days may stay without */ }
-  else if (!Number.isInteger(tripN) || tripN < 1 || tripN > 14 || !DATE_RE.test(tripStart)) return { error: "bad_tripdays" }; // required: how many days the trip lasts and its first day
+  else if (!Number.isInteger(tripN) || tripN < 1 || tripN > 15 || !DATE_RE.test(tripStart)) return { error: "bad_tripdays" }; // required: how many days the trip lasts and its first day
   let tripStartOut = tripStart;
   if (!noTD) {
     if (tripN === 1) { // day trip: the van goes and comes back the same day

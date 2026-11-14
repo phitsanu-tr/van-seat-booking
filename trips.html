@@ -684,7 +684,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var n = Number($("tripN").value) || 0, sd = $("startDate").value, ts = $("tripStart").value, lab = $("endDate").closest("label");
     [].forEach.call($("tds").querySelectorAll("button"), function (b) { b.classList.toggle("on", n ? (b.getAttribute("data-k") === "day") === (n === 1) : false); });
     $("tdnRow").hidden = n < 2; $("tdsRow").hidden = n < 2;
-    if (n >= 2) { $("tdVal").textContent = n + " วัน " + (n - 1) + " คืน"; $("tdMinus").disabled = n <= 2; $("tdPlus").disabled = n >= 14; }
+    if (n >= 2) { $("tdVal").textContent = n + " วัน " + (n - 1) + " คืน"; $("tdMinus").disabled = n <= 2; $("tdPlus").disabled = n >= 15; }
     var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; $("tdPrev").hidden = !tx; $("tdPrev").textContent = tx;
     // day trip: the return date is the departure date (locked); overnight: suggest the last day of the trip while it was not typed
     var lk = n === 1; lab.classList.toggle("lockd", lk);
@@ -704,7 +704,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function tdPick(n) { $("tripN").value = String(n); if (!$("tripStart").value && $("startDate").value) { $("tripStart").value = $("startDate").value; $("tripStart").dispatchEvent(new Event("change", { bubbles: true })); } tdPaint(); $("tdw").classList.remove("bad"); $("tdw").dispatchEvent(new Event("change", { bubbles: true })); }
   $("tds").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; var cur = Number($("tripN").value) || 0; tdPick(b.getAttribute("data-k") === "day" ? 1 : (cur >= 2 ? cur : 2)); });
   $("tdMinus").addEventListener("click", function () { tdPick(Math.max(2, (Number($("tripN").value) || 2) - 1)); });
-  $("tdPlus").addEventListener("click", function () { tdPick(Math.min(14, (Number($("tripN").value) || 2) + 1)); });
+  $("tdPlus").addEventListener("click", function () { tdPick(Math.min(15, (Number($("tripN").value) || 2) + 1)); });
   $("tripStart").addEventListener("change", tdPaint);
   $("startDate").addEventListener("change", tdPaint); $("endDate").addEventListener("change", function () { endAuto = false; }); tdPaint();
   function letter(i) { return String.fromCharCode(65 + (i % 26)); }
