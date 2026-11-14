@@ -331,6 +331,7 @@ form label { position: relative; }
 .tl .grp { display: grid; gap: 16px; background: #fff; border: 1px solid #e3e8eb; border-radius: 14px; padding: 12px 12px 14px; }
 .tl .grp > .gh { display: flex; align-items: center; gap: 8px; font: 700 16px/24px var(--font-display); color: var(--ink); }
 .tl .gh .dot { display: grid; place-items: center; flex: none; color: var(--mine); }
+.tl .grp > .gh .gd { margin-left: auto; font: 500 14px/20px var(--font-display); color: var(--muted); }
 .tl .grp.r .gh .dot { color: #e5484d; }
 .tl .gh .dot svg { width: 22px; height: 22px; }
 .tl .grp > .gh { margin-bottom: -4px; } /* heading sits 12px above its first field */
@@ -385,11 +386,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><b>กำหนดการเดินทาง</b></div>
     <div class="tdlock" id="tdLock" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>เลือกช่วงวันของทริปก่อน จึงจะเลือกวันและเวลาได้</div>
     <div class="tl">
-      <div class="grp"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><b>เดินทางไป</b></div>
+      <div class="grp"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><b>เดินทางไป</b><span class="gd" id="goD" hidden></span></div>
         <label>วันเดินทางไป <input type="date" id="startDate"></label>
         <label>เวลารถออก <input type="time" id="departTime"></label>
       </div>
-      <div class="grp r"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span><b>เดินทางกลับ</b></div>
+      <div class="grp r"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span><b>เดินทางกลับ</b><span class="gd" id="retD" hidden></span></div>
         <label>วันเดินทางกลับ <input type="date" id="endDate"></label>
         <label>เวลารถออก <input type="time" id="returnTime"></label>
       </div>
@@ -725,10 +726,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     ["startDate", "endDate"].forEach(function (k) { // both dates follow the chosen day: locked, with a tag
       var lb = $(k).closest("label"), pb = lb.querySelector(".pk"); if (!pb) return;
-      lb.classList.toggle("lockd", lk); pb.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
+      lb.hidden = lk; lb.classList.toggle("lockd", lk); pb.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
       var tag = pb.querySelector(".lkn"); if (lk && sd && !tag) { tag = document.createElement("span"); tag.className = "lkn"; tag.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>ตามวันที่เดินทาง'; pb.appendChild(tag); }
       if (tag) tag.hidden = !(lk && sd);
     });
+    var dd = lk && sd ? Number(sd.slice(8)) + " " + ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."][Number(sd.slice(5, 7)) - 1] : ""; ["goD", "retD"].forEach(function (k) { $(k).textContent = dd; $(k).hidden = !dd; });
     if (n >= 2 && !ts && sd) { $("tripStart").value = ts = sd; } // first day follows the departure date until chosen
     var en = lab.querySelector(".tdnote"), dl = $("startDate").closest("label"), dn = dl.querySelector(".tdnote");
     function putNote(l, e, txt) { if (!e) { e = document.createElement("div"); e.className = "tdnote"; l.appendChild(e); } e.textContent = txt; e.hidden = false; return e; }
@@ -762,7 +764,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     $("tripN").value = n ? String(n) : ""; $("tripStart").value = start || ""; endAuto = false;
     tdRequired = !editing || !!n; tdPaint(); // an old trip without trip days is not forced to fill them
   }
-  function tdPick(n) { $("tripN").value = String(n); if (!$("tripStart").value && $("startDate").value) { $("tripStart").value = $("startDate").value; $("tripStart").dispatchEvent(new Event("change", { bubbles: true })); } tdPaint(); $("tdw").classList.remove("bad"); $("tdw").dispatchEvent(new Event("change", { bubbles: true })); }
+  function tdPick(n) { var was = Number($("tripN").value) || 0; $("tripN").value = String(n); if (!$("tripStart").value && $("startDate").value) { $("tripStart").value = $("startDate").value; $("tripStart").dispatchEvent(new Event("change", { bubbles: true })); } if (was === 1 && n >= 2) { ["startDate", "endDate", "departTime", "returnTime"].forEach(function (k) { $(k).value = ""; delete $(k).dataset.keep; }); endAuto = false; } // leaving a day trip: its dates (set by the form) and times start over
+    tdPaint(); $("tdw").classList.remove("bad"); $("tdw").dispatchEvent(new Event("change", { bubbles: true })); }
   $("tds").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; var cur = Number($("tripN").value) || 0;
     if (b.classList.contains("on") && tdRequired) { $("tripN").value = ""; tdPaint(); $("tdw").dispatchEvent(new Event("change", { bubbles: true })); return; } // tapping the chosen one again clears the choice; the dates stay but wait behind the lock
     tdPick(b.getAttribute("data-k") === "day" ? 1 : (cur >= 2 ? cur : 2)); });
