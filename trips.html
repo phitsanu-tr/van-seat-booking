@@ -632,7 +632,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (n >= 2 && ts) { var le = new Date(Date.parse(ts + "T00:00:00Z") + (n - 1) * 86400000).toISOString().slice(0, 10); if (le > lo) lo = le; } return lo; });
     timeField(t, "เวลารถออกเดินทางไป", function () { // leaving today: not earlier than now (5-minute steps)
       if (s.value !== todayIso() || t.dataset.keep === t.value + "|" + s.value) return null;
-      var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from + " น." }; }, function () { return s.value !== todayIso() ? "07:00" : ""; });
+      var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from + " น." }; }, function () { // a usual departure by trip type: day trips leave early, overnight trips in the evening
+      return s.value !== todayIso() ? (document.getElementById("tripN").value === "1" ? "06:00" : "19:00") : ""; });
     var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกเดินทางกลับ", function () { // day trip: the van must be back after it left
       var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm ? { start: 1, f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value + " น." } : null; });
   }
