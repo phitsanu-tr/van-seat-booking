@@ -755,7 +755,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var sv = $("startDate").value, bad = sv && (sv > ts || ms(ts) - ms(sv) > 2 * 86400000) && $("startDate").dataset.keep !== sv;
       if (bad) { $("startDate").value = ""; dn = putNote(dl, dn, "เปลี่ยนช่วงวัน กรุณาระบุวันเดินทางไปใหม่"); }
       var ev = $("endDate").value, bad2 = ev && (ev < last || ms(ev) - ms(last) > 2 * 86400000) && $("endDate").dataset.keep !== ev;
-      if (bad2 || (ev && ev < last)) { $("endDate").value = ""; if (endAuto) $("returnTime").value = ""; else en = putNote(lab, en, "เปลี่ยนช่วงวัน กรุณาเลือกวันกลับใหม่"); endAuto = false; } // the day trip's own return time does not carry over to an overnight trip
+      if (bad2 || (ev && ev < last)) { $("endDate").value = ""; if (endAuto) $("returnTime").value = ""; else en = putNote(lab, en, "เปลี่ยนช่วงวัน กรุณาระบุวันเดินทางกลับใหม่"); endAuto = false; } // the day trip's own return time does not carry over to an overnight trip
     } else { if (en && n < 2) en.hidden = true; if (dn && n < 2) dn.hidden = true; }
     var tl = $("departTime").closest("label"), tn = tl.querySelector(".tdnote"), dtv = $("departTime").value, sdv = $("startDate").value; // leaving today at a time that has gone by (the day was changed to today): start over, with a note
     var gone = false;
