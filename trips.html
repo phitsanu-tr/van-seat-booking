@@ -1185,13 +1185,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         else if (edv && edv < addDays(tsv, tn - 1)) first = fieldErr($("endDate"), ERR.bad_tripend + " (" + VSBShare.tripText(1, addDays(tsv, tn - 1)).replace("เดย์ทริป · ", "") + ")");
       }
     }
+    var opn = function (id) { var lb = $(id).closest("label"); return !(lb && lb.classList.contains("lockd")); }; // a locked field already says what to do first; only open empty ones get the red mark
     if (c1) [["startDate", "ระบุวันเดินทางไป"], ["endDate", "ระบุวันเดินทางกลับ"]].forEach(function (f) {
-      if (!$(f[0]).value) { var c = fieldErr($(f[0]), f[1]); first = first || c; }
+      if (!$(f[0]).value && opn(f[0])) { var c = fieldErr($(f[0]), f[1]); first = first || c; }
     });
     if (c1 && $("startDate").value && $("endDate").value && $("endDate").value < $("startDate").value) { var ed = fieldErr($("endDate"), "วันกลับต้องไม่ก่อนวันไป"); first = first || ed; }
-    if (c1 && !$("departTime").value) { var tc = fieldErr($("departTime"), "ระบุเวลารถออกขาไป"); first = first || tc; }
+    if (c1 && !$("departTime").value) { if (opn("departTime")) { var tc = fieldErr($("departTime"), "ระบุเวลารถออกขาไป"); first = first || tc; } }
     else if (c1 && pastDepart()) { var tp = fieldErr($("departTime"), "เวลานี้ผ่านไปแล้ว"); first = first || tp; }
-    if (c1 && !$("returnTime").value) { var rc = fieldErr($("returnTime"), "ระบุเวลารถออกขากลับ"); first = first || rc; }
+    if (c1 && !$("returnTime").value && opn("returnTime")) { var rc = fieldErr($("returnTime"), "ระบุเวลารถออกขากลับ"); first = first || rc; }
     if (c2 && !$("meetPoint").value.trim()) { var mc = fieldErr($("meetPoint"), "ระบุจุดนัดพบ"); first = first || mc; }
     var seen = {}, dupBad = false;
     if (c2) [].forEach.call(vansEl.querySelectorAll("input.vn"), function (inp, i) {
