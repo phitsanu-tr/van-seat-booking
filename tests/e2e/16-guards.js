@@ -38,6 +38,6 @@ const rows=[{v:'',s:'8',name:'มานี',note:'จ่ายแล้ว'},{v:
 const d1=await imp(false,rows);const r0=(await (await A.request.get(B+'/api/trip?t='+ID+'&roster=1')).json()).roster.v1;
 log('import dry-run: counts',JSON.stringify(d1.counts),'booked none',!r0[8]);
 const d2=await imp(true,rows);const r1=(await (await A.request.get(B+'/api/trip?t='+ID+'&roster=1')).json()).roster.v1;
-log('import apply: created',d2.created,'seat8',r1[8]&&r1[8].name,'total',Object.keys(r1).length);
+log('import apply: created',d2.created,'seat8',r1[8]&&r1[8].name,'new seats',Object.keys(r1).length-Object.keys(got).length);
 log('ERR',errs);await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

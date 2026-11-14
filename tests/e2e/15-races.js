@@ -6,7 +6,7 @@ const errs=[];const log=(...a)=>console.log(...a);
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function user(n){const c=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:1});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),P=await user('Pat'),Q=await user('Qin');
-const tr=await (await A.request.post(B+'/api/trip',{data:{name:'ทริปพร้อมกัน',startDate:HLP.day(5),endDate:HLP.day(6),departTime:'07:00',tripN:2,tripStart:HLP.day(5),meetPoint:'BTS',maxPerPerson:0,vans:[{label:'1'}]}})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:{name:'ทริปพร้อมกัน',startDate:HLP.day(5),endDate:HLP.day(6),departTime:'07:00',returnTime:'18:00',tripN:2,tripStart:HLP.day(5),meetPoint:'BTS',maxPerPerson:0,vans:[{label:'1'}]}})).json();const ID=tr.id;
 const url=B+'/api/seats?t='+ID+'&v=v1';
 const book=(p,s,n)=>p.request.post(url,{data:{seat:s,name:n}});
 const cancel=(p,s)=>p.request.fetch(url,{method:'DELETE',data:{seat:s}});
