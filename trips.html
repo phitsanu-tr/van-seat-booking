@@ -593,7 +593,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     now.addEventListener("click", function () { var n = up5(new Date()); H.style.scrollBehavior = M.style.scrollBehavior = "smooth"; H.scrollTo({ top: n[0] * 44, behavior: "smooth" }); M.scrollTo({ top: Math.max(0, MINS.indexOf(n[1])) * 44, behavior: "smooth" }); });
     aux.appendChild(clr); aux.appendChild(now); sheet.appendChild(aux);
     actions(sheet, function () {
-      if (floor != null && (h * 60 + mi <= floor.f || (floor.start && !m))) { floorTx.classList.add("bad"); floorTx.textContent = floor.bad; return; } // not after the departure: stay open
+      if (floor != null && h * 60 + mi <= floor.f) { floorTx.classList.add("bad"); floorTx.textContent = floor.bad; return; } // not after the departure: stay open
       input.value = p2(h) + ":" + p2(mi); input.dispatchEvent(new Event("change", { bubbles: true })); close();
     });
     var snapT = null;
