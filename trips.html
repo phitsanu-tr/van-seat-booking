@@ -190,7 +190,7 @@ form label.swl.stf { display: flex; padding: 12px 16px; border: 1px solid #dde3e
 .sw:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 input.bad, .pk.bad { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 14%, transparent); }
 .fe { display: flex; gap: 8px; align-items: center; color: var(--danger); font: 400 12px/16px var(--font-body); margin-top: 8px; }
-.fe svg { flex: none; width: 14px; height: 14px; }
+.fe svg { flex: none; width: 16px; height: 16px; }
 .vcard { border: 1px solid #dde3e7; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: #fff; }
 .vch { display: flex; justify-content: space-between; align-items: center; min-height: 28px; }
 .vch b { font: 600 14px/20px var(--font-display); }
@@ -296,7 +296,8 @@ select.sel { border-color: #dde3e7!important; }
 .pk[data-lockmsg]:disabled.ph::before { content: attr(data-lockmsg); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
 .lkn[hidden] { display: none; }
 .lkn svg { width: 20px; height: 20px; flex: none; }
-.tdw.bad .tds button:not(.on) { border-color: var(--danger); }
+.tdw.bad .tds button:not(.on) { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 14%, transparent); }
+.tdw > .fe { margin-top: -8px; } /* the card group already sits 16px above its message: same 8px as under a text field */
 .stp { display: flex; align-items: flex-start; margin: 0 0 4px; padding: 0 4px; }
 .stp .s { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
 .stp .s:not(:last-child)::after { content: ""; position: absolute; top: 14px; left: calc(50% + 20px); right: calc(-50% + 20px); height: 2px; border-radius: 2px; background: #dde3e7; }
