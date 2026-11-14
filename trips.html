@@ -489,7 +489,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     c.addEventListener("click", close); ok.addEventListener("click", onOk); a.appendChild(c); a.appendChild(ok); sheet.appendChild(a); return ok;
   }
 
-  function dateField(input, title, minFn, maxFn) {
+  function dateField(input, title, minFn, maxFn, sugFn) {
     var b = btn("pk ph", "<span></span>"), sp = b.lastChild;
     var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
     function sync() {
@@ -499,11 +499,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     Object.defineProperty(input, "value", { get: function () { return desc.get.call(input); }, set: function (v) { desc.set.call(input, v); sync(); } });
     input.type = "hidden"; input.parentNode.appendChild(b); sync();
-    b.addEventListener("click", function () { openCal(input, title, b, minFn, sync, maxFn); });
+    b.addEventListener("click", function () { openCal(input, title, b, minFn, sync, maxFn, sugFn ? sugFn() : ""); });
   }
-  function openCal(input, title, trigger, minFn, sync, maxFn) {
+  function openCal(input, title, trigger, minFn, sync, maxFn, sug) {
     var cur = parse(input.value), now = parse(todayIso()), min = minFn ? minFn() : "", max = maxFn ? maxFn() : "";
-    var sel = input.value || (min && min > todayIso() ? min : todayIso()), sp0 = parse(sel), view = { y: sp0.y, m: sp0.m }, slide = 0;
+    var sel = input.value || (sug && (!min || sug >= min) && (!max || sug <= max) ? sug : (min && min > todayIso() ? min : todayIso())), sp0 = parse(sel), view = { y: sp0.y, m: sp0.m }, slide = 0;
     var picking = false, sheet = shell(title, trigger), body = el("div");
     (function () { // what can be picked: a range, or one end of it
       var a = min > todayIso() ? parse(min) : null, b = max ? parse(max) : null, y = function (p) { return p.y + 543; }, txt = "";
@@ -636,12 +636,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (TN() >= 2 && TS() && AD(TS(), -2) > lo) lo = AD(TS(), -2);
       return v && v < lo ? v : lo;
     }, function () { // ... up to the first day of the trip
-      var v = s.value; return TN() >= 2 && TS() ? (v && v > TS() ? v : TS()) : ""; });
+      var v = s.value; return TN() >= 2 && TS() ? (v && v > TS() ? v : TS()) : ""; }, function () { return TN() >= 2 && TS() ? AD(TS(), -1) : ""; }); // opens on the day before the trip (the usual evening departure)
     dateField(e, "วันเดินทางกลับ", function () { // overnight: not before the last day of the trip
       var lo = s.value || todayIso();
       if (TN() >= 2 && TS()) { var le = AD(TS(), TN() - 1); if (le > lo) lo = le; } return lo;
     }, function () { // ... and at most 2 days after it; a saved date stays selectable
-      var v = e.value; if (!(TN() >= 2 && TS())) return ""; var hi = AD(TS(), TN() + 1); return v && v > hi ? v : hi; });
+      var v = e.value; if (!(TN() >= 2 && TS())) return ""; var hi = AD(TS(), TN() + 1); return v && v > hi ? v : hi; }, function () { return TN() >= 2 && TS() ? AD(TS(), TN() - 1) : ""; }); // opens on the last day of the trip
     timeField(t, "เวลารถออกเดินทางไป", function () { // leaving today: not earlier than now (5-minute steps)
       if (s.value !== todayIso() || t.dataset.keep === t.value + "|" + s.value) return null;
       var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from + " น." }; }, function () { // a usual departure by trip type: day trips leave early, overnight trips in the evening
