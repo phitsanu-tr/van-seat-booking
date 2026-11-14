@@ -1339,8 +1339,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     [["#", "รายละเอียดทริป"], ["ชื่อทริป", $("name").value.trim()], ["ผู้จัด / บริษัททัวร์", $("organizer").value.trim()],
      ["รูปแบบทริป", n === 1 ? "เดย์ทริป · ไป-กลับวันเดียว" : n > 1 ? "ค้างคืน · " + n + " วัน " + (n - 1) + " คืน" : ""],
      ["วันที่จัดทริป", lastD ? dayS(ts) + " – " + dayS(lastD) : dayS(ts)],
-     ["#", "กำหนดการเดินทาง"], ["รถออกขาไป", leg(sd, $("departTime").value)],
-     ["รถออกขากลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""],
+     ["#", "กำหนดการเดินทาง"], ["เดินทางไป", leg(sd, $("departTime").value)],
+     ["เดินทางกลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""],
      ["#", "จุดนัดพบและรถตู้"], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
      ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
      ["จำกัดที่นั่งต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["ที่นั่ง 1", "กันไว้ให้ผู้จัด ทุกคัน · ขึ้นชื่อ " + $("staffName").value] : null
