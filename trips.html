@@ -472,7 +472,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function p2(n) { return (n < 10 ? "0" : "") + n; }
   function iso(y, m, d) { return y + "-" + p2(m + 1) + "-" + p2(d); }
   function parse(s) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); return m ? { y: +m[1], m: +m[2] - 1, d: +m[3] } : null; }
-  function todayIso() { var n = new Date(); return iso(n.getFullYear(), n.getMonth(), n.getDate()); }
+  function BK() { return new Date(Date.now() + 7 * 3600 * 1000); } // Thailand wall clock (read with getUTC*): "today" and "now" never depend on the phone's time zone, like the server
+  function todayIso() { var n = BK(); return iso(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate()); }
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function btn(cls, html, label) { var b = el("button", cls, html); b.type = "button"; if (label) b.setAttribute("aria-label", label); return b; }
 
@@ -586,8 +587,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   function openTime(input, title, trigger, floor, start0) {
     // minutes in 5-minute steps; "now" rounds up to the next step; an odd saved minute (older trips) stays in the list
-    function up5(d) { var t = d.getHours() * 60 + Math.ceil(d.getMinutes() / 5) * 5; return [Math.floor(t / 60) % 24, t % 60]; }
-    var m = /^(\d{2}):(\d{2})$/.exec(input.value), n0 = up5(new Date()), h = m ? +m[1] : n0[0], mi = m ? +m[2] : n0[1];
+    function up5(d) { var t = d.getUTCHours() * 60 + Math.ceil(d.getUTCMinutes() / 5) * 5; return [Math.floor(t / 60) % 24, t % 60]; }
+    var m = /^(\d{2}):(\d{2})$/.exec(input.value), n0 = up5(BK()), h = m ? +m[1] : n0[0], mi = m ? +m[2] : n0[1];
     var sm0 = !m && /^\d{2}:\d{2}$/.test(start0 || "") ? start0.split(":") : null; if (sm0) { h = +sm0[0]; mi = +sm0[1]; } // empty field: open on a usual time instead of "now" when the date is not today
     var MINS = []; for (var q = 0; q < 60; q += 5) MINS.push(q);
     if (MINS.indexOf(mi) < 0) { MINS.push(mi); MINS.sort(function (a, b) { return a - b; }); }
@@ -613,7 +614,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var aux = el("div", "pk-aux"), clr = btn("pk-pill q", "ล้างเวลา"), now = btn("pk-pill", "ตอนนี้");
     clr.style.visibility = input.value ? "visible" : "hidden";
     clr.addEventListener("click", function () { input.value = ""; input.dispatchEvent(new Event("change", { bubbles: true })); close(); });
-    now.addEventListener("click", function () { var n = up5(new Date()); H.style.scrollBehavior = M.style.scrollBehavior = "smooth"; H.scrollTo({ top: n[0] * 44, behavior: "smooth" }); M.scrollTo({ top: Math.max(0, MINS.indexOf(n[1])) * 44, behavior: "smooth" }); });
+    now.addEventListener("click", function () { var n = up5(BK()); H.style.scrollBehavior = M.style.scrollBehavior = "smooth"; H.scrollTo({ top: n[0] * 44, behavior: "smooth" }); M.scrollTo({ top: Math.max(0, MINS.indexOf(n[1])) * 44, behavior: "smooth" }); });
     aux.appendChild(clr); aux.appendChild(now); sheet.appendChild(aux);
     actions(sheet, function () {
       if (floor != null && h * 60 + mi <= floor.f) { floorTx.classList.add("bad"); floorTx.textContent = floor.bad; return; } // not after the departure: stay open
@@ -650,7 +651,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var v = e.value; if (!(TN() >= 2 && TS())) return ""; var hi = AD(TS(), TN() + 1); return v && v > hi ? v : hi; }, function () { return TN() >= 2 && TS() ? AD(TS(), TN() - 1) : ""; }); // opens on the last day of the trip
     timeField(t, "เวลารถออกขาไป", function () { // leaving today: not earlier than now (5-minute steps)
       if (s.value !== todayIso() || t.dataset.keep === t.value + "|" + s.value) return null;
-      var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; if (f + 5 >= 1440) return { f: f, msg: "วันนี้ไม่เหลือเวลาให้เลือกแล้ว เลือกวันอื่น", bad: "วันนี้ไม่เหลือเวลาให้เลือกแล้ว เลือกวันอื่น" }; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from, bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from }; }, function () { // a usual departure by trip type: day trips leave early, overnight trips in the evening
+      var n = BK(), f = Math.ceil((n.getUTCHours() * 60 + n.getUTCMinutes()) / 5) * 5 - 5; if (f + 5 >= 1440) return { f: f, msg: "วันนี้ไม่เหลือเวลาให้เลือกแล้ว เลือกวันอื่น", bad: "วันนี้ไม่เหลือเวลาให้เลือกแล้ว เลือกวันอื่น" }; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from, bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from }; }, function () { // a usual departure by trip type: day trips leave early, overnight trips in the evening
       return s.value !== todayIso() ? (document.getElementById("tripN").value === "1" && s.value === TS() ? "06:00" : "19:00") : ""; });
     var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกขากลับ", function () { // day trip: the van must be back after it left
       var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm && s.value === e.value ? { f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value, bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value } : null; }, function () { return document.getElementById("tripN").value === "1" ? "18:00" : "13:00"; }); // a usual time to be back: evening for a day trip, early afternoon for an overnight one
@@ -761,7 +762,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var tl = $("departTime").closest("label"), tn = tl.querySelector(".tdnote"), dtv = $("departTime").value, sdv = $("startDate").value; // leaving today at a time that has gone by (the day was changed to today): start over, with a note
     var gone = false;
     if (dtv && sdv === todayIso() && $("departTime").dataset.keep !== dtv + "|" + sdv) {
-      var nw = new Date(), fl = Math.ceil((nw.getHours() * 60 + nw.getMinutes()) / 5) * 5 - 5, mm = /^(\d{2}):(\d{2})$/.exec(dtv);
+      var nw = BK(), fl = Math.ceil((nw.getUTCHours() * 60 + nw.getUTCMinutes()) / 5) * 5 - 5, mm = /^(\d{2}):(\d{2})$/.exec(dtv);
       if (mm && +mm[1] * 60 + +mm[2] <= fl) { gone = true; $("departTime").value = ""; if (n === 1) $("returnTime").value = ""; putNote(tl, tn, "เวลานี้ผ่านไปแล้ว ระบุเวลาใหม่"); }
     }
     if (!gone) { // after midnight (00:00-04:59): say which night it belongs to, since "00:00" reads both ways
@@ -1129,7 +1130,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   var ERR = {
     bad_departgap: "วันเดินทางไปต้องไม่เกิน 2 วันก่อนทริปเริ่ม", bad_returngap: "วันเดินทางกลับต้องไม่เกิน 2 วันหลังวันสุดท้ายของทริป",
-    bad_name: "ระบุชื่อทริป", bad_tripdays: "เลือกรูปแบบทริป", bad_timepast: "เวลานี้ผ่านไปแล้ว", bad_daytrip: "เดย์ทริปต้องกลับวันที่เดินทาง", bad_daydepart: "เดย์ทริปรถออกได้ไม่เกิน 1 วันก่อนวันที่เดินทาง", bad_daytime: "เวลากลับต้องหลังเวลาออก", bad_tripstart: "วันเดินทางไปต้องไม่หลังวันแรกของทริป", bad_tripend: "วันเดินทางกลับต้องไม่ก่อนวันสุดท้ายของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
+    bad_name: "ระบุชื่อทริป", bad_tripdays: "เลือกรูปแบบทริป", bad_timepast: "เวลานี้ผ่านไปแล้ว", bad_pastdate: "วันที่นี้ผ่านไปแล้ว ระบุวันใหม่", bad_daytrip: "เดย์ทริปต้องกลับวันที่เดินทาง", bad_daydepart: "เดย์ทริปรถออกได้ไม่เกิน 1 วันก่อนวันที่เดินทาง", bad_daytime: "เวลากลับต้องหลังเวลาออก", bad_tripstart: "วันเดินทางไปต้องไม่หลังวันแรกของทริป", bad_tripend: "วันเดินทางกลับต้องไม่ก่อนวันสุดท้ายของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
     bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าสู่ระบบด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
     quota_month: "เดือนนี้คุณสร้างทริปครบ 30 ทริปแล้ว ลองใหม่เดือนหน้านะ",
@@ -1145,9 +1146,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   function pastDepart() { // leaving today at a time that has passed (a saved old time that was not changed is fine)
     var sd = $("startDate").value, dt = $("departTime").value; if (!sd || !dt) return false;
-    var n = new Date(), td = n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2) + "-" + ("0" + n.getDate()).slice(-2);
+    var n = BK(), td = n.toISOString().slice(0, 10);
     if (sd !== td || $("departTime").dataset.keep === dt + "|" + sd) return false;
-    return Number(dt.slice(0, 2)) * 60 + Number(dt.slice(3, 5)) < Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5;
+    return Number(dt.slice(0, 2)) * 60 + Number(dt.slice(3, 5)) < Math.ceil((n.getUTCHours() * 60 + n.getUTCMinutes()) / 5) * 5;
   }
   function departCheck() {
     var lab = $("departTime").closest("label"), old = lab.querySelector(".fe"), pk = lab.querySelector(".pk");
@@ -1171,7 +1172,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       else if (!$("tripStart").value) { var ts = fieldErr($("tripStart"), $("tripN").value === "1" ? "ระบุวันที่จัดทริป" : "ระบุวันแรกของทริป"); first = first || ts; }
     }
     if (c1 && !first && !editing) { // a form left open past midnight: the day picked as "today" has gone by
-      var n0 = new Date(), td0 = n0.getFullYear() + "-" + ("0" + (n0.getMonth() + 1)).slice(-2) + "-" + ("0" + n0.getDate()).slice(-2);
+      var td0 = BK().toISOString().slice(0, 10);
       if ($("tripStart").value && $("tripStart").value < td0) first = fieldErr($("tripStart"), "วันที่นี้ผ่านไปแล้ว ระบุวันใหม่");
       else if ($("startDate").value && $("startDate").value < td0) first = fieldErr($("startDate"), "วันที่นี้ผ่านไปแล้ว ระบุวันใหม่");
     }
@@ -1230,7 +1231,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       var data = {}; try { data = await res.json(); } catch (x) {}
       if (!res.ok) {
-        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime", bad_meet: "meetPoint", bad_tripdays: "tds", bad_timepast: "departTime", bad_daytrip: "endDate", bad_daydepart: "startDate", bad_daytime: "returnTime", bad_departgap: "startDate", bad_returngap: "endDate", bad_tripstart: "startDate", bad_tripend: "endDate", bad_close: "closeDate" };
+        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime", bad_meet: "meetPoint", bad_tripdays: "tds", bad_timepast: "departTime", bad_pastdate: "startDate", bad_daytrip: "endDate", bad_daydepart: "startDate", bad_daytime: "returnTime", bad_departgap: "startDate", bad_returngap: "endDate", bad_tripstart: "startDate", bad_tripend: "endDate", bad_close: "closeDate" };
         if (map[data.error]) { focusFirst(fieldErr($(map[data.error]), ERR[data.error])); }
         else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input.vn"); if (v0) { fieldErr(v0, ERR.bad_vans, v0.closest(".vf")); focusFirst(v0); } else toast(ERR.bad_vans); }
         else if (data.error === "login_required") location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new");
@@ -1275,7 +1276,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>'
   };
   function icon(path) { var s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("fill", "none"); s.setAttribute("stroke", "currentColor"); s.setAttribute("stroke-width", "2"); s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round"); s.setAttribute("aria-hidden", "true"); s.innerHTML = path; return s; }
-  function todayIso() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function BK() { return new Date(Date.now() + 7 * 3600 * 1000); } // Thailand wall clock (read with getUTC*)
+  function todayIso() { return BK().toISOString().slice(0, 10); } // Thailand date, whatever the phone's time zone
   var booked = 0, loaded = null, perVan = {};
   var newId = ""; // id of the trip just created (highlighted once on the list)
   $("delBtn").addEventListener("click", async function () {

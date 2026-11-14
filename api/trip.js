@@ -20,6 +20,7 @@ const DATE_RE = { test: (d) => { // a real calendar day (2026-02-30 and month 13
   if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
   const t = Date.parse(d + "T00:00:00Z"); return !isNaN(t) && new Date(t).toISOString().slice(0, 10) === d;
 } };
+const DEV = process.env.VSB_DEV_AUTH === "1" && !process.env.VERCEL; // local test setup only
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const MAX_VANS = 5;           // vans per trip (a trip created earlier with more keeps its count when edited)
 
@@ -52,6 +53,8 @@ function clean(body, vanCap, planVans, prev) {
     const bk = new Date(Date.now() + 7 * 3600 * 1000).toISOString();
     if (startDate === bk.slice(0, 10) && (+bk.slice(11, 13) * 60 + +bk.slice(14, 16)) - 10 > +departTime.slice(0, 2) * 60 + +departTime.slice(3, 5)) return { error: "bad_timepast" };
   }
+  const todayBk = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10); // Bangkok date
+  if (!DEV && startDate && startDate < todayBk && !(prev && prev.startDate === startDate)) return { error: "bad_pastdate" }; // a new or moved day must not be one that has gone by (the local test setup seeds finished trips)
   const returnTime = s(body.returnTime, 5); // optional: when the van leaves for home
   if (returnTime && !TIME_RE.test(returnTime)) return { error: "bad_time" };
   const vans = Array.isArray(body.vans) ? body.vans : [];
@@ -75,6 +78,7 @@ function clean(body, vanCap, planVans, prev) {
   const noTD = body.tripN === undefined || body.tripN === null || body.tripN === "";
   if (noTD && !tripStart && prev && !prev.tripN) { /* an old trip saved without trip days may stay without */ }
   else if (!Number.isInteger(tripN) || tripN < 1 || tripN > 15 || !DATE_RE.test(tripStart)) return { error: "bad_tripdays" }; // required: how many days the trip lasts and its first day
+  if (!DEV && !noTD && tripStart < todayBk && !(prev && prev.tripStart === tripStart)) return { error: "bad_pastdate" };
   let tripStartOut = tripStart;
   if (!noTD) {
     if (tripN === 1) { // day trip: the van goes and comes back the same day
