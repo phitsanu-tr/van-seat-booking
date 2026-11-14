@@ -264,9 +264,17 @@ select.sel { border-color: #dde3e7!important; }
 
 /* create trip in 3 steps (editing stays one page) */
 .tdw { display: flex; flex-direction: column; gap: 8px; }
-.tdw .tds { display: flex; gap: 8px; }
-.tdw .tds button { flex: 1; height: 40px; border-radius: 12px; border: 1.5px solid #dde3e7; background: var(--surface); color: var(--ink); font: 500 14px/20px var(--font-body); }
-.tdw .tds button.on { background: #0b5f67; border-color: #0b5f67; color: #fff; font-weight: 700; }
+.tdw .tds { display: flex; gap: 12px; }
+.tdw .tds button { flex: 1; min-width: 0; position: relative; display: block; text-align: left; padding: 12px; border-radius: 16px; border: 1.5px solid #dde3e7; background: var(--surface); color: var(--ink); font: 500 14px/20px var(--font-body); }
+.tdw .tds .ti { width: 32px; height: 32px; border-radius: 10px; background: #e3eef0; color: #0b5f67; display: grid; place-items: center; margin-bottom: 8px; }
+.tdw .tds .ti svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tdw .tds b { display: block; font: 600 14px/20px var(--font-body); }
+.tdw .tds small { display: block; font: 400 12px/16px var(--font-body); color: var(--muted); }
+.tdw .tds .tk { display: none; position: absolute; right: 12px; top: 12px; width: 20px; height: 20px; border-radius: 50%; background: #0b5f67; color: #fff; place-items: center; }
+.tdw .tds .tk svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.tdw .tds button.on { background: #f2f8f9; border-color: #0b5f67; }
+.tdw .tds button.on .ti { background: #0b5f67; color: #fff; }
+.tdw .tds button.on .tk { display: grid; }
 .tdw .tdn { display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 8px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface); }
 .tdw .tdn[hidden] { display: none; }
 .tdw .tdn button { width: 40px; height: 40px; border-radius: 12px; border: 1.5px solid #9fb9bd; background: var(--surface); color: #0b5f67; font: 700 22px/36px var(--font-display); }
@@ -373,7 +381,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
    </section>
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><b>รูปแบบทริป</b></div>
     <div class="tdw" id="tdw" role="group" aria-label="รูปแบบทริป">
-      <div class="tds" id="tds"><button type="button" data-k="night">ค้างคืน</button><button type="button" data-k="day">เดย์ทริป</button></div>
+      <div class="tds" id="tds"><button type="button" data-k="night"><span class="tk"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span><span class="ti"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></span><b>ค้างคืน</b><small>มีนอนค้าง 2 วัน 1 คืนขึ้นไป</small></button><button type="button" data-k="day"><span class="tk"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span><b>เดย์ทริป</b><small>ไป-กลับในวันเดียว</small></button></div>
       <div class="tdg" id="tdnRow" hidden><span class="tdl">ระยะเวลาทริป</span><div class="tdn"><button type="button" id="tdMinus" aria-label="ลดจำนวนวัน">−</button><b id="tdVal"></b><button type="button" id="tdPlus" aria-label="เพิ่มจำนวนวัน">+</button></div></div>
       <label id="tdsRow" hidden><span id="tdsLab">วันแรกของทริป</span> <input type="date" id="tripStart"></label>
       <div class="tdp" id="tdPrev" hidden><span id="tdPrevT"></span></div>
