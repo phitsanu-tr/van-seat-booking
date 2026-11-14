@@ -705,12 +705,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (lk && sd && $("endDate").value !== sd) { $("endDate").value = sd; endAuto = true; }
     if (n >= 2 && !ts && sd) { $("tripStart").value = ts = sd; } // first day follows the departure date until chosen
     var en = lab.querySelector(".tdnote");
-    if (n >= 2 && ts && $("endDate").value && !endAuto && $("endDate").value < addDays(ts, n - 1)) { // a typed return date that no longer fits the trip: move it to its last day
-      var fix = addDays(ts, n - 1); $("endDate").value = fix; endAuto = true;
-      if (!en) { en = document.createElement("div"); en.className = "tdnote"; lab.appendChild(en); }
-      var fd = fix.split("-"); en.textContent = "ปรับเป็น " + Number(fd[2]) + " " + MON[Number(fd[1]) - 1] + " ตามช่วงวัน"; en.hidden = false;
+    if (n >= 2 && ts && $("endDate").value && $("endDate").value < addDays(ts, n - 1)) { // the return date no longer fits the trip: clear it (never fill it in for the person)
+      $("endDate").value = "";
+      if (!endAuto) { if (!en) { en = document.createElement("div"); en.className = "tdnote"; lab.appendChild(en); } en.textContent = "เปลี่ยนช่วงวัน กรุณาเลือกวันกลับใหม่"; en.hidden = false; }
+      endAuto = false;
     } else if (en && n < 2) en.hidden = true;
-    if (n >= 2 && ts && (!$("endDate").value || endAuto)) { var le = addDays(ts, n - 1); if ($("endDate").value !== le) $("endDate").value = le; endAuto = true; }
     $("tdWarn").hidden = !(n >= 2 && sd && ts && ts >= sd && Date.parse(ts) - Date.parse(sd) > 86400000);
   }
   function tdSet(n, start) {
