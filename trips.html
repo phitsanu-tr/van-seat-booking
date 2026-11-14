@@ -310,10 +310,8 @@ select.sel { border-color: #dde3e7!important; }
 .sum .r { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; line-height: 20px; }
 .sum .r span { flex: none; color: var(--muted); }
 .sum .r b { font-weight: 600; text-align: right; min-width: 0; overflow-wrap: anywhere; }
-.nx2 { display: grid; gap: 12px; padding: 8px 4px 0; }
-.nx2 > b { font: 700 16px/24px var(--font-display); color: var(--ink); }
-.nx2 .l { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 28px; }
-.nx2 .l i { flex: none; width: 28px; height: 28px; border-radius: 50%; background: #e3f3f4; color: #0b5f67; display: grid; place-items: center; font: 700 14px/28px var(--font-display); font-style: normal; }
+.sum .g { font: 600 12px/16px var(--font-body); color: #0b5f67; letter-spacing: .02em; }
+.sum .g:not(:first-child) { margin-top: 8px; padding-top: 12px; border-top: 1px solid #dde3e7; }
 /* creating: the buttons stay at the bottom of the screen on every step; the bottom menu is hidden until the trip exists */
 body.creating .vt-bar { display: none !important; }
 body.creating, body.creating.vt-on { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important; }
@@ -425,7 +423,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     </div>
    </section>
    <section class="card fg" data-step="3" id="sumCard" hidden><div class="hb sumh"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 12l2 2 4-4M9 7h6"/></svg></span><b>สรุปทริป</b><button type="button" class="ed" id="sumEdit">แก้ไข</button></div><div class="sum" id="sumRows"></div></section>
-   <div class="nx2" data-step="3" id="nextBox" hidden><b>หลังกดสร้างทริป</b><div class="l"><i>1</i><span>ได้ลิงก์และรหัสทริปทันที</span></div><div class="l"><i>2</i><span>แชร์เข้ากลุ่ม LINE ให้ผู้ร่วมทริปเลือกที่นั่งเอง</span></div><div class="l"><i>3</i><span>ดูรายชื่อและผังที่นั่งได้ที่ "ทริปที่จัด"</span></div></div>
     <div class="actions">
       <button type="button" class="btn plain" id="cancelBtn">ยกเลิก</button>
       <button type="submit" class="btn primary" id="submit">ถัดไป</button>
@@ -1035,7 +1032,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     $("openShare").href = "/" + id;
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์ของทริปนี้") + "</span>";
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
-    $("mSub").textContent = created === "saved" ? "ผู้ร่วมทริปเห็นข้อมูลใหม่ทันที ลิงก์เดิมใช้ได้ต่อ" : "แชร์ลิงก์ให้ผู้ร่วมทริป เลือกที่นั่งเองได้เลย";
+    $("mSub").textContent = created === "saved" ? "ผู้ร่วมทริปเห็นข้อมูลใหม่ทันที ลิงก์เดิมใช้ได้ต่อ" : "แชร์ลิงก์ให้ผู้ร่วมทริป เลือกที่นั่งเองได้เลย" + (created === true ? " · ดูรายชื่อและผังที่นั่งได้ที่ \"ทริปที่จัด\"" : "");
     fillSummary(name);
     backToList = created === true || created === "saved";
     $("backdrop").hidden = false; document.body.style.overflow = "hidden";
@@ -1336,13 +1333,18 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var box = $("sumRows"); box.textContent = "";
     var sd = $("startDate").value, ed = $("endDate").value;
     var vl = rows.map(function (r) { return (r.label || "").trim(); }).filter(Boolean);
-    [["ชื่อทริป", $("name").value.trim()], ["ผู้จัด", $("organizer").value.trim()],
-     ["เดินทางไป", leg(sd, $("departTime").value)],
+    var n = Number($("tripN").value) || 0, ts = $("tripStart").value, lastD = "";
+    if (n > 1 && /^\d{4}-\d{2}-\d{2}$/.test(ts)) lastD = new Date(Date.parse(ts + "T00:00:00Z") + (n - 1) * 86400000).toISOString().slice(0, 10);
+    [["#", "ทริป"], ["ชื่อทริป", $("name").value.trim()], ["ผู้จัด", $("organizer").value.trim()],
+     ["รูปแบบทริป", n === 1 ? "เดย์ทริป · ไป-กลับวันเดียว" : n > 1 ? "ค้างคืน " + n + " วัน " + (n - 1) + " คืน" : ""],
+     ["วันของทริป", lastD ? dayS(ts) + " – " + dayS(lastD) : dayS(ts)],
+     ["#", "การเดินทาง"], ["เดินทางไป", leg(sd, $("departTime").value)],
      ["เดินทางกลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
-     ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
+     ["#", "รถและที่นั่ง"], ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
      ["จำกัดที่นั่งต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["ที่นั่ง 1", "กันไว้ให้ผู้จัด ทุกคัน · ขึ้นชื่อ " + $("staffName").value] : null
     ].forEach(function (r) {
       if (!r || !r[1]) return;
+      if (r[0] === "#") { var g = document.createElement("div"); g.className = "g"; g.textContent = r[1]; box.appendChild(g); return; }
       var d = document.createElement("div"); d.className = "r";
       var a = document.createElement("span"); a.textContent = r[0]; var b = document.createElement("b"); b.textContent = r[1];
       d.appendChild(a); d.appendChild(b); box.appendChild(d);
