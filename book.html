@@ -1447,10 +1447,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     rrect(ctx, dx, dy, dw, dh, 12 * k); ctx.fillStyle = "#fdeff1"; ctx.fill();
     var dz = Math.max(32 * k, PW * 0.05) * 0.8, ic = dw * 0.36, gap = dh * 0.02, tot = ic + gap + dz * 1.2, top = dy + (dh - tot) / 2;
     ctx.save(); ctx.translate(dx + (dw - ic) / 2, top); ctx.scale(ic / 64, ic / 64);
-    ctx.strokeStyle = "#d8344f"; ctx.lineWidth = 4.5; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.strokeStyle = "#b3261e"; ctx.lineWidth = 4.5; ctx.lineCap = "round"; ctx.lineJoin = "round";
     ctx.beginPath(); ctx.arc(32, 22, 10, 0, Math.PI * 2); ctx.stroke(); ctx.stroke(new Path2D("M12 56c2-11 10-18 20-18s18 7 20 18"));
     ctx.restore();
-    ctx.fillStyle = "#d8344f"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = "#b3261e"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
     ctx.font = '500 ' + dz + 'px Prompt, "Noto Sans Thai", sans-serif';
     fillC(ctx, "คนขับ", dx + dw / 2, top + ic + gap + dz * 0.6 + 0.34 * dz);
   }
