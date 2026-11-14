@@ -650,7 +650,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var v = e.value; if (!(TN() >= 2 && TS())) return ""; var hi = AD(TS(), TN() + 1); return v && v > hi ? v : hi; }, function () { return TN() >= 2 && TS() ? AD(TS(), TN() - 1) : ""; }); // opens on the last day of the trip
     timeField(t, "เวลารถออกขาไป", function () { // leaving today: not earlier than now (5-minute steps)
       if (s.value !== todayIso() || t.dataset.keep === t.value + "|" + s.value) return null;
-      var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from, bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from }; }, function () { // a usual departure by trip type: day trips leave early, overnight trips in the evening
+      var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; if (f + 5 >= 1440) return { f: f, msg: "วันนี้ไม่เหลือเวลาให้เลือกแล้ว เลือกวันอื่น", bad: "วันนี้ไม่เหลือเวลาให้เลือกแล้ว เลือกวันอื่น" }; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from, bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from }; }, function () { // a usual departure by trip type: day trips leave early, overnight trips in the evening
       return s.value !== todayIso() ? (document.getElementById("tripN").value === "1" && s.value === TS() ? "06:00" : "19:00") : ""; });
     var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกขากลับ", function () { // day trip: the van must be back after it left
       var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm && s.value === e.value ? { f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value, bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value } : null; }, function () { return document.getElementById("tripN").value === "1" ? "18:00" : "13:00"; }); // a usual time to be back: evening for a day trip, early afternoon for an overnight one
@@ -1169,6 +1169,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (c1 && (tdRequired || $("tripN").value || $("tripStart").value)) { // trip days: required (an old trip saved without them may stay without)
       if (!$("tripN").value) { var tk = fieldErr($("tds"), "เลือกรูปแบบทริป"); $("tdw").classList.add("bad"); first = first || tk; }
       else if (!$("tripStart").value) { var ts = fieldErr($("tripStart"), $("tripN").value === "1" ? "ระบุวันที่จัดทริป" : "ระบุวันแรกของทริป"); first = first || ts; }
+    }
+    if (c1 && !first && !editing) { // a form left open past midnight: the day picked as "today" has gone by
+      var n0 = new Date(), td0 = n0.getFullYear() + "-" + ("0" + (n0.getMonth() + 1)).slice(-2) + "-" + ("0" + n0.getDate()).slice(-2);
+      if ($("tripStart").value && $("tripStart").value < td0) first = fieldErr($("tripStart"), "วันที่นี้ผ่านไปแล้ว ระบุวันใหม่");
+      else if ($("startDate").value && $("startDate").value < td0) first = fieldErr($("startDate"), "วันที่นี้ผ่านไปแล้ว ระบุวันใหม่");
     }
     if (c1 && !first && $("tripN").value) { // the day / time rules of the trip
       var tn = Number($("tripN").value), sdv = $("startDate").value, edv = $("endDate").value, tsv = $("tripStart").value;

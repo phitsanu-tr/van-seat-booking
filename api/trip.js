@@ -16,8 +16,11 @@
 const L = require("./_lib");
 const P = require("./_plans");
 
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const TIME_RE = /^\d{2}:\d{2}$/;
+const DATE_RE = { test: (d) => { // a real calendar day (2026-02-30 and month 13 are not)
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+  const t = Date.parse(d + "T00:00:00Z"); return !isNaN(t) && new Date(t).toISOString().slice(0, 10) === d;
+} };
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const MAX_VANS = 5;           // vans per trip (a trip created earlier with more keeps its count when edited)
 
 // Counts a creation against this month's trips for the account (cap: the package's trips a month, or 30 while packages
