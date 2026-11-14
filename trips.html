@@ -1035,7 +1035,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     $("openShare").href = "/" + id;
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "deleted" ? "ลบทริปแล้ว" : created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์และรหัสทริป") + "</span>";
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
-    $("mSub").textContent = created === "deleted" ? "ลิงก์และรหัสทริปนี้ใช้ไม่ได้แล้ว" : created === "saved" ? "ผู้ร่วมทริปเห็นข้อมูลใหม่แล้ว" : "แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริป"; $("mSub2").hidden = created !== "saved";
+    $("mSub").textContent = created === "deleted" ? "ลิงก์และรหัสทริปนี้ใช้ไม่ได้แล้ว" : created === "saved" ? "ข้อมูลทริปอัปเดตแล้ว ใช้ลิงก์หรือรหัสเดิมได้เลย" : "แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริป"; $("mSub2").hidden = true;
     backToList = created === true || created === "saved";
     $("backdrop").hidden = false; document.body.style.overflow = "hidden";
     $("closeX").focus({ preventScroll: true });
