@@ -264,17 +264,16 @@ select.sel { border-color: #dde3e7!important; }
 
 /* create trip in 3 steps (editing stays one page) */
 .tdw { display: flex; flex-direction: column; gap: 8px; }
-.tdw .tdl { font-weight: 600; font-size: 14px; line-height: 20px; }
 .tdw .tds { display: flex; gap: 8px; }
 .tdw .tds button { flex: 1; height: 40px; border-radius: 12px; border: 1.5px solid #dde3e7; background: var(--surface); color: var(--ink); font: 500 14px/20px var(--font-body); }
 .tdw .tds button.on { background: #0b5f67; border-color: #0b5f67; color: #fff; font-weight: 700; }
-.tdw .tdn { display: flex; align-items: center; justify-content: space-between; height: 48px; padding: 0 8px; border: 1.5px solid #dde3e7; border-radius: 12px; background: var(--surface); }
-.tdw .tdn[hidden] { display: none; }
-.tdw .tdn button { width: 32px; height: 32px; border-radius: 8px; border: 0; background: #e6f3f3; color: #0b5f67; font: 700 20px/32px var(--font-display); }
-.tdw .tdn button:disabled { opacity: .4; }
-.tdw .tdn b { font: 600 16px/24px var(--font-display); }
-.tdw .tdp { background: #e6f3f3; border-radius: 12px; padding: 8px 12px; font: 700 14px/20px var(--font-body); color: #0b5f67; }
+.tdw .tdb { display: flex; gap: 8px; }
+.tdw .tdb[hidden] { display: none; }
+.tdw .tdb button { width: 36px; height: 36px; border-radius: 10px; border: 0; background: var(--surface); color: #0b5f67; font: 700 20px/36px var(--font-display); }
+.tdw .tdb button:disabled { opacity: .4; }
+.tdw .tdp { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 48px; background: #e6f3f3; border-radius: 12px; padding: 6px 6px 6px 12px; font: 700 14px/20px var(--font-body); color: #0b5f67; }
 .tdw .tdp[hidden], .tdw label[hidden] { display: none; }
+.tdw { gap: 16px; }
 .pk-floor { font: 400 14px/20px var(--font-body); color: var(--muted); margin: -8px 0 8px; }
 .pk-floor.bad { color: var(--danger); font-weight: 600; }
 .pk-time .pk-col > div.off { opacity: .3; }
@@ -370,11 +369,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <label>ชื่อผู้จัด / บริษัททัวร์ <small>(ไม่บังคับ)</small>
       <span class="cnt" data-for="organizer"></span><input type="text" id="organizer" maxlength="60" placeholder="เช่น ทัวร์ตัวตึง">
     </label>
-    <div class="tdw" id="tdw"><div class="tdl">ช่วงวันของทริป</div>
+   </section>
+   <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><b>รูปแบบทริป</b></div>
+    <div class="tdw" id="tdw" role="group" aria-label="รูปแบบทริป">
       <div class="tds" id="tds"><button type="button" data-k="day">เดย์ทริป</button><button type="button" data-k="night">ค้างคืน</button></div>
-      <div class="tdn" id="tdnRow" hidden><button type="button" id="tdMinus" aria-label="ลดจำนวนวัน">−</button><b id="tdVal"></b><button type="button" id="tdPlus" aria-label="เพิ่มจำนวนวัน">+</button></div>
       <label id="tdsRow" hidden>วันแรกของทริป <input type="date" id="tripStart"></label>
-      <div class="tdp" id="tdPrev" hidden></div>
+      <div class="tdp" id="tdPrev" hidden><span id="tdPrevT"></span><span class="tdb" id="tdnRow" hidden><button type="button" id="tdMinus" aria-label="ลดจำนวนวัน">−</button><button type="button" id="tdPlus" aria-label="เพิ่มจำนวนวัน">+</button></span></div>
       <input type="hidden" id="tripN" value="">
     </div>
    </section>
@@ -710,8 +710,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var n = Number($("tripN").value) || 0, sd = $("startDate").value, ts = $("tripStart").value, lab = $("endDate").closest("label");
     [].forEach.call($("tds").querySelectorAll("button"), function (b) { b.classList.toggle("on", n ? (b.getAttribute("data-k") === "day") === (n === 1) : false); });
     $("tdnRow").hidden = n < 2; $("tdsRow").hidden = n < 2;
-    if (n >= 2) { $("tdVal").textContent = n + " วัน " + (n - 1) + " คืน"; $("tdMinus").disabled = n <= 2; $("tdPlus").disabled = n >= 15; }
-    var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; $("tdPrev").hidden = !tx; $("tdPrev").textContent = tx;
+    if (n >= 2) { $("tdMinus").disabled = n <= 2; $("tdPlus").disabled = n >= 15; }
+    var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (!tx && n >= 2) tx = n + " วัน " + (n - 1) + " คืน"; $("tdPrev").hidden = !tx; $("tdPrevT").textContent = tx;
     // day trip: the return date is the departure date (locked); overnight: suggest the last day of the trip while it was not typed
     var lk = n === 1; lab.classList.toggle("lockd", lk);
     var lpk = lab.querySelector(".pk"); if (lpk) lpk.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
