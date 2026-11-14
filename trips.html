@@ -280,9 +280,9 @@ select.sel { border-color: #dde3e7!important; }
 .pk-time .pk-col > div.off { opacity: .3; }
 .lockd .pk { pointer-events: none; background: #f3f6f7; color: var(--muted); }
 .lkn { flex: none !important; margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font: 400 16px/24px var(--font-body); color: var(--muted); }
-.tdlock { display: flex; align-items: center; gap: 8px; font: 400 14px/20px var(--font-body); color: var(--muted); margin: 0 0 16px; }
+.tdlock { display: flex; align-items: center; gap: 8px; font: 400 14px/20px var(--font-body); color: var(--ink); background: #f3f6f7; border-radius: 12px; padding: 12px; margin: 0 0 16px; }
 .tdlock[hidden] { display: none; }
-.tdlock svg { width: 20px; height: 20px; flex: none; }
+.tdlock svg { width: 20px; height: 20px; flex: none; color: var(--muted); }
 .lkn[hidden] { display: none; }
 .lkn svg { width: 20px; height: 20px; flex: none; }
 .tdw.bad .tds button:not(.on) { border-color: var(--danger); }
@@ -376,7 +376,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     </div>
    </section>
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><b>กำหนดการเดินทาง</b></div>
-    <div class="tdlock" id="tdLock" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>เลือกช่วงวันของทริปก่อน</div>
+    <div class="tdlock" id="tdLock" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>เลือกช่วงวันของทริปก่อน จึงจะเลือกวันและเวลาได้</div>
     <div class="tl">
       <div class="grp"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><b>เดินทางไป</b></div>
         <label>วันเดินทางไป <input type="date" id="startDate"></label>
