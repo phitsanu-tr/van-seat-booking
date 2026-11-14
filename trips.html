@@ -388,11 +388,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <div class="tl">
       <div class="grp"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><b>เดินทางไป</b><span class="gd" id="goD" hidden></span></div>
         <label>วันเดินทางไป <input type="date" id="startDate"></label>
-        <label>เวลารถออก <input type="time" id="departTime"></label>
+        <label>เวลารถออกขาไป <input type="time" id="departTime"></label>
       </div>
       <div class="grp r"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span><b>เดินทางกลับ</b><span class="gd" id="retD" hidden></span></div>
         <label>วันเดินทางกลับ <input type="date" id="endDate"></label>
-        <label>เวลารถออก <input type="time" id="returnTime"></label>
+        <label>เวลารถออกขากลับ <input type="time" id="returnTime"></label>
       </div>
     </div>
    </section>
@@ -738,7 +738,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ["endDate"].forEach(function (k) { // the return date follows the chosen day: locked, with a tag
       var lb = $(k).closest("label"), pb = lb.querySelector(".pk"); if (!pb) return;
       lb.hidden = false; lb.classList.toggle("lockd", lk); pb.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
-      var tag = pb.querySelector(".lkn"), has = !!$(k).value; if (lk && has && !tag) { tag = document.createElement("span"); tag.className = "lkn"; tag.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>ตามวันจัดทริป'; pb.appendChild(tag); }
+      var tag = pb.querySelector(".lkn"), has = !!$(k).value; if (lk && has && !tag) { tag = document.createElement("span"); tag.className = "lkn"; tag.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>ตามวันที่จัดทริป'; pb.appendChild(tag); }
       if (tag) tag.hidden = !(lk && has);
     });
     var dd = lk && (ts || sd) ? sdate(ts || sd) : ""; $("goD").hidden = true; $("retD").hidden = true; // the return day has its own (locked) field again
@@ -775,8 +775,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     $("tdLock").hidden = !none;
     var rt = !!$("returnTime").value; // a field that already holds a value stays open; only empty ones wait for the step before
     var wait = !!n && !$("tripStart").value; // the trip day (first day) is not chosen yet: nothing below can be chosen
-    var first = lk ? "เลือกวันที่จัดทริปก่อน" : "เลือกวันแรกของทริปก่อน", pre = wait ? first : "เลือกวันเดินทางไปก่อน";
-    var rules = { startDate: [none || (wait && !sd), first], departTime: [none || ((wait || !sd) && !dt), pre], endDate: [none || lk || ((wait || !sd) && !ed), pre], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? (wait ? first : lk ? "เลือกวันที่จัดทริปก่อน" : "เลือกวันเดินทางกลับก่อน") : "เลือกเวลารถออกขาไปก่อน"] };
+    var first = lk ? "เลือกวันที่จัดทริปก่อน" : "เลือกวันแรกของทริปก่อน", pre = "เลือกวันเดินทางไปก่อน";
+    var rules = { startDate: [none || (wait && !sd), first], departTime: [none || ((wait || !sd) && !dt), pre], endDate: [none || lk || ((wait || !sd) && !ed), pre], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? "เลือกวันเดินทางกลับก่อน" : "เลือกเวลารถออกขาไปก่อน"] };
     Object.keys(rules).forEach(function (k) {
       var lb = $(k).closest("label"), pb = lb && lb.querySelector(".pk"); if (!pb) return;
       var off = rules[k][0]; lb.classList.toggle("lockd", off); pb.disabled = off;
