@@ -711,7 +711,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     [].forEach.call($("tds").querySelectorAll("button"), function (b) { b.classList.toggle("on", n ? (b.getAttribute("data-k") === "day") === (n === 1) : false); });
     $("tdnRow").hidden = n < 2; $("tdsRow").hidden = n < 2;
     if (n >= 2) { $("tdMinus").disabled = n <= 2; $("tdPlus").disabled = n >= 15; }
-    var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (!tx && n >= 2) tx = n + " วัน " + (n - 1) + " คืน"; $("tdPrev").hidden = !tx; $("tdPrevT").textContent = tx;
+    var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (n === 1) tx = "เดย์ทริป · ไปและกลับวันเดียวกัน"; if (!tx && n >= 2) tx = n + " วัน " + (n - 1) + " คืน"; $("tdPrev").hidden = !tx; $("tdPrevT").textContent = tx;
     // day trip: the return date is the departure date (locked); overnight: suggest the last day of the trip while it was not typed
     var lk = n === 1; lab.classList.toggle("lockd", lk);
     var lpk = lab.querySelector(".pk"); if (lpk) lpk.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
@@ -750,7 +750,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     tdRequired = !editing || !!n; tdPaint(); // an old trip without trip days is not forced to fill them
   }
   function tdPick(n) { $("tripN").value = String(n); if (!$("tripStart").value && $("startDate").value) { $("tripStart").value = $("startDate").value; $("tripStart").dispatchEvent(new Event("change", { bubbles: true })); } tdPaint(); $("tdw").classList.remove("bad"); $("tdw").dispatchEvent(new Event("change", { bubbles: true })); }
-  $("tds").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; var cur = Number($("tripN").value) || 0; tdPick(b.getAttribute("data-k") === "day" ? 1 : (cur >= 2 ? cur : 2)); });
+  $("tds").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; var cur = Number($("tripN").value) || 0;
+    if (b.classList.contains("on") && tdRequired) { $("tripN").value = ""; tdPaint(); $("tdw").dispatchEvent(new Event("change", { bubbles: true })); return; } // tapping the chosen one again clears the choice; the dates stay but wait behind the lock
+    tdPick(b.getAttribute("data-k") === "day" ? 1 : (cur >= 2 ? cur : 2)); });
   $("tdMinus").addEventListener("click", function () { tdPick(Math.max(2, (Number($("tripN").value) || 2) - 1)); });
   $("tdPlus").addEventListener("click", function () { tdPick(Math.min(15, (Number($("tripN").value) || 2) + 1)); });
   $("tripStart").addEventListener("change", tdPaint);
