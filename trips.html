@@ -757,6 +757,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var ev = $("endDate").value, bad2 = ev && (ev < last || ms(ev) - ms(last) > 2 * 86400000) && $("endDate").dataset.keep !== ev;
       if (bad2 || (ev && ev < last)) { $("endDate").value = ""; if (endAuto) $("returnTime").value = ""; else en = putNote(lab, en, "เปลี่ยนช่วงวัน กรุณาเลือกวันกลับใหม่"); endAuto = false; } // the day trip's own return time does not carry over to an overnight trip
     } else { if (en && n < 2) en.hidden = true; if (dn && n < 2) dn.hidden = true; }
+    var tl = $("departTime").closest("label"), tn = tl.querySelector(".tdnote"), dtv = $("departTime").value, sdv = $("startDate").value; // leaving today at a time that has gone by (the day was changed to today): start over, with a note
+    var gone = false;
+    if (dtv && sdv === todayIso() && $("departTime").dataset.keep !== dtv + "|" + sdv) {
+      var nw = new Date(), fl = Math.ceil((nw.getHours() * 60 + nw.getMinutes()) / 5) * 5 - 5, mm = /^(\d{2}):(\d{2})$/.exec(dtv);
+      if (mm && +mm[1] * 60 + +mm[2] <= fl) { gone = true; $("departTime").value = ""; if (n === 1) $("returnTime").value = ""; putNote(tl, tn, "เวลานี้ผ่านไปแล้ว ระบุเวลาใหม่"); }
+    }
+    if (!gone && tn && dtv) tn.hidden = true;
     stepLock();
   }
   function stepLock() { // dates and times open one step at a time, only where the next rule needs the earlier value
