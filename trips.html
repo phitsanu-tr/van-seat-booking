@@ -373,7 +373,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><b>รูปแบบทริป</b></div>
     <div class="tdw" id="tdw" role="group" aria-label="รูปแบบทริป">
       <div class="tds" id="tds"><button type="button" data-k="day">เดย์ทริป</button><button type="button" data-k="night">ค้างคืน</button></div>
-      <label id="tdsRow" hidden>วันแรกของทริป <input type="date" id="tripStart"></label>
+      <label id="tdsRow" hidden><span id="tdsLab">วันแรกของทริป</span> <input type="date" id="tripStart"></label>
       <div class="tdp" id="tdPrev" hidden><span id="tdPrevT"></span><span class="tdb" id="tdnRow" hidden><button type="button" id="tdMinus" aria-label="ลดจำนวนวัน">−</button><button type="button" id="tdPlus" aria-label="เพิ่มจำนวนวัน">+</button></span></div>
       <input type="hidden" id="tripN" value="">
     </div>
@@ -709,14 +709,21 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function tdPaint() {
     var n = Number($("tripN").value) || 0, sd = $("startDate").value, ts = $("tripStart").value, lab = $("endDate").closest("label");
     [].forEach.call($("tds").querySelectorAll("button"), function (b) { b.classList.toggle("on", n ? (b.getAttribute("data-k") === "day") === (n === 1) : false); });
-    $("tdnRow").hidden = n < 2; $("tdsRow").hidden = n < 2;
+    $("tdnRow").hidden = n < 2; $("tdsRow").hidden = n < 1; $("tdsLab").textContent = n === 1 ? "วันที่เดินทาง" : "วันแรกของทริป";
     if (n >= 2) { $("tdMinus").disabled = n <= 2; $("tdPlus").disabled = n >= 15; }
     var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (n === 1) tx = "เดย์ทริป · ไปและกลับวันเดียวกัน"; if (!tx && n >= 2) tx = n + " วัน " + (n - 1) + " คืน"; $("tdPrev").hidden = !tx; $("tdPrevT").textContent = tx;
     // day trip: the return date is the departure date (locked); overnight: suggest the last day of the trip while it was not typed
-    var lk = n === 1; lab.classList.toggle("lockd", lk);
-    var lpk = lab.querySelector(".pk"); if (lpk) lpk.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
-    var note = lpk && lpk.querySelector(".lkn"); if (lk && lpk && !note) { note = document.createElement("span"); note.className = "lkn"; note.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>วันเดียวกัน'; lpk.appendChild(note); } if (note) note.hidden = !lk;
-    if (lk && sd && $("endDate").value !== sd) { $("endDate").value = sd; endAuto = true; }
+    var lk = n === 1;
+    if (lk) { // day trip: the day chosen above is the departure and the return date
+      if (ts && sd !== ts) { $("startDate").value = sd = ts; } else if (!ts && sd) { $("tripStart").value = ts = sd; }
+      if ($("endDate").value !== sd) { $("endDate").value = sd; endAuto = true; }
+    }
+    ["startDate", "endDate"].forEach(function (k) { // both dates follow the chosen day: locked, with a tag
+      var lb = $(k).closest("label"), pb = lb.querySelector(".pk"); if (!pb) return;
+      lb.classList.toggle("lockd", lk); pb.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
+      var tag = pb.querySelector(".lkn"); if (lk && sd && !tag) { tag = document.createElement("span"); tag.className = "lkn"; tag.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>ตามวันที่เดินทาง'; pb.appendChild(tag); }
+      if (tag) tag.hidden = !(lk && sd);
+    });
     if (n >= 2 && !ts && sd) { $("tripStart").value = ts = sd; } // first day follows the departure date until chosen
     var en = lab.querySelector(".tdnote"), dl = $("startDate").closest("label"), dn = dl.querySelector(".tdnote");
     function putNote(l, e, txt) { if (!e) { e = document.createElement("div"); e.className = "tdnote"; l.appendChild(e); } e.textContent = txt; e.hidden = false; return e; }
@@ -738,7 +745,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var n = Number($("tripN").value) || 0, none = !n && tdRequired, lk = n === 1, sd = !!$("startDate").value, dt = !!$("departTime").value, ed = !!$("endDate").value;
     $("tdLock").hidden = !none;
     var rt = !!$("returnTime").value; // a field that already holds a value stays open; only empty ones wait for the step before
-    var rules = { startDate: [none, ""], departTime: [none || (!sd && !dt), "เลือกวันเดินทางไปก่อน"], endDate: [none || lk || (!sd && !ed), "เลือกวันเดินทางไปก่อน"], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? "เลือกวันเดินทางกลับก่อน" : "เลือกเวลารถออกขาไปก่อน"] };
+    var pre = lk ? "เลือกวันที่เดินทางก่อน" : "เลือกวันเดินทางไปก่อน";
+    var rules = { startDate: [none || lk, pre], departTime: [none || (!sd && !dt), pre], endDate: [none || lk || (!sd && !ed), pre], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? (lk ? pre : "เลือกวันเดินทางกลับก่อน") : "เลือกเวลารถออกขาไปก่อน"] };
     Object.keys(rules).forEach(function (k) {
       var lb = $(k).closest("label"), pb = lb && lb.querySelector(".pk"); if (!pb) return;
       var off = rules[k][0]; lb.classList.toggle("lockd", off); pb.disabled = off;
@@ -1128,7 +1136,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (c1 && !$("name").value.trim()) { first = fieldErr($("name"), ERR.bad_name); }
     if (c1 && (tdRequired || $("tripN").value || $("tripStart").value)) { // trip days: required (an old trip saved without them may stay without)
       if (!$("tripN").value) { var tk = fieldErr($("tds"), "เลือกเดย์ทริปหรือค้างคืน"); $("tdw").classList.add("bad"); first = first || tk; }
-      else if ($("tripN").value !== "1" && !$("tripStart").value) { var ts = fieldErr($("tripStart"), "ระบุวันแรกของทริป"); first = first || ts; }
+      else if (!$("tripStart").value) { var ts = fieldErr($("tripStart"), $("tripN").value === "1" ? "ระบุวันที่เดินทาง" : "ระบุวันแรกของทริป"); first = first || ts; }
     }
     if (c1 && !first && $("tripN").value) { // the day / time rules of the trip
       var tn = Number($("tripN").value), sdv = $("startDate").value, edv = $("endDate").value, tsv = $("tripStart").value;
