@@ -713,11 +713,15 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var tdLast = ""; // last day of the trip as of the previous repaint
   var SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   function sdate(iso) { return Number(iso.slice(8)) + " " + SHORT[Number(iso.slice(5, 7)) - 1]; }
+  function dayPart(t) { // the part of the day of a departure time, for the day-trip summary ("" until a time is chosen)
+    var m = /^(\d{2}):\d{2}$/.exec(t || ""); if (!m) return ""; var h = +m[1];
+    return h >= 5 && h < 12 ? "เช้า" : h >= 12 && h < 16 ? "บ่าย" : h >= 16 && h < 19 ? "เย็น" : h >= 19 && h < 22 ? "ค่ำ" : "ดึก";
+  }
   var tdDayTs = ""; // day-trip day as of the previous repaint
   function tdPaint() {
     var n = Number($("tripN").value) || 0, sd = $("startDate").value, ts = $("tripStart").value, lab = $("endDate").closest("label");
     [].forEach.call($("tds").querySelectorAll("button"), function (b) { b.classList.toggle("on", n ? (b.getAttribute("data-k") === "day") === (n === 1) : false); });
-    $("tdnRow").hidden = n < 2; $("tdsRow").hidden = n < 1; $("tdsLab").textContent = n === 1 ? "วันทริป" : "วันแรกของทริป";
+    $("tdnRow").hidden = n < 2; $("tdsRow").hidden = n < 1; $("tdsLab").textContent = n === 1 ? "วันที่จัดทริป" : "วันแรกของทริป";
     if (n >= 2) { $("tdVal").textContent = n + " วัน " + (n - 1) + " คืน"; $("tdMinus").disabled = n <= 2; $("tdPlus").disabled = n >= 15; }
     // day trip: the return date is the departure date (locked); overnight: suggest the last day of the trip while it was not typed
     var lk = n === 1;
@@ -728,7 +732,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var ret = ts || sd; if ($("endDate").value !== ret) { $("endDate").value = ret; endAuto = true; }
       tdDayTs = ts;
     } else tdDayTs = "";
-    var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (n === 1) { var td1 = ts || sd, db = sd && td1 && sd < td1 ? " (รถออกคืนวันที่ " + sdate(sd) + ")" : " (ไป-กลับวันเดียวกัน)"; tx = td1 ? "ทริปวันที่ " + (VSBShare.tripText(1, td1).split(" · ")[1] || "") + db : ""; } else if (tx) { var pp = tx.split(" · "); if (pp[1]) tx = "ทริปวันที่ " + pp[1] + " (" + pp[0] + ")"; }
+    var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (n === 1) { var td1 = ts || sd, db = sd && td1 && sd < td1 ? " (ออกเดินทาง" + dayPart($("departTime").value) + "วันที่ " + sdate(sd) + ")" : " (ไป-กลับวันเดียวกัน)"; tx = td1 ? "ทริปวันที่ " + (VSBShare.tripText(1, td1).split(" · ")[1] || "") + db : ""; } else if (tx) { var pp = tx.split(" · "); if (pp[1]) tx = "ทริปวันที่ " + pp[1] + " (" + pp[0] + ")"; }
     $("tdPrev").hidden = !tx; $("tdPrevT").textContent = tx;
     $("startDate").closest("label").hidden = false; // the departure day stays choosable on a day trip (today or the evening before)
     ["endDate"].forEach(function (k) { // the return date follows the chosen day: hidden and locked the chosen day: locked, with a tag
@@ -781,7 +785,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   $("tdPlus").addEventListener("click", function () { tdPick(Math.min(15, (Number($("tripN").value) || 2) + 1)); });
   $("tripStart").addEventListener("change", tdPaint);
   if (!editing && !COPY) tdSet(2, ""); // a new trip starts as an overnight trip (the usual one); the day is still to be chosen
-  $("startDate").addEventListener("change", function () { var nn = $("startDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; tdPaint(); }); $("departTime").addEventListener("change", stepLock); $("returnTime").addEventListener("change", stepLock); $("endDate").addEventListener("change", function () { endAuto = false; stepLock(); var nn = $("endDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; }); tdPaint();
+  $("startDate").addEventListener("change", function () { var nn = $("startDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; tdPaint(); }); $("departTime").addEventListener("change", tdPaint); $("returnTime").addEventListener("change", stepLock); $("endDate").addEventListener("change", function () { endAuto = false; stepLock(); var nn = $("endDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; }); tdPaint();
   function letter(i) { return String.fromCharCode(65 + (i % 26)); }
 
   var ERR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg>';
@@ -1153,7 +1157,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (c1 && !$("name").value.trim()) { first = fieldErr($("name"), ERR.bad_name); }
     if (c1 && (tdRequired || $("tripN").value || $("tripStart").value)) { // trip days: required (an old trip saved without them may stay without)
       if (!$("tripN").value) { var tk = fieldErr($("tds"), "เลือกเดย์ทริปหรือค้างคืน"); $("tdw").classList.add("bad"); first = first || tk; }
-      else if (!$("tripStart").value) { var ts = fieldErr($("tripStart"), $("tripN").value === "1" ? "ระบุวันทริป" : "ระบุวันแรกของทริป"); first = first || ts; }
+      else if (!$("tripStart").value) { var ts = fieldErr($("tripStart"), $("tripN").value === "1" ? "ระบุวันที่จัดทริป" : "ระบุวันแรกของทริป"); first = first || ts; }
     }
     if (c1 && !first && $("tripN").value) { // the day / time rules of the trip
       var tn = Number($("tripN").value), sdv = $("startDate").value, edv = $("endDate").value, tsv = $("tripStart").value;
