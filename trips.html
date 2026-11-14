@@ -384,7 +384,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     </div>
    </section>
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><b>กำหนดการเดินทาง</b></div>
-    <div class="tdlock" id="tdLock" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>เลือกช่วงวันของทริปก่อน จึงจะเลือกวันและเวลาได้</div>
+    <div class="tdlock" id="tdLock" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>เลือกรูปแบบทริปก่อน</div>
     <div class="tl">
       <div class="grp"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><b>เดินทางไป</b><span class="gd" id="goD" hidden></span></div>
         <label>วันเดินทางไป <input type="date" id="startDate"></label>
@@ -1130,7 +1130,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   var ERR = {
     bad_departgap: "วันเดินทางไปต้องไม่เกิน 2 วันก่อนทริปเริ่ม", bad_returngap: "วันเดินทางกลับต้องไม่เกิน 2 วันหลังวันสุดท้ายของทริป",
-    bad_name: "ระบุชื่อทริป", bad_tripdays: "ระบุช่วงวันของทริป", bad_timepast: "เวลานี้ผ่านไปแล้ว", bad_daytrip: "เดย์ทริปต้องกลับวันที่เดินทาง", bad_daydepart: "เดย์ทริปรถออกได้ไม่เกิน 1 วันก่อนวันที่เดินทาง", bad_daytime: "เวลากลับต้องหลังเวลาออก", bad_tripstart: "วันเดินทางไปต้องไม่หลังวันแรกของทริป", bad_tripend: "วันเดินทางกลับต้องไม่ก่อนวันสุดท้ายของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
+    bad_name: "ระบุชื่อทริป", bad_tripdays: "เลือกรูปแบบทริป", bad_timepast: "เวลานี้ผ่านไปแล้ว", bad_daytrip: "เดย์ทริปต้องกลับวันที่เดินทาง", bad_daydepart: "เดย์ทริปรถออกได้ไม่เกิน 1 วันก่อนวันที่เดินทาง", bad_daytime: "เวลากลับต้องหลังเวลาออก", bad_tripstart: "วันเดินทางไปต้องไม่หลังวันแรกของทริป", bad_tripend: "วันเดินทางกลับต้องไม่ก่อนวันสุดท้ายของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
     bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าสู่ระบบด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
     quota_month: "เดือนนี้คุณสร้างทริปครบ 30 ทริปแล้ว ลองใหม่เดือนหน้านะ",
@@ -1168,7 +1168,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var only = (!editing && step < 3) ? step : 0, c1 = !only || only === 1, c2 = !only || only === 2; // creating: "ถัดไป" checks only this step
     if (c1 && !$("name").value.trim()) { first = fieldErr($("name"), ERR.bad_name); }
     if (c1 && (tdRequired || $("tripN").value || $("tripStart").value)) { // trip days: required (an old trip saved without them may stay without)
-      if (!$("tripN").value) { var tk = fieldErr($("tds"), "เลือกเดย์ทริปหรือค้างคืน"); $("tdw").classList.add("bad"); first = first || tk; }
+      if (!$("tripN").value) { var tk = fieldErr($("tds"), "เลือกรูปแบบทริป"); $("tdw").classList.add("bad"); first = first || tk; }
       else if (!$("tripStart").value) { var ts = fieldErr($("tripStart"), $("tripN").value === "1" ? "ระบุวันที่จัดทริป" : "ระบุวันแรกของทริป"); first = first || ts; }
     }
     if (c1 && !first && $("tripN").value) { // the day / time rules of the trip
