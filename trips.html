@@ -1342,7 +1342,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
      ["เดินทางกลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""],
      ["#", "จุดนัดพบและรถตู้"], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
      ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
-     ["จำกัดที่นั่งต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["ที่นั่ง 1", "กันไว้ให้ผู้จัด ทุกคัน · ขึ้นชื่อ " + $("staffName").value] : null
+     ["จำกัดที่นั่งต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["กันที่นั่ง 1", "ทุกคัน · ชื่อ " + $("staffName").value] : null
     ].forEach(function (r) {
       if (!r || !r[1]) return;
       if (r[0] === "#") { var g = document.createElement("div"); g.className = "g"; g.textContent = r[1]; box.appendChild(g); return; }
