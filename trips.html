@@ -776,7 +776,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var rt = !!$("returnTime").value; // a field that already holds a value stays open; only empty ones wait for the step before
     var wait = !!n && !$("tripStart").value; // the trip day (first day) is not chosen yet: nothing below can be chosen
     var first = lk ? "ระบุวันที่จัดทริปก่อน" : "ระบุวันแรกของทริปก่อน", pre = "ระบุวันเดินทางไปก่อน";
-    var rules = { startDate: [none || (wait && !sd), first], departTime: [none || ((wait || !sd) && !dt), pre], endDate: [none || lk || ((wait || !sd || !dt) && !ed), lk ? pre : "ระบุเวลารถออกขาไปก่อน"], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? "ระบุวันเดินทางกลับก่อน" : "ระบุเวลารถออกขาไปก่อน"] };
+    var rules = { startDate: [none || (wait && !sd), first], departTime: [none || ((wait || !sd) && !dt), pre], endDate: [none || lk || ((wait || !sd || !dt) && !ed), "ระบุเวลารถออกขาไปก่อน"], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? "ระบุวันเดินทางกลับก่อน" : "ระบุเวลารถออกขาไปก่อน"] };
     Object.keys(rules).forEach(function (k) {
       var lb = $(k).closest("label"), pb = lb && lb.querySelector(".pk"); if (!pb) return;
       var off = rules[k][0]; lb.classList.toggle("lockd", off); pb.disabled = off;
