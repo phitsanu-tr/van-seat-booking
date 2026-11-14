@@ -170,7 +170,7 @@ form#form { background: none; border: 0; padding: 0; gap: 12px; }
 /* error handling: red field + message under it; form-level errors as a floating toast */
 label.bad { color: var(--danger); }
 .hint { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 16px; }
-.tdfar, #tdWarn { font: 400 14px/20px var(--font-body); }
+.tdfar { font: 400 14px/20px var(--font-body); margin-top: 8px; }
 .tdfar[hidden] { display: none; }
 .swl { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
 .swt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -374,7 +374,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       <div class="tds" id="tds"><button type="button" data-k="day">เดย์ทริป</button><button type="button" data-k="night">ค้างคืน</button></div>
       <div class="tdn" id="tdnRow" hidden><button type="button" id="tdMinus" aria-label="ลดจำนวนวัน">−</button><b id="tdVal"></b><button type="button" id="tdPlus" aria-label="เพิ่มจำนวนวัน">+</button></div>
       <label id="tdsRow" hidden>วันแรกของทริป <input type="date" id="tripStart"></label>
-      <div class="hint" id="tdWarn" hidden>วันออกรถห่างจากวันแรกของทริปมาก ตรวจสอบอีกครั้ง</div>
       <div class="tdp" id="tdPrev" hidden></div>
       <input type="hidden" id="tripN" value="">
     </div>
@@ -713,7 +712,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       endAuto = false;
     } else if (en && n < 2) en.hidden = true;
     endWarn();
-    $("tdWarn").hidden = !(n >= 2 && sd && ts && ts >= sd && Date.parse(ts) - Date.parse(sd) > 86400000);
+    var dl = $("startDate").closest("label"), dw = dl.querySelector(".tdfar"), dfar = n >= 2 && sd && ts && ts >= sd && Date.parse(ts) - Date.parse(sd) > 86400000;
+    if (dfar && !dw) { dw = document.createElement("div"); dw.className = "hint tdfar"; dw.textContent = "วันออกรถห่างจากวันแรกของทริปมาก ตรวจสอบอีกครั้ง"; dl.appendChild(dw); }
+    if (dw) dw.hidden = !dfar;
   }
   function endWarn() { // a return date well after the trip ends: ask to double-check (not blocking)
     var n = Number($("tripN").value) || 0, ts = $("tripStart").value, ed = $("endDate").value, lab = $("endDate").closest("label"), w = lab.querySelector(".tdfar");
