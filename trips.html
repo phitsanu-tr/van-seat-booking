@@ -170,8 +170,6 @@ form#form { background: none; border: 0; padding: 0; gap: 12px; }
 /* error handling: red field + message under it; form-level errors as a floating toast */
 label.bad { color: var(--danger); }
 .hint { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 16px; }
-.tdfar { font: 400 14px/20px var(--font-body); margin-top: 8px; }
-.tdfar[hidden] { display: none; }
 .swl { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
 .swt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .swt small { font-size: 12px; line-height: 16px; }
@@ -507,8 +505,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var cur = parse(input.value), now = parse(todayIso()), min = minFn ? minFn() : "", max = maxFn ? maxFn() : "";
     var sel = input.value || (min && min > todayIso() ? min : todayIso()), sp0 = parse(sel), view = { y: sp0.y, m: sp0.m }, slide = 0;
     var picking = false, sheet = shell(title, trigger), body = el("div");
-    if (min > todayIso() && parse(min)) { var mh = el("div", "pk-floor", "เลือกได้ตั้งแต่ " + parse(min).d + " " + MON[parse(min).m] + " " + (parse(min).y + 543)); mh.style.margin = "-8px 0 -8px"; sheet.appendChild(mh); }
-    if (max && parse(max)) { var xh = el("div", "pk-floor", "เลือกได้ถึง " + parse(max).d + " " + MON[parse(max).m] + " " + (parse(max).y + 543) + " (วันแรกของทริป)"); xh.style.margin = "-8px 0 -8px"; sheet.appendChild(xh); }
+    (function () { // what can be picked: a range, or one end of it
+      var a = min > todayIso() ? parse(min) : null, b = max ? parse(max) : null, y = function (p) { return p.y + 543; }, txt = "";
+      if (a && b) txt = (a.y === b.y && a.m === b.m) ? (a.d === b.d ? a.d + " " + MON[a.m] + " " + y(a) : a.d + "–" + b.d + " " + MON[a.m] + " " + y(a)) : a.d + " " + MON[a.m] + (a.y === b.y ? "" : " " + y(a)) + " – " + b.d + " " + MON[b.m] + " " + y(b);
+      else if (b) txt = "เลือกได้ถึง " + b.d + " " + MON[b.m] + " " + y(b);
+      else if (a) txt = "เลือกได้ตั้งแต่ " + a.d + " " + MON[a.m] + " " + y(a);
+      if (txt) { var hh = el("div", "pk-floor", /^เลือกได้/.test(txt) ? txt : "เลือกได้ " + txt); hh.style.margin = "-8px 0 -8px"; sheet.appendChild(hh); }
+    })();
     sheet.appendChild(body); body.style.cssText = "display:flex;flex-direction:column;gap:16px";
     var ok;
     function upd() { if (!ok) return; var d = parse(sel); ok.disabled = !!d && (picking || d.y !== view.y || d.m !== view.m); }
@@ -626,12 +629,19 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 
   var s = document.getElementById("startDate"), e = document.getElementById("endDate"), t = document.getElementById("departTime");
   if (s && e && t) {
-    dateField(s, "วันเดินทางไป", function () { var v = s.value; return v && v < todayIso() ? v : todayIso(); }, function () { // overnight: the van leaves on or before the first day of the trip
-      var n = Number(document.getElementById("tripN").value) || 0, ts = document.getElementById("tripStart").value, v = s.value;
-      return n >= 2 && ts ? (v && v > ts ? v : ts) : ""; }); // a saved past date (editing an old trip) stays selectable
+    var AD = function (iso, k) { return new Date(Date.parse(iso + "T00:00:00Z") + k * 86400000).toISOString().slice(0, 10); };
+    var TN = function () { return Number(document.getElementById("tripN").value) || 0; }, TS = function () { return document.getElementById("tripStart").value; };
+    dateField(s, "วันเดินทางไป", function () { // overnight: from 2 days before the trip, never in the past; a saved date stays selectable
+      var v = s.value, lo = todayIso();
+      if (TN() >= 2 && TS() && AD(TS(), -2) > lo) lo = AD(TS(), -2);
+      return v && v < lo ? v : lo;
+    }, function () { // ... up to the first day of the trip
+      var v = s.value; return TN() >= 2 && TS() ? (v && v > TS() ? v : TS()) : ""; });
     dateField(e, "วันเดินทางกลับ", function () { // overnight: not before the last day of the trip
-      var lo = s.value || todayIso(), n = Number(document.getElementById("tripN").value) || 0, ts = document.getElementById("tripStart").value;
-      if (n >= 2 && ts) { var le = new Date(Date.parse(ts + "T00:00:00Z") + (n - 1) * 86400000).toISOString().slice(0, 10); if (le > lo) lo = le; } return lo; });
+      var lo = s.value || todayIso();
+      if (TN() >= 2 && TS()) { var le = AD(TS(), TN() - 1); if (le > lo) lo = le; } return lo;
+    }, function () { // ... and at most 2 days after it; a saved date stays selectable
+      var v = e.value; if (!(TN() >= 2 && TS())) return ""; var hi = AD(TS(), TN() + 1); return v && v > hi ? v : hi; });
     timeField(t, "เวลารถออกเดินทางไป", function () { // leaving today: not earlier than now (5-minute steps)
       if (s.value !== todayIso() || t.dataset.keep === t.value + "|" + s.value) return null;
       var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from + " น." }; }, function () { // a usual departure by trip type: day trips leave early, overnight trips in the evening
@@ -707,16 +717,16 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var note = lpk && lpk.querySelector(".lkn"); if (lk && lpk && !note) { note = document.createElement("span"); note.className = "lkn"; note.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>วันเดียวกัน'; lpk.appendChild(note); } if (note) note.hidden = !lk;
     if (lk && sd && $("endDate").value !== sd) { $("endDate").value = sd; endAuto = true; }
     if (n >= 2 && !ts && sd) { $("tripStart").value = ts = sd; } // first day follows the departure date until chosen
-    var en = lab.querySelector(".tdnote");
-    if (n >= 2 && ts && $("endDate").value && $("endDate").value < addDays(ts, n - 1)) { // the return date no longer fits the trip: clear it (never fill it in for the person)
-      $("endDate").value = "";
-      if (!endAuto) { if (!en) { en = document.createElement("div"); en.className = "tdnote"; lab.appendChild(en); } en.textContent = "เปลี่ยนช่วงวัน กรุณาเลือกวันกลับใหม่"; en.hidden = false; }
-      endAuto = false;
-    } else if (en && n < 2) en.hidden = true;
-    endWarn(); stepLock();
-    var dl = $("startDate").closest("label"), dw = dl.querySelector(".tdfar"), dfar = n >= 2 && sd && ts && ts >= sd && Date.parse(ts) - Date.parse(sd) > 2 * 86400000;
-    if (dfar && !dw) { dw = document.createElement("div"); dw.className = "hint tdfar"; dw.textContent = "วันออกรถห่างจากวันแรกของทริปมาก ตรวจสอบอีกครั้ง"; dl.appendChild(dw); }
-    if (dw) dw.hidden = !dfar;
+    var en = lab.querySelector(".tdnote"), dl = $("startDate").closest("label"), dn = dl.querySelector(".tdnote");
+    function putNote(l, e, txt) { if (!e) { e = document.createElement("div"); e.className = "tdnote"; l.appendChild(e); } e.textContent = txt; e.hidden = false; return e; }
+    if (n >= 2 && ts) { // the dates must stay inside the trip's window: leave 2 days before / 2 days after at most (a saved date stays as it is)
+      var ms = function (d) { return Date.parse(d + "T00:00:00Z"); }, last = addDays(ts, n - 1);
+      var sv = $("startDate").value, bad = sv && (sv > ts || ms(ts) - ms(sv) > 2 * 86400000) && $("startDate").dataset.keep !== sv;
+      if (bad) { $("startDate").value = ""; dn = putNote(dl, dn, "เปลี่ยนช่วงวัน กรุณาเลือกวันเดินทางไปใหม่"); }
+      var ev = $("endDate").value, bad2 = ev && (ev < last || ms(ev) - ms(last) > 2 * 86400000) && $("endDate").dataset.keep !== ev;
+      if (bad2 || (ev && ev < last)) { $("endDate").value = ""; if (!endAuto) en = putNote(lab, en, "เปลี่ยนช่วงวัน กรุณาเลือกวันกลับใหม่"); endAuto = false; }
+    } else { if (en && n < 2) en.hidden = true; if (dn && n < 2) dn.hidden = true; }
+    stepLock();
   }
   function stepLock() { // dates and times open one step at a time, only where the next rule needs the earlier value
     var n = Number($("tripN").value) || 0, none = !n && tdRequired, lk = n === 1, sd = !!$("startDate").value, dt = !!$("departTime").value, ed = !!$("endDate").value;
@@ -728,12 +738,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (off && !none && rules[k][1]) pb.setAttribute("data-lockmsg", rules[k][1]); else pb.removeAttribute("data-lockmsg");
     });
   }
-  function endWarn() { // a return date well after the trip ends: ask to double-check (not blocking)
-    var n = Number($("tripN").value) || 0, ts = $("tripStart").value, ed = $("endDate").value, lab = $("endDate").closest("label"), w = lab.querySelector(".tdfar");
-    var far = n >= 2 && ts && ed && Date.parse(ed) - Date.parse(addDays(ts, n - 1)) > 2 * 86400000;
-    if (far && !w) { w = document.createElement("div"); w.className = "hint tdfar"; w.textContent = "วันกลับห่างจากวันสุดท้ายของทริปมาก ตรวจสอบอีกครั้ง"; lab.appendChild(w); }
-    if (w) w.hidden = !far;
-  }
   function tdSet(n, start) {
     $("tripN").value = n ? String(n) : ""; $("tripStart").value = start || ""; endAuto = false;
     tdRequired = !editing || !!n; tdPaint(); // an old trip without trip days is not forced to fill them
@@ -743,7 +747,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   $("tdMinus").addEventListener("click", function () { tdPick(Math.max(2, (Number($("tripN").value) || 2) - 1)); });
   $("tdPlus").addEventListener("click", function () { tdPick(Math.min(15, (Number($("tripN").value) || 2) + 1)); });
   $("tripStart").addEventListener("change", tdPaint);
-  $("startDate").addEventListener("change", tdPaint); $("departTime").addEventListener("change", stepLock); $("returnTime").addEventListener("change", stepLock); $("endDate").addEventListener("change", function () { endAuto = false; endWarn(); stepLock(); var nn = $("endDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; }); tdPaint();
+  $("startDate").addEventListener("change", function () { var nn = $("startDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; tdPaint(); }); $("departTime").addEventListener("change", stepLock); $("returnTime").addEventListener("change", stepLock); $("endDate").addEventListener("change", function () { endAuto = false; stepLock(); var nn = $("endDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; }); tdPaint();
   function letter(i) { return String.fromCharCode(65 + (i % 26)); }
 
   var ERR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg>';
@@ -1075,6 +1079,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     return { d: +m[3], mo: +m[2] - 1, y: +m[1] + 543 };
   }
   var ERR = {
+    bad_departgap: "วันเดินทางไปต้องไม่เกิน 2 วันก่อนทริปเริ่ม", bad_returngap: "วันเดินทางกลับต้องไม่เกิน 2 วันหลังวันสุดท้ายของทริป",
     bad_name: "ระบุชื่อทริป", bad_tripdays: "ระบุช่วงวันของทริป", bad_timepast: "เวลานี้ผ่านไปแล้ว", bad_daytrip: "เดย์ทริปไปกลับวันเดียวกัน", bad_daytime: "เวลากลับต้องหลังเวลาออก", bad_tripstart: "วันเดินทางไปต้องไม่หลังวันแรกของทริป", bad_tripend: "วันเดินทางกลับต้องไม่ก่อนวันสุดท้ายของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
     bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าสู่ระบบด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
@@ -1121,7 +1126,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (tn === 1) {
         if (sdv && $("departTime").value && $("returnTime").value && $("returnTime").value <= $("departTime").value) first = fieldErr($("returnTime"), ERR.bad_daytime);
       } else if (tsv) {
+        var DAYMS = 86400000, msd = function (d) { return Date.parse(d + "T00:00:00Z"); };
         if (sdv && tsv < sdv) first = fieldErr($("startDate"), ERR.bad_tripstart);
+        else if (sdv && msd(tsv) - msd(sdv) > 2 * DAYMS && $("startDate").dataset.keep !== sdv) first = fieldErr($("startDate"), ERR.bad_departgap);
+        else if (edv && msd(edv) - msd(addDays(tsv, tn - 1)) > 2 * DAYMS && $("endDate").dataset.keep !== edv) first = fieldErr($("endDate"), ERR.bad_returngap);
         else if (edv && edv < addDays(tsv, tn - 1)) first = fieldErr($("endDate"), ERR.bad_tripend + " (" + VSBShare.tripText(1, addDays(tsv, tn - 1)).replace("เดย์ทริป · ", "") + ")");
       }
     }
@@ -1167,7 +1175,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       var data = {}; try { data = await res.json(); } catch (x) {}
       if (!res.ok) {
-        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime", bad_meet: "meetPoint", bad_tripdays: "tds", bad_timepast: "departTime", bad_daytrip: "endDate", bad_daytime: "returnTime", bad_tripstart: "startDate", bad_tripend: "endDate", bad_close: "closeDate" };
+        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime", bad_meet: "meetPoint", bad_tripdays: "tds", bad_timepast: "departTime", bad_daytrip: "endDate", bad_daytime: "returnTime", bad_departgap: "startDate", bad_returngap: "endDate", bad_tripstart: "startDate", bad_tripend: "endDate", bad_close: "closeDate" };
         if (map[data.error]) { focusFirst(fieldErr($(map[data.error]), ERR[data.error])); }
         else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input.vn"); if (v0) { fieldErr(v0, ERR.bad_vans, v0.closest(".vf")); focusFirst(v0); } else toast(ERR.bad_vans); }
         else if (data.error === "login_required") location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new");
@@ -1389,7 +1397,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var t = data.trip; staffGapL = data.staffGaps || [];
         $("name").value = t.name; $("organizer").value = t.organizer || ""; tdSet(t.tripN, t.tripStart); $("startDate").value = t.startDate || "";
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("departTime").dataset.keep = (t.departTime || "") + "|" + (t.startDate || ""); $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
-        stepLock();
+        $("startDate").dataset.keep = t.startDate || ""; $("endDate").dataset.keep = t.endDate || ""; stepLock();
         (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
         fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = closedAtLoad = t.closed === true; revAtLoad = t.rev || 0;

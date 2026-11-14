@@ -82,6 +82,9 @@ function clean(body, vanCap, planVans, prev) {
       if (startDate && tripStart < startDate) return { error: "bad_tripstart" };
       const last = new Date(Date.parse(tripStart + "T00:00:00Z") + (tripN - 1) * 86400000).toISOString().slice(0, 10);
       if (endDate && endDate < last) return { error: "bad_tripend" };
+      const DAY = 86400000, ms = (d) => Date.parse(d + "T00:00:00Z"); // the van leaves at most 2 days before the trip and comes back at most 2 days after it (a saved date stays as it is)
+      if (startDate && ms(tripStart) - ms(startDate) > 2 * DAY && !(prev && prev.startDate === startDate)) return { error: "bad_departgap" };
+      if (endDate && ms(endDate) - ms(last) > 2 * DAY && !(prev && prev.endDate === endDate)) return { error: "bad_returngap" };
     }
   }
   const value = { name, organizer: keep(body.organizer, LIM.organizer, prev && prev.organizer), startDate, endDate, departTime, returnTime, meetPoint, vans: outVans };
