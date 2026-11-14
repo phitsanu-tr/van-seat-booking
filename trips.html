@@ -170,6 +170,8 @@ form#form { background: none; border: 0; padding: 0; gap: 12px; }
 /* error handling: red field + message under it; form-level errors as a floating toast */
 label.bad { color: var(--danger); }
 .hint { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 16px; }
+.tdfar, #tdWarn { font: 400 14px/20px var(--font-body); }
+.tdfar[hidden] { display: none; }
 .swl { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
 .swt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .swt small { font-size: 12px; line-height: 16px; }
@@ -710,7 +712,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!endAuto) { if (!en) { en = document.createElement("div"); en.className = "tdnote"; lab.appendChild(en); } en.textContent = "เปลี่ยนช่วงวัน กรุณาเลือกวันกลับใหม่"; en.hidden = false; }
       endAuto = false;
     } else if (en && n < 2) en.hidden = true;
+    endWarn();
     $("tdWarn").hidden = !(n >= 2 && sd && ts && ts >= sd && Date.parse(ts) - Date.parse(sd) > 86400000);
+  }
+  function endWarn() { // a return date well after the trip ends: ask to double-check (not blocking)
+    var n = Number($("tripN").value) || 0, ts = $("tripStart").value, ed = $("endDate").value, lab = $("endDate").closest("label"), w = lab.querySelector(".tdfar");
+    var far = n >= 2 && ts && ed && Date.parse(ed) - Date.parse(addDays(ts, n - 1)) > 86400000;
+    if (far && !w) { w = document.createElement("div"); w.className = "hint tdfar"; w.textContent = "วันกลับห่างจากวันสุดท้ายของทริปมาก ตรวจสอบอีกครั้ง"; lab.appendChild(w); }
+    if (w) w.hidden = !far;
   }
   function tdSet(n, start) {
     $("tripN").value = n ? String(n) : ""; $("tripStart").value = start || ""; endAuto = false;
@@ -721,7 +730,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   $("tdMinus").addEventListener("click", function () { tdPick(Math.max(2, (Number($("tripN").value) || 2) - 1)); });
   $("tdPlus").addEventListener("click", function () { tdPick(Math.min(15, (Number($("tripN").value) || 2) + 1)); });
   $("tripStart").addEventListener("change", tdPaint);
-  $("startDate").addEventListener("change", tdPaint); $("endDate").addEventListener("change", function () { endAuto = false; var nn = $("endDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; }); tdPaint();
+  $("startDate").addEventListener("change", tdPaint); $("endDate").addEventListener("change", function () { endAuto = false; endWarn(); var nn = $("endDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; }); tdPaint();
   function letter(i) { return String.fromCharCode(65 + (i % 26)); }
 
   var ERR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg>';
