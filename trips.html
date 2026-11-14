@@ -306,12 +306,13 @@ select.sel { border-color: #dde3e7!important; }
 .stp span { font: 500 12px/16px var(--font-body); color: var(--muted); text-align: center; }
 .stp .s.on span { color: #0b5f67; font-weight: 700; }
 .sumh .ed { margin-left: auto; border: 0; background: none; padding: 0; font: 600 14px/20px var(--font-display); color: #0b5f67; cursor: pointer; }
-.sum { display: grid; gap: 8px; }
+.sum { display: grid; gap: 12px; }
 .sum .r { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; line-height: 20px; }
 .sum .r span { flex: none; color: var(--muted); }
-.sum .r b { font-weight: 600; text-align: right; min-width: 0; overflow-wrap: anywhere; }
-.sum .g { font: 600 12px/16px var(--font-body); color: #0b5f67; letter-spacing: .02em; }
-.sum .g:not(:first-child) { margin-top: 8px; padding-top: 12px; border-top: 1px solid #dde3e7; }
+.sum .r b { font-weight: 600; color: var(--ink); text-align: right; min-width: 0; overflow-wrap: anywhere; }
+.sum .g { font: 700 14px/20px var(--font-body); color: #0b5f67; }
+.sum .g:not(:first-child) { margin-top: 4px; padding-top: 16px; border-top: 1px solid #dde3e7; }
+.sum .g + .r { margin-top: -4px; }
 /* creating: the buttons stay at the bottom of the screen on every step; the bottom menu is hidden until the trip exists */
 body.creating .vt-bar { display: none !important; }
 body.creating, body.creating.vt-on { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important; }
@@ -1335,12 +1336,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var vl = rows.map(function (r) { return (r.label || "").trim(); }).filter(Boolean);
     var n = Number($("tripN").value) || 0, ts = $("tripStart").value, lastD = "";
     if (n > 1 && /^\d{4}-\d{2}-\d{2}$/.test(ts)) lastD = new Date(Date.parse(ts + "T00:00:00Z") + (n - 1) * 86400000).toISOString().slice(0, 10);
-    [["#", "ทริป"], ["ชื่อทริป", $("name").value.trim()], ["ผู้จัด", $("organizer").value.trim()],
-     ["รูปแบบทริป", n === 1 ? "เดย์ทริป · ไป-กลับวันเดียว" : n > 1 ? "ค้างคืน " + n + " วัน " + (n - 1) + " คืน" : ""],
-     ["วันของทริป", lastD ? dayS(ts) + " – " + dayS(lastD) : dayS(ts)],
-     ["#", "การเดินทาง"], ["เดินทางไป", leg(sd, $("departTime").value)],
-     ["เดินทางกลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
-     ["#", "รถและที่นั่ง"], ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
+    [["#", "รายละเอียดทริป"], ["ชื่อทริป", $("name").value.trim()], ["ผู้จัด / บริษัททัวร์", $("organizer").value.trim()],
+     ["รูปแบบทริป", n === 1 ? "เดย์ทริป · ไป-กลับวันเดียว" : n > 1 ? "ค้างคืน · " + n + " วัน " + (n - 1) + " คืน" : ""],
+     [n === 1 ? "วันที่จัดทริป" : "ช่วงวันของทริป", lastD ? dayS(ts) + " – " + dayS(lastD) : dayS(ts)],
+     ["#", "กำหนดการเดินทาง"], ["รถออกขาไป", leg(sd, $("departTime").value)],
+     ["รถออกขากลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""],
+     ["#", "จุดนัดพบและรถตู้"], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
+     ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
      ["จำกัดที่นั่งต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["ที่นั่ง 1", "กันไว้ให้ผู้จัด ทุกคัน · ขึ้นชื่อ " + $("staffName").value] : null
     ].forEach(function (r) {
       if (!r || !r[1]) return;
