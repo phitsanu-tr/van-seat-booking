@@ -73,7 +73,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 #mState .okdot svg { width: 14px; height: 14px; }
 #mState > svg { width: 24px; height: 24px; flex: none; color: var(--mine); }
 .mcard { border: 1.5px solid #0b5f67; background: #f2f8f9; border-radius: 16px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
-.msub2 { font-size: 14px; line-height: 20px; color: var(--muted); margin-top: -10px; }
+.msub2 { font-size: 14px; line-height: 20px; color: var(--muted); }
 .msub { font: 700 16px/24px var(--font-display); color: var(--ink); overflow-wrap: anywhere; min-width: 0; }
 .mlink { cursor: pointer; display: flex; align-items: center; gap: 12px; border-top: 1px solid #cfe0e2; padding-top: 12px; -webkit-tap-highlight-color: transparent; }
 .mlink .url { flex: 1; min-width: 0; }
@@ -441,7 +441,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   <div class="modal" id="result" role="dialog" aria-modal="true" aria-labelledby="mState">
     <button class="mclose" id="closeX" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div id="mState"></div>
-    <div class="mcard"><div class="msub" id="mSub">แชร์ให้ผู้ร่วมทริปเลือกที่นั่ง</div><div class="msub2" id="mSub2" hidden>ใช้ลิงก์เดิมได้เลย</div>
+    <div class="mcard"><div><div class="msub" id="mSub">แชร์ให้ผู้ร่วมทริปเลือกที่นั่ง</div><div class="msub2" id="mSub2" hidden>ใช้ลิงก์เดิมได้เลย</div></div>
     <div class="mlink" id="copyBox" role="button" tabindex="0" aria-label="คัดลอกลิงก์"><div class="url" id="shareUrl"></div><span class="cpbtn" id="copyShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span></div></div>
     <div class="macts">
       <a class="btn line" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span>แชร์ใน LINE</span></a>
