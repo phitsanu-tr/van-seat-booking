@@ -705,6 +705,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var tdRequired = true;
   function addDays(iso, k) { var d = new Date(Date.parse(iso + "T00:00:00Z") + k * 86400000); return d.toISOString().slice(0, 10); }
   var endAuto = false; // the return date was filled in by the form (not typed): it follows the trip days
+  var tdLast = ""; // last day of the trip as of the previous repaint
   function tdPaint() {
     var n = Number($("tripN").value) || 0, sd = $("startDate").value, ts = $("tripStart").value, lab = $("endDate").closest("label");
     [].forEach.call($("tds").querySelectorAll("button"), function (b) { b.classList.toggle("on", n ? (b.getAttribute("data-k") === "day") === (n === 1) : false); });
@@ -719,6 +720,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (n >= 2 && !ts && sd) { $("tripStart").value = ts = sd; } // first day follows the departure date until chosen
     var en = lab.querySelector(".tdnote"), dl = $("startDate").closest("label"), dn = dl.querySelector(".tdnote");
     function putNote(l, e, txt) { if (!e) { e = document.createElement("div"); e.className = "tdnote"; l.appendChild(e); } e.textContent = txt; e.hidden = false; return e; }
+    var lastNow = n >= 2 && ts ? addDays(ts, n - 1) : "";
+    if (lastNow && tdLast && lastNow !== tdLast && $("endDate").value === tdLast && !endAuto) { // the return date was the trip's last day: it follows when the trip gets longer, shorter or moves
+      $("endDate").value = lastNow; var fp = lastNow.split("-"); en = putNote(lab, en, "ปรับเป็น " + Number(fp[2]) + " " + MON[Number(fp[1]) - 1] + " ตามช่วงวัน");
+    }
+    tdLast = lastNow;
     if (n >= 2 && ts) { // the dates must stay inside the trip's window: leave 2 days before / 2 days after at most (a saved date stays as it is)
       var ms = function (d) { return Date.parse(d + "T00:00:00Z"); }, last = addDays(ts, n - 1);
       var sv = $("startDate").value, bad = sv && (sv > ts || ms(ts) - ms(sv) > 2 * 86400000) && $("startDate").dataset.keep !== sv;
