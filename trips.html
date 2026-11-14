@@ -285,6 +285,8 @@ select.sel { border-color: #dde3e7!important; }
 .tdlock { display: flex; align-items: center; gap: 8px; font: 400 14px/20px var(--font-body); color: var(--muted); background: #f3f6f7; border-radius: 14px; padding: 12px; margin: 0; }
 .tdnote { font: 400 14px/20px var(--font-body); color: var(--muted); margin-top: 8px; }
 .tdnote[hidden] { display: none; }
+.pk[data-lockmsg]:disabled.ph span { font-size: 0; }
+.pk[data-lockmsg]:disabled.ph::before { content: attr(data-lockmsg); flex: 1; color: var(--muted); }
 .tdlock[hidden] { display: none; }
 .tdlock svg { width: 20px; height: 20px; flex: none; color: var(--muted); }
 .lkn[hidden] { display: none; }
@@ -703,8 +705,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var lk = n === 1; lab.classList.toggle("lockd", lk);
     var lpk = lab.querySelector(".pk"); if (lpk) lpk.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
     var note = lpk && lpk.querySelector(".lkn"); if (lk && lpk && !note) { note = document.createElement("span"); note.className = "lkn"; note.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>วันเดียวกัน'; lpk.appendChild(note); } if (note) note.hidden = !lk;
-    var none = !n && tdRequired; $("tdLock").hidden = !none; // nothing chosen yet: the dates and times wait for it
-    ["startDate", "departTime", "endDate", "returnTime"].forEach(function (k) { var lb = $(k).closest("label"), pb = lb && lb.querySelector(".pk"); if (!pb) return; lb.classList.toggle("lockd", none || (k === "endDate" && lk)); pb.disabled = none || (k === "endDate" && lk); });
     if (lk && sd && $("endDate").value !== sd) { $("endDate").value = sd; endAuto = true; }
     if (n >= 2 && !ts && sd) { $("tripStart").value = ts = sd; } // first day follows the departure date until chosen
     var en = lab.querySelector(".tdnote");
@@ -713,10 +713,20 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!endAuto) { if (!en) { en = document.createElement("div"); en.className = "tdnote"; lab.appendChild(en); } en.textContent = "เปลี่ยนช่วงวัน กรุณาเลือกวันกลับใหม่"; en.hidden = false; }
       endAuto = false;
     } else if (en && n < 2) en.hidden = true;
-    endWarn();
+    endWarn(); stepLock();
     var dl = $("startDate").closest("label"), dw = dl.querySelector(".tdfar"), dfar = n >= 2 && sd && ts && ts >= sd && Date.parse(ts) - Date.parse(sd) > 86400000;
     if (dfar && !dw) { dw = document.createElement("div"); dw.className = "hint tdfar"; dw.textContent = "วันออกรถห่างจากวันแรกของทริปมาก ตรวจสอบอีกครั้ง"; dl.appendChild(dw); }
     if (dw) dw.hidden = !dfar;
+  }
+  function stepLock() { // dates and times open one step at a time, only where the next rule needs the earlier value
+    var n = Number($("tripN").value) || 0, none = !n && tdRequired, lk = n === 1, sd = !!$("startDate").value, dt = !!$("departTime").value, ed = !!$("endDate").value;
+    $("tdLock").hidden = !none;
+    var rules = { startDate: [none, ""], departTime: [none || !sd, "เลือกวันเดินทางไปก่อน"], endDate: [none || lk || !sd, "เลือกวันเดินทางไปก่อน"], returnTime: [none || !ed || (lk && !dt), !ed ? "เลือกวันเดินทางกลับก่อน" : "เลือกเวลารถออกขาไปก่อน"] };
+    Object.keys(rules).forEach(function (k) {
+      var lb = $(k).closest("label"), pb = lb && lb.querySelector(".pk"); if (!pb) return;
+      var off = rules[k][0]; lb.classList.toggle("lockd", off); pb.disabled = off;
+      if (off && !none && rules[k][1]) pb.setAttribute("data-lockmsg", rules[k][1]); else pb.removeAttribute("data-lockmsg");
+    });
   }
   function endWarn() { // a return date well after the trip ends: ask to double-check (not blocking)
     var n = Number($("tripN").value) || 0, ts = $("tripStart").value, ed = $("endDate").value, lab = $("endDate").closest("label"), w = lab.querySelector(".tdfar");
@@ -733,7 +743,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   $("tdMinus").addEventListener("click", function () { tdPick(Math.max(2, (Number($("tripN").value) || 2) - 1)); });
   $("tdPlus").addEventListener("click", function () { tdPick(Math.min(15, (Number($("tripN").value) || 2) + 1)); });
   $("tripStart").addEventListener("change", tdPaint);
-  $("startDate").addEventListener("change", tdPaint); $("endDate").addEventListener("change", function () { endAuto = false; endWarn(); var nn = $("endDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; }); tdPaint();
+  $("startDate").addEventListener("change", tdPaint); $("departTime").addEventListener("change", stepLock); $("returnTime").addEventListener("change", stepLock); $("endDate").addEventListener("change", function () { endAuto = false; endWarn(); stepLock(); var nn = $("endDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; }); tdPaint();
   function letter(i) { return String.fromCharCode(65 + (i % 26)); }
 
   var ERR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg>';
@@ -1239,7 +1249,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var data = await res.json();
       if (!res.ok || !data.trip) { if (res.status !== 401) toast("คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย", true); return; }
       var t = data.trip;
-      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; tdSet(t.tripN, ""); $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
+      $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; tdSet(t.tripN, ""); $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi(); stepLock();
       (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
       rows = t.vans.map(function (v) { return { id: "", label: v.label, plate: v.plate || "" }; });
       $("lead").textContent = "คัดลอกจากทริปเดิมแล้ว เลือกวันเดินทางใหม่ได้เลย";
@@ -1379,6 +1389,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var t = data.trip; staffGapL = data.staffGaps || [];
         $("name").value = t.name; $("organizer").value = t.organizer || ""; tdSet(t.tripN, t.tripStart); $("startDate").value = t.startDate || "";
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("departTime").dataset.keep = (t.departTime || "") + "|" + (t.startDate || ""); $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
+        stepLock();
         (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
         rows = t.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; });
         fillClose(t); $("closedRow").hidden = false; $("closedNow").checked = closedAtLoad = t.closed === true; revAtLoad = t.rev || 0;
