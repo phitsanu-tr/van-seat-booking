@@ -283,8 +283,8 @@ select.sel { border-color: #dde3e7!important; }
 .tdlock { display: flex; align-items: center; gap: 8px; font: 400 14px/20px var(--font-body); color: var(--muted); background: #f3f6f7; border-radius: 14px; padding: 12px; margin: 0; }
 .tdnote { font: 400 14px/20px var(--font-body); color: var(--muted); margin-top: 8px; }
 .tdnote[hidden] { display: none; }
-.pk[data-lockmsg]:disabled.ph span { font-size: 0; }
-.pk[data-lockmsg]:disabled.ph::before { content: attr(data-lockmsg); flex: 1; color: var(--muted); }
+.pk[data-lockmsg]:disabled.ph span { display: none; }
+.pk[data-lockmsg]:disabled.ph::before { content: attr(data-lockmsg); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
 .tdlock[hidden] { display: none; }
 .tdlock svg { width: 20px; height: 20px; flex: none; color: var(--muted); }
 .lkn[hidden] { display: none; }
