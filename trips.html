@@ -488,7 +488,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     c.addEventListener("click", close); ok.addEventListener("click", onOk); a.appendChild(c); a.appendChild(ok); sheet.appendChild(a); return ok;
   }
 
-  function dateField(input, title, minFn) {
+  function dateField(input, title, minFn, maxFn) {
     var b = btn("pk ph", "<span></span>"), sp = b.lastChild;
     var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
     function sync() {
@@ -498,16 +498,18 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     Object.defineProperty(input, "value", { get: function () { return desc.get.call(input); }, set: function (v) { desc.set.call(input, v); sync(); } });
     input.type = "hidden"; input.parentNode.appendChild(b); sync();
-    b.addEventListener("click", function () { openCal(input, title, b, minFn, sync); });
+    b.addEventListener("click", function () { openCal(input, title, b, minFn, sync, maxFn); });
   }
-  function openCal(input, title, trigger, minFn, sync) {
-    var cur = parse(input.value), now = parse(todayIso()), min = minFn ? minFn() : "";
+  function openCal(input, title, trigger, minFn, sync, maxFn) {
+    var cur = parse(input.value), now = parse(todayIso()), min = minFn ? minFn() : "", max = maxFn ? maxFn() : "";
     var sel = input.value || (min && min > todayIso() ? min : todayIso()), sp0 = parse(sel), view = { y: sp0.y, m: sp0.m }, slide = 0;
     var picking = false, sheet = shell(title, trigger), body = el("div");
     if (min > todayIso() && parse(min)) { var mh = el("div", "pk-floor", "เลือกได้ตั้งแต่ " + parse(min).d + " " + MON[parse(min).m] + " " + (parse(min).y + 543)); mh.style.margin = "-8px 0 -8px"; sheet.appendChild(mh); }
+    if (max && parse(max)) { var xh = el("div", "pk-floor", "เลือกได้ถึง " + parse(max).d + " " + MON[parse(max).m] + " " + (parse(max).y + 543) + " (วันแรกของทริป)"); xh.style.margin = "-8px 0 -8px"; sheet.appendChild(xh); }
     sheet.appendChild(body); body.style.cssText = "display:flex;flex-direction:column;gap:16px";
     var ok;
     function upd() { if (!ok) return; var d = parse(sel); ok.disabled = !!d && (picking || d.y !== view.y || d.m !== view.m); }
+    function maxM() { var m = parse(max); return m ? m.y * 12 + m.m : Infinity; }
     function minM() { var m = parse(min); return m ? m.y * 12 + m.m : -Infinity; }
     function draw() {
       body.innerHTML = "";
@@ -516,6 +518,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       tt.setAttribute("aria-expanded", picking);
       pv.disabled = !picking && view.y * 12 + view.m <= minM(); if (picking) pv.disabled = (view.y - 1) * 12 + 11 < minM();
       pv.addEventListener("click", function () { slide = -1; if (picking) view.y--; else if (view.m === 0) { view.y--; view.m = 11; } else view.m--; draw(); });
+      nx.disabled = picking ? (view.y + 1) * 12 > maxM() : view.y * 12 + view.m >= maxM();
       nx.addEventListener("click", function () { slide = 1; if (picking) view.y++; else if (view.m === 11) { view.y++; view.m = 0; } else view.m++; draw(); });
       tt.addEventListener("click", function () { picking = !picking; draw(); });
       nav.appendChild(pv); nav.appendChild(tt); nav.appendChild(nx); body.appendChild(nav);
@@ -523,7 +526,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var g = el("div", "pk-mg");
         MON.forEach(function (n, i) {
           var m = btn("pk-m" + ((sel && parse(sel).y === view.y && parse(sel).m === i) ? " sel" : ""), n);
-          m.disabled = view.y * 12 + i < minM();
+          m.disabled = view.y * 12 + i < minM() || view.y * 12 + i > maxM();
           m.addEventListener("click", function () { view.m = i; picking = false; draw(); }); g.appendChild(m);
         });
         body.appendChild(g);
@@ -534,7 +537,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         for (var d = 1; d <= days; d++) (function (d) {
           var v = iso(view.y, view.m, d), col = (first + d - 1) % 7;
           var b = btn("pk-d" + (col > 4 ? " we" : "") + (v === t ? " today" : "") + (v === sel ? " sel" : ""), "<i>" + d + "</i>");
-          b.disabled = !!min && v < min; b.setAttribute("aria-label", d + " " + MON[view.m] + " " + (view.y + 543));
+          b.disabled = (!!min && v < min) || (!!max && v > max); b.setAttribute("aria-label", d + " " + MON[view.m] + " " + (view.y + 543));
           if (v === sel) b.setAttribute("aria-pressed", "true");
           b.addEventListener("click", function () { sel = v; draw(); }); grid.appendChild(b);
         })(d);
@@ -552,7 +555,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var aux = el("div", "pk-aux"), clr = btn("pk-pill q", "ล้างวันที่"), td = btn("pk-pill", "วันนี้");
       clr.style.visibility = sel && sel !== todayIso() ? "visible" : "hidden";
       clr.addEventListener("click", function () { sel = ""; draw(); });
-      td.disabled = !!min && todayIso() < min;
+      td.disabled = (!!min && todayIso() < min) || (!!max && todayIso() > max);
       td.addEventListener("click", function () { sel = todayIso(); view = { y: now.y, m: now.m }; picking = false; draw(); });
       aux.appendChild(clr); aux.appendChild(td); body.appendChild(aux);
     }
@@ -619,7 +622,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 
   var s = document.getElementById("startDate"), e = document.getElementById("endDate"), t = document.getElementById("departTime");
   if (s && e && t) {
-    dateField(s, "วันเดินทางไป", function () { var v = s.value; return v && v < todayIso() ? v : todayIso(); }); // a saved past date (editing an old trip) stays selectable
+    dateField(s, "วันเดินทางไป", function () { var v = s.value; return v && v < todayIso() ? v : todayIso(); }, function () { // overnight: the van leaves on or before the first day of the trip
+      var n = Number(document.getElementById("tripN").value) || 0, ts = document.getElementById("tripStart").value, v = s.value;
+      return n >= 2 && ts ? (v && v > ts ? v : ts) : ""; }); // a saved past date (editing an old trip) stays selectable
     dateField(e, "วันเดินทางกลับ", function () { // overnight: not before the last day of the trip
       var lo = s.value || todayIso(), n = Number(document.getElementById("tripN").value) || 0, ts = document.getElementById("tripStart").value;
       if (n >= 2 && ts) { var le = new Date(Date.parse(ts + "T00:00:00Z") + (n - 1) * 86400000).toISOString().slice(0, 10); if (le > lo) lo = le; } return lo; });
