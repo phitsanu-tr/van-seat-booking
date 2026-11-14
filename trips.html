@@ -1128,7 +1128,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   var ERR = {
     bad_departgap: "วันเดินทางไปต้องไม่เกิน 2 วันก่อนทริปเริ่ม", bad_returngap: "วันเดินทางกลับต้องไม่เกิน 2 วันหลังวันสุดท้ายของทริป",
-    bad_name: "ระบุชื่อทริป", bad_tripdays: "เลือกรูปแบบทริป", bad_timepast: "เวลานี้ผ่านไปแล้ว", bad_pastdate: "วันที่นี้ผ่านไปแล้ว ระบุวันใหม่", bad_daytrip: "เดย์ทริปต้องกลับวันที่เดินทาง", bad_daydepart: "เดย์ทริปรถออกได้ไม่เกิน 1 วันก่อนวันที่เดินทาง", bad_daytime: "เวลากลับต้องหลังเวลาออก", bad_tripstart: "วันเดินทางไปต้องไม่หลังวันแรกของทริป", bad_tripend: "วันเดินทางกลับต้องไม่ก่อนวันสุดท้ายของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
+    bad_name: "ระบุชื่อทริป", bad_tripdays: "เลือกรูปแบบทริป", bad_timepast: "เวลานี้ผ่านไปแล้ว", bad_pastdate: "วันที่นี้ผ่านไปแล้ว ระบุวันใหม่", bad_daytrip: "เดย์ทริปต้องกลับวันที่จัดทริป", bad_daydepart: "เดย์ทริปรถออกได้ไม่เกิน 1 วันก่อนวันที่เดินทาง", bad_daytime: "เวลากลับต้องหลังเวลาออก", bad_tripstart: "วันเดินทางไปต้องไม่หลังวันแรกของทริป", bad_tripend: "วันเดินทางกลับต้องไม่ก่อนวันสุดท้ายของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
     bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าสู่ระบบด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
     quota_month: "เดือนนี้คุณสร้างทริปครบ 30 ทริปแล้ว ลองใหม่เดือนหน้านะ",
@@ -1213,7 +1213,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     if (only) { setStep(step + 1); return; }
     var body = {
-      name: $("name").value, organizer: $("organizer").value, tripN: $("tripN").value, tripStart: $("tripN").value === "1" ? $("startDate").value : $("tripStart").value, startDate: $("startDate").value, endDate: $("endDate").value,
+      name: $("name").value, organizer: $("organizer").value, tripN: $("tripN").value, tripStart: $("tripStart").value, startDate: $("startDate").value, endDate: $("endDate").value,
       departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value,
       vans: rows.map(function (r) { return { id: r.id, label: r.label.trim(), plate: (r.plate || "").trim() }; }),
       maxPerPerson: Number($("maxPer").value),
