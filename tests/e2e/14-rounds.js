@@ -41,7 +41,7 @@ await A.click('.sheet .rback');await A.waitForTimeout(300);log('back',await head
 await A.click('.sheet .rnew');await A.waitForTimeout(300);await A.click('.bd:last-of-type .b-danger');await A.waitForTimeout(1200);log('round 3',await head(A),'history',(await A.textContent('.sheet .hist')).trim());
 await A.request.post(B+'/api/trip',{data:{t:ID,boardName:'  <b>แวะ\npั๊ม</b> ยาวมากกกกกกกกกกกกกกกกกกกกก  '}});d=await full();log('cleaned name',JSON.stringify(d.board.cur.name),d.board.cur.name.length);
 // --- after the trip: read-only summary, no new rounds
-await A.request.fetch(B+'/api/trip',{method:'PUT',data:Object.assign({t:ID},base,{startDate:HLP.day(-3),endDate:HLP.day(-2),vans:[{id:'v1',label:'1'},{id:'v2',label:'2'}]})});
+await A.request.fetch(B+'/api/trip',{method:'PUT',data:Object.assign({t:ID},base,{startDate:HLP.day(-3),endDate:HLP.day(-2),tripStart:HLP.day(-3),vans:[{id:'v1',label:'1'},{id:'v2',label:'2'}]})});
 log('new round after the trip',(await A.request.post(B+'/api/trip',{data:{t:ID,resetBoard:true}})).status());
 await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);await A.click('.card.dim .tmb');await A.waitForTimeout(800);await A.click('.rtabs button:nth-child(2)');await A.waitForTimeout(500);
 log('ended view',await A.textContent('.sheet .rhead'),'cards',await A.$$eval('.sheet .rc',e=>e.length),'tick rows',await A.$$eval('.sheet .rrow.ck',e=>e.length),'new round button',await A.$$eval('.sheet .rnew',e=>e.length));
