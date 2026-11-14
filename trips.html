@@ -1328,7 +1328,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var MS2 = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   var WD2 = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
   function dayS(v) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ""); if (!m) return ""; return WD2[new Date(+m[1], +m[2] - 1, +m[3]).getDay()] + " " + (+m[3]) + " " + MS2[+m[2] - 1] + " " + String(+m[1] + 543).slice(2); }
-  function leg(v, t) { return [dayS(v), t ? t : ""].filter(Boolean).join(" · "); }
+  function leg(v, t, n) { return [dayS(v), t ? t + (n ? " น." : "") : ""].filter(Boolean).join(" · "); } // n: step-3 card writes "น." after the time
   function pkText(id) { var b = $(id).parentNode.querySelector(".pk span"); return b ? b.textContent : $(id).value; }
   function fillStepSummary() { // step 3 card (not the share sheet summary, which is fillSummary)
     var box = $("sumRows"); box.textContent = "";
@@ -1339,8 +1339,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     [["#", "รายละเอียดทริป"], ["ชื่อทริป", $("name").value.trim()], ["ผู้จัด / บริษัททัวร์", $("organizer").value.trim()],
      ["รูปแบบทริป", n === 1 ? "เดย์ทริป · ไป-กลับวันเดียว" : n > 1 ? "ค้างคืน · " + n + " วัน " + (n - 1) + " คืน" : ""],
      ["วันที่จัดทริป", lastD ? dayS(ts) + " – " + dayS(lastD) : dayS(ts)],
-     ["#", "กำหนดการเดินทาง"], ["เดินทางไป", leg(sd, $("departTime").value)],
-     ["เดินทางกลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value) : ""],
+     ["#", "กำหนดการเดินทาง"], ["เดินทางไป", leg(sd, $("departTime").value, 1)],
+     ["เดินทางกลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value, 1) : ""],
      ["#", "จุดนัดพบและรถตู้"], ["จุดนัดพบ", $("meetPoint").value.trim() || "ไม่ระบุ"],
      ["รถตู้", rows.length + " คัน (" + rows.length * 10 + " ที่นั่ง)" + (rows.length > 1 && vl.length ? " · " + vl.join(", ") : "")],
      ["จำกัดที่นั่งต่อคน", pkText("maxPer")], $("staffSeat").checked ? ["กันที่นั่ง 1", "ทุกคัน · ชื่อ " + $("staffName").value] : null
