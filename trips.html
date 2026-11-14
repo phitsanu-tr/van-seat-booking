@@ -594,7 +594,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (floor != null && h * 60 + mi <= floor.f) { floorTx.classList.add("bad"); return; } // not after the departure: stay open
       input.value = p2(h) + ":" + p2(mi); input.dispatchEvent(new Event("change", { bubbles: true })); close();
     });
-    [H, M].forEach(function (c) { c.addEventListener("scroll", paintFloor); });
+    var snapT = null;
+    function snapToFloor() { // let go of the wheel on a time that has passed: it rolls back to the first time that is allowed
+      if (floor == null || h * 60 + mi > floor.f) return;
+      var hh = 23, mm = MINS[MINS.length - 1], found = false;
+      for (var a = 0; a < 24 && !found; a++) for (var k = 0; k < MINS.length && !found; k++) if (a * 60 + MINS[k] > floor.f) { hh = a; mm = MINS[k]; found = true; }
+      H.scrollTo({ top: hh * 44, behavior: "smooth" }); M.scrollTo({ top: MINS.indexOf(mm) * 44, behavior: "smooth" });
+    }
+    [H, M].forEach(function (c) { c.addEventListener("scroll", function () { paintFloor(); clearTimeout(snapT); snapT = setTimeout(snapToFloor, 180); }); });
     go(h, mi); paintFloor();
   }
 
