@@ -714,7 +714,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       endAuto = false;
     } else if (en && n < 2) en.hidden = true;
     endWarn(); stepLock();
-    var dl = $("startDate").closest("label"), dw = dl.querySelector(".tdfar"), dfar = n >= 2 && sd && ts && ts >= sd && Date.parse(ts) - Date.parse(sd) > 86400000;
+    var dl = $("startDate").closest("label"), dw = dl.querySelector(".tdfar"), dfar = n >= 2 && sd && ts && ts >= sd && Date.parse(ts) - Date.parse(sd) > 2 * 86400000;
     if (dfar && !dw) { dw = document.createElement("div"); dw.className = "hint tdfar"; dw.textContent = "วันออกรถห่างจากวันแรกของทริปมาก ตรวจสอบอีกครั้ง"; dl.appendChild(dw); }
     if (dw) dw.hidden = !dfar;
   }
@@ -730,7 +730,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   function endWarn() { // a return date well after the trip ends: ask to double-check (not blocking)
     var n = Number($("tripN").value) || 0, ts = $("tripStart").value, ed = $("endDate").value, lab = $("endDate").closest("label"), w = lab.querySelector(".tdfar");
-    var far = n >= 2 && ts && ed && Date.parse(ed) - Date.parse(addDays(ts, n - 1)) > 86400000;
+    var far = n >= 2 && ts && ed && Date.parse(ed) - Date.parse(addDays(ts, n - 1)) > 2 * 86400000;
     if (far && !w) { w = document.createElement("div"); w.className = "hint tdfar"; w.textContent = "วันกลับห่างจากวันสุดท้ายของทริปมาก ตรวจสอบอีกครั้ง"; lab.appendChild(w); }
     if (w) w.hidden = !far;
   }
