@@ -376,7 +376,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
    </section>
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><b>รูปแบบทริป</b></div>
     <div class="tdw" id="tdw" role="group" aria-label="รูปแบบทริป">
-      <div class="tds" id="tds"><button type="button" data-k="day">เดย์ทริป</button><button type="button" data-k="night">ค้างคืน</button></div>
+      <div class="tds" id="tds"><button type="button" data-k="night">ค้างคืน</button><button type="button" data-k="day">เดย์ทริป</button></div>
       <div class="tdg" id="tdnRow" hidden><span class="tdl">ระยะเวลาทริป</span><div class="tdn"><button type="button" id="tdMinus" aria-label="ลดจำนวนวัน">−</button><b id="tdVal"></b><button type="button" id="tdPlus" aria-label="เพิ่มจำนวนวัน">+</button></div></div>
       <label id="tdsRow" hidden><span id="tdsLab">วันแรกของทริป</span> <input type="date" id="tripStart"></label>
       <div class="tdp" id="tdPrev" hidden><span id="tdPrevT"></span></div>
@@ -772,6 +772,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   $("tdMinus").addEventListener("click", function () { tdPick(Math.max(2, (Number($("tripN").value) || 2) - 1)); });
   $("tdPlus").addEventListener("click", function () { tdPick(Math.min(15, (Number($("tripN").value) || 2) + 1)); });
   $("tripStart").addEventListener("change", tdPaint);
+  if (!editing && !COPY) tdSet(2, ""); // a new trip starts as an overnight trip (the usual one); the day is still to be chosen
   $("startDate").addEventListener("change", function () { var nn = $("startDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; tdPaint(); }); $("departTime").addEventListener("change", stepLock); $("returnTime").addEventListener("change", stepLock); $("endDate").addEventListener("change", function () { endAuto = false; stepLock(); var nn = $("endDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; }); tdPaint();
   function letter(i) { return String.fromCharCode(65 + (i % 26)); }
 
