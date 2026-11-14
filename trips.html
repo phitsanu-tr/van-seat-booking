@@ -763,7 +763,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var nw = new Date(), fl = Math.ceil((nw.getHours() * 60 + nw.getMinutes()) / 5) * 5 - 5, mm = /^(\d{2}):(\d{2})$/.exec(dtv);
       if (mm && +mm[1] * 60 + +mm[2] <= fl) { gone = true; $("departTime").value = ""; if (n === 1) $("returnTime").value = ""; putNote(tl, tn, "เวลานี้ผ่านไปแล้ว ระบุเวลาใหม่"); }
     }
-    if (!gone && tn && dtv) tn.hidden = true;
+    if (!gone) { // after midnight (00:00-04:59): say which night it belongs to, since "00:00" reads both ways
+      var am = /^(\d{2}):\d{2}$/.exec(dtv || "");
+      if (am && +am[1] < 5 && sdv) putNote(tl, tn, "หลังเที่ยงคืนของวันที่ " + sdate(sdv) + " (คืนวันที่ " + sdate(addDays(sdv, -1)) + ")");
+      else if (tn && dtv) tn.hidden = true;
+    }
     stepLock();
   }
   function stepLock() { // dates and times open one step at a time, only where the next rule needs the earlier value
