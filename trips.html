@@ -65,7 +65,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 
 /* result sheet: shown after creating / saving a trip, and by "แชร์ลิงก์" on the edit page */
 .modal { position: relative; border-radius: 24px; padding: 20px; gap: 16px; }
-.mclose { position: absolute; right: 12px; top: 16px; width: 36px; height: 36px; border-radius: 12px; border: 0; background: none; color: var(--ink); display: grid; place-items: center; cursor: pointer; padding: 0; -webkit-tap-highlight-color: transparent; }
+.mclose { position: absolute; right: 20px; top: 16px; width: 36px; height: 36px; border-radius: 12px; border: 0; background: none; color: var(--ink); display: grid; place-items: center; cursor: pointer; padding: 0; -webkit-tap-highlight-color: transparent; }
 .mclose svg { width: 24px; height: 24px; }
 .mclose:active { background: #f3f6f7; }
 #mState { display: flex; align-items: center; gap: 8px; font: 600 20px/28px var(--font-display); color: var(--ink); padding-right: 40px; }
@@ -82,7 +82,8 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .cpbtn { flex: none; width: 40px; height: 40px; display: grid; place-items: center; background: #e3eef0; color: var(--ink); border-radius: 12px; }
 .cpbtn svg { width: 20px; height: 20px; }
 .cpbtn.ok { color: var(--mine); }
-.macts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.macts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+@media (max-width: 340px) { .macts { grid-template-columns: minmax(0, 1fr); } }
 .macts .btn { height: 48px; gap: 8px; white-space: nowrap; font-family: var(--font-display); font-weight: 600; }
 .macts .btn svg { width: 20px; height: 20px; flex: none; }
 .macts .btn.line { font-size: 16px; padding: 0 8px; line-height: 24px}
