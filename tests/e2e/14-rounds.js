@@ -33,9 +33,9 @@ const pub=await (await P.request.get(B+'/api/seats?t='+ID+'&v=v1')).json();log('
 await Bo.goto(B+'/mytrips?f='+Date.now()+'#trips');await Bo.waitForTimeout(1200);await Bo.click('.ros3');await Bo.waitForTimeout(800);await Bo.click('.rtabs button:nth-child(2)');await Bo.waitForTimeout(600);log('helper sees',await head(Bo));
 // --- history view
 await A.click('.sheet .hist');await A.waitForTimeout(500);
-log('history cards',await A.$$eval('.sheet .rc',e=>e.map(c=>c.querySelector('.rn').textContent+' '+c.querySelector('.rnm').textContent+' ['+c.querySelector('.rst').textContent+'] '+c.querySelector('.rmeta').textContent.replace(/\d+\.\d+/g,'hh.mm'))));
+log('history cards',await A.$$eval('.sheet .rc',e=>e.map(c=>c.querySelector('.rn').textContent+' '+c.querySelector('.rnm').textContent+' ['+c.querySelector('.rst').textContent+'] '+c.querySelector('.rmeta').textContent.replace(/\d\d:\d\d/g,'hh:mm'))));
 await A.screenshot({path:S+'/round_history.png'});
-await A.click('.rtools button:first-child');await A.waitForTimeout(400);log('copied summary',JSON.stringify((await A.evaluate(()=>navigator.clipboard.readText())).replace(/\d+\.\d+ น\./g,'hh.mm น.')));
+await A.click('.rtools button:first-child');await A.waitForTimeout(400);log('copied summary',JSON.stringify((await A.evaluate(()=>navigator.clipboard.readText())).replace(/\d\d:\d\d/g,'hh:mm')));
 await A.click('.sheet .rback');await A.waitForTimeout(300);log('back',await head(A));
 // --- unnamed round 3, odd names
 await A.click('.sheet .rnew');await A.waitForTimeout(300);await A.click('.bd:last-of-type .b-danger');await A.waitForTimeout(1200);log('round 3',await head(A),'history',(await A.textContent('.sheet .hist')).trim());

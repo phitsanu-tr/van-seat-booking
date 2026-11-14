@@ -1279,7 +1279,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       top.appendChild(node("span", "rst " + (current ? "now" : full ? "ok" : "ms"), current ? "กำลังเช็ก " + r.n + "/" + r.total : full ? "ครบ " + r.n + "/" + r.total : "ขาด " + (r.total - r.n)));
       c.appendChild(top);
       var meta = node("div", "rmeta"), bits = [];
-      if (r.start) bits.push(current ? "เริ่ม " + stamp(r.start) : stamp(r.start) + (r.end ? " – " + hhmm(r.end) + " น." : ""));
+      if (r.start) bits.push(current ? "เริ่ม " + stamp(r.start) : stamp(r.start) + (r.end ? " – " + hhmm(r.end) : ""));
       if (!current && !full) bits.push("ขึ้น " + r.n + "/" + r.total);
       if (r.by) bits.push("โดย " + r.by);
       meta.textContent = bits.join(" · ") || (current ? "ยังไม่มีใครถูกติ๊ก" : "");
