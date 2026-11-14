@@ -722,16 +722,17 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (n >= 2 && ts) { // the dates must stay inside the trip's window: leave 2 days before / 2 days after at most (a saved date stays as it is)
       var ms = function (d) { return Date.parse(d + "T00:00:00Z"); }, last = addDays(ts, n - 1);
       var sv = $("startDate").value, bad = sv && (sv > ts || ms(ts) - ms(sv) > 2 * 86400000) && $("startDate").dataset.keep !== sv;
-      if (bad) { $("startDate").value = ""; $("departTime").value = ""; dn = putNote(dl, dn, "เปลี่ยนช่วงวัน กรุณาเลือกวันและเวลาเดินทางไปใหม่"); }
+      if (bad) { $("startDate").value = ""; dn = putNote(dl, dn, "เปลี่ยนช่วงวัน กรุณาเลือกวันเดินทางไปใหม่"); }
       var ev = $("endDate").value, bad2 = ev && (ev < last || ms(ev) - ms(last) > 2 * 86400000) && $("endDate").dataset.keep !== ev;
-      if (bad2 || (ev && ev < last)) { $("endDate").value = ""; $("returnTime").value = ""; if (!endAuto) en = putNote(lab, en, "เปลี่ยนช่วงวัน กรุณาเลือกวันและเวลากลับใหม่"); endAuto = false; }
+      if (bad2 || (ev && ev < last)) { $("endDate").value = ""; if (endAuto) $("returnTime").value = ""; else en = putNote(lab, en, "เปลี่ยนช่วงวัน กรุณาเลือกวันกลับใหม่"); endAuto = false; } // the day trip's own return time does not carry over to an overnight trip
     } else { if (en && n < 2) en.hidden = true; if (dn && n < 2) dn.hidden = true; }
     stepLock();
   }
   function stepLock() { // dates and times open one step at a time, only where the next rule needs the earlier value
     var n = Number($("tripN").value) || 0, none = !n && tdRequired, lk = n === 1, sd = !!$("startDate").value, dt = !!$("departTime").value, ed = !!$("endDate").value;
     $("tdLock").hidden = !none;
-    var rules = { startDate: [none, ""], departTime: [none || !sd, "เลือกวันเดินทางไปก่อน"], endDate: [none || lk || !sd, "เลือกวันเดินทางไปก่อน"], returnTime: [none || !ed || (lk && !dt), !ed ? "เลือกวันเดินทางกลับก่อน" : "เลือกเวลารถออกขาไปก่อน"] };
+    var rt = !!$("returnTime").value; // a field that already holds a value stays open; only empty ones wait for the step before
+    var rules = { startDate: [none, ""], departTime: [none || (!sd && !dt), "เลือกวันเดินทางไปก่อน"], endDate: [none || lk || (!sd && !ed), "เลือกวันเดินทางไปก่อน"], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? "เลือกวันเดินทางกลับก่อน" : "เลือกเวลารถออกขาไปก่อน"] };
     Object.keys(rules).forEach(function (k) {
       var lb = $(k).closest("label"), pb = lb && lb.querySelector(".pk"); if (!pb) return;
       var off = rules[k][0]; lb.classList.toggle("lockd", off); pb.disabled = off;
