@@ -777,7 +777,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     tdRequired = !editing || !!n; tdPaint(); // an old trip without trip days is not forced to fill them
   }
   function tdPick(n) { var was = Number($("tripN").value) || 0; $("tripN").value = String(n); if (!$("tripStart").value && $("startDate").value) { $("tripStart").value = $("startDate").value; $("tripStart").dispatchEvent(new Event("change", { bubbles: true })); } if (was === 1 && n >= 2) { ["startDate", "endDate", "departTime", "returnTime"].forEach(function (k) { $(k).value = ""; delete $(k).dataset.keep; }); endAuto = false; } // leaving a day trip: its dates (set by the form) and times start over
-    if (was >= 2 && n === 1) { $("startDate").value = ""; $("endDate").value = ""; endAuto = false; } // from overnight to day trip: the departure day starts as the trip day again
+    if (was >= 2 && n === 1) { $("startDate").value = ""; $("endDate").value = ""; $("departTime").value = ""; $("returnTime").value = ""; endAuto = false; } // from overnight to day trip: the departure day starts as the trip day again, and the times start over (their suggestions differ)
     tdPaint(); $("tdw").classList.remove("bad"); $("tdw").dispatchEvent(new Event("change", { bubbles: true })); }
   $("tds").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; var cur = Number($("tripN").value) || 0;
     if (b.classList.contains("on") && tdRequired) { $("tripN").value = ""; tdPaint(); $("tdw").dispatchEvent(new Event("change", { bubbles: true })); return; } // tapping the chosen one again clears the choice; the dates stay but wait behind the lock
