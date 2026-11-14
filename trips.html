@@ -542,7 +542,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         for (var i = 0; i < first; i++) grid.appendChild(el("span", "pk-d pad"));
         for (var d = 1; d <= days; d++) (function (d) {
           var v = iso(view.y, view.m, d), col = (first + d - 1) % 7;
-          var b = btn("pk-d" + (col > 4 ? " we" : "") + (v === t ? " today" : "") + (v === sel ? " sel" : ""), "<i>" + d + "</i>");
+          var b = btn("pk-d" + (col > 4 ? " we" : "") + (v === t && !((!!min && v < min) || (!!max && v > max)) ? " today" : "") + (v === sel ? " sel" : ""), "<i>" + d + "</i>");
           b.disabled = (!!min && v < min) || (!!max && v > max); b.setAttribute("aria-label", d + " " + MON[view.m] + " " + (view.y + 543));
           if (v === sel) b.setAttribute("aria-pressed", "true");
           b.addEventListener("click", function () { sel = v; draw(); }); grid.appendChild(b);
@@ -561,7 +561,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var aux = el("div", "pk-aux"), clr = btn("pk-pill q", "ล้างวันที่"), td = btn("pk-pill", "วันนี้");
       clr.style.visibility = sel && sel !== todayIso() ? "visible" : "hidden";
       clr.addEventListener("click", function () { sel = ""; draw(); });
-      td.disabled = (!!min && todayIso() < min) || (!!max && todayIso() > max);
+      td.disabled = (!!min && todayIso() < min) || (!!max && todayIso() > max); if (td.disabled) td.style.visibility = "hidden"; // today is not pickable here: no ring, no button
       td.addEventListener("click", function () { sel = todayIso(); view = { y: now.y, m: now.m }; picking = false; draw(); });
       aux.appendChild(clr); aux.appendChild(td); body.appendChild(aux);
     }
