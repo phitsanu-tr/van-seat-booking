@@ -446,7 +446,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   <div class="modal" id="result" role="dialog" aria-modal="true" aria-labelledby="mState">
     <button class="mclose" id="closeX" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div id="mState"></div>
-    <div class="mcard"><div><div class="msub" id="mSub">แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริป</div><div class="msub2" id="mSub2" hidden>ใช้ลิงก์เดิมได้เลย</div></div>
+    <div class="mcard"><div><div class="msub" id="mSub">แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง</div><div class="msub2" id="mSub2" hidden>ใช้ลิงก์เดิมได้เลย</div></div>
     <div class="mlink" id="copyBox" role="button" tabindex="0" aria-label="คัดลอกลิงก์"><div class="url" id="shareUrl"></div><span class="cpbtn" id="copyShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span></div></div>
     <div class="macts">
       <a class="btn line" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span>แชร์ใน LINE</span></a>
@@ -1035,7 +1035,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     $("openShare").href = "/" + id;
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "deleted" ? "ลบทริปแล้ว" : created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์และรหัสทริป") + "</span>";
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
-    $("mSub").textContent = created === "deleted" ? "ลิงก์และรหัสทริปนี้ใช้ไม่ได้แล้ว" : created === "saved" ? "ข้อมูลทริปอัปเดตแล้ว ใช้ลิงก์หรือรหัสเดิมได้เลย" : "แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริป"; $("mSub2").hidden = true;
+    $("mSub").textContent = created === "deleted" ? "ลิงก์และรหัสทริปนี้ใช้ไม่ได้แล้ว" : created === "saved" ? "ข้อมูลทริปอัปเดตแล้ว ใช้ลิงก์หรือรหัสเดิมได้เลย" : "แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง"; $("mSub2").hidden = true;
     backToList = created === true || created === "saved";
     $("backdrop").hidden = false; document.body.style.overflow = "hidden";
     $("closeX").focus({ preventScroll: true });
