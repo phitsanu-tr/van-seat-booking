@@ -279,7 +279,9 @@ select.sel { border-color: #dde3e7!important; }
 .pk-floor.bad { color: var(--danger); font-weight: 600; }
 .pk-time .pk-col > div.off { opacity: .3; }
 .lockd .pk { pointer-events: none; background: #f3f6f7; color: var(--muted); }
-.lockd .lkn { font: 400 12px/16px var(--font-body); color: #0b5f67; }
+.lkn { flex: none !important; margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font: 600 12px/16px var(--font-body); color: #0b5f67; }
+.lkn[hidden] { display: none; }
+.lkn svg { width: 16px; height: 16px; flex: none; }
 .tdw.bad .tds button:not(.on) { border-color: var(--danger); }
 .stp { display: flex; align-items: flex-start; margin: 0 0 4px; padding: 0 4px; }
 .stp .s { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
@@ -683,7 +685,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     // day trip: the return date is the departure date (locked); overnight: suggest the last day of the trip while it was not typed
     var lk = n === 1; lab.classList.toggle("lockd", lk);
     var lpk = lab.querySelector(".pk"); if (lpk) lpk.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
-    var note = lab.querySelector(".lkn"); if (lk && !note) { note = document.createElement("i"); note.className = "lkn"; note.textContent = "วันเดียวกัน"; lab.appendChild(note); } if (note) note.hidden = !lk;
+    var note = lpk && lpk.querySelector(".lkn"); if (lk && lpk && !note) { note = document.createElement("span"); note.className = "lkn"; note.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>วันเดียวกัน'; lpk.appendChild(note); } if (note) note.hidden = !lk;
     if (lk && sd && $("endDate").value !== sd) { $("endDate").value = sd; endAuto = true; }
     if (n >= 2 && !ts && sd) { $("tripStart").value = ts = sd; } // first day follows the departure date until chosen
     if (n >= 2 && ts && (!$("endDate").value || endAuto)) { var le = addDays(ts, n - 1); if ($("endDate").value !== le) $("endDate").value = le; endAuto = true; }
