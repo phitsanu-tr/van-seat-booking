@@ -647,11 +647,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (TN() >= 2 && TS()) { var le = AD(TS(), TN() - 1); if (le > lo) lo = le; } return lo;
     }, function () { // ... and at most 2 days after it; a saved date stays selectable
       var v = e.value; if (!(TN() >= 2 && TS())) return ""; var hi = AD(TS(), TN() + 1); return v && v > hi ? v : hi; }, function () { return TN() >= 2 && TS() ? AD(TS(), TN() - 1) : ""; }); // opens on the last day of the trip
-    timeField(t, "เวลารถออกเดินทางไป", function () { // leaving today: not earlier than now (5-minute steps)
+    timeField(t, "เวลารถออกขาไป", function () { // leaving today: not earlier than now (5-minute steps)
       if (s.value !== todayIso() || t.dataset.keep === t.value + "|" + s.value) return null;
       var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from + " น." }; }, function () { // a usual departure by trip type: day trips leave early, overnight trips in the evening
       return s.value !== todayIso() ? (document.getElementById("tripN").value === "1" && s.value === TS() ? "06:00" : "19:00") : ""; });
-    var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกเดินทางกลับ", function () { // day trip: the van must be back after it left
+    var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกขากลับ", function () { // day trip: the van must be back after it left
       var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm && s.value === e.value ? { f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value + " น." } : null; }, function () { return document.getElementById("tripN").value === "1" ? "18:00" : "13:00"; }); // a usual time to be back: evening for a day trip, early afternoon for an overnight one
   }
   // "จองได้สูงสุดต่อคน": the app's own picker (like the calendar) instead of the phone's select wheel; 0 = no limit
@@ -753,7 +753,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (n >= 2 && ts) { // the dates must stay inside the trip's window: leave 2 days before / 2 days after at most (a saved date stays as it is)
       var ms = function (d) { return Date.parse(d + "T00:00:00Z"); }, last = addDays(ts, n - 1);
       var sv = $("startDate").value, bad = sv && (sv > ts || ms(ts) - ms(sv) > 2 * 86400000) && $("startDate").dataset.keep !== sv;
-      if (bad) { $("startDate").value = ""; dn = putNote(dl, dn, "เปลี่ยนช่วงวัน กรุณาเลือกวันเดินทางไปใหม่"); }
+      if (bad) { $("startDate").value = ""; dn = putNote(dl, dn, "เปลี่ยนช่วงวัน กรุณาระบุวันเดินทางไปใหม่"); }
       var ev = $("endDate").value, bad2 = ev && (ev < last || ms(ev) - ms(last) > 2 * 86400000) && $("endDate").dataset.keep !== ev;
       if (bad2 || (ev && ev < last)) { $("endDate").value = ""; if (endAuto) $("returnTime").value = ""; else en = putNote(lab, en, "เปลี่ยนช่วงวัน กรุณาเลือกวันกลับใหม่"); endAuto = false; } // the day trip's own return time does not carry over to an overnight trip
     } else { if (en && n < 2) en.hidden = true; if (dn && n < 2) dn.hidden = true; }
@@ -775,8 +775,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     $("tdLock").hidden = !none;
     var rt = !!$("returnTime").value; // a field that already holds a value stays open; only empty ones wait for the step before
     var wait = !!n && !$("tripStart").value; // the trip day (first day) is not chosen yet: nothing below can be chosen
-    var first = lk ? "เลือกวันที่จัดทริปก่อน" : "เลือกวันแรกของทริปก่อน", pre = "เลือกวันเดินทางไปก่อน";
-    var rules = { startDate: [none || (wait && !sd), first], departTime: [none || ((wait || !sd) && !dt), pre], endDate: [none || lk || ((wait || !sd || !dt) && !ed), !sd || wait ? pre : "เลือกเวลารถออกขาไปก่อน"], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? "เลือกวันเดินทางกลับก่อน" : "เลือกเวลารถออกขาไปก่อน"] };
+    var first = lk ? "ระบุวันที่จัดทริปก่อน" : "ระบุวันแรกของทริปก่อน", pre = "ระบุวันเดินทางไปก่อน";
+    var rules = { startDate: [none || (wait && !sd), first], departTime: [none || ((wait || !sd) && !dt), pre], endDate: [none || lk || ((wait || !sd || !dt) && !ed), !sd || wait ? pre : "ระบุเวลารถออกขาไปก่อน"], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? "ระบุวันเดินทางกลับก่อน" : "ระบุเวลารถออกขาไปก่อน"] };
     Object.keys(rules).forEach(function (k) {
       var lb = $(k).closest("label"), pb = lb && lb.querySelector(".pk"); if (!pb) return;
       var off = rules[k][0]; lb.classList.toggle("lockd", off); pb.disabled = off;
@@ -1187,9 +1187,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!$(f[0]).value) { var c = fieldErr($(f[0]), f[1]); first = first || c; }
     });
     if (c1 && $("startDate").value && $("endDate").value && $("endDate").value < $("startDate").value) { var ed = fieldErr($("endDate"), "วันกลับต้องไม่ก่อนวันไป"); first = first || ed; }
-    if (c1 && !$("departTime").value) { var tc = fieldErr($("departTime"), "ระบุเวลารถออกเดินทางไป"); first = first || tc; }
+    if (c1 && !$("departTime").value) { var tc = fieldErr($("departTime"), "ระบุเวลารถออกขาไป"); first = first || tc; }
     else if (c1 && pastDepart()) { var tp = fieldErr($("departTime"), "เวลานี้ผ่านไปแล้ว"); first = first || tp; }
-    if (c1 && !$("returnTime").value) { var rc = fieldErr($("returnTime"), "ระบุเวลารถออกเดินทางกลับ"); first = first || rc; }
+    if (c1 && !$("returnTime").value) { var rc = fieldErr($("returnTime"), "ระบุเวลารถออกขากลับ"); first = first || rc; }
     if (c2 && !$("meetPoint").value.trim()) { var mc = fieldErr($("meetPoint"), "ระบุจุดนัดพบ"); first = first || mc; }
     var seen = {}, dupBad = false;
     if (c2) [].forEach.call(vansEl.querySelectorAll("input.vn"), function (inp, i) {
