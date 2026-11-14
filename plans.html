@@ -93,10 +93,10 @@ details ol { margin: 8px 0 0; padding-left: 16px; }
 .rfd textarea { width: 100%; height: 72px; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; font: 400 14px/20px var(--font-body, inherit); resize: none; margin: 4px 0 12px; }
 .rfd .note { font-size: 12px; line-height: 16px; color: var(--muted); margin-top: 8px; text-align: center; }
 .toast { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); width: max-content; transform: translateX(-50%); background: #1b1f22; color: #fff; padding: 12px 16px; border-radius: 16px; font-size: 14px; z-index: 50; max-width: min(92vw, 360px); text-align: center; line-height: 20px; box-shadow: 0 8px 28px rgba(0, 0, 0, .3)}
-.vb-bar{max-width:460px !important}html.in-line .vb-bar{display:none !important}html body.vt-on { padding-bottom: calc(89px + env(safe-area-inset-bottom, 0px)) !important; }
+.vb-bar{max-width:460px !important}html.in-line .vb-bar{display:none !important}html body.vt-on { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important; }
 .vt-bar { display: none !important; }
-body { padding-bottom: calc(89px + env(safe-area-inset-bottom, 0px)); }
-html, body { overscroll-behavior: none; } .lbk { transform: translateZ(0); position: fixed; z-index: 15; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid #e8ecef; padding: 12px max(16px, calc((100% - 460px) / 2)) calc(12px + env(safe-area-inset-bottom, 0px)); }
+body { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+html, body { overscroll-behavior: none; } .lbk { transform: translateZ(0); position: fixed; z-index: 15; left: 0; right: 0; bottom: 0; background: #fff; box-shadow: 0 -1px 0 #e8ecef; padding: 12px max(16px, calc((100% - 460px) / 2)) calc(12px + env(safe-area-inset-bottom, 0px)); }
 .lbk button { display: block; width: 100%; height: 48px; border: 0; border-radius: 12px; background: #eef1f3; color: #1b1f22; font: 600 16px/24px var(--font-display, "Prompt", "Noto Sans Thai", sans-serif); cursor: pointer; }
 .psk{display:flex;flex-direction:column;gap:12px}.psk .b{border-radius:16px;background:#eef1f3;position:relative;overflow:hidden}.psk .b::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);transform:translateX(-100%);animation:pskm 1.4s infinite}@keyframes pskm{to{transform:translateX(100%)}}@media (prefers-reduced-motion:reduce){.psk .b::after{animation:none}}
 </style>
