@@ -1269,7 +1269,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var ok = await askConfirm("ต้องการลบทริปนี้?",
       booked ? "รายชื่อผู้จองทั้ง " + booked + " ที่นั่งจะหายทั้งหมด และลิงก์ที่แชร์ไปจะเปิดไม่ได้" : "ข้อมูลจะถูกลบถาวร และลิงก์ที่แชร์ไปจะเปิดไม่ได้", "ลบทริป", $("delBtn"),
       { name: t.name || "ทริปนี้", total: booked ? booked + " ที่นั่ง" : "ยังไม่มีผู้จอง", rows: rws,
-        note: PL.on && !PL.plus ? "ลบแล้วไม่ได้โควตาทริปของเดือนนี้คืน ยกเว้นลบภายใน 24 ชม. หลังสร้างและยังไม่มีใครจอง" : "",
+        note: PL.on && !PL.plus ? "ได้โควตาคืนเมื่อลบภายใน 24 ชม. หลังสร้างและยังไม่มีผู้ร่วมทริปจอง (ที่นั่งที่กันไว้ไม่ถือว่าจอง)" : "",
         vans: (t.vans || []).map(function (v) { return { label: v.label, plate: v.plate, n: perVan[v.id] || 0 }; }) });
     if (!ok) return;
     $("delBtn").disabled = true;
