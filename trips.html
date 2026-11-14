@@ -281,6 +281,8 @@ select.sel { border-color: #dde3e7!important; }
 .lockd .pk { pointer-events: none; background: #f3f6f7; color: var(--muted); }
 .lkn { flex: none !important; margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font: 400 16px/24px var(--font-body); color: var(--muted); }
 .tdlock { display: flex; align-items: center; gap: 8px; font: 400 14px/20px var(--font-body); color: var(--muted); background: #f3f6f7; border-radius: 14px; padding: 12px; margin: 0; }
+.tdnote { font: 400 14px/20px var(--font-body); color: var(--muted); margin-top: 8px; }
+.tdnote[hidden] { display: none; }
 .tdlock[hidden] { display: none; }
 .tdlock svg { width: 20px; height: 20px; flex: none; color: var(--muted); }
 .lkn[hidden] { display: none; }
@@ -502,6 +504,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var cur = parse(input.value), now = parse(todayIso()), min = minFn ? minFn() : "";
     var sel = input.value || (min && min > todayIso() ? min : todayIso()), sp0 = parse(sel), view = { y: sp0.y, m: sp0.m }, slide = 0;
     var picking = false, sheet = shell(title, trigger), body = el("div");
+    if (min > todayIso() && parse(min)) { var mh = el("div", "pk-floor", "เลือกได้ตั้งแต่ " + parse(min).d + " " + MON[parse(min).m] + " " + (parse(min).y + 543)); mh.style.margin = "-8px 0 -8px"; sheet.appendChild(mh); }
     sheet.appendChild(body); body.style.cssText = "display:flex;flex-direction:column;gap:16px";
     var ok;
     function upd() { if (!ok) return; var d = parse(sel); ok.disabled = !!d && (picking || d.y !== view.y || d.m !== view.m); }
@@ -617,7 +620,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var s = document.getElementById("startDate"), e = document.getElementById("endDate"), t = document.getElementById("departTime");
   if (s && e && t) {
     dateField(s, "วันเดินทางไป", function () { var v = s.value; return v && v < todayIso() ? v : todayIso(); }); // a saved past date (editing an old trip) stays selectable
-    dateField(e, "วันเดินทางกลับ", function () { return s.value || todayIso(); });
+    dateField(e, "วันเดินทางกลับ", function () { // overnight: not before the last day of the trip
+      var lo = s.value || todayIso(), n = Number(document.getElementById("tripN").value) || 0, ts = document.getElementById("tripStart").value;
+      if (n >= 2 && ts) { var le = new Date(Date.parse(ts + "T00:00:00Z") + (n - 1) * 86400000).toISOString().slice(0, 10); if (le > lo) lo = le; } return lo; });
     timeField(t, "เวลารถออกเดินทางไป", function () { // leaving today: not earlier than now (5-minute steps)
       if (s.value !== todayIso() || t.dataset.keep === t.value + "|" + s.value) return null;
       var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from + " น." }; });
@@ -694,6 +699,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ["startDate", "departTime", "endDate", "returnTime"].forEach(function (k) { var lb = $(k).closest("label"), pb = lb && lb.querySelector(".pk"); if (!pb) return; lb.classList.toggle("lockd", none || (k === "endDate" && lk)); pb.disabled = none || (k === "endDate" && lk); });
     if (lk && sd && $("endDate").value !== sd) { $("endDate").value = sd; endAuto = true; }
     if (n >= 2 && !ts && sd) { $("tripStart").value = ts = sd; } // first day follows the departure date until chosen
+    var en = lab.querySelector(".tdnote");
+    if (n >= 2 && ts && $("endDate").value && !endAuto && $("endDate").value < addDays(ts, n - 1)) { // a typed return date that no longer fits the trip: move it to its last day
+      var fix = addDays(ts, n - 1); $("endDate").value = fix; endAuto = true;
+      if (!en) { en = document.createElement("div"); en.className = "tdnote"; lab.appendChild(en); }
+      var fd = fix.split("-"); en.textContent = "ปรับเป็น " + Number(fd[2]) + " " + MON[Number(fd[1]) - 1] + " ตามช่วงวัน"; en.hidden = false;
+    } else if (en && n < 2) en.hidden = true;
     if (n >= 2 && ts && (!$("endDate").value || endAuto)) { var le = addDays(ts, n - 1); if ($("endDate").value !== le) $("endDate").value = le; endAuto = true; }
     $("tdWarn").hidden = !(n >= 2 && sd && ts && ts >= sd && Date.parse(ts) - Date.parse(sd) > 86400000);
   }
@@ -706,7 +717,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   $("tdMinus").addEventListener("click", function () { tdPick(Math.max(2, (Number($("tripN").value) || 2) - 1)); });
   $("tdPlus").addEventListener("click", function () { tdPick(Math.min(15, (Number($("tripN").value) || 2) + 1)); });
   $("tripStart").addEventListener("change", tdPaint);
-  $("startDate").addEventListener("change", tdPaint); $("endDate").addEventListener("change", function () { endAuto = false; }); tdPaint();
+  $("startDate").addEventListener("change", tdPaint); $("endDate").addEventListener("change", function () { endAuto = false; var nn = $("endDate").closest("label").querySelector(".tdnote"); if (nn) nn.hidden = true; }); tdPaint();
   function letter(i) { return String.fromCharCode(65 + (i % 26)); }
 
   var ERR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg>';
