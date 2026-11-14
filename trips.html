@@ -735,13 +735,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (n === 1) { var td1 = ts || sd, db = sd && td1 && sd < td1 ? " (ออกเดินทาง" + dayPart($("departTime").value) + "วันที่ " + sdate(sd) + ")" : " (ไป-กลับวันเดียวกัน)"; tx = td1 ? "ทริปวันที่ " + (VSBShare.tripText(1, td1).split(" · ")[1] || "") + db : ""; } else if (tx) { var pp = tx.split(" · "); if (pp[1]) tx = "ทริปวันที่ " + pp[1] + " (" + pp[0] + ")"; }
     $("tdPrev").hidden = !tx; $("tdPrevT").textContent = tx;
     $("startDate").closest("label").hidden = false; // the departure day stays choosable on a day trip (today or the evening before)
-    ["endDate"].forEach(function (k) { // the return date follows the chosen day: hidden and locked the chosen day: locked, with a tag
+    ["endDate"].forEach(function (k) { // the return date follows the chosen day: locked, with a tag
       var lb = $(k).closest("label"), pb = lb.querySelector(".pk"); if (!pb) return;
-      lb.hidden = lk; lb.classList.toggle("lockd", lk); pb.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
-      var tag = pb.querySelector(".lkn"); if (lk && sd && !tag) { tag = document.createElement("span"); tag.className = "lkn"; tag.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>ตามวันที่เดินทาง'; pb.appendChild(tag); }
-      if (tag) tag.hidden = !(lk && sd);
+      lb.hidden = false; lb.classList.toggle("lockd", lk); pb.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
+      var tag = pb.querySelector(".lkn"), has = !!$(k).value; if (lk && has && !tag) { tag = document.createElement("span"); tag.className = "lkn"; tag.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>ตามวันจัดทริป'; pb.appendChild(tag); }
+      if (tag) tag.hidden = !(lk && has);
     });
-    var dd = lk && (ts || sd) ? sdate(ts || sd) : ""; $("goD").hidden = true; $("retD").textContent = dd; $("retD").hidden = !dd;
+    var dd = lk && (ts || sd) ? sdate(ts || sd) : ""; $("goD").hidden = true; $("retD").hidden = true; // the return day has its own (locked) field again
     if (n >= 2 && !ts && sd) { $("tripStart").value = ts = sd; } // first day follows the departure date until chosen
     var en = lab.querySelector(".tdnote"), dl = $("startDate").closest("label"), dn = dl.querySelector(".tdnote");
     function putNote(l, e, txt) { if (!e) { e = document.createElement("div"); e.className = "tdnote"; l.appendChild(e); } e.textContent = txt; e.hidden = false; return e; }
