@@ -282,13 +282,10 @@ select.sel { border-color: #dde3e7!important; }
 .pk-time .pk-col > div.off { opacity: .3; }
 .lockd .pk { pointer-events: none; background: #f3f6f7; color: var(--muted); }
 .lkn { flex: none !important; margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font: 400 16px/24px var(--font-body); color: var(--muted); }
-.tdlock { display: flex; align-items: center; gap: 8px; font: 400 14px/20px var(--font-body); color: var(--muted); background: #f3f6f7; border-radius: 14px; padding: 12px; margin: 0; }
 .tdnote { font: 400 14px/20px var(--font-body); color: var(--muted); margin-top: 8px; }
 .tdnote[hidden] { display: none; }
 .pk[data-lockmsg]:disabled.ph span { display: none; }
 .pk[data-lockmsg]:disabled.ph::before { content: attr(data-lockmsg); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
-.tdlock[hidden] { display: none; }
-.tdlock svg { width: 20px; height: 20px; flex: none; color: var(--muted); }
 .lkn[hidden] { display: none; }
 .lkn svg { width: 20px; height: 20px; flex: none; }
 .tdw.bad .tds button:not(.on) { border-color: var(--danger); }
@@ -384,7 +381,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     </div>
    </section>
    <section class="card fg" data-step="1"><div class="hb"><span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><b>กำหนดการเดินทาง</b></div>
-    <div class="tdlock" id="tdLock" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>เลือกรูปแบบทริปก่อน</div>
     <div class="tl">
       <div class="grp"><div class="gh"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><b>เดินทางไป</b><span class="gd" id="goD" hidden></span></div>
         <label>วันเดินทางไป <input type="date" id="startDate"></label>
@@ -772,7 +768,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   function stepLock() { // dates and times open one step at a time, only where the next rule needs the earlier value
     var n = Number($("tripN").value) || 0, none = !n && tdRequired, lk = n === 1, sd = !!$("startDate").value, dt = !!$("departTime").value, ed = !!$("endDate").value;
-    $("tdLock").hidden = !none;
     var rt = !!$("returnTime").value; // a field that already holds a value stays open; only empty ones wait for the step before
     var wait = !!n && !$("tripStart").value; // the trip day (first day) is not chosen yet: nothing below can be chosen
     var first = lk ? "ระบุวันที่จัดทริปก่อน" : "ระบุวันแรกของทริปก่อน", pre = "ระบุวันเดินทางไปก่อน";
