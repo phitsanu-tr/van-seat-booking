@@ -66,7 +66,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 /* result sheet: shown after creating / saving a trip, and by "แชร์ลิงก์" on the edit page */
 .modal { position: relative; border-radius: 24px; padding: 20px; gap: 16px; }
 .mclose { position: absolute; right: 12px; top: 16px; width: 36px; height: 36px; border-radius: 12px; border: 0; background: none; color: var(--ink); display: grid; place-items: center; cursor: pointer; padding: 0; -webkit-tap-highlight-color: transparent; }
-.mclose svg { width: 22px; height: 22px; }
+.mclose svg { width: 24px; height: 24px; }
 .mclose:active { background: #f3f6f7; }
 #mState { display: flex; align-items: center; gap: 8px; font: 600 20px/28px var(--font-display); color: var(--ink); padding-right: 40px; }
 #mState .okdot { flex: none; width: 24px; height: 24px; border-radius: 100px; background: var(--mine); color: var(--mine-ink); display: grid; place-items: center; }
@@ -111,7 +111,7 @@ input[type=text], input[type=date], input[type=time] { background: var(--surface
 .actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
 #cancelBtn { background: var(--surface); }
 /* custom date / time pickers */
-.pk { width: 100%; height: 48px; display: flex; align-items: center; gap: 12px; text-align: left; font: inherit; font-size: 16px; font-weight: 400; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 0 12px; }
+.pk { width: 100%; height: 48px; display: flex; align-items: center; gap: 12px; text-align: left; font: inherit; font-size: 16px; line-height: 24px; font-weight: 400; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 0 12px; }
 .pk svg { flex: none; width: 20px; height: 20px; color: var(--mine); }
 .pk span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pk.ph span { color: var(--muted); }
@@ -123,7 +123,7 @@ input[type=text], input[type=date], input[type=time] { background: var(--surface
 .pk-ic { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; border: 1.5px solid #e8ecef; background: transparent; color: var(--mine); padding: 0; }
 .pk-ic svg { width: 18px; height: 18px; }
 .pk-ic.bare { border-color: transparent; color: var(--ink); width: 36px; height: 36px; }
-.pk-ic.bare svg { width: 22px; height: 22px; }
+.pk-ic.bare svg { width: 24px; height: 24px; }
 .pk-ic:disabled { opacity: .35; cursor: default; }
 .pk-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pk-title { flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px; background: transparent; border: 0; color: var(--ink); font: 600 16px/24px var(--font-display); padding: 8px; border-radius: 12px; }
@@ -131,8 +131,8 @@ input[type=text], input[type=date], input[type=time] { background: var(--surface
 .pk-wd { display: grid; grid-template-columns: repeat(7, 1fr); background: color-mix(in srgb, var(--mine) 8%, var(--surface)); border-radius: 12px; padding: 8px 0; text-align: center; font: 600 12px/16px var(--font-display); color: var(--muted); }
 .pk-wd .we { color: var(--mine); }
 .pk-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px; height: 262px; align-content: start; }
-.pk-d { height: 42px; display: grid; place-items: center; background: transparent; border: 0; padding: 0; font: 500 16px/24px var(--font-display); color: var(--ink); }
-.pk-d i { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; font-style: normal; }
+.pk-d { height: 44px; display: grid; place-items: center; background: transparent; border: 0; padding: 0; font: 500 16px/24px var(--font-display); color: var(--ink); }
+.pk-d i { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; font-style: normal; }
 .pk-d.we { color: var(--mine); }
 .pk-d.today i { box-shadow: inset 0 0 0 1.5px var(--mine); }
 .pk-d.sel i { background: var(--mine); color: var(--mine-ink); font-weight: 600; box-shadow: none; }
@@ -156,10 +156,10 @@ input[type=text], input[type=date], input[type=time] { background: var(--surface
 .pk-time::before { content: ""; position: absolute; left: 12%; right: 12%; top: 44px; height: 44px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); pointer-events: none; }
 .pk-col { width: 96px; height: 132px; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain; -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); }
 .pk-col::-webkit-scrollbar { display: none; }
-.pk-col div { height: 44px; display: grid; place-items: center; scroll-snap-align: center; font: 500 22px/30px var(--font-display); color: var(--muted); font-variant-numeric: tabular-nums; cursor: pointer; }
+.pk-col div { height: 44px; display: grid; place-items: center; scroll-snap-align: center; font: 500 20px/28px var(--font-display); color: var(--muted); font-variant-numeric: tabular-nums; cursor: pointer; }
 .pk-col div.on { color: var(--ink); font-weight: 600; }
 .pk-col::before, .pk-col::after { content: ""; display: block; height: 44px; }
-.pk-colon { font: 600 22px/30px var(--font-display); width: 20px; text-align: center; }
+.pk-colon { font: 600 20px/28px var(--font-display); width: 20px; text-align: center; }
 /* form grouped into cards (design B) */
 form#form { background: none; border: 0; padding: 0; gap: 12px; }
 .fg { padding: 16px 16px 16px; }
@@ -265,8 +265,8 @@ select.sel { border-color: #dde3e7!important; }
 /* create trip in 3 steps (editing stays one page) */
 .tdw { display: flex; flex-direction: column; gap: 8px; }
 .tdw .tds { display: flex; gap: 12px; }
-.tdw .tds button { flex: 1; min-width: 0; position: relative; display: block; text-align: left; padding: 12px; border-radius: 16px; border: 1.5px solid #dde3e7; background: var(--surface); color: var(--ink); font: 500 14px/20px var(--font-body); }
-.tdw .tds .ti { width: 32px; height: 32px; border-radius: 10px; background: #e3eef0; color: #0b5f67; display: grid; place-items: center; margin-bottom: 8px; }
+.tdw .tds button { flex: 1; min-width: 0; min-height: 104px; box-sizing: border-box; position: relative; display: block; text-align: left; padding: 12px; border-radius: 16px; border: 1.5px solid #dde3e7; background: var(--surface); color: var(--ink); font: 500 14px/20px var(--font-body); }
+.tdw .tds .ti { width: 32px; height: 32px; border-radius: 8px; background: #e3eef0; color: #0b5f67; display: grid; place-items: center; margin-bottom: 8px; }
 .tdw .tds .ti svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .tdw .tds b { display: block; font: 600 14px/20px var(--font-body); }
 .tdw .tds small { display: block; font: 400 12px/16px var(--font-body); color: var(--muted); }
@@ -275,9 +275,9 @@ select.sel { border-color: #dde3e7!important; }
 .tdw .tds button.on { background: #f2f8f9; border-color: #0b5f67; }
 .tdw .tds button.on .ti { background: #0b5f67; color: #fff; }
 .tdw .tds button.on .tk { display: grid; }
-.tdw .tdn { display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 8px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface); }
+.tdw .tdn { display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 8px; border: 1.5px solid #dde3e7; border-radius: 12px; background: var(--surface); }
 .tdw .tdn[hidden] { display: none; }
-.tdw .tdn button { width: 40px; height: 40px; border-radius: 12px; border: 1.5px solid #9fb9bd; background: var(--surface); color: #0b5f67; font: 700 22px/36px var(--font-display); }
+.tdw .tdn button { width: 40px; height: 40px; border-radius: 12px; border: 1.5px solid #dde3e7; background: var(--surface); color: #0b5f67; font: 700 20px/28px var(--font-display); }
 .tdw .tdg { display:flex; flex-direction:column; gap:8px; }
 .tdw .tdl { font-weight:600; font-size:14px; line-height:20px; }
 .tdw .tdn button:disabled { opacity: .4; }
@@ -333,12 +333,12 @@ form label { position: relative; }
 
 /* วันและเวลา: one plain white block per leg, a bare coloured arrow, no circle (green out, red back) instead of numbers (→ เที่ยวไป, ← เที่ยวกลับ) */
 .tl { display: grid; gap: 16px; } /* same 16px rhythm as the cards and fields around it */
-.tl .grp { display: grid; gap: 16px; background: #fff; border: 1px solid #e3e8eb; border-radius: 14px; padding: 12px 12px 14px; }
+.tl .grp { display: grid; gap: 16px; background: #fff; border: 1px solid #dde3e7; border-radius: 12px; padding: 12px; }
 .tl .grp > .gh { display: flex; align-items: center; gap: 8px; font: 700 16px/24px var(--font-display); color: var(--ink); }
 .tl .gh .dot { display: grid; place-items: center; flex: none; color: var(--mine); }
 .tl .grp > .gh .gd { margin-left: auto; font: 500 14px/20px var(--font-display); color: var(--muted); }
 .tl .grp.r .gh .dot { color: #e5484d; }
-.tl .gh .dot svg { width: 22px; height: 22px; }
+.tl .gh .dot svg { width: 24px; height: 24px; }
 .tl .grp > .gh { margin-bottom: -4px; } /* heading sits 12px above its first field */
 .tl .gh b { font-weight: inherit; } /* <b> inside a 700 heading rendered at 900 */
 form label > .pk { margin-top: 8px; } /* same 8px label-to-field gap as the text fields (dates, times, limit picker) */
