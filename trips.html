@@ -72,11 +72,6 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 #mState .okdot { flex: none; width: 24px; height: 24px; border-radius: 100px; background: var(--mine); color: var(--mine-ink); display: grid; place-items: center; }
 #mState .okdot svg { width: 14px; height: 14px; }
 #mState > svg { width: 24px; height: 24px; flex: none; color: var(--mine); }
-.mcard.dead { border-color: #dde3e7; background: #f6f8f9; }
-.mcard.dead .mlink { border-top-color: #dde3e7; cursor: default; }
-.mcard.dead .url .code, .mcard.dead .url .sub { color: #8b969d; text-decoration: line-through; }
-.mcard.dead .cpbtn { display: none; }
-.macts.one { grid-template-columns: 1fr; }
 .mcard { border: 1.5px solid #0b5f67; background: #f2f8f9; border-radius: 16px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
 .msub2 { font-size: 14px; line-height: 20px; color: var(--muted); }
 .msub { font: 700 16px/24px var(--font-display); color: var(--ink); overflow-wrap: anywhere; min-width: 0; }
@@ -450,7 +445,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <div class="mlink" id="copyBox" role="button" tabindex="0" aria-label="คัดลอกลิงก์"><div class="url" id="shareUrl"></div><span class="cpbtn" id="copyShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span></div></div>
     <div class="macts">
       <a class="btn line" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span>แชร์ใน LINE</span></a>
-      <a class="btn primary" id="toList" href="/mytrips#trips" hidden>ไปที่ทริปของฉัน</a>
       <a class="btn plain" id="openShare" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span>เปิดหน้าจอง</span></a>
     </div>
   </div>
@@ -1029,13 +1023,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       .then(function (sent) { if (!sent) location.href = href; });
   });
   function showResult(id, created, name) {
-    shown = { id: id }; goList = created === true || created === "saved" || created === "deleted"; var dead = created === "deleted"; document.querySelector(".mcard").classList.toggle("dead", dead); $("lineBtn").hidden = dead; $("openShare").hidden = dead; $("toList").hidden = !dead; document.querySelector(".macts").classList.toggle("one", dead);
+    shown = { id: id }; goList = created === true || created === "saved";
     var share = shareLink = link("/" + id);
     urlBox($("shareUrl"), id, location.host + "/" + id);
     $("openShare").href = "/" + id;
-    $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "deleted" ? "ลบทริปแล้ว" : created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์และรหัสทริป") + "</span>";
+    $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์และรหัสทริป") + "</span>";
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
-    $("mSub").textContent = created === "deleted" ? "ลิงก์และรหัสทริปนี้ใช้ไม่ได้แล้ว" : created === "saved" ? "ใช้ลิงก์หรือรหัสเดิมได้เลย" : "แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง"; $("mSub2").hidden = true;
+    $("mSub").textContent = created === "saved" ? "ใช้ลิงก์หรือรหัสเดิมได้เลย" : "แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง"; $("mSub2").hidden = true;
     backToList = created === true || created === "saved";
     $("backdrop").hidden = false; document.body.style.overflow = "hidden";
     $("closeX").focus({ preventScroll: true });
@@ -1101,8 +1095,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { flash(true); }, fallback);
     else fallback();
   }
-  $("copyBox").addEventListener("click", function () { if (!$("copyBox").parentNode.classList.contains("dead")) copy(shareLink, $("copyShare")); });
-  $("copyBox").addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (!$("copyBox").parentNode.classList.contains("dead")) copy(shareLink, $("copyShare")); } });
+  $("copyBox").addEventListener("click", function () { copy(shareLink, $("copyShare")); });
+  $("copyBox").addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); copy(shareLink, $("copyShare")); } });
 
   // Thai date range for the delete confirmation
   var MON = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
@@ -1277,7 +1271,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     try {
       var r = await fetch("/api/trip?t=" + encodeURIComponent(T), { method: "DELETE" });
       if (!r.ok && r.status !== 404) { var d = {}; try { d = await r.json(); } catch (e) {} toast(ERR[d.error] || "ลบไม่สำเร็จ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; return; }
-      showResult(T, "deleted", t.name);
+      var dj = {}; try { dj = await r.json(); } catch (e) {}
+      try { sessionStorage.setItem("van-flash", "ลบทริปแล้ว" + (dj.refunded ? " · คืนโควตา 1 ทริป" : "")); } catch (e) {}
+      location.href = "/mytrips#trips";
     } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
   });
 
