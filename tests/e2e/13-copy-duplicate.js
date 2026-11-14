@@ -7,7 +7,7 @@ const tr=await (await A.request.post(B+'/api/trip',{data:{name:'เขาให�
 await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'แพท'}});await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:1,name:'แพทสอง'}});
 await Q.request.post(B+'/api/seats?t='+ID+'&v=v2',{data:{seat:5,name:'ฉิน'}});
 const clip=()=>A.evaluate(()=>navigator.clipboard.readText());
-const mask=t=>t.replace(/📅 .*/,'📅 <dates> · ออก 07.00 น.').replace(/\/[a-z0-9]{8}$/m,'/<id>');
+const mask=t=>t.replace(/📅 .*/,'📅 <dates> · ออก 07:00').replace(/\/[a-z0-9]{8}$/m,'/<id>');
 // --- copy roster
 await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);
 await A.click('.rtools button:first-child');await A.waitForTimeout(500);log('toast',await A.textContent('#toast'));

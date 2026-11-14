@@ -574,7 +574,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function timeField(input, title, floorFn, startFn) { // floorFn() -> {f: minutes of the day the time must be after, msg} or null
     var b = btn("pk ph", "<span></span>"), sp = b.lastChild;
     var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
-    function sync() { var ok = /^\d{2}:\d{2}$/.test(input.value); sp.textContent = ok ? input.value + " น." : "ระบุเวลา"; b.classList.toggle("ph", !ok); }
+    function sync() { var ok = /^\d{2}:\d{2}$/.test(input.value); sp.textContent = ok ? input.value : "ระบุเวลา"; b.classList.toggle("ph", !ok); }
     Object.defineProperty(input, "value", { get: function () { return desc.get.call(input); }, set: function (v) { desc.set.call(input, v); sync(); } });
     input.type = "hidden"; input.parentNode.appendChild(b); sync();
     b.addEventListener("click", function () { openTime(input, title, b, floorFn ? floorFn() : null, startFn ? startFn() : ""); });
@@ -645,10 +645,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var v = e.value; if (!(TN() >= 2 && TS())) return ""; var hi = AD(TS(), TN() + 1); return v && v > hi ? v : hi; }, function () { return TN() >= 2 && TS() ? AD(TS(), TN() - 1) : ""; }); // opens on the last day of the trip
     timeField(t, "เวลารถออกขาไป", function () { // leaving today: not earlier than now (5-minute steps)
       if (s.value !== todayIso() || t.dataset.keep === t.value + "|" + s.value) return null;
-      var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from + " น." }; }, function () { // a usual departure by trip type: day trips leave early, overnight trips in the evening
+      var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from, bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from }; }, function () { // a usual departure by trip type: day trips leave early, overnight trips in the evening
       return s.value !== todayIso() ? (document.getElementById("tripN").value === "1" && s.value === TS() ? "06:00" : "19:00") : ""; });
     var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกขากลับ", function () { // day trip: the van must be back after it left
-      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm && s.value === e.value ? { f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value + " น." } : null; }, function () { return document.getElementById("tripN").value === "1" ? "18:00" : "13:00"; }); // a usual time to be back: evening for a day trip, early afternoon for an overnight one
+      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm && s.value === e.value ? { f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value, bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value } : null; }, function () { return document.getElementById("tripN").value === "1" ? "18:00" : "13:00"; }); // a usual time to be back: evening for a day trip, early afternoon for an overnight one
   }
   // "จองได้สูงสุดต่อคน": the app's own picker (like the calendar) instead of the phone's select wheel; 0 = no limit
   function maxField(input) {
@@ -1318,7 +1318,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var MS2 = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   var WD2 = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
   function dayS(v) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ""); if (!m) return ""; return WD2[new Date(+m[1], +m[2] - 1, +m[3]).getDay()] + " " + (+m[3]) + " " + MS2[+m[2] - 1] + " " + String(+m[1] + 543).slice(2); }
-  function leg(v, t) { return [dayS(v), t ? t.replace(":", ".") + " น." : ""].filter(Boolean).join(" · "); }
+  function leg(v, t) { return [dayS(v), t ? t : ""].filter(Boolean).join(" · "); }
   function pkText(id) { var b = $(id).parentNode.querySelector(".pk span"); return b ? b.textContent : $(id).value; }
   function fillStepSummary() { // step 3 card (not the share sheet summary, which is fillSummary)
     var box = $("sumRows"); box.textContent = "";

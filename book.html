@@ -635,7 +635,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   // locked: nothing to tap. A finished trip is locked for everyone; a closed one only for passengers (organizers still manage seats).
   function locked() { return ended || (closed && !isOwner); }
   var MON_S = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-  function closeText(c) { var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(c || ""); return m ? Number(m[3]) + " " + MON_S[Number(m[2]) - 1] + " " + m[4] + "." + m[5] + " น." : ""; }
+  function closeText(c) { var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(c || ""); return m ? Number(m[3]) + " " + MON_S[Number(m[2]) - 1] + " " + m[4] + ":" + m[5] : ""; }
 
   var overlayEl = document.getElementById("overlay");
   var panelEl = document.getElementById("panel");
@@ -815,7 +815,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var TH_MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   function fmtAt(at) {
     var d = new Date(Number(at)); if (!isFinite(d.getTime())) return "";
-    return d.getDate() + " " + TH_MON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + " น.";
+    return d.getDate() + " " + TH_MON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
   }
 
   function vanLabelNow() {
@@ -1022,12 +1022,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   setView(view);
 
   var SHORT_M = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-  function bookedAt(ts) { // "22 ต.ค. 10.41 น." (Buddhist-era year always shown); "-" when unknown
+  function bookedAt(ts) { // "22 ต.ค. 10:41" (Buddhist-era year always shown); "-" when unknown
     var t = Number(ts), d = t > 0 ? new Date(t) : null;
     if (!d || isNaN(d.getTime())) return "-";
     var hh = ("0" + d.getHours()).slice(-2), mm = ("0" + d.getMinutes()).slice(-2);
     var yr = " " + (d.getFullYear() + 543);
-    return d.getDate() + " " + SHORT_M[d.getMonth()] + yr + " " + hh + "." + mm + " น.";
+    return d.getDate() + " " + SHORT_M[d.getMonth()] + yr + " " + hh + ":" + mm;
   }
   function renderList() {
     listEl.textContent = "";
@@ -1062,7 +1062,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   var WD = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
   function dayS(iso) { var o = parseD(iso); if (!o) return ""; return WD[new Date(o.y - 543, o.mo, o.d).getDay()] + " " + o.d + " " + SHORT_M[o.mo] + " " + String(o.y).slice(-2); }
-  function leg(iso, tm) { return [dayS(iso), tm ? tm.replace(":", ".") + " น." : ""].filter(Boolean).join(" · "); }
+  function leg(iso, tm) { return [dayS(iso), tm ? tm : ""].filter(Boolean).join(" · "); }
   function dateRange(a, b) {
     var x = parseD(a), y = parseD(b);
     if (!x || !y || a === b) { var o = x || y; return o ? o.d + " " + MONTHS[o.mo] + " " + o.y : ""; }
@@ -1082,7 +1082,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       van: '<path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/>',
       pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'
     };
-    // เที่ยวไป / เที่ยวกลับ: day + time on one line ("ส. 28 พ.ย. 69 · 21.00 น."), a small visible label above each value
+    // เที่ยวไป / เที่ยวกลับ: day + time on one line ("ส. 28 พ.ย. 69 · 21:00"), a small visible label above each value
     if (trip.tripDays) rows.push(["ทริป", trip.tripDays, "cal"]);
     if (trip.startDate || trip.departTime) rows.push(["เดินทางไป", leg(trip.startDate, trip.departTime), "cal", CHG.date ? "date" : "time"]);
     if (trip.endDate || trip.returnTime) rows.push(["เดินทางกลับ", leg(trip.endDate || trip.startDate, trip.returnTime), "cal", CHG.date ? "date" : "rtime"]);
@@ -1503,8 +1503,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     {
       y += 34;
       var CX = 36, CWD = CW - 2 * CX, CP = X - CX, CGAP = 16, CRAD = 30, CBG = "#eef6f7";
-      var goD = (trip.startDate || trip.departTime) ? dayS(trip.startDate) : "", goT = trip.departTime ? trip.departTime.replace(":", ".") + " น." : "";
-      var bkD = (trip.endDate || trip.returnTime) ? dayS(trip.endDate || trip.startDate) : "", bkT = trip.returnTime ? trip.returnTime.replace(":", ".") + " น." : "";
+      var goD = (trip.startDate || trip.departTime) ? dayS(trip.startDate) : "", goT = trip.departTime ? trip.departTime : "";
+      var bkD = (trip.endDate || trip.returnTime) ? dayS(trip.endDate || trip.startDate) : "", bkT = trip.returnTime ? trip.returnTime : "";
       function cell(label, d, t, col, cx, cy, cw) {
         var ch = 20 + 36 + (d ? 46 : 0) + (t ? 46 : 0) + 20;
         ctx.fillStyle = CBG; rrect(ctx, cx, cy, cw, ch, CRAD); ctx.fill();
@@ -1576,7 +1576,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var url = "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var shortUrl = location.host + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var d = new Date(), pad = function (v) { return (v < 10 ? "0" : "") + v; };
-    var stamp = "อัปเดตเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + pad(d.getHours()) + "." + pad(d.getMinutes()) + " น.";
+    var stamp = "อัปเดตเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + pad(d.getHours()) + ":" + pad(d.getMinutes());
     var withQr = useQr, FH = FHF;
     ctx.fillStyle = "#0b5f67"; ctx.fillRect(0, y, CW, FH); // teal band, full width
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";

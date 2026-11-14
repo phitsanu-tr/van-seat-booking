@@ -23,7 +23,7 @@ function dateRange(a, b) {
 function when(ts) {
   if (!ts) return "";
   const d = new Date(Number(ts) + 7 * 3600 * 1000);
-  return d.getUTCDate() + " " + MON[d.getUTCMonth()] + " " + String(d.getUTCHours()).padStart(2, "0") + "." + String(d.getUTCMinutes()).padStart(2, "0") + " น.";
+  return d.getUTCDate() + " " + MON[d.getUTCMonth()] + " " + String(d.getUTCHours()).padStart(2, "0") + ":" + String(d.getUTCMinutes()).padStart(2, "0");
 }
 function isoT(ts) { return ts ? new Date(Number(ts) + 7 * 3600 * 1000).toISOString().slice(0, 16).replace("T", " ") : ""; }
 function eh(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
@@ -62,7 +62,7 @@ function tplOf(trip, perVan) { // the import template: the list as it is now, in
 }
 
 function htmlOf(trip, perVan) {
-  const tm = trip.departTime ? "ออก " + trip.departTime.replace(":", ".") + " น." : "";
+  const tm = trip.departTime ? "ออก " + trip.departTime : "";
   let h = "";
   trip.vans.forEach((v, i) => {
     const seats = perVan[i];
