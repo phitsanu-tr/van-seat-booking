@@ -593,7 +593,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     now.addEventListener("click", function () { var n = up5(new Date()); H.style.scrollBehavior = M.style.scrollBehavior = "smooth"; H.scrollTo({ top: n[0] * 44, behavior: "smooth" }); M.scrollTo({ top: Math.max(0, MINS.indexOf(n[1])) * 44, behavior: "smooth" }); });
     aux.appendChild(clr); aux.appendChild(now); sheet.appendChild(aux);
     actions(sheet, function () {
-      if (floor != null && h * 60 + mi <= floor.f) { floorTx.classList.add("bad"); floorTx.textContent = floor.bad; return; } // not after the departure: stay open
+      if (floor != null && (h * 60 + mi <= floor.f || (floor.start && !m))) { floorTx.classList.add("bad"); floorTx.textContent = floor.bad; return; } // not after the departure: stay open
       input.value = p2(h) + ":" + p2(mi); input.dispatchEvent(new Event("change", { bubbles: true })); close();
     });
     var snapT = null;
@@ -606,7 +606,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       H.scrollTo({ top: hh * 44, behavior: "smooth" }); M.scrollTo({ top: MINS.indexOf(mm) * 44, behavior: "smooth" });
     }
     [H, M].forEach(function (c) { c.addEventListener("scroll", function () { paintFloor(); clearTimeout(snapT); snapT = setTimeout(snapToFloor, 180); }); });
-    if (floor != null && h * 60 + mi <= floor.f) { var f0 = firstAllowed(); h = f0[0]; mi = f0[1]; } // opens on the first allowed time, no rolling
+    if (floor != null && (h * 60 + mi <= floor.f || (floor.start && !m))) { var f0 = firstAllowed(); h = f0[0]; mi = f0[1]; } // opens on the first allowed time, no rolling
     go(h, mi); paintFloor();
   }
 
@@ -618,7 +618,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (s.value !== todayIso() || t.dataset.keep === t.value + "|" + s.value) return null;
       var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from + " น." }; });
     var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกเดินทางกลับ", function () { // day trip: the van must be back after it left
-      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm ? { f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value + " น." } : null; });
+      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm ? { start: 1, f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value + " น." } : null; });
   }
   // "จองได้สูงสุดต่อคน": the app's own picker (like the calendar) instead of the phone's select wheel; 0 = no limit
   function maxField(input) {
