@@ -638,10 +638,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var TN = function () { return Number(document.getElementById("tripN").value) || 0; }, TS = function () { return document.getElementById("tripStart").value; };
     dateField(s, "วันเดินทางไป", function () { // overnight: from 2 days before the trip, never in the past; a saved date stays selectable
       var v = s.value, lo = todayIso();
-      if (TN() >= 2 && TS() && AD(TS(), -2) > lo) lo = AD(TS(), -2);
+      if (TN() >= 1 && TS() && AD(TS(), TN() === 1 ? -1 : -2) > lo) lo = AD(TS(), TN() === 1 ? -1 : -2); // day trip: only the evening before
       return v && v < lo ? v : lo;
     }, function () { // ... up to the first day of the trip
-      var v = s.value; return TN() >= 2 && TS() ? (v && v > TS() ? v : TS()) : ""; }, function () { return TN() >= 2 && TS() ? AD(TS(), -1) : ""; }); // opens on the day before the trip (the usual evening departure)
+      var v = s.value; return TN() >= 1 && TS() ? (v && v > TS() ? v : TS()) : ""; }, function () { return TN() >= 1 && TS() ? AD(TS(), TN() === 1 ? 0 : -1) : ""; }); // opens on the day before the trip (the usual evening departure)
     dateField(e, "วันเดินทางกลับ", function () { // overnight: not before the last day of the trip
       var lo = s.value || todayIso();
       if (TN() >= 2 && TS()) { var le = AD(TS(), TN() - 1); if (le > lo) lo = le; } return lo;
@@ -650,9 +650,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     timeField(t, "เวลารถออกเดินทางไป", function () { // leaving today: not earlier than now (5-minute steps)
       if (s.value !== todayIso() || t.dataset.keep === t.value + "|" + s.value) return null;
       var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from + " น." }; }, function () { // a usual departure by trip type: day trips leave early, overnight trips in the evening
-      return s.value !== todayIso() ? (document.getElementById("tripN").value === "1" ? "06:00" : "19:00") : ""; });
+      return s.value !== todayIso() ? (document.getElementById("tripN").value === "1" && s.value === TS() ? "06:00" : "19:00") : ""; });
     var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกเดินทางกลับ", function () { // day trip: the van must be back after it left
-      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm ? { f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value + " น." } : null; }, function () { return document.getElementById("tripN").value === "1" ? "18:00" : "13:00"; }); // a usual time to be back: evening for a day trip, early afternoon for an overnight one
+      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm && s.value === e.value ? { f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value + " น." } : null; }, function () { return document.getElementById("tripN").value === "1" ? "18:00" : "13:00"; }); // a usual time to be back: evening for a day trip, early afternoon for an overnight one
   }
   // "จองได้สูงสุดต่อคน": the app's own picker (like the calendar) instead of the phone's select wheel; 0 = no limit
   function maxField(input) {
@@ -711,26 +711,33 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function addDays(iso, k) { var d = new Date(Date.parse(iso + "T00:00:00Z") + k * 86400000); return d.toISOString().slice(0, 10); }
   var endAuto = false; // the return date was filled in by the form (not typed): it follows the trip days
   var tdLast = ""; // last day of the trip as of the previous repaint
+  var SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  function sdate(iso) { return Number(iso.slice(8)) + " " + SHORT[Number(iso.slice(5, 7)) - 1]; }
+  var tdDayTs = ""; // day-trip day as of the previous repaint
   function tdPaint() {
     var n = Number($("tripN").value) || 0, sd = $("startDate").value, ts = $("tripStart").value, lab = $("endDate").closest("label");
     [].forEach.call($("tds").querySelectorAll("button"), function (b) { b.classList.toggle("on", n ? (b.getAttribute("data-k") === "day") === (n === 1) : false); });
     $("tdnRow").hidden = n < 2; $("tdsRow").hidden = n < 1; $("tdsLab").textContent = n === 1 ? "วันเดินทาง" : "วันแรกของทริป";
     if (n >= 2) { $("tdVal").textContent = n + " วัน " + (n - 1) + " คืน"; $("tdMinus").disabled = n <= 2; $("tdPlus").disabled = n >= 15; }
-    var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (n === 1) tx = (sd || ts) ? "ทริปวันที่ " + (VSBShare.tripText(1, sd || ts).split(" · ")[1] || "") + " (ไป-กลับวันเดียวกัน)" : ""; else if (tx) { var pp = tx.split(" · "); if (pp[1]) tx = "ทริปวันที่ " + pp[1] + " (" + pp[0] + ")"; }
-    $("tdPrev").hidden = !tx; $("tdPrevT").textContent = tx;
     // day trip: the return date is the departure date (locked); overnight: suggest the last day of the trip while it was not typed
     var lk = n === 1;
-    if (lk) { // day trip: the day chosen above is the departure and the return date
-      if (ts && sd !== ts) { $("startDate").value = sd = ts; } else if (!ts && sd) { $("tripStart").value = ts = sd; }
-      if ($("endDate").value !== sd) { $("endDate").value = sd; endAuto = true; }
-    }
-    ["startDate", "endDate"].forEach(function (k) { // both dates follow the chosen day: locked, with a tag
+    if (lk) { // day trip: the day chosen above is the return day; the van leaves that day or the evening before
+      if (ts) { var d1 = addDays(ts, -1), prevSame = sd && tdDayTs && sd === tdDayTs, prevEve = sd && tdDayTs && sd === addDays(tdDayTs, -1);
+        if (!sd || prevSame) $("startDate").value = sd = ts; else if (prevEve) $("startDate").value = sd = d1; else if (sd !== ts && sd !== d1) $("startDate").value = sd = ts; }
+      else if (sd) { $("tripStart").value = ts = sd; }
+      var ret = ts || sd; if ($("endDate").value !== ret) { $("endDate").value = ret; endAuto = true; }
+      tdDayTs = ts;
+    } else tdDayTs = "";
+    var tx = n ? VSBShare.tripText(n, n === 1 ? sd : ts) : ""; if (n === 1) { var td1 = ts || sd, db = sd && td1 && sd < td1 ? " (รถออกคืนวันที่ " + sdate(sd) + ")" : " (ไป-กลับวันเดียวกัน)"; tx = td1 ? "ทริปวันที่ " + (VSBShare.tripText(1, td1).split(" · ")[1] || "") + db : ""; } else if (tx) { var pp = tx.split(" · "); if (pp[1]) tx = "ทริปวันที่ " + pp[1] + " (" + pp[0] + ")"; }
+    $("tdPrev").hidden = !tx; $("tdPrevT").textContent = tx;
+    $("startDate").closest("label").hidden = false; // the departure day stays choosable on a day trip (today or the evening before)
+    ["endDate"].forEach(function (k) { // the return date follows the chosen day: hidden and locked the chosen day: locked, with a tag
       var lb = $(k).closest("label"), pb = lb.querySelector(".pk"); if (!pb) return;
       lb.hidden = lk; lb.classList.toggle("lockd", lk); pb.disabled = lk; // a tap on the grey box falls through to the label, which would still open the calendar
       var tag = pb.querySelector(".lkn"); if (lk && sd && !tag) { tag = document.createElement("span"); tag.className = "lkn"; tag.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>ตามวันที่เดินทาง'; pb.appendChild(tag); }
       if (tag) tag.hidden = !(lk && sd);
     });
-    var dd = lk && sd ? Number(sd.slice(8)) + " " + ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."][Number(sd.slice(5, 7)) - 1] : ""; ["goD", "retD"].forEach(function (k) { $(k).textContent = dd; $(k).hidden = !dd; });
+    var dd = lk && (ts || sd) ? sdate(ts || sd) : ""; $("goD").hidden = true; $("retD").textContent = dd; $("retD").hidden = !dd;
     if (n >= 2 && !ts && sd) { $("tripStart").value = ts = sd; } // first day follows the departure date until chosen
     var en = lab.querySelector(".tdnote"), dl = $("startDate").closest("label"), dn = dl.querySelector(".tdnote");
     function putNote(l, e, txt) { if (!e) { e = document.createElement("div"); e.className = "tdnote"; l.appendChild(e); } e.textContent = txt; e.hidden = false; return e; }
@@ -753,7 +760,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     $("tdLock").hidden = !none;
     var rt = !!$("returnTime").value; // a field that already holds a value stays open; only empty ones wait for the step before
     var pre = lk ? "เลือกวันที่เดินทางก่อน" : "เลือกวันเดินทางไปก่อน";
-    var rules = { startDate: [none || lk, pre], departTime: [none || (!sd && !dt), pre], endDate: [none || lk || (!sd && !ed), pre], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? (lk ? pre : "เลือกวันเดินทางกลับก่อน") : "เลือกเวลารถออกขาไปก่อน"] };
+    var rules = { startDate: [none, pre], departTime: [none || (!sd && !dt), pre], endDate: [none || lk || (!sd && !ed), pre], returnTime: [none || ((!ed || (lk && !dt)) && !rt), !ed ? (lk ? pre : "เลือกวันเดินทางกลับก่อน") : "เลือกเวลารถออกขาไปก่อน"] };
     Object.keys(rules).forEach(function (k) {
       var lb = $(k).closest("label"), pb = lb && lb.querySelector(".pk"); if (!pb) return;
       var off = rules[k][0]; lb.classList.toggle("lockd", off); pb.disabled = off;
@@ -1106,7 +1113,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   var ERR = {
     bad_departgap: "วันเดินทางไปต้องไม่เกิน 2 วันก่อนทริปเริ่ม", bad_returngap: "วันเดินทางกลับต้องไม่เกิน 2 วันหลังวันสุดท้ายของทริป",
-    bad_name: "ระบุชื่อทริป", bad_tripdays: "ระบุช่วงวันของทริป", bad_timepast: "เวลานี้ผ่านไปแล้ว", bad_daytrip: "เดย์ทริปไปกลับวันเดียวกัน", bad_daytime: "เวลากลับต้องหลังเวลาออก", bad_tripstart: "วันเดินทางไปต้องไม่หลังวันแรกของทริป", bad_tripend: "วันเดินทางกลับต้องไม่ก่อนวันสุดท้ายของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
+    bad_name: "ระบุชื่อทริป", bad_tripdays: "ระบุช่วงวันของทริป", bad_timepast: "เวลานี้ผ่านไปแล้ว", bad_daytrip: "เดย์ทริปต้องกลับวันที่เดินทาง", bad_daydepart: "เดย์ทริปรถออกได้ไม่เกิน 1 วันก่อนวันที่เดินทาง", bad_daytime: "เวลากลับต้องหลังเวลาออก", bad_tripstart: "วันเดินทางไปต้องไม่หลังวันแรกของทริป", bad_tripend: "วันเดินทางกลับต้องไม่ก่อนวันสุดท้ายของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
     bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าสู่ระบบด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
     quota_month: "เดือนนี้คุณสร้างทริปครบ 30 ทริปแล้ว ลองใหม่เดือนหน้านะ",
@@ -1116,7 +1123,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 
   function tdTimeCheck() { // day trip: tell right away when the return time is not after the departure time
     var lab = $("returnTime").closest("label"), old = lab.querySelector(".fe"), pk = lab.querySelector(".pk");
-    var bad = $("tripN").value === "1" && $("departTime").value && $("returnTime").value && $("returnTime").value <= $("departTime").value;
+    var bad = $("tripN").value === "1" && $("startDate").value === $("endDate").value && $("departTime").value && $("returnTime").value && $("returnTime").value <= $("departTime").value;
     if (bad) { if (!old) fieldErr($("returnTime"), ERR.bad_daytime); }
     else if (old && old.textContent === ERR.bad_daytime) { old.remove(); if (pk) { pk.classList.remove("bad"); pk.removeAttribute("aria-invalid"); } lab.classList.remove("bad"); }
   }
@@ -1150,7 +1157,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (c1 && !first && $("tripN").value) { // the day / time rules of the trip
       var tn = Number($("tripN").value), sdv = $("startDate").value, edv = $("endDate").value, tsv = $("tripStart").value;
       if (tn === 1) {
-        if (sdv && $("departTime").value && $("returnTime").value && $("returnTime").value <= $("departTime").value) first = fieldErr($("returnTime"), ERR.bad_daytime);
+        if (sdv && sdv === edv && $("departTime").value && $("returnTime").value && $("returnTime").value <= $("departTime").value) first = fieldErr($("returnTime"), ERR.bad_daytime);
       } else if (tsv) {
         var DAYMS = 86400000, msd = function (d) { return Date.parse(d + "T00:00:00Z"); };
         if (sdv && tsv < sdv) first = fieldErr($("startDate"), ERR.bad_tripstart);
@@ -1201,7 +1208,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var res = await fetch("/api/trip", { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       var data = {}; try { data = await res.json(); } catch (x) {}
       if (!res.ok) {
-        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime", bad_meet: "meetPoint", bad_tripdays: "tds", bad_timepast: "departTime", bad_daytrip: "endDate", bad_daytime: "returnTime", bad_departgap: "startDate", bad_returngap: "endDate", bad_tripstart: "startDate", bad_tripend: "endDate", bad_close: "closeDate" };
+        var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime", bad_meet: "meetPoint", bad_tripdays: "tds", bad_timepast: "departTime", bad_daytrip: "endDate", bad_daydepart: "startDate", bad_daytime: "returnTime", bad_departgap: "startDate", bad_returngap: "endDate", bad_tripstart: "startDate", bad_tripend: "endDate", bad_close: "closeDate" };
         if (map[data.error]) { focusFirst(fieldErr($(map[data.error]), ERR[data.error])); }
         else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input.vn"); if (v0) { fieldErr(v0, ERR.bad_vans, v0.closest(".vf")); focusFirst(v0); } else toast(ERR.bad_vans); }
         else if (data.error === "login_required") location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new");

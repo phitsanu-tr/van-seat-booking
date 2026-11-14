@@ -75,9 +75,10 @@ function clean(body, vanCap, planVans, prev) {
   let tripStartOut = tripStart;
   if (!noTD) {
     if (tripN === 1) { // day trip: the van goes and comes back the same day
-      if (endDate && endDate !== startDate) return { error: "bad_daytrip" };
-      if (departTime && returnTime && returnTime <= departTime) return { error: "bad_daytime" };
-      tripStartOut = startDate;
+      const D1 = 86400000, m1 = (d) => Date.parse(d + "T00:00:00Z");
+      if (endDate && endDate !== tripStart) return { error: "bad_daytrip" };
+      if (startDate && startDate !== tripStart && m1(tripStart) - m1(startDate) !== D1) return { error: "bad_daydepart" }; // the van leaves that day or the evening before
+      if (startDate && startDate === endDate && departTime && returnTime && returnTime <= departTime) return { error: "bad_daytime" };
     } else { // overnight: the van may leave before the first day, and must not come back before the last day
       if (startDate && tripStart < startDate) return { error: "bad_tripstart" };
       const last = new Date(Date.parse(tripStart + "T00:00:00Z") + (tripN - 1) * 86400000).toISOString().slice(0, 10);
