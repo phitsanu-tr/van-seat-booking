@@ -618,7 +618,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       H.scrollTo({ top: hh * 44, behavior: "smooth" }); M.scrollTo({ top: MINS.indexOf(mm) * 44, behavior: "smooth" });
     }
     [H, M].forEach(function (c) { c.addEventListener("scroll", function () { paintFloor(); clearTimeout(snapT); snapT = setTimeout(snapToFloor, 180); }); });
-    if (floor != null && (h * 60 + mi <= floor.f || (floor.start && !m))) { var f0 = firstAllowed(); h = f0[0]; mi = f0[1]; } // opens on the first allowed time, no rolling
+    if (floor != null && h * 60 + mi <= floor.f) { var f0 = firstAllowed(); h = f0[0]; mi = f0[1]; } // opens on the first allowed time, no rolling
     go(h, mi); paintFloor();
   }
 
@@ -635,7 +635,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var n = new Date(), f = Math.ceil((n.getHours() * 60 + n.getMinutes()) / 5) * 5 - 5; var from = p2(Math.floor((f + 5) / 60) % 24) + ":" + p2((f + 5) % 60); return { f: f, msg: "เลือกได้ตั้งแต่ " + from + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้ตั้งแต่ " + from + " น." }; }, function () { // a usual departure by trip type: day trips leave early, overnight trips in the evening
       return s.value !== todayIso() ? (document.getElementById("tripN").value === "1" ? "06:00" : "19:00") : ""; });
     var rt = document.getElementById("returnTime"); if (rt) timeField(rt, "เวลารถออกเดินทางกลับ", function () { // day trip: the van must be back after it left
-      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm ? { start: 1, f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value + " น." } : null; });
+      var dm = /^(\d{2}):(\d{2})$/.exec(t.value); return document.getElementById("tripN").value === "1" && dm ? { f: +dm[1] * 60 + +dm[2], msg: "เลือกได้หลัง " + t.value + " น.", bad: "เวลานี้เลือกไม่ได้ เลือกได้หลัง " + t.value + " น." } : null; }, function () { return document.getElementById("tripN").value === "1" ? "18:00" : "12:00"; }); // a usual time to be back: evening for a day trip, midday for an overnight one
   }
   // "จองได้สูงสุดต่อคน": the app's own picker (like the calendar) instead of the phone's select wheel; 0 = no limit
   function maxField(input) {
