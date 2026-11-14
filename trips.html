@@ -441,7 +441,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   <div class="modal" id="result" role="dialog" aria-modal="true" aria-labelledby="mState">
     <button class="mclose" id="closeX" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div id="mState"></div>
-    <div class="mcard"><div><div class="msub" id="mSub">แชร์ให้ผู้ร่วมทริปเลือกที่นั่ง</div><div class="msub2" id="mSub2" hidden>ใช้ลิงก์เดิมได้เลย</div></div>
+    <div class="mcard"><div><div class="msub" id="mSub">แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริป</div><div class="msub2" id="mSub2" hidden>ใช้ลิงก์เดิมได้เลย</div></div>
     <div class="mlink" id="copyBox" role="button" tabindex="0" aria-label="คัดลอกลิงก์"><div class="url" id="shareUrl"></div><span class="cpbtn" id="copyShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span></div></div>
     <div class="macts">
       <a class="btn line" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span>แชร์ใน LINE</span></a>
@@ -1023,13 +1023,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       .then(function (sent) { if (!sent) location.href = href; });
   });
   function showResult(id, created, name) {
-    shown = { id: id }; goList = created === true;
+    shown = { id: id }; goList = created === true || created === "saved"; flashMsg = created === "saved" ? "แก้ไขทริปแล้ว" : "สร้างทริปแล้ว";
     var share = shareLink = link("/" + id);
     urlBox($("shareUrl"), id, location.host + "/" + id);
     $("openShare").href = "/" + id;
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์และรหัสทริป") + "</span>";
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
-    $("mSub").textContent = created === "saved" ? "ผู้ร่วมทริปเห็นข้อมูลใหม่แล้ว" : "แชร์ให้ผู้ร่วมทริปเลือกที่นั่ง"; $("mSub2").hidden = created !== "saved";
+    $("mSub").textContent = created === "saved" ? "ผู้ร่วมทริปเห็นข้อมูลใหม่แล้ว" : "แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริป"; $("mSub2").hidden = created !== "saved";
     backToList = created === true || created === "saved";
     $("backdrop").hidden = false; document.body.style.overflow = "hidden";
     $("closeX").focus({ preventScroll: true });
@@ -1053,9 +1053,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var f = null; try { f = sessionStorage.getItem("vsb_back_list"); sessionStorage.removeItem("vsb_back_list"); } catch (x) {}
     if (f && location.pathname === "/mytrips") location.replace("/mytrips#trips");
   });
-  var goList = false; // right after creating a trip, closing the result sheet leads to the my-trips list
+  var goList = false, flashMsg = ""; // right after creating or saving a trip, closing the result sheet leads to the my-trips list
   function closeResult() {
-    if (goList) { try { sessionStorage.setItem("van-flash", "สร้างทริปแล้ว"); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = "/mytrips#trips"; return; }
+    if (goList) { try { sessionStorage.setItem("van-flash", flashMsg); sessionStorage.setItem("van-new", shown.id); } catch (e) {} location.href = "/mytrips#trips"; return; }
     $("backdrop").hidden = true; document.body.style.overflow = "";
   }
   $("closeX").addEventListener("click", closeResult);
