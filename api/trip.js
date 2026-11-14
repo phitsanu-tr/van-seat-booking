@@ -429,8 +429,10 @@ module.exports = async function handler(req, res) {
       // made by mistake (deleted within a day, nobody booked): the month's trip is given back
       let refunded = false;
       if (trip.qm && !trip.plus && Date.now() - (trip.createdAt || 0) < P.REFUND_HOURS * 3600 * 1000) {
-        const lens = await L.pipeline(trip.vans.map((v) => ["HLEN", L.seatsKey(t, v.id)]));
-        if (lens.every((n) => !Number(n))) { await refundQuota({ id: trip.owner }, trip.qm); refunded = true; }
+        // seats the app held for the organizer (seat 1, STAFF) don't count as a booking; any other seat does
+        const all = await L.pipeline(trip.vans.map((v) => ["HGETALL", L.seatsKey(t, v.id)]));
+        const real = all.some((flat) => { const a = Array.isArray(flat) ? flat : []; for (let i = 0; i < a.length; i += 2) { let r = null; try { r = JSON.parse(a[i + 1]); } catch (e) { /* not JSON */ } if (!(String(a[i]) === "1" && appStaff(r))) return true; } return false; });
+        if (!real) { await refundQuota({ id: trip.owner }, trip.qm); refunded = true; }
       }
       const cmds = [["DEL", L.tripKey(t)], ["DEL", L.logKey(t)]];
       if (trip.owner) cmds.push(["SREM", L.myTripsKey(trip.owner), t]);

@@ -1,0 +1,12 @@
+const HLP=require('../helpers');const {chromium}=require(HLP.PW);const B=HLP.BASE;const log=(...a)=>console.log(...a);
+(async()=>{const b=await chromium.launch(HLP.launchOpts);const c=await b.newContext();const p=await c.newPage();
+await p.goto(B+'/api/auth?start=1&as=Refund&r=%2F');await p.waitForTimeout(400);
+const mk=async(extra,name)=>(await (await p.request.post(B+'/api/trip',{data:Object.assign({tripN:1,tripStart:HLP.day(30),meetPoint:'จุดนัดพบ',name,organizer:'ทัวร์',startDate:HLP.day(30),departTime:'08:00',vans:[{label:'1'}]},extra)})).json()).id;
+const del=async(id)=>(await (await p.request.delete(B+'/api/trip?t='+id)).json());
+log('plain, delete          refunded',(await del(await mk({},'a'))).refunded);
+log('staff seat only        refunded',(await del(await mk({staffSeat:true},'b'))).refunded);
+let id=await mk({},'c');await p.request.post(B+'/api/seats?t='+id+'&v=v1',{data:{seat:5,name:'ผู้จัดจอง'}});
+log('own seat 5             refunded',(await del(id)).refunded);
+id=await mk({staffSeat:true},'d');await p.request.post(B+'/api/seats?t='+id+'&v=v1',{data:{seat:6,name:'ผู้โดยสาร'}});
+log('staff + seat 6         refunded',(await del(id)).refunded);
+log('ERR',[]);await b.close();})();

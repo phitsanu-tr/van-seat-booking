@@ -1,0 +1,5 @@
+plain, delete          refunded true
+staff seat only        refunded true
+own seat 5             refunded false
+staff + seat 6         refunded false
+ERR []
