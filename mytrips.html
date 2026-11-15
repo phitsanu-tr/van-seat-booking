@@ -1882,7 +1882,18 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (quiet && D && sig === lastSig) { loadedAt = Date.now(); return; } // nothing changed: keep the screen as it is, no redraw
       try { localStorage.setItem("vsb_me", sig); } catch (e) {} // last good copy: next visit draws the whole page in the first frame
       applyData(d);
-    } catch (e) { toast("โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า", true); }
+    } catch (e) { if (D) toast("โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า", true); else showNetErr(); }
+  }
+  function showNetErr() { // nothing to show yet and the server can't be reached: say so, with a retry (not a sign-in screen)
+    $("meView").hidden = true;
+    var v = $("loginView"); v.textContent = ""; v.hidden = false;
+    var box = node("div"); box.style.cssText = "min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center";
+    var ic = node("div", null, "!"); ic.style.cssText = "width:40px;height:40px;border-radius:50%;background:#b3261e;color:#fff;display:grid;place-items:center;font:700 24px/1 var(--font-display)";
+    var t = node("b", null, "เชื่อมต่อไม่ได้"); t.style.cssText = "font:700 20px/28px var(--font-display);color:var(--ink)";
+    var p = node("div", null, "ตรวจสัญญาณอินเทอร์เน็ตแล้วลองใหม่"); p.style.cssText = "font:400 14px/20px var(--font-body);color:var(--muted)";
+    var b = node("button", null, "ลองใหม่"); b.type = "button"; b.style.cssText = "margin-top:12px;height:48px;width:100%;max-width:320px;border-radius:12px;border:1.5px solid var(--deep);background:transparent;color:var(--deep);font:600 16px/24px var(--font-display);cursor:pointer";
+    b.addEventListener("click", function () { v.hidden = true; $("meView").hidden = false; load(); });
+    box.appendChild(ic); box.appendChild(t); box.appendChild(p); box.appendChild(b); v.appendChild(box);
   }
   function showLogin() { // not signed in: in LINE this means the automatic sign-in failed, so offer a retry; elsewhere ask to open in LINE
     forgetRosters(); // another account or no session: drop the lists kept in this tab

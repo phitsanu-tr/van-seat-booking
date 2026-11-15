@@ -9,6 +9,7 @@ const path = require("path");
 
 const PORT = Number(process.env.PORT) || 8765;
 const ROOT = __dirname;
+function notFound(res) { res.statusCode = 404; res.setHeader("Content-Type", "text/html; charset=utf-8"); res.setHeader("Cache-Control", "no-store"); try { res.end(fs.readFileSync(path.join(ROOT, "404.html"))); } catch (e) { res.end("Not found"); } }
 
 // ---- fake Upstash REST (only the commands the app uses) ----
 const store = new Map();   // key -> string | Map (hash) | Array (list) | Set
@@ -119,10 +120,10 @@ function startApp() {
     }
     const rel = route(u.pathname, u.searchParams);
     // only plain static assets at the project root (never dev.js, api/, vercel.json, .git ...)
-    if (rel !== "/qrcode.js" && rel !== "/bell.js" && rel !== "/tabbar.js" && rel !== "/share.js" && rel !== "/footer.js" && rel !== "/robots.txt" && !/^\/[A-Za-z0-9_-]+\.(html|css|svg|png|ico|webmanifest)$/.test(rel)) { res.statusCode = 404; return res.end("Not found"); }
+    if (rel !== "/qrcode.js" && rel !== "/bell.js" && rel !== "/tabbar.js" && rel !== "/share.js" && rel !== "/footer.js" && rel !== "/robots.txt" && !/^\/[A-Za-z0-9_-]+\.(html|css|svg|png|ico|webmanifest)$/.test(rel)) return notFound(res);
     const file = path.join(ROOT, rel);
     fs.readFile(file, (err, data) => {
-      if (err) { res.statusCode = 404; return res.end("Not found"); }
+      if (err) return notFound(res);
       res.setHeader("Content-Type", TYPES[path.extname(file)] || "application/octet-stream");
       res.setHeader("Cache-Control", "no-store");
       // same security headers as vercel.json

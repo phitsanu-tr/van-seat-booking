@@ -10,7 +10,7 @@
       "html { overflow-x: clip; }" +
       ".vfoot { margin-top: auto; padding-top: 24px; text-align: center; font-size: 12px; line-height: 16px; color: #5f6b73; }" +
       ".vfoot .vc { white-space: normal; }" +
-      ".vfoot a { color: inherit; text-decoration: none; }" +
+      ".vfoot a { color: inherit; text-decoration: none; display: inline-block; padding: 14px 6px; margin: -14px -6px; }" +
       ".vfoot a:hover { text-decoration: underline; }";
     document.head.appendChild(st);
   }

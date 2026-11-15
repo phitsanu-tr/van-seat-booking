@@ -137,6 +137,13 @@ header.trip { display: block; }
 .nfbox { display: none; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 36px 22px 30px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; }
 body.nf .nfbox { display: flex; }
 body.nf main > :not(.nfbox):not(.vfoot) { display: none; }
+.nebox { display: none; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 32px 20px 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; }
+body.ne .nebox { display: flex; }
+body.ne main > :not(.nebox):not(.vfoot) { display: none; }
+.nebox .nei { width: 40px; height: 40px; border-radius: 50%; background: #b3261e; color: #fff; display: grid; place-items: center; font: 700 24px/1 var(--font-display); }
+.nebox h2 { margin: 4px 0 0; font: 600 20px/28px var(--font-display); }
+.nebox p { margin: 0; color: var(--muted); font-size: 14px; line-height: 20px; }
+.nebox button { margin-top: 12px; width: 100%; height: 48px; border-radius: 12px; border: 1.5px solid var(--mine); background: transparent; color: var(--mine); font: 600 16px/24px var(--font-display); cursor: pointer; }
 .nfbox .nfv { margin-bottom: 4px; }
 .nfbox h2 { margin: 8px 0 0; font: 600 20px/28px var(--font-display); }
 .nfbox p { margin: 0; color: var(--muted); font-size: 14px; line-height: 20px; }
@@ -475,6 +482,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <div class="skd"><div class="sk"></div><div class="sk"></div></div></div>
   <div class="nfbox" id="nfBox" role="alert"><svg class="nfv" viewBox="0 0 120 80" width="132" fill="none" aria-hidden="true"><path d="M6 66h66" stroke="var(--mine)" stroke-width="2.6" stroke-dasharray="1 7" stroke-linecap="round"/><path d="M86 66h8" stroke="var(--mine)" stroke-width="2.6" stroke-dasharray="1 7" stroke-linecap="round" opacity=".35"/><g transform="translate(-4 -2) scale(.8)"><g transform="translate(6 12)"><path d="M6 41V21a6 6 0 0 1 6-6h44c3 0 5 1 7 3.2L75 30l8 2.2a6 6 0 0 1 5 5.8V41a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="var(--surface)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/><g fill="color-mix(in srgb,var(--mine) 25%,var(--surface))" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round"><rect x="12" y="20" width="16" height="10" rx="2.5"/><rect x="32" y="20" width="16" height="10" rx="2.5"/><path d="M53 20h6.5c1.2 0 2 .4 2.8 1.3L67 28v2H53z"/></g><g fill="var(--ink)"><circle cx="26" cy="43" r="6.5"/><circle cx="70" cy="43" r="6.5"/></g><g fill="var(--surface)"><circle cx="26" cy="43" r="2.4"/><circle cx="70" cy="43" r="2.4"/></g></g></g><g transform="translate(88 6)"><circle cx="14" cy="14" r="14" fill="var(--mine)"/><text x="14" y="21" text-anchor="middle" font-size="20" font-weight="700" fill="var(--mine-ink)" font-family="sans-serif">?</text></g></svg><h2>หาทริปนี้ไม่เจอ</h2><p>ลิงก์อาจพิมพ์ผิด หรือทริปถูกลบไปแล้ว<br>ลองขอลิงก์ใหม่จากคนจัดทริปนะ</p><a href="/">กลับหน้าแรก</a></div>
 
+  <div class="nebox" id="neBox" role="alert"><div class="nei" aria-hidden="true">!</div><h2>เชื่อมต่อไม่ได้</h2><p>ตรวจสัญญาณอินเทอร์เน็ตแล้วลองใหม่ ข้อมูลที่นั่งยังไม่ถูกโหลด</p><button type="button" id="neRetry">ลองใหม่</button></div>
+
   <section class="deck" id="deck">
   <div class="tlbl" id="tabLbl" hidden><span class="tl"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg>เลือกรถตู้</span></div>
   <div class="tabs" id="tabs" role="tablist" aria-label="เลือกคันรถ" hidden></div>
@@ -631,7 +640,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   var loaded = false, loadError = "";
   function skOff() { document.body.classList.remove("sk"); }
-  setTimeout(skOff, 8000);
+  function showNet(on) { document.body.classList.toggle("ne", !!on); } // "can't connect" box: shown only while the trip has never loaded
+  setTimeout(function () { skOff(); if (!loaded) showNet(true); }, 8000);
+  document.getElementById("neRetry").addEventListener("click", function () { showNet(false); document.body.classList.add("sk"); setTimeout(function () { skOff(); if (!loaded) showNet(true); }, 8000); refresh(true); });
   var selected = null, message = "", shown = false, confirming = false, lastSnapshot = "", wasFree = false; // wasFree: the seat was free when this dialog opened
   var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false, closed = false;
   // locked: nothing to tap. A finished trip is locked for everyone; a closed one only for passengers (organizers still manage seats).
@@ -1213,7 +1224,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         loadError = errorText(r, "โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า");
         skOff();
         if (r.status === 404 && r.data && r.data.error === "no_trip") { document.body.classList.add("nf"); document.title = "VanTrip"; return; }
-        if (!loaded) renderAll();
+        if (!loaded) { if (r.status >= 500 || r.status === 0) showNet(true); renderAll(); }
         return;
       }
       if (r.data && r.data.trip) {
@@ -1238,13 +1249,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (bellOn && ((loaded && lastTrip && JSON.stringify(trip) + ended + closed !== lastTrip) || (ibNow !== undefined && lastIb !== null && ibNow !== lastIb))) VSBBell.load(); // new notification (or the trip changed)
       if (ibNow !== undefined) lastIb = ibNow;
       lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip) + ended + closed;
-      seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff();
+      seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff(); showNet(false);
       if (locked() && selected !== null) { selected = null; message = ""; confirming = false; renaming = false; force = true; } // closed while the dialog was open
       if (changed || force) renderAll();
       if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !locked()) openSeat(ws); }
     } catch (e) {
       loadError = "เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่";
-      if (!loaded) renderAll();
+      if (!loaded) { skOff(); showNet(true); renderAll(); }
     }
   }
 
