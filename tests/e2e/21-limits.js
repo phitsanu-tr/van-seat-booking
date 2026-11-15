@@ -1,0 +1,13 @@
+const HLP=require('../helpers');const {chromium}=require(HLP.PW);const B=HLP.BASE;const log=(...a)=>console.log(...a);
+(async()=>{const b=await chromium.launch(HLP.launchOpts);const c=await b.newContext();const p=await c.newPage();
+await p.goto(B+'/api/auth?start=1&as=Lim&r=%2F');await p.waitForTimeout(400);
+const base={tripN:1,meetPoint:'x',name:'lim',organizer:'ท',departTime:'08:00',vans:[{label:'1'}]};
+const mk=async(a,z)=>{const r=await p.request.post(B+'/api/trip',{data:Object.assign({},base,{startDate:HLP.day(a),endDate:HLP.day(z||a),tripStart:HLP.day(a)})});return r.status()+' '+((await r.json().catch(()=>({}))).error||'ok')};
+const small=await p.request.post(B+'/api/trip',{data:Object.assign({},base,{startDate:HLP.day(5),endDate:HLP.day(5),tripStart:HLP.day(5)})});
+log('normal body works',small.status());
+log('300 days ahead (inside the limit)',await mk(300));
+log('400 days ahead (over 1 year)',await mk(400));
+log('start ok but end 400 days ahead',await mk(300,400));
+const big=await p.request.post(B+'/api/trip',{data:{name:'x'.repeat(200000)}});
+log('200 KB body',big.status(),(await big.json().catch(()=>({}))).error||'');
+log('ERR',[]);await b.close()})();

@@ -128,7 +128,7 @@ node dev.js
 
 ## ทดสอบอัตโนมัติ
 
-ติดตั้งครั้งแรก `cd tests && npm install && npx playwright install chromium` แล้วรัน `node tests/run.js` ที่โฟลเดอร์หลัก (20 ชุด ราว 5 นาที) รายละเอียดใน [tests/README.md](tests/README.md)
+ติดตั้งครั้งแรก `cd tests && npm install && npx playwright install chromium` แล้วรัน `node tests/run.js` ที่โฟลเดอร์หลัก (21 ชุด ราว 5 นาที) รายละเอียดใน [tests/README.md](tests/README.md)
 
 ## หน้าตา
 

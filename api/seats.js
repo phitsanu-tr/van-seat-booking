@@ -10,6 +10,7 @@ const MAX_HOLDS_IP = 5; // live holds one network may keep on one trip, whatever
 const holdKey = (t, v, s) => "hold:" + t + ":" + v + ":" + s;
 
 module.exports = async function handler(req, res) {
+  if (L.tooBig(req)) return L.json(res, 413, { error: "too_big" });
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
 
   if (L.crossSite(req)) return L.json(res, 403, { error: "cross_site" });

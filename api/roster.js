@@ -94,6 +94,7 @@ function htmlOf(trip, perVan) {
 }
 
 module.exports = async function handler(req, res) {
+  if (L.tooBig(req)) return L.json(res, 413, { error: "too_big" });
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 404, { error: "not_configured" });
   if (L.crossSite(req)) return L.json(res, 403, { error: "cross_site" });
   try {

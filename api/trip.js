@@ -57,7 +57,7 @@ function clean(body, vanCap, planVans, prev) {
   const todayBk = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10); // Bangkok date
   if (!DEV && startDate && startDate < todayBk && !(prev && prev.startDate === startDate)) return { error: "bad_pastdate" }; // a new or moved day must not be one that has gone by (the local test setup seeds finished trips)
   const farBk = new Date(Date.now() + 7 * 3600 * 1000 + 366 * 86400000).toISOString().slice(0, 10); // at most 1 year ahead
-  if (!DEV && ((startDate && startDate > farBk) || (endDate && endDate > farBk) || (body.tripStart && s(body.tripStart, 10) > farBk))) return { error: "bad_far" };
+  if (((startDate && startDate > farBk) || (endDate && endDate > farBk) || (body.tripStart && s(body.tripStart, 10) > farBk))) return { error: "bad_far" };
   const returnTime = s(body.returnTime, 5); // optional: when the van leaves for home
   if (returnTime && !TIME_RE.test(returnTime)) return { error: "bad_time" };
   const vans = Array.isArray(body.vans) ? body.vans : [];
@@ -203,6 +203,7 @@ function rosterPayload(trip, user, all) {
 function roundName(v) { return String(v == null ? "" : v).replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 24); } // check-in round label, e.g. "เที่ยวกลับ"
 
 module.exports = async function handler(req, res) {
+  if (L.tooBig(req)) return L.json(res, 413, { error: "too_big" });
   if (!L.REST_URL || !L.REST_TOKEN) return L.json(res, 500, { error: "not_configured" });
   if (L.crossSite(req)) return L.json(res, 403, { error: "cross_site" });
   try {
