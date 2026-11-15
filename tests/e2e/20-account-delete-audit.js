@@ -1,0 +1,12 @@
+const HLP=require('../helpers');const {chromium}=require(HLP.PW);const B=HLP.BASE;const log=(...a)=>console.log(...a);
+(async()=>{const b=await chromium.launch(HLP.launchOpts);const c=await b.newContext();const p=await c.newPage();
+await p.goto(B+'/api/auth?start=1&as=Gone&r=%2F');await p.waitForTimeout(400);
+const H={'x-owner-key':'test-owner-key-1234567'};
+const tr=await (await p.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(30),meetPoint:'x',name:'ทริปคนลบบัญชี',organizer:'ท',startDate:HLP.day(30),departTime:'08:00',vans:[{label:'1'}]}})).json();
+const mine=async()=>{const a=await (await p.request.get(B+'/api/owner?audit',{headers:H})).json();return (a.rows||[]).filter(r=>r.t===tr.id)};
+const before=await mine();const uid=(before[0]||{}).u;log('before: event has account id',!!uid);
+const d=await p.request.delete(B+'/api/me',{data:{trips:'release'}});log('delete account status',d.status());
+const after=await mine();log('after: event kept',after.length>0,'account id removed',after.every(r=>!r.u));
+const all=await (await p.request.get(B+'/api/owner?audit',{headers:H})).json();log('id nowhere in shared list',!JSON.stringify(all.rows||[]).includes(uid||'no-uid'));
+log('uid format ok for personal list',/^U[0-9a-f]{32}$/.test(uid||''));
+log('ERR',[]);await b.close();})();

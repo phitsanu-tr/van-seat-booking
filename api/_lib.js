@@ -152,14 +152,14 @@ async function logEvent(t, ev, tripExpSec) {
 }
 
 
-// Account activity ("audit:all" newest first, last 2000, kept 180 days): who created/edited/deleted a trip, quota given back, refunds, grants.
+// Account activity ("audit:all" newest first, last 2000, kept 365 days): who created/edited/deleted a trip, quota given back, refunds, grants.
 // Ids and trip names only (no phone, no seat names). Best effort: never breaks the request it records.
 async function audit(ev) {
   try {
     const clean = { at: Date.now() };
     Object.keys(ev).forEach((k) => { if (ev[k] !== undefined && ev[k] !== "") clean[k] = typeof ev[k] === "string" ? ev[k].slice(0, 80) : ev[k]; });
-    const cmds = [["LPUSH", "audit:all", JSON.stringify(clean)], ["LTRIM", "audit:all", "0", "1999"], ["EXPIRE", "audit:all", String(180 * 86400)]];
-    if (clean.u) cmds.push(["LPUSH", "audit:u:" + clean.u, JSON.stringify(clean)], ["LTRIM", "audit:u:" + clean.u, "0", "99"], ["EXPIRE", "audit:u:" + clean.u, String(180 * 86400)]);
+    const cmds = [["LPUSH", "audit:all", JSON.stringify(clean)], ["LTRIM", "audit:all", "0", "1999"], ["EXPIRE", "audit:all", String(365 * 86400)]];
+    if (clean.u) cmds.push(["LPUSH", "audit:u:" + clean.u, JSON.stringify(clean)], ["LTRIM", "audit:u:" + clean.u, "0", "99"], ["EXPIRE", "audit:u:" + clean.u, String(365 * 86400)]);
     await pipeline(cmds);
   } catch (e) { /* ignore */ }
 }

@@ -107,6 +107,19 @@ async function deleteAll(req, res, user, dropTrips) {
     } catch (e) { /* best effort */ }
   }
 
+  // account activity log: this account's own list goes, and its id is taken off the shared list (the events stay, without a person)
+  try {
+    await L.redis(["DEL", "audit:u:" + uid]);
+    const list = (await L.redis(["LRANGE", "audit:all", "0", "1999"])) || [], n = list.length;
+    for (let i = 0; i < n; i++) {
+      let ev = null; try { ev = JSON.parse(list[i]); } catch (e) { continue; }
+      if (!ev || ev.u !== uid) continue;
+      delete ev.u; // counted from the tail: new events are pushed at the head, so tail positions stay put
+      const idx = String(i - n);
+      if ((await L.redis(["LINDEX", "audit:all", idx])) === list[i]) await L.redis(["LSET", "audit:all", idx, JSON.stringify(ev)]);
+    }
+  } catch (e) { /* best effort */ }
+
   // the account itself: indexes and every session
   const end = [["DEL", L.myTripsKey(uid)], ["DEL", L.mySeatsKey(uid)], ["DEL", L.inboxKey(uid)], ["DEL", L.inboxReadKey(uid)], ["DEL", L.inboxAllKey(uid)], ["DEL", L.inboxVerKey(uid)], ["DEL", "usess:" + uid], ["DEL", "sess:" + user.sid]];
   (sids || []).forEach((sid) => { if (/^[a-z0-9]{32}$/.test(String(sid))) end.push(["DEL", "sess:" + sid]); });

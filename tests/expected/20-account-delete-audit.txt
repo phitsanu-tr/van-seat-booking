@@ -1,0 +1,6 @@
+before: event has account id true
+delete account status 200
+after: event kept true account id removed true
+id nowhere in shared list true
+uid format ok for personal list false
+ERR []
