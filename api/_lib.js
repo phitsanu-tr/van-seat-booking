@@ -180,7 +180,7 @@ async function errLog(where, req, err, quiet) {
     // tell the owner's bell (accounts watching refund requests), at most once per 10 minutes so an outage doesn't flood it
     if (!quiet && (await redis(["SET", "errors:alert", "1", "NX", "EX", "600"])) === "OK") {
       const w = (await redis(["SMEMBERS", "owner:watch"])) || [];
-      if (w.length) await notify(w, { k: "server_err", n: String(where || "").slice(0, 20) });
+      if (w.length) { await notify(w, { k: "server_err", n: String(where || "").slice(0, 20) }); await linePush(w, "VanTrip: ระบบหลังบ้านมีข้อผิดพลาด (" + String(where || "").slice(0, 20) + ") ดูที่หน้า /owner"); }
     }
   } catch (e) { /* ignore */ }
 }
