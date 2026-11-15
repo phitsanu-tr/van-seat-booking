@@ -4,5 +4,5 @@ move vs booking: lost or doubled 0 of 4
 swap 200 ฉิน แพท
 form errors [] toast 
 after saving a stale form: closed true name ทริปพร้อมกันแก้ชื่อ
-headers DENY nosniff frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'
+headers DENY nosniff frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' https://static.line-scdn.net https://*.line-scdn.net; connect-src 'self' https://*.line.me https://*.line-scdn.net https://*.line-apps.com wss://*.line.me wss://*.line-apps.com; font-src 'self' https://fonts.gstatic.com data:
 ERR []

@@ -119,7 +119,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
+          "value": "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' https://static.line-scdn.net https://*.line-scdn.net; connect-src 'self' https://*.line.me https://*.line-scdn.net https://*.line-apps.com wss://*.line.me wss://*.line-apps.com; font-src 'self' https://fonts.gstatic.com data:"
         },
         {
           "key": "Referrer-Policy",
