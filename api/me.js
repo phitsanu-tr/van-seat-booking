@@ -110,7 +110,7 @@ async function deleteAll(req, res, user, dropTrips) {
   // account activity log: this account's own list goes, and its id is taken off the shared list (the events stay, without a person)
   try {
     await L.redis(["DEL", "audit:u:" + uid]);
-    const list = (await L.redis(["LRANGE", "audit:all", "0", "1999"])) || [], n = list.length;
+    const list = (await L.redis(["LRANGE", "audit:all", "0", "19999"])) || [], n = list.length;
     for (let i = 0; i < n; i++) {
       let ev = null; try { ev = JSON.parse(list[i]); } catch (e) { continue; }
       if (!ev || ev.u !== uid) continue;
