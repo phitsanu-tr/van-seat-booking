@@ -80,7 +80,7 @@ module.exports = async function handler(req, res) {
 
     if (req.method === "GET" && req.query && (req.query.audit !== undefined || req.query.errors !== undefined)) { // newest first; ?audit=<user id> narrows to one account
       const u = String(req.query.audit || ""), k = req.query.errors !== undefined ? "errors:all" : /^U[0-9a-f]{32}$/.test(u) ? "audit:u:" + u : "audit:all";
-      const rows = (await L.redis(["LRANGE", k, "0", "199"])) || [];
+      const rows = (await L.redis(["LRANGE", k, "0", k.indexOf("audit:u:") === 0 ? "999" : "199"])) || [];
       return L.json(res, 200, { rows: rows.map((r) => { try { return JSON.parse(r); } catch (e) { return null; } }).filter(Boolean) });
     }
     if (req.method === "GET" && req.query && req.query.ledger !== undefined) { // permanent revenue book; ?ledger=csv downloads it
