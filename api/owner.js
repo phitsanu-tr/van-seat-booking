@@ -25,6 +25,17 @@ function clientIp(req) {
 const failKey = (req) => "ownerfail:" + clientIp(req) + ":" + Math.floor(Date.now() / 3600000);
 
 async function scanTripKeys() {
+  try { // fast path: the trip index (built by one scan the first time, kept by create/delete); expired trips drop out when read
+    if (await L.redis(["EXISTS", "tripidx:ready"])) {
+      const m = await L.redis(["SMEMBERS", "tripidx"]);
+      if (Array.isArray(m)) return m.slice(0, MAX_KEYS);
+    }
+  } catch (e) { /* fall through to the scan */ }
+  const keys = await scanTripKeysSlow();
+  try { if (keys.length < MAX_KEYS) { if (keys.length) await L.redis(["SADD", "tripidx"].concat(keys)); await L.redis(["SET", "tripidx:ready", "1"]); } } catch (e) { /* ignore */ }
+  return keys;
+}
+async function scanTripKeysSlow() {
   const keys = [];
   let cursor = "0";
   for (let i = 0; i < 30 && keys.length < MAX_KEYS; i++) {
@@ -49,7 +60,9 @@ async function countKeys(pattern) { // SCAN-based count (capped), e.g. accounts 
 async function loadAllTrips() {
   const keys = await scanTripKeys();
   const raws = keys.length ? await L.redis(["MGET"].concat(keys)) : [];
-  const trips = [];
+  const trips = [], dead = [];
+  raws.forEach((raw, i) => { if (raw === null || raw === undefined) dead.push(keys[i]); });
+  if (dead.length) { try { await L.redis(["SREM", "tripidx"].concat(dead)); } catch (e) { /* ignore */ } }
   raws.forEach((raw) => { try { const t = JSON.parse(raw); if (t && t.id && Array.isArray(t.vans)) trips.push(t); } catch (e) { /* skip */ } });
   return trips;
 }

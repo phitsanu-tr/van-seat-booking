@@ -354,6 +354,7 @@ module.exports = async function handler(req, res) {
     }
     if (req.method === "POST") {
       if (!user) return L.json(res, 401, { error: "login_required" }); // a trip always has an owner account
+      if (await L.rateLimited(req, user, "tripw", 60, 3600)) return L.json(res, 429, { error: "too_many" });
       // retry of the same create (reply lost on a bad connection): hand back the trip already made, no second trip or quota
       const ck = typeof pb.ck === "string" && /^[A-Za-z0-9]{12,32}$/.test(pb.ck) ? "ck:" + user.id + ":" + pb.ck : "";
       if (ck) {
@@ -380,6 +381,7 @@ module.exports = async function handler(req, res) {
       trip.vans = assignVanIds(trip.vans, []);
       const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
       if (ok !== "OK") { if (qm) await refundQuota(user, qm); if (plus) await P.refundPass(user.id); return L.json(res, 502, { error: "storage_error" }); }
+      try { await L.redis(["SADD", "tripidx", L.tripKey(id)]); } catch (e) { /* owner list falls back to the scan */ }
       if (trip.staffSeat) { try { await reserveStaff(trip, trip.vans.map((v) => v.id)); } catch (e) { /* the trip exists; seats can be booked by hand */ } }
       await L.applyExpiry(trip); // after the STAFF seats so their van lists get the trip's expiry too
       if (ck) { try { await L.redis(["SET", ck, id, "EX", "86400"]); } catch (e) { /* best effort */ } }
@@ -425,6 +427,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === "DELETE") {
+      if (await L.rateLimited(req, user, "tripw", 60, 3600)) return L.json(res, 429, { error: "too_many" });
       const t = L.tripId(req.query && req.query.t);
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
@@ -444,7 +447,7 @@ module.exports = async function handler(req, res) {
           else { await refundQuota({ id: trip.owner }, trip.qm); refunded = true; }
         }
       }
-      const cmds = [["DEL", L.tripKey(t)], ["DEL", L.logKey(t)]];
+      const cmds = [["DEL", L.tripKey(t)], ["DEL", L.logKey(t)], ["SREM", "tripidx", L.tripKey(t)]];
       if (trip.owner) cmds.push(["SREM", L.myTripsKey(trip.owner), t]);
       (trip.helpers || []).forEach((h) => cmds.push(["SREM", L.myTripsKey(h.u), t]));
       if (trip.invite && trip.invite.c) cmds.push(["DEL", "inv:" + trip.invite.c]);
@@ -456,6 +459,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === "PUT") {
+      if (await L.rateLimited(req, user, "tripw", 60, 3600)) return L.json(res, 429, { error: "too_many" });
       const body = L.readBody(req);
       const t = L.tripId(body.t);
       const trip = t ? await L.loadTrip(t) : null;
