@@ -12,7 +12,7 @@ const L = require("./_lib");
 const P = require("./_plans");
 
 const DEV = process.env.VSB_DEV_AUTH === "1" && !process.env.VERCEL;
-const ORDER_DAYS = 365;
+const ORDER_DAYS = 548;
 function stripeKey() { const k = process.env.STRIPE_SECRET_KEY || ""; return /^sk_(test|live)_/.test(k) ? k : ""; }
 
 function form(obj, prefix, out) { // nested object -> Stripe's form encoding (a[b][0]=c)
