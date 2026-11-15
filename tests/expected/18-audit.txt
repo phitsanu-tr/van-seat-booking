@@ -3,4 +3,7 @@ delete row: refunded 1 name ทริปบันทึก2 has id true has seat
 login diag recorded true
 errors list ok true
 no key blocked 403
+dev paid paid
+ledger n/paid/net 1 true true
+csv header/row date_th,order,package,amount_thb,status true false
 ERR []

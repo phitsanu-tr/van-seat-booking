@@ -83,6 +83,17 @@ module.exports = async function handler(req, res) {
       const rows = (await L.redis(["LRANGE", k, "0", "199"])) || [];
       return L.json(res, 200, { rows: rows.map((r) => { try { return JSON.parse(r); } catch (e) { return null; } }).filter(Boolean) });
     }
+    if (req.method === "GET" && req.query && req.query.ledger !== undefined) { // permanent revenue book; ?ledger=csv downloads it
+      const rows = ((await L.redis(["LRANGE", "ledger", "0", "19999"])) || []).map((r) => { try { return JSON.parse(r); } catch (e) { return null; } }).filter(Boolean);
+      if (req.query.ledger === "csv") {
+        const day = (t) => new Date(t + 7 * 3600e3).toISOString().slice(0, 16).replace("T", " ");
+        const csv = "\ufeffdate_th,order,package,amount_thb,status\n" + rows.map((r) => [day(r.at), r.o, r.sku, r.st === "refunded" ? -r.amt : r.amt, r.st].join(",")).join("\n") + "\n";
+        res.statusCode = 200; res.setHeader("Content-Type", "text/csv; charset=utf-8"); res.setHeader("Cache-Control", "no-store");
+        return res.end(csv);
+      }
+      let paid = 0, refunded = 0; rows.forEach((r) => { if (r.st === "paid") paid += r.amt; else if (r.st === "refunded") refunded += r.amt; });
+      return L.json(res, 200, { n: rows.length, paid, refunded, net: paid - refunded, since: rows.length ? rows[rows.length - 1].at : 0 });
+    }
     if (req.method === "GET" && req.query && req.query.orders !== undefined) {
       const ids = ((await L.redis(["LRANGE", "orders:all", "0", "299"])) || []).filter((x) => /^[a-z0-9]{12}$/.test(x));
       const raws = ids.length ? await L.pipeline(ids.map((id) => ["GET", "order:" + id])) : [];

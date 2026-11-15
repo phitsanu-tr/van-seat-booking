@@ -91,7 +91,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       <div id="orders" style="display:flex;flex-direction:column;gap:8px;font-size:14px"></div>
     </div>
     <div class="card" style="margin:16px 0">
-      <div class="row"><b>บันทึกระบบ</b><span style="display:flex;gap:8px"><button class="btn plain" id="lgAudit" type="button">กิจกรรม</button><button class="btn plain" id="lgErr" type="button">ข้อผิดพลาด</button></span></div>
+      <div class="row" style="flex-wrap:wrap"><b style="flex:1 1 100%">บันทึกระบบ</b><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn plain" id="lgAudit" type="button" style="white-space:nowrap">กิจกรรม</button><button class="btn plain" id="lgErr" type="button" style="white-space:nowrap">ข้อผิดพลาด</button><button class="btn plain" id="lgCsv" type="button" style="white-space:nowrap">รายรับ CSV</button></span></div>
+      <div id="ledger" style="font-size:14px;line-height:20px"></div>
       <div id="sysLog" style="display:flex;flex-direction:column;gap:4px;font-size:12px;line-height:16px;color:var(--muted)"></div>
     </div>
     <div class="row"><p id="note"></p><button class="btn plain" id="reload">รีเฟรช</button></div>
@@ -265,10 +266,22 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       });
     });
   }
+  function loadLedger() {
+    api("GET", "?ledger=1").then(function (r) {
+      var d = r.body || {}, b = $("ledger"); if (r.status !== 200) { b.textContent = ""; return; }
+      b.textContent = d.n ? "สมุดรายรับถาวร (เริ่มบันทึก " + fmtDay(d.since) + "): จ่าย " + (d.paid || 0).toLocaleString() + "฿ · คืน " + (d.refunded || 0).toLocaleString() + "฿ · สุทธิ " + (d.net || 0).toLocaleString() + "฿ (" + d.n + " รายการ)" : "สมุดรายรับถาวร: ยังไม่มีรายการ (เริ่มบันทึกจากออเดอร์ใหม่)";
+    });
+  }
+  $("lgCsv").addEventListener("click", function () {
+    fetch("/api/owner?ledger=csv", { cache: "no-store", headers: { "x-owner-key": KEY } }).then(function (r) { return r.ok ? r.blob() : null; }).then(function (bl) {
+      if (!bl) { say("ดาวน์โหลดไม่สำเร็จ"); return; }
+      var a = document.createElement("a"); a.href = URL.createObjectURL(bl); a.download = "van-ledger-" + fmtDay(Date.now()) + ".csv"; document.body.appendChild(a); a.click(); a.remove();
+    });
+  });
   $("lgAudit").addEventListener("click", function () { loadSys("audit"); });
   $("lgErr").addEventListener("click", function () { loadSys("err"); });
   function load() {
-    say(""); loadPay(); loadUse();
+    say(""); loadPay(); loadUse(); loadLedger();
     api("GET").then(function (r) {
       if (r.status === 200) { $("keyForm").hidden = true; $("app").hidden = false; $("out").hidden = false; render(r.body); return; }
       try { sessionStorage.removeItem("van-owner"); } catch (e) {}
