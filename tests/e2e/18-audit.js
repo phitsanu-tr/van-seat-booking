@@ -8,6 +8,8 @@ const H={'x-owner-key':'test-owner-key-1234567'};
 const a=await (await p.request.get(B+'/api/owner?audit',{headers:H})).json();
 log('events newest first',(a.rows||[]).map(r=>r.e).slice(0,3).join(','));
 const d=(a.rows||[])[0]||{};log('delete row: refunded',d.refunded,'name',d.tn,'has id',!!d.t,'has seat names',JSON.stringify(d).includes('ผู้'));
+await p.request.post(B+'/api/auth',{data:{diag:'no_token_x'}});
+const er=(await (await p.request.get(B+'/api/owner?errors',{headers:H})).json()).rows||[];log('login diag recorded',er.some(r=>r.w==='login-diag'&&/no_token_x/.test(r.msg)));
 log('errors list ok',Array.isArray((await (await p.request.get(B+'/api/owner?errors',{headers:H})).json()).rows));
 log('no key blocked',(await p.request.get(B+'/api/owner?audit')).status());
 log('ERR',[]);await b.close();})();

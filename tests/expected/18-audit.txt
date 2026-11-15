@@ -1,5 +1,6 @@
 events newest first trip_delete,trip_edit,trip_create
 delete row: refunded 1 name ทริปบันทึก2 has id true has seat names false
+login diag recorded true
 errors list ok true
 no key blocked 403
 ERR []

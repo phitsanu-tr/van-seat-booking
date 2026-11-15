@@ -56,7 +56,7 @@ module.exports = async function handler(req, res) {
     if (req.method === "POST") {
       const body = L.readBody(req);
       if (typeof body.diag === "string") { // why the automatic LINE sign-in failed on someone's phone (a short code, never a token)
-        if (!(await L.rateLimited(req, null, "diag", 20, 600))) console.error("liff-diag", body.diag.replace(/[^a-z_]/g, "").slice(0, 30), String(req.headers["user-agent"] || "").slice(0, 120));
+        if (!(await L.rateLimited(req, null, "diag", 20, 600))) { const code = body.diag.replace(/[^a-z_]/g, "").slice(0, 30), ua = String(req.headers["user-agent"] || "").slice(0, 120); console.error("liff-diag", code, ua); await L.errLog("login-diag", req, "liff-diag " + code + " · " + ua, true); }
         return L.json(res, 200, { ok: true });
       }
       if (body.logout === true) {
@@ -89,7 +89,7 @@ module.exports = async function handler(req, res) {
           body: new URLSearchParams({ id_token: body.liff_token, client_id: id }).toString(),
         });
         const prof = await vr.json().catch(() => ({}));
-        if (!vr.ok || !prof.sub || !/^U[0-9a-f]{32}$/.test(prof.sub)) { console.error("liff-verify-failed", vr.status, String(prof.error || "").slice(0, 40), String(prof.error_description || "").slice(0, 120)); return L.json(res, 401, { error: "verify_failed", why: String(prof.error_description || prof.error || "").toLowerCase().replace(/[^a-z ]/g, "").slice(0, 30) }); }
+        if (!vr.ok || !prof.sub || !/^U[0-9a-f]{32}$/.test(prof.sub)) { console.error("liff-verify-failed", vr.status, String(prof.error || "").slice(0, 40), String(prof.error_description || "").slice(0, 120)); await L.errLog("login-verify", req, "liff-verify-failed " + vr.status + " " + String(prof.error || "").slice(0, 40), true); return L.json(res, 401, { error: "verify_failed", why: String(prof.error_description || prof.error || "").toLowerCase().replace(/[^a-z ]/g, "").slice(0, 30) }); }
         const back = safeReturn(body.r);
         const sid = L.newId(32);
         const sess = { u: prof.sub, n: String(prof.name || "").slice(0, 60), p: /^https:\/\//.test(prof.picture || "") ? String(prof.picture).slice(0, 300) : "", at: Date.now() };
