@@ -131,7 +131,7 @@ module.exports = async function handler(req, res) {
       if (req.query && req.query.log) {
         const t = L.tripId(req.query.log);
         if (!t) return L.json(res, 400, { error: "bad_trip" });
-        const rows = (await L.redis(["LRANGE", L.logKey(t), "0", "199"])) || [];
+        const rows = (await L.redis(["LRANGE", L.logKey(t), "0", "999"])) || [];
         const events = [];
         rows.forEach((r) => { try { events.push(JSON.parse(r)); } catch (e) { /* skip */ } });
         return L.json(res, 200, { events });

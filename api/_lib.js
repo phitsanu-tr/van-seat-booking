@@ -141,13 +141,13 @@ async function applyExpiry(trip) {
   } catch (e) { /* best effort */ }
 }
 
-// Per-trip activity log (newest first, last 200 events, expires 90 days after the latest event). Best effort: never breaks a booking.
+// Per-trip activity log (newest first, last 1000 events, expires 90 days after the latest event). Best effort: never breaks a booking.
 function logKey(t) { return "log:" + t; }
 async function logEvent(t, ev, tripExpSec) {
   try {
     const clean = {};
     Object.keys(ev).forEach((k) => { if (ev[k] !== undefined && ev[k] !== "") clean[k] = ev[k]; });
-    await pipeline([["LPUSH", logKey(t), JSON.stringify(clean)], ["LTRIM", logKey(t), "0", "199"], tripExpSec && tripExpSec > Math.floor(Date.now() / 1000) && tripExpSec < Math.floor(Date.now() / 1000) + 90 * 86400 ? ["EXPIREAT", logKey(t), String(tripExpSec)] : ["EXPIRE", logKey(t), String(90 * 86400)]]);
+    await pipeline([["LPUSH", logKey(t), JSON.stringify(clean)], ["LTRIM", logKey(t), "0", "999"], tripExpSec && tripExpSec > Math.floor(Date.now() / 1000) && tripExpSec < Math.floor(Date.now() / 1000) + 90 * 86400 ? ["EXPIREAT", logKey(t), String(tripExpSec)] : ["EXPIRE", logKey(t), String(90 * 86400)]]);
   } catch (e) { /* ignore */ }
 }
 

@@ -87,7 +87,7 @@ async function deleteAll(req, res, user, dropTrips) {
   for (const id of touched) {
     try {
       const k = L.logKey(id);
-      const list = await L.redis(["LRANGE", k, "0", "199"]);
+      const list = await L.redis(["LRANGE", k, "0", "999"]);
       if (!list || !list.length) continue;
       let changed = false;
       const out = list.map((s) => {
