@@ -169,6 +169,11 @@ async function errLog(where, req, err) {
     const msg = String((err && err.message) || err || "").replace(/https?:\/\/\S+/g, "[url]").slice(0, 160);
     console.error("api-error", where, msg);
     await pipeline([["LPUSH", "errors:all", JSON.stringify({ at: Date.now(), w: where, m: req && req.method, msg })], ["LTRIM", "errors:all", "0", "199"], ["EXPIRE", "errors:all", String(30 * 86400)]]);
+    // tell the owner's bell (accounts watching refund requests), at most once per 10 minutes so an outage doesn't flood it
+    if ((await redis(["SET", "errors:alert", "1", "NX", "EX", "600"])) === "OK") {
+      const w = (await redis(["SMEMBERS", "owner:watch"])) || [];
+      if (w.length) await notify(w, { k: "server_err", n: String(where || "").slice(0, 20) });
+    }
   } catch (e) { /* ignore */ }
 }
 

@@ -104,6 +104,7 @@
       case "plan_expiring": return { title: "แพ็กเกจใกล้หมดอายุ", body: "แพ็กเกจ " + tn + " ใช้ได้ถึง " + esc(dayMs(it.until)) + " · ต่ออายุ 30 วัน" + (it.amt ? " " + Number(it.amt).toLocaleString("th-TH") + "฿" : "") + " แตะเพื่อต่ออายุ", tone: "amber", icon: "clock" };
       case "plan_refunded": return { title: "คืนเงินแล้ว", body: tn + (it.amt ? " · " + Number(it.amt).toLocaleString("th-TH") + "฿" : "") + " · ยกเลิกสิทธิ์ของรายการนี้แล้ว", tone: "grey", icon: "trash" };
       case "refund_req": return { title: "มีคำขอคืนเงินใหม่", body: tn + (it.amt ? " · " + Number(it.amt).toLocaleString("th-TH") + "฿" : "") + " · ตรวจที่หน้า /owner", tone: "amber", icon: "bell" };
+      case "server_err": return { title: "ระบบหลังบ้านมีข้อผิดพลาด", body: (it.n ? esc(it.n) + " · " : "") + "ดูรายละเอียดที่หน้า /owner (บันทึกข้อผิดพลาด)", tone: "amber", icon: "bell" };
       case "helper_joined": return { title: "มีผู้ช่วยจัดเข้าร่วม", body: tn + " · " + esc(it.n), tone: "green", icon: "shield" };
       default: return { title: "มีการเปลี่ยนแปลง", body: tn, tone: "grey", icon: "bell" };
     }

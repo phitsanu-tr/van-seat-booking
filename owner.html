@@ -90,6 +90,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       </form>
       <div id="orders" style="display:flex;flex-direction:column;gap:8px;font-size:14px"></div>
     </div>
+    <div class="card" style="margin:16px 0">
+      <div class="row"><b>บันทึกระบบ</b><span style="display:flex;gap:8px"><button class="btn plain" id="lgAudit" type="button">กิจกรรม</button><button class="btn plain" id="lgErr" type="button">ข้อผิดพลาด</button></span></div>
+      <div id="sysLog" style="display:flex;flex-direction:column;gap:4px;font-size:12px;line-height:16px;color:var(--muted)"></div>
+    </div>
     <div class="row"><p id="note"></p><button class="btn plain" id="reload">รีเฟรช</button></div>
     <div id="list" style="display:flex;flex-direction:column;gap:16px"></div>
   </div>
@@ -246,6 +250,23 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) { say(x.ok ? (x.j.tester ? "[แพ็กเกจเปิด] " : "[แพ็กเกจปิด] ") + "ให้สิทธิ์ " + (x.j.owner || "") + " แล้ว: " + x.j.plan.name + (x.j.plan.until ? " ถึง " + fmtDay(x.j.plan.until) : "") + " · ตั๋ว " + x.j.plan.passes + " ใบ" : "ไม่สำเร็จ: " + (x.j.error || "")); });
   });
+  var EV = { trip_create: "สร้างทริป", trip_edit: "แก้ไขทริป", trip_delete: "ลบทริป", paid: "ชำระเงิน", refund_request: "ขอคืนเงิน", refunded: "คืนเงินแล้ว", grant: "ให้สิทธิ์" };
+  function loadSys(kind) {
+    var box = $("sysLog"); box.textContent = "กำลังโหลด…";
+    api("GET", kind === "err" ? "?errors=1" : "?audit=1").then(function (r) {
+      box.textContent = "";
+      var rows = (r.body && r.body.rows) || [];
+      if (!rows.length) { box.appendChild(el("span", null, kind === "err" ? "ไม่มีข้อผิดพลาด" : "ยังไม่มีกิจกรรม")); return; }
+      rows.slice(0, 100).forEach(function (x) {
+        var t;
+        if (kind === "err") t = (x.w || "?") + " " + (x.m || "") + " · " + (x.msg || "");
+        else t = (EV[x.e] || x.e) + (x.tn ? " · " + x.tn : "") + (x.t ? " [" + x.t + "]" : "") + acct(x.u) + (x.e === "trip_delete" ? (x.refunded ? " · คืนโควตา" : " · ไม่คืนโควตา") + " (อายุ " + x.age_h + " ชม.)" : "") + (x.amt ? " · " + x.amt + "฿" : "");
+        box.appendChild(el("div", null, fmtDate(x.at) + "  " + t));
+      });
+    });
+  }
+  $("lgAudit").addEventListener("click", function () { loadSys("audit"); });
+  $("lgErr").addEventListener("click", function () { loadSys("err"); });
   function load() {
     say(""); loadPay(); loadUse();
     api("GET").then(function (r) {
