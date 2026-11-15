@@ -15,6 +15,7 @@
 | `privacy.html` | `/privacy` นโยบายความเป็นส่วนตัว |
 | `owner.html` | `/owner` หน้าผู้พัฒนา (ดูทุกทริป ลบทริป ดูประวัติ) |
 | `bell.js` | กระดิ่งแจ้งเตือนในหน้าเว็บ (ใช้ร่วมทุกหน้า) |
+| `icon.svg`, `icon-192.png`, `apple-touch-icon.png`, `icon-512.png` | ไอคอนเว็บและไอคอนหน้าจอโฮม (รถตู้สีเขียวน้ำเงิน) |
 | `og.png` | รูปตัวอย่างตอนแชร์ลิงก์ในแชท |
 | `api/auth.js` | เข้าสู่ระบบด้วย LINE / ออกจากระบบ |
 | `api/trip.js` | สร้าง แก้ ลบ ปิดรับจอง ทีมผู้จัด รายชื่อ รอบเช็กชื่อ |
@@ -127,7 +128,7 @@ node dev.js
 
 ## ทดสอบอัตโนมัติ
 
-ติดตั้งครั้งแรก `cd tests && npm install && npx playwright install chromium` แล้วรัน `node tests/run.js` ที่โฟลเดอร์หลัก (15 ชุด ราว 5 นาที) รายละเอียดใน [tests/README.md](tests/README.md)
+ติดตั้งครั้งแรก `cd tests && npm install && npx playwright install chromium` แล้วรัน `node tests/run.js` ที่โฟลเดอร์หลัก (20 ชุด ราว 5 นาที) รายละเอียดใน [tests/README.md](tests/README.md)
 
 ## หน้าตา
 
