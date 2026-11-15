@@ -12,7 +12,7 @@
   var CSS = [
     ".vb-bell{position:relative;flex:none;width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid #c9d2d8;display:inline-grid;place-items:center;color:#1b1f22;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}",
     ".vb-bar{display:flex;align-items:center;gap:8px;width:100%;max-width:560px;margin:0 auto;padding:12px 16px 0;box-sizing:border-box;min-height:46px}",
-    ".vb-bar a.vb-brand{flex:1;min-width:0;font:700 16px/24px 'Noto Sans Thai',system-ui,sans-serif;color:#0b5f67;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
+    ".vb-bar a.vb-brand{flex:1;min-width:0;padding:10px 0;margin:-10px 0;font:700 16px/24px 'Noto Sans Thai',system-ui,sans-serif;color:#0b5f67;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
     ".vb-bar .vb-back{flex:none;width:36px;height:36px;margin-left:-8px;display:inline-grid;place-items:center;color:#0b5f67;border-radius:50%}",
     ".vb-bar .vb-back svg{width:22px;height:22px}",
     ".vb-bell[hidden]{display:none}",
