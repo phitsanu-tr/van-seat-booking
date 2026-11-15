@@ -40,8 +40,6 @@ function origin(req) {
 }
 async function loadOrder(id) { try { return JSON.parse(L.open(await L.redis(["GET", "order:" + id]))); } catch (e) { return null; } }
 async function saveOrder(o) { await L.redis(["SET", "order:" + o.id, L.seal(JSON.stringify(o)), "EX", String(ORDER_DAYS * 86400)]); }
-// permanent revenue book ("ledger", newest first, never expires): date, order id, package, amount, status. No names, no account ids.
-async function ledger(o, st) { try { await L.redis(["LPUSH", "ledger", JSON.stringify({ at: Date.now(), o: o.id, sku: o.sku, amt: o.amount || 0, st })]); } catch (e) { /* best effort */ } }
 const REFUND_DAYS = 7; // every package and pass: a refund can be asked for within 7 days of paying (terms, section 4)
 const REFUND_WHY = ["cant_use", "duplicate", "not_needed", "other"];
 function refundUntil(o) { return (o.paidAt || o.at || 0) + REFUND_DAYS * 86400 * 1000; }
@@ -58,7 +56,7 @@ async function fulfil(o) {
   const next = Object.assign({}, o, { status: "paid", paidAt: Date.now() });
   L.bump("order_paid"); L.bump("baht", o.amount || 0);
   await saveOrder(next);
-  await ledger(o, "paid");
+  await L.ledger(o, "paid");
   if (o.pi) { try { await L.redis(["SET", "orderpi:" + o.pi, o.id, "EX", String(ORDER_DAYS * 86400)]); } catch (e) { /* best effort */ } } // refunds find the order by it
   const s = P.SKUS[o.sku] || {};
   await L.notify([o.uid], { k: "plan_paid", tn: s.label || "", amt: o.amount });
@@ -116,7 +114,7 @@ module.exports = async function handler(req, res) {
         if (o && o.status === "paid" && (await L.redis(["SET", "orderref:" + o.id, "1", "NX", "EX", String(ORDER_DAYS * 86400)])) === "OK") {
           await P.revoke(o.uid, o.sku);
           await saveOrder(Object.assign({}, o, { status: "refunded", refundedAt: Date.now() }));
-          await ledger(o, "refunded");
+          await L.ledger(o, "refunded");
           await L.audit({ e: "refunded", u: o.uid, o: o.id, sku: o.sku, amt: o.amount });
           await L.notify([o.uid], { k: "plan_refunded", tn: (P.SKUS[o.sku] || {}).label || "", amt: o.amount });
         }

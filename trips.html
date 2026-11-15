@@ -1271,7 +1271,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var ok = await askConfirm("ต้องการลบทริปนี้?",
       booked ? "รายชื่อผู้จองทั้ง " + booked + " ที่นั่งจะหายทั้งหมด และลิงก์ที่แชร์ไปจะเปิดไม่ได้" : "ข้อมูลจะถูกลบถาวร และลิงก์ที่แชร์ไปจะเปิดไม่ได้", "ลบทริป", $("delBtn"),
       { name: t.name || "ทริปนี้", total: booked ? booked + " ที่นั่ง" : "ยังไม่มีผู้จอง", rows: rws,
-        note: PL.on && !PL.plus ? "ได้โควตาคืนเมื่อลบภายใน 24 ชม. หลังสร้างและยังไม่มีผู้ร่วมทริปจอง (ที่นั่งที่กันไว้ไม่ถือว่าจอง)" : "",
+        note: PL.on && !PL.plus ? "ได้โควตาคืนเมื่อลบภายใน 24 ชม. หลังสร้างและยังไม่มีผู้ร่วมทริปจอง (ที่นั่งที่กันไว้ไม่ถือว่าจอง) คืนได้ไม่เกิน 3 ครั้งต่อเดือน" : "",
         vans: (t.vans || []).map(function (v) { return { label: v.label, plate: v.plate, n: perVan[v.id] || 0 }; }) });
     if (!ok) return;
     $("delBtn").disabled = true;
@@ -1279,7 +1279,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var r = await fetch("/api/trip?t=" + encodeURIComponent(T), { method: "DELETE" });
       if (!r.ok && r.status !== 404) { var d = {}; try { d = await r.json(); } catch (e) {} toast(ERR[d.error] || "ลบไม่สำเร็จ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; return; }
       var dj = {}; try { dj = await r.json(); } catch (e) {}
-      try { sessionStorage.setItem("van-flash", "ลบทริปแล้ว" + (dj.refunded ? " · คืนโควตา 1 ทริป" : "")); } catch (e) {}
+      try { sessionStorage.setItem("van-flash", "ลบทริปแล้ว" + (dj.refunded ? " · คืนโควตา 1 ทริป" : dj.capped ? " · ครบสิทธิ์คืนโควตาเดือนนี้" : "")); } catch (e) {}
       location.href = "/mytrips#trips";
     } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
   });

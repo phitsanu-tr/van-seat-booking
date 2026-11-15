@@ -32,6 +32,7 @@ async function takeQuota(user, cap) {
   if (Number(out[0]) > cap) { try { await L.redis(["DECR", key]); } catch (e) { /* best effort */ } return { over: true, month }; }
   return { over: false, month };
 }
+const REFUND_MAX_MONTH = 3; // quota given back per account per month
 async function refundQuota(user, month) {
   if (!user) return;
   try { await L.redis(["DECR", P.quotaKey(user.id, month)]); } catch (e) { /* best effort */ }
@@ -428,12 +429,18 @@ module.exports = async function handler(req, res) {
       if (!isOwner(trip, user)) return isManager(trip, user) ? L.json(res, 403, { error: "owner_only" }) : deny(res, user);
       const bookers = await L.tripBookers(trip); // read before the seats are gone
       // made by mistake (deleted within a day, nobody booked): the month's trip is given back
-      let refunded = false;
+      let refunded = false, capped = false;
       if (trip.qm && !trip.plus && Date.now() - (trip.createdAt || 0) < P.REFUND_HOURS * 3600 * 1000) {
         // seats the app held for the organizer (seat 1, STAFF) don't count as a booking; any other seat does
         const all = await L.pipeline(trip.vans.map((v) => ["HGETALL", L.seatsKey(t, v.id)]));
         const real = all.some((flat) => { const a = Array.isArray(flat) ? flat : []; for (let i = 0; i < a.length; i += 2) { let r = null; try { r = JSON.parse(a[i + 1]); } catch (e) { /* not JSON */ } if (!(String(a[i]) === "1" && appStaff(r))) return true; } return false; });
-        if (!real) { await refundQuota({ id: trip.owner }, trip.qm); refunded = true; }
+        if (!real) {
+          const ck = "refundn:" + trip.owner + ":" + trip.qm; // trips given back this month; at most 3, so create-and-delete can't be a free loop
+          const n = Number(await L.redis(["INCR", ck]));
+          if (n === 1) await L.redis(["EXPIRE", ck, String(40 * 86400)]);
+          if (n > REFUND_MAX_MONTH) { await L.redis(["DECR", ck]); capped = true; }
+          else { await refundQuota({ id: trip.owner }, trip.qm); refunded = true; }
+        }
       }
       const cmds = [["DEL", L.tripKey(t)], ["DEL", L.logKey(t)]];
       if (trip.owner) cmds.push(["SREM", L.myTripsKey(trip.owner), t]);
@@ -441,9 +448,9 @@ module.exports = async function handler(req, res) {
       if (trip.invite && trip.invite.c) cmds.push(["DEL", "inv:" + trip.invite.c]);
       trip.vans.forEach((v) => cmds.push(["DEL", L.seatsKey(t, v.id)]));
       await L.pipeline(cmds);
-      await L.audit({ e: "trip_delete", u: user.id, t, tn: trip.name, refunded: refunded ? 1 : 0, age_h: Math.round((Date.now() - (trip.createdAt || 0)) / 3600000) });
+      await L.audit({ e: "trip_delete", u: user.id, t, tn: trip.name, refunded: refunded ? 1 : 0, capped: capped ? 1 : 0, age_h: Math.round((Date.now() - (trip.createdAt || 0)) / 3600000) });
       await L.notify([].concat(...Object.values(bookers), L.teamIds(trip)), { k: "trip_deleted", t, tn: trip.name, by: "owner" }, user.id);
-      return L.json(res, 200, { ok: true, refunded });
+      return L.json(res, 200, { ok: true, refunded, capped });
     }
 
     if (req.method === "PUT") {

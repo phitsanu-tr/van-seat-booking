@@ -91,7 +91,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       <div id="orders" style="display:flex;flex-direction:column;gap:8px;font-size:14px"></div>
     </div>
     <div class="card" style="margin:16px 0">
-      <div class="row" style="flex-wrap:wrap"><b style="flex:1 1 100%">บันทึกระบบ</b><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn plain" id="lgAudit" type="button" style="white-space:nowrap">กิจกรรม</button><button class="btn plain" id="lgErr" type="button" style="white-space:nowrap">ข้อผิดพลาด</button><button class="btn plain" id="lgCsv" type="button" style="white-space:nowrap">รายรับ CSV</button></span></div>
+      <div class="row" style="flex-wrap:wrap"><b style="flex:1 1 100%">บันทึกระบบ</b><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn plain" id="lgAudit" type="button" style="white-space:nowrap">กิจกรรม</button><button class="btn plain" id="lgErr" type="button" style="white-space:nowrap">ข้อผิดพลาด</button><button class="btn plain" id="lgCsv" type="button" style="white-space:nowrap">รายรับ CSV</button><button class="btn plain" id="lgFill" type="button" style="white-space:nowrap">ย้ายออเดอร์เก่า</button></span></div>
       <div id="ledger" style="font-size:14px;line-height:20px"></div>
       <div id="sysLog" style="display:flex;flex-direction:column;gap:4px;font-size:12px;line-height:16px;color:var(--muted)"></div>
     </div>
@@ -272,6 +272,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       b.textContent = d.n ? "สมุดรายรับถาวร (เริ่มบันทึก " + fmtDay(d.since) + "): จ่าย " + (d.paid || 0).toLocaleString() + "฿ · คืน " + (d.refunded || 0).toLocaleString() + "฿ · สุทธิ " + (d.net || 0).toLocaleString() + "฿ (" + d.n + " รายการ)" : "สมุดรายรับถาวร: ยังไม่มีรายการ (เริ่มบันทึกจากออเดอร์ใหม่)";
     });
   }
+  $("lgFill").addEventListener("click", function () {
+    fetch("/api/owner?backfill=1", { method: "POST", cache: "no-store", headers: { "x-owner-key": KEY } }).then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) { say(j.ok ? "ย้ายออเดอร์เก่าเข้าสมุดแล้ว เพิ่ม " + j.added + " รายการ" : "ย้ายไม่สำเร็จ"); loadLedger(); loadPay(); });
+  });
   $("lgCsv").addEventListener("click", function () {
     fetch("/api/owner?ledger=csv", { cache: "no-store", headers: { "x-owner-key": KEY } }).then(function (r) { return r.ok ? r.blob() : null; }).then(function (bl) {
       if (!bl) { say("ดาวน์โหลดไม่สำเร็จ"); return; }

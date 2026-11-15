@@ -84,7 +84,7 @@ module.exports = async function handler(req, res) {
       return L.json(res, 200, { rows: rows.map((r) => { try { return JSON.parse(r); } catch (e) { return null; } }).filter(Boolean) });
     }
     if (req.method === "GET" && req.query && req.query.ledger !== undefined) { // permanent revenue book; ?ledger=csv downloads it
-      const rows = ((await L.redis(["LRANGE", "ledger", "0", "19999"])) || []).map((r) => { try { return JSON.parse(r); } catch (e) { return null; } }).filter(Boolean);
+      const rows = ((await L.redis(["LRANGE", "ledger", "0", "19999"])) || []).map((r) => { try { return JSON.parse(r); } catch (e) { return null; } }).filter(Boolean).sort((a, b) => b.at - a.at);
       if (req.query.ledger === "csv") {
         const day = (t) => new Date(t + 7 * 3600e3).toISOString().slice(0, 16).replace("T", " ");
         const csv = "\ufeffdate_th,order,package,amount_thb,status\n" + rows.map((r) => [day(r.at), r.o, r.sku, r.st === "refunded" ? -r.amt : r.amt, r.st].join(",")).join("\n") + "\n";
@@ -93,6 +93,19 @@ module.exports = async function handler(req, res) {
       }
       let paid = 0, refunded = 0; rows.forEach((r) => { if (r.st === "paid") paid += r.amt; else if (r.st === "refunded") refunded += r.amt; });
       return L.json(res, 200, { n: rows.length, paid, refunded, net: paid - refunded, since: rows.length ? rows[rows.length - 1].at : 0 });
+    }
+    if (req.method === "POST" && req.query && req.query.backfill !== undefined) { // one time: put the orders still stored (up to 1000) into the ledger; safe to repeat
+      const ids = ((await L.redis(["LRANGE", "orders:all", "0", "999"])) || []).filter((x) => /^[a-z0-9]{12}$/.test(x));
+      const raws = ids.length ? await L.pipeline(ids.map((id) => ["GET", "order:" + id])) : [];
+      let added = 0;
+      for (const r of raws) {
+        let o = null; try { o = JSON.parse(L.open(r)); } catch (e) { o = null; }
+        if (!o || (o.status !== "paid" && o.status !== "refunded")) continue;
+        if (await L.ledger(o, "paid", o.paidAt || o.at)) added++;
+        if (o.status === "refunded" && (await L.ledger(o, "refunded", o.refundedAt || o.paidAt || o.at))) added++;
+      }
+      await L.redis(["SET", "ledger:ready", "1"]);
+      return L.json(res, 200, { ok: true, added });
     }
     if (req.method === "GET" && req.query && req.query.orders !== undefined) {
       const ids = ((await L.redis(["LRANGE", "orders:all", "0", "299"])) || []).filter((x) => /^[a-z0-9]{12}$/.test(x));
@@ -108,6 +121,11 @@ module.exports = async function handler(req, res) {
       });
       let watching = false;
       try { const me = await L.currentUser(req); watching = !!me && Number(await L.redis(["SISMEMBER", "owner:watch", me.id])) === 1; } catch (e) { watching = false; }
+      if ((await L.redis(["GET", "ledger:ready"])) === "1") { // totals from the permanent book, not only the latest orders
+        const lg = ((await L.redis(["LRANGE", "ledger", "0", "19999"])) || []).map((r) => { try { return JSON.parse(r); } catch (e) { return null; } }).filter(Boolean);
+        paid = 0; paidN = 0; month = 0;
+        lg.forEach((r) => { const sg = r.st === "refunded" ? -1 : r.st === "paid" ? 1 : 0; paid += sg * r.amt; paidN += sg; if (new Date(r.at + 7 * 3600e3).toISOString().slice(0, 7) === ym) month += sg * r.amt; });
+      }
       return L.json(res, 200, { orders, watching, totals: { paid, paidN, month }, on: P.enabled(), stripe: /^sk_(test|live)_/.test(process.env.STRIPE_SECRET_KEY || ""), mode: /^sk_live_/.test(process.env.STRIPE_SECRET_KEY || "") ? "live" : "test" });
     }
     if (req.method === "POST") {

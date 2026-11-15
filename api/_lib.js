@@ -163,6 +163,14 @@ async function audit(ev) {
     await pipeline(cmds);
   } catch (e) { /* ignore */ }
 }
+// Permanent revenue book ("ledger"): date, order id, package, amount, status. No names, no account ids. Each order+status is written once.
+async function ledger(o, st, at) {
+  try {
+    if ((await redis(["SET", "ledgerdone:" + o.id + ":" + st, "1", "NX"])) !== "OK") return false;
+    await redis(["LPUSH", "ledger", JSON.stringify({ at: at || Date.now(), o: o.id, sku: o.sku, amt: o.amount || 0, st })]);
+    return true;
+  } catch (e) { return false; }
+}
 // Server errors ("errors:all", last 200, kept 30 days): where, which request, what failed. Also printed so Vercel's logs have it.
 async function errLog(where, req, err, quiet) {
   try {
@@ -371,6 +379,6 @@ function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); retur
 
 module.exports = {
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, json,
-  audit, errLog, seal, open, statDay, bump, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripDaysText, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
+  audit, ledger, errLog, seal, open, statDay, bump, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripDaysText, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
   SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, crossSite, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, linePush, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };
