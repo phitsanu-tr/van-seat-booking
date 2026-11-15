@@ -255,7 +255,7 @@ function open(raw) {
 }
 // Session cookie "vsb_s" (HttpOnly) -> Redis "sess:<id>" = {u, n, p}. u = LINE user id (never sent to other visitors).
 const SESSION_DAYS = 30;
-const MY_DAYS = 400; // "my trips" / "my seats" index lifetime, refreshed on every write
+const MY_DAYS = 365; // "my trips" / "my seats" index lifetime, refreshed on every write
 function cookies(req) {
   const out = {};
   String((req.headers && req.headers.cookie) || "").split(";").forEach((part) => {
