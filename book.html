@@ -1105,7 +1105,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }).catch(function () { mineLoaded = false; });
   }
   function goView(hash) {
-    try { history.pushState(null, "", location.pathname + location.search + hash); } catch (e) { location.hash = hash; }
+    try { history.pushState({ vsb: 1 }, "", location.pathname + location.search + hash); } catch (e) { location.hash = hash; }
     applyMode(); window.scrollTo(0, 0);
   }
   window.addEventListener("popstate", applyMode);
@@ -1870,7 +1870,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
 })();
 </script>
-<script>(function(){var b=document.getElementById("lback");if(!b)return;b.addEventListener("click",function(e){var r="";try{r=new URL(document.referrer).origin;}catch(x){}if(r===location.origin&&history.length>1){e.preventDefault();history.back();}});})();</script>
+<script>(function(){var b=document.getElementById("lback");if(!b)return;b.addEventListener("click",function(e){if(history.state&&history.state.vsb){e.preventDefault();history.back();return;}var r="";try{r=new URL(document.referrer).origin;}catch(x){}if(r===location.origin&&history.length>1){e.preventDefault();history.back();}});})();</script>
 <script src="/tabbar.js" data-tab="seats"></script>
 <script>document.addEventListener("touchstart", function () {}, { passive: true }); // lets iOS apply :active (the pressed seat colour)</script>
 </body>
