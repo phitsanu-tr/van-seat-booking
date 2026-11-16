@@ -176,6 +176,13 @@ module.exports = async function handler(req, res) {
       if (!stripeKey() && !DEV) return L.json(res, 503, { error: "pay_not_ready" });
       if (await L.rateLimited(req, user, "pay", 20, 3600)) return L.json(res, 429, { error: "too_many" });
       const pr = P.priceOf(body.sku);
+      { // pressed twice (or came back and pressed again): reuse the same unpaid checkout while it is still open, so there are never two orders for one purchase
+        const recent = ((await L.redis(["LRANGE", "orders:" + user.id, "0", "4"])) || []).filter((x) => /^[a-z0-9]{12}$/.test(x));
+        for (const rid of recent) {
+          const prev = await loadOrder(rid);
+          if (prev && prev.uid === user.id && prev.status === "open" && prev.sku === body.sku && prev.url && Date.now() - prev.at < 25 * 60 * 1000) return L.json(res, 200, { order: publicOrder(prev), url: prev.url });
+        }
+      }
       const o = { id: L.newId(12), uid: user.id, name: user.name, sku: body.sku, amount: pr.amount, status: "open", at: Date.now() };
       L.bump("order_open");
       let url = "";
@@ -189,6 +196,7 @@ module.exports = async function handler(req, res) {
         });
         o.sess = sess.id; url = sess.url;
       } else url = "/plans?order=" + o.id + "&dev=1";
+      o.url = url;
       await saveOrder(o);
       await L.pipeline([["LPUSH", "orders:" + user.id, o.id], ["LTRIM", "orders:" + user.id, "0", "99"], ["EXPIRE", "orders:" + user.id, String(ORDER_DAYS * 86400)],
         ["LPUSH", "orders:all", o.id], ["LTRIM", "orders:all", "0", "999"]]);

@@ -1,0 +1,15 @@
+const HLP=require('../helpers');const {chromium}=require(HLP.PW);const B=HLP.BASE;const log=(...a)=>console.log(...a);
+(async()=>{const b=await chromium.launch(HLP.launchOpts);const c=await b.newContext();const p=await c.newPage();
+await p.goto(B+'/api/auth?start=1&as=Payer&r=%2F');await p.waitForTimeout(400);
+const H={'x-owner-key':'test-owner-key-1234567'};
+const t=await (await p.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(30),meetPoint:'x',name:'ทริปจ่าย',organizer:'ท',startDate:HLP.day(30),departTime:'08:00',vans:[{label:'1'}]}})).json();
+await p.request.post(B+'/api/owner',{headers:H,data:{grant:{t:t.id,tester:true}}});
+const pay=async(sku)=>(await p.request.post(B+'/api/pay',{data:{sku}})).json();
+const a=await pay('pass'),b2=await pay('pass');
+log('pressed twice: same order',a.order&&b2.order&&a.order.id===b2.order.id,'same url',a.url===b2.url);
+const other=await pay('std_m').catch(()=>({}));
+if(other.order)log('different package: new order',other.order.id!==a.order.id);
+await p.request.post(B+'/api/pay',{data:{order:a.order.id,devPaid:true}});
+const c2=await pay('pass');
+log('after paying: a new purchase gets a new order',!!(c2.order&&c2.order.id!==a.order.id));
+log('ERR',[]);await b.close()})();

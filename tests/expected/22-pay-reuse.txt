@@ -1,0 +1,4 @@
+pressed twice: same order true same url true
+different package: new order true
+after paying: a new purchase gets a new order true
+ERR []
