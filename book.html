@@ -418,11 +418,32 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 .facts .meet > div { display: block; min-width: 0; }
 .facts .meet .fv { display: block; }
 .facts .meet .mk { display: block; font-size: 12px; line-height: 16px; color: var(--muted); }
-.orgrow { display: flex; align-items: center; gap: 10px; padding: 16px 8px 0; }
-.orgrow .oav { width: 32px; height: 32px; border-radius: 50%; background: var(--mine); color: #fff; font: 600 14px/32px var(--font-display); text-align: center; flex: none; overflow: hidden; }
-.orgrow small { display: block; font-size: 12px; line-height: 14px; color: var(--muted); }
-.orgrow b { display: block; font: 600 14px/20px var(--font-display); color: var(--deep); overflow-wrap: anywhere; }
-.orgrow + .shead { padding-top: 12px; }
+/* two views of one page: #info = trip details (from "ทริปของฉัน"), otherwise the seat map */
+body:not(.v-info) #tripFacts, body:not(.v-info) #infoAct { display: none !important; }
+body.v-info #deck, body.v-info #tripMini, body.v-info .hero .org, body.v-list .hero .org { display: none !important; }
+.facts .orgl { display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 20px; color: var(--mine); margin-bottom: 4px; }
+.facts .orgl svg { width: 14px; height: 14px; margin: 0; }
+.facts .orgl b { font-weight: 600; overflow-wrap: anywhere; }
+.facts .fhead .ftitle { }
+.tmini { display: flex; align-items: center; gap: 10px; margin: 12px 0 0; padding: 10px 12px; background: var(--surface); border: 1px solid #e8ecef; border-radius: 16px; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
+.tmini .tx { flex: 1; min-width: 0; }
+.tmini .tx b { display: block; font: 600 14px/20px var(--font-display); overflow-wrap: anywhere; }
+.tmini .tx span { display: block; font-size: 12px; line-height: 16px; color: var(--muted); overflow-wrap: anywhere; }
+.tmini .tinfo { flex: none; display: inline-flex; align-items: center; border: 1.5px solid var(--mine); background: none; color: var(--mine); border-radius: 100px; padding: 6px 10px 6px 12px; font: 600 12px/16px var(--font-body); cursor: pointer; }
+.tmini .tinfo svg { width: 14px; height: 14px; margin-left: 2px; }
+.infoact { display: grid; gap: 12px; margin: 12px 0 0; }
+.infoact .icard { padding: 16px; background: var(--surface); border: 1px solid #e8ecef; border-radius: 16px; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); display: grid; gap: 10px; }
+.infoact .ibar { height: 10px; border-radius: 10px; background: #eef2f4; overflow: hidden; }
+.infoact .ibar i { display: block; height: 100%; background: var(--mine); border-radius: 10px; }
+.infoact .irow { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.infoact .irow b { font: 600 16px/24px var(--font-display); color: var(--deep); }
+.infoact .irow span { font-size: 12px; color: var(--muted); }
+.infoact .imine { background: #e4f3f4; color: var(--deep); border-radius: 12px; padding: 6px 12px; font-size: 14px; line-height: 20px; }
+.infoact .ibtns { display: grid; gap: 8px; }
+.infoact .ibtns button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; border-radius: 16px; font: 600 16px/24px var(--font-display); cursor: pointer; }
+.infoact .ibtns .ipri { background: var(--mine); color: #fff; border: 0; }
+.infoact .ibtns .isec { background: var(--surface); color: var(--ink); border: 1.5px solid #cfd9dd; }
+.infoact .ibtns svg { width: 16px; height: 16px; }
 .vb-bell { border-color: #e8ecef!important; }
 .deck .tabs { gap: 12px; }
 .tab { border-color: #e8ecef!important; }
@@ -495,6 +516,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <div class="ended" id="closedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span><b>ปิดรับจองแล้ว</b> จองหรือยกเลิกเองไม่ได้ ถ้าต้องการเปลี่ยนที่นั่ง ติดต่อผู้จัดทริป</span></div>
     <div class="chgban" id="chgBan" hidden></div>
     <div class="facts" id="tripFacts" role="list" aria-label="ข้อมูลทริป" hidden></div>
+    <div class="infoact" id="infoAct" hidden>
+      <div class="icard" id="infoProg"></div>
+      <div class="ibtns"><button type="button" class="ipri" id="goSeats">ไปที่ผังที่นั่ง</button><button type="button" class="isec" id="goRoster">รายชื่อผู้ร่วมทริป</button><button type="button" class="isec" id="infoShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg>แชร์ทริปนี้</button></div>
+    </div>
+    <div class="tmini" id="tripMini" hidden><div class="tx"><b id="miniT"></b><span id="miniS"></span></div><button type="button" class="tinfo" id="miniInfo">ข้อมูลทริป<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
     <div class="invite" id="invite" hidden><span class="ok"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><span class="tx"><b id="invT">จองที่นั่งแล้ว</b><small>ชวนผู้ร่วมทริปมาจองด้วยกัน</small></span><button type="button" class="go" id="invGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>แชร์ใน LINE</button><button type="button" class="x" id="invX" aria-label="ปิด">×</button></div>
   </header>
 
@@ -516,7 +542,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 
   <section class="sheet" id="sheetView" aria-label="ผังที่นั่งรถตู้">
     <div id="notice"></div>
-    <div class="orgrow" id="orgRow" hidden><span class="oav" id="orgAv" aria-hidden="true"></span><div><small>ผู้จัดทริป</small><b id="orgName"></b></div></div>
     <div class="vrow shead"><div class="plate" id="plate" hidden></div><div class="count" id="count">จองแล้ว <b>0</b>&thinsp;/&thinsp;10</div></div>
     <div class="plan">
       <svg viewBox="0 0 820 1384" aria-hidden="true" focusable="false">
@@ -1051,6 +1076,50 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     document.getElementById("listView").hidden = v !== "list";
     document.getElementById("swMap").setAttribute("aria-selected", v === "map" ? "true" : "false");
     document.getElementById("swList").setAttribute("aria-selected", v === "list" ? "true" : "false");
+    applyMode();
+  }
+  // #info = trip details, no hash = seat map / list. Browser back moves between them (pushState), so back from the map goes to the details.
+  var mineLine = "", mineLoaded = false, wasInfo = false;
+  function infoMode() { return location.hash === "#info"; }
+  function applyMode() {
+    var on = infoMode();
+    document.body.classList.toggle("v-info", on);
+    document.body.classList.toggle("v-list", !on && view === "list");
+    var h = document.querySelector(".hero h1");
+    if (h) h.textContent = on ? "รายละเอียดทริป" : (view === "list" ? "รายชื่อ" : "ผังที่นั่ง");
+    if (on && !wasInfo) mineLoaded = false; // coming (back) to the details: ask again which seat is mine
+    wasInfo = on;
+    if (on && !mineLoaded && me) loadMine();
+  }
+  function loadMine() {
+    mineLoaded = true;
+    fetch("/api/me", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+      var t = ((d && d.seats) || []).filter(function (x) { return x.id === TRIP; })[0];
+      var multi = trip && trip.vans && trip.vans.length > 1;
+      mineLine = t && t.seats && t.seats.length ? t.seats.map(function (x) { return (multi ? "คัน " + x.vanLabel + " " : "") + "ที่ " + x.seat; }).join(", ") : "";
+      if (trip) renderTrip();
+    }).catch(function () { mineLoaded = false; });
+  }
+  function goView(hash) {
+    try { history.pushState(null, "", location.pathname + location.search + hash); } catch (e) { location.hash = hash; }
+    applyMode(); window.scrollTo(0, 0);
+  }
+  window.addEventListener("popstate", applyMode);
+  window.addEventListener("hashchange", applyMode);
+  document.getElementById("goSeats").addEventListener("click", function () { goView(""); });
+  document.getElementById("goRoster").addEventListener("click", function () { goView(""); setView("list"); });
+  document.getElementById("miniInfo").addEventListener("click", function () { goView("#info"); });
+  document.getElementById("infoShare").addEventListener("click", function () { shareFriend(); });
+  // first time this person opens this trip (and has no seat, isn't the organizer, link carries no seat/van): details first, once
+  var entryDecided = false;
+  function decideEntry() {
+    if (entryDecided) return; entryDecided = true;
+    var seen = true;
+    try { var key = "vsb_seen_" + TRIP; seen = !!localStorage.getItem(key); localStorage.setItem(key, "1"); } catch (e) {}
+    if (seen || location.hash || isOwner || params.get("v") || params.get("seat") || params.get("img") || params.get("mk")) return;
+    for (var n in seats) if (mine(Number(n))) return;
+    try { history.replaceState(history.state, "", location.pathname + location.search + "#info"); } catch (e) {}
+    applyMode();
   }
   document.getElementById("swMap").addEventListener("click", function () { setView("map"); });
   document.getElementById("swList").addEventListener("click", function () { setView("list"); });
@@ -1111,7 +1180,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     document.title = "VanTrip";
     var IC = {
       van: '<path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/>',
-      pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'
+      pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+      usr: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3-6 7-6s7 2.4 7 6"/>'
     };
     function svgIcon(k, sz) {
       var ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg");
@@ -1121,6 +1191,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     factsEl.textContent = "";
     var fh = el("div", "fhead");
+    if (trip.organizer) {
+      var ol = el("div", "orgl"), osv = svgIcon("usr"); ol.appendChild(osv); var ot = el("span"); ot.appendChild(document.createTextNode("จัดโดย ")); ot.appendChild(el("b", null, trip.organizer)); ol.appendChild(ot); fh.appendChild(ol);
+    }
     fh.appendChild(el("div", "ftitle", trip.name));
     factsEl.appendChild(fh);
     // chips: how many days (with dates) + how many vans
@@ -1151,13 +1224,17 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       mt.appendChild(el("span", CHG.meet ? "fv chg" : "fv", trip.meetPoint));
       mp.appendChild(mt); factsEl.appendChild(mp);
     }
-    var orgRow = document.getElementById("orgRow");
-    orgRow.hidden = !trip.organizer;
-    if (trip.organizer) {
-      var ini = Array.from(String(trip.organizer).replace(/^[\s\u0e40\u0e41\u0e42\u0e43\u0e44]+/, ""))[0] || "";
-      document.getElementById("orgAv").textContent = ini.toUpperCase();
-      document.getElementById("orgName").textContent = trip.organizer;
-    }
+    var tot = trip.vans.length * TOTAL, booked = 0;
+    trip.vans.forEach(function (v) { booked += counts[v.id] != null ? counts[v.id] : (v.id === curVan ? Object.keys(seats).length : 0); });
+    document.getElementById("miniT").textContent = trip.name;
+    document.getElementById("miniS").textContent = [leg(trip.startDate, trip.departTime), trip.organizer].filter(Boolean).join(" · ");
+    document.getElementById("tripMini").hidden = false;
+    var ip = document.getElementById("infoProg"); ip.textContent = "";
+    var bar = el("div", "ibar"), fill = el("i"); fill.style.width = (tot ? Math.min(100, Math.round(booked / tot * 100)) : 0) + "%"; bar.appendChild(fill); ip.appendChild(bar);
+    var irow = el("div", "irow"); irow.appendChild(el("b", null, tot - booked > 0 ? "เหลือ " + (tot - booked) + " ที่นั่ง" : "เต็มแล้ว")); irow.appendChild(el("span", null, "จองแล้ว " + booked + " / " + tot)); ip.appendChild(irow);
+    if (mineLine) { var im = el("div", "imine"); im.appendChild(document.createTextNode("ที่นั่งของคุณ · ")); im.appendChild(el("b", null, mineLine)); ip.appendChild(im); }
+    document.getElementById("infoAct").hidden = false;
+    if (infoMode() && me && !mineLoaded) loadMine(); // signed in after the page opened on the details
     factsEl.hidden = false;
     var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0] || trip.vans[0];
     var plateEl = document.getElementById("plate");
@@ -1293,7 +1370,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (bellOn && ((loaded && lastTrip && JSON.stringify(trip) + ended + closed !== lastTrip) || (ibNow !== undefined && lastIb !== null && ibNow !== lastIb))) VSBBell.load(); // new notification (or the trip changed)
       if (ibNow !== undefined) lastIb = ibNow;
       lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip) + ended + closed;
-      seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff(); showNet(false);
+      seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff(); showNet(false); decideEntry();
       if (locked() && selected !== null) { selected = null; message = ""; confirming = false; renaming = false; force = true; } // closed while the dialog was open
       if (changed || force) renderAll();
       if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !locked()) openSeat(ws); }

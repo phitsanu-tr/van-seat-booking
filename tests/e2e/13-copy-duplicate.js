@@ -44,6 +44,7 @@ await P.goto(B+'/trips/new?copy='+ID);await P.waitForTimeout(1800);log('stranger
 // --- finished trip card
 const done=await (await A.request.post(B+'/api/trip',{data:{tripN:2,tripStart:HLP.day(-5),meetPoint:'จุดนัดพบ',name:'ทริปที่แล้ว',startDate:HLP.day(-5),endDate:HLP.day(-4),departTime:'06:00',vans:[{label:'A'}]}})).json();
 await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);
+{const er=await A.$('.endrow');if(er){await er.click();await A.waitForTimeout(400);}} // finished trips are folded away behind "จบแล้ว · N ทริป" when there are 2+ trips
 log('finished card links',await A.$$eval('.card.dim .dfoot > *',e=>e.map(x=>x.textContent)));
 await A.click('.card.dim .cpy');await A.waitForTimeout(1800);log('copy finished trip: name',await A.inputValue('#name'),'start empty',await A.inputValue('#startDate')==='');
 log('ERR',errs);await b.close();})();

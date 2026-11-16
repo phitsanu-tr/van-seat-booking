@@ -900,7 +900,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       sh.insertAdjacentHTML("beforeend", MG.share); sh.appendChild(document.createTextNode(x.closed ? "แชร์ผัง" : "แชร์ลิงก์")); sh.setAttribute("aria-label", x.closed ? "แชร์ผังที่นั่ง" : "แชร์ลิงก์จอง");
       sh.addEventListener("click", function () { shareTrip(x); });
       acts.appendChild(ros); acts.appendChild(vmap); acts.appendChild(sh); c.appendChild(acts);
-      tapCard(c, "/" + x.id); // tap the card: open the seat plan (buttons keep their own action)
+      tapCard(c, "/" + x.id + "#info"); // tap the card: open the trip details (buttons keep their own action)
       pane.appendChild(c);
     });
     if (done.length && view === "up") {
@@ -909,7 +909,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     } else if (done.length) {
       section(pane, "จบแล้ว", "ลบอัตโนมัติหลังเดินทาง 60 วัน");
       done.forEach(function (x) {
-        var c = node("div", "card dim"); tapCard(c, "/" + x.id);
+        var c = node("div", "card dim"); tapCard(c, "/" + x.id + "#info");
         var r1 = node("div", "row1"); r1.appendChild(node("div", "t", x.name)); r1.appendChild(node("span", "pill p-end", "จบแล้ว")); c.appendChild(r1);
         var m = node("div", "meta"); var s1 = node("span"); s1.appendChild(node("i", null, dateRange(x.startDate, x.endDate) || "ไม่ระบุวัน")); m.appendChild(s1);
         var s2 = node("span", null, "จอง "); s2.appendChild(node("i", null, x.booked + "/" + x.total)); m.appendChild(s2); c.appendChild(m);
@@ -955,7 +955,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   function ticket(x, past) {
     var c = node("div", "card tk" + (past ? " dim" : "")), l = node("div", "l");
-    tapCard(c, "/" + x.id + (x.seats && x.seats[0] ? "?v=" + encodeURIComponent(x.seats[0].van) : ""));
+    tapCard(c, "/" + x.id + (x.seats && x.seats[0] ? "?v=" + encodeURIComponent(x.seats[0].van) : "") + "#info");
     var tg = past ? null : noteTag(x.id); if (tg) l.appendChild(tg);
     l.appendChild(node("div", "t", x.name));
     if (past) {
@@ -1772,7 +1772,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       // one card, up to 3 nearest trips: name (1 line) · day · time, booked/total with a small bar, ›; tap → that trip's seat plan
       var lst=el("div","hl");
       trips.slice().sort(function(a,b){return String(a.startDate||"9").localeCompare(String(b.startDate||"9"))||String(a.departTime||"").localeCompare(String(b.departTime||""));}).slice(0,3).forEach(function(x){
-        var r=el("a","hrow");r.href="/"+x.id;
+        var r=el("a","hrow");r.href="/"+x.id+"#info";
         var tx=el("div","tx");tx.appendChild(el("b",null,x.name||"ทริปไม่มีชื่อ"));tx.appendChild(el("span",null,[dayLabel(x.startDate,false),tm(x.departTime)].filter(Boolean).join(" · ")));r.appendChild(tx);
         var ct=el("div","ct"),n=el("b",null,String(x.booked||0));n.appendChild(el("i",null,"/"+(x.total||0)));ct.appendChild(n);
         var b2=el("div","b2"),bi=el("i");bi.style.width=(x.total?Math.min(100,Math.round(x.booked/x.total*100)):0)+"%";b2.appendChild(bi);ct.appendChild(b2);r.appendChild(ct);

@@ -29,7 +29,10 @@ let css = "";
 for (const [fam, d] of FAM) if (dirs[d]) for (const w of [400, 500, 600]) for (const [sub, ur] of [["thai", TH], ["latin", LA]])
   css += `@font-face{font-family:'${fam}';font-weight:${w};font-style:normal;font-display:block;src:url(https://fonts.gstatic.com/x/${d}/${d}-${sub}-${w}-normal.woff2) format('woff2');unicode-range:${ur}}\n`;
 
-async function fonts(ctx) {
+// Tests act as returning visitors by default: the booking page opens the trip details first only the first time a trip is opened
+// (localStorage vsb_seen_<trip>). Pass { firstVisit: true } to behave like a brand-new visitor.
+async function fonts(ctx, opt) {
+  if (!(opt && opt.firstVisit)) await ctx.addInitScript(() => { const g = Storage.prototype.getItem; Storage.prototype.getItem = function (k) { return String(k).indexOf("vsb_seen_") === 0 ? "1" : g.call(this, k); }; });
   await ctx.route("**/fonts.googleapis.com/**", (r) => r.fulfill({ status: 200, contentType: "text/css", body: css }));
   await ctx.route("**/fonts.gstatic.com/x/**", (r) => {
     const [, , d, f] = new URL(r.request().url()).pathname.split("/");

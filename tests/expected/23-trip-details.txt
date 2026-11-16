@@ -1,0 +1,18 @@
+first visit {"hash":"#info","info":true,"h1":"รายละเอียดทริป","deck":false,"facts":true,"mini":false}
+details text true true true true
+progress เหลือ 10 ที่นั่งจองแล้ว 0 / 10
+after go seats {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
+mini <วัน> · 19:00 · ทัวร์ตัวตึงข้อมูลทริป
+mini -> info {"hash":"#info","info":true,"h1":"รายละเอียดทริป","deck":false,"facts":true,"mini":false}
+back {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
+back again {"hash":"#info","info":true,"h1":"รายละเอียดทริป","deck":false,"facts":true,"mini":false}
+second visit {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
+roster button {"hash":"","info":false,"h1":"รายชื่อ","deck":true,"facts":false,"mini":true} list shown true
+booked 200
+details with my seat เหลือ 9 ที่นั่งจองแล้ว 1 / 10ที่นั่งของคุณ · ที่ 3
+organizer first visit {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
+link with ?v {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
+holds a seat {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
+cards [ 'card tk tap' ]
+after card tap /<id>#info {"hash":"#info","info":true,"h1":"รายละเอียดทริป","deck":false,"facts":true,"mini":false}
+ERR []
