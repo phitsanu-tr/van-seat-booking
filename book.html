@@ -430,6 +430,7 @@ body.v-info #deck, body.v-info #tripMini, body.v-info .hero .org, body.v-list .h
 .tmini .tx b { display: block; font: 600 14px/20px var(--font-display); overflow-wrap: anywhere; }
 .tmini .tx span { display: block; font-size: 12px; line-height: 16px; color: var(--muted); overflow-wrap: anywhere; }
 .tmini .tinfo { flex: none; display: inline-flex; align-items: center; border: 1.5px solid var(--mine); background: none; color: var(--mine); border-radius: 100px; padding: 6px 12px; font: 600 12px/16px var(--font-body); cursor: pointer; }
+.tmini .tinfo { position: relative; } .tmini .tinfo::after { content: ""; position: absolute; inset: -8px -4px; }
 .tmini .tinfo svg { width: 14px; height: 14px; margin-left: 2px; }
 .infoact { display: grid; gap: 16px; margin: 16px 0 0; }
 .infoact .icard { padding: 16px; background: var(--surface); border: 1px solid #e8ecef; border-radius: 16px; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); display: grid; gap: 12px; }

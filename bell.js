@@ -38,7 +38,7 @@
     ".vb-tx em{font-style:normal;color:#1b1f22;font-weight:600}",
     ".vb-tx small{display:block;font-size:12px;color:#8a979e;margin-top:2px; line-height: 16px}",
     ".vb-dot{position:absolute;right:10px;top:14px;width:8px;height:8px;border-radius:50%;background:#b3261e}",
-    ".vb-empty{text-align:center;color:#5f6b73;font-size:14px;line-height:20px;padding:40px 8px}",
+    ".vb-empty{text-align:center;color:#5f6b73;font-size:14px;line-height:20px;padding:32px 8px}",
     ".vb-empty svg{display:block;margin:0 auto 12px}",
     ".vb-empty b{display:block;font:600 16px/24px 'Prompt','Noto Sans Thai',system-ui,sans-serif;color:#1b1f22;margin-bottom:4px}",
     ".vb-ft{font-size:12px;color:#5f6b73;text-align:center;margin-top:8px; line-height: 16px}",
