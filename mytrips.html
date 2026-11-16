@@ -249,6 +249,16 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .stat b { font-size: 14px; line-height: 20px; font-weight: 600; white-space: nowrap; }
 .stat b span { color: var(--muted); font-weight: 400; }
 .stat small { font-size: 12px; line-height: 16px; color: var(--muted); white-space: nowrap; }
+.stat small.left { color: #4a5560; } .stat small.left b { display: inline; font-size: inherit; line-height: inherit; color: var(--mine); font-weight: 600; } .stat small.left.low, .stat small.left.low b { color: var(--amber); }
+.vchip { display: inline-flex; align-items: center; gap: 4px; background: #eef2f4; color: #4a5560; border-radius: 100px; font-size: 12px; line-height: 16px; padding: 2px 8px; } .vchip svg { width: 14px; height: 14px; flex: none; }
+.vseg { display: flex; background: #eef2f4; border-radius: 12px; padding: 3px; margin: 4px 0 12px; }
+.vseg button { flex: 1; height: 32px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font: 500 14px/20px var(--font-body); }
+.vseg button.on { background: #fff; color: var(--mine); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.dsum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 16px; }
+.dsum div { background: #fff; border: 1px solid #e8ecef; border-radius: 16px; padding: 12px 12px 10px; min-width: 0; }
+.dsum b { display: block; font: 600 24px/32px var(--font-display); color: var(--mine); } .dsum span { display: block; font-size: 12px; line-height: 16px; color: var(--muted); } .dsum div.warn b { color: var(--amber); }
+.endrow { display: flex; width: 100%; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #e8ecef; border-radius: 16px; padding: 14px 16px; font: 400 14px/20px var(--font-body); color: #4a5560; text-align: left; }
+.endrow b { color: var(--ink); font-weight: 600; } .endrow i { font-style: normal; color: var(--mine); font-weight: 500; }
 .orgx { font-size: 12px; line-height: 16px; color: var(--muted); margin-top: -4px; }
 .mtag { display: flex; gap: 8px; align-items: flex-start; background: #e7f3f4; border-radius: 12px; padding: 8px 12px; color: var(--mine); }
 .mtag svg { flex: none; width: 16px; height: 16px; margin-top: 2px; }
@@ -842,10 +852,28 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var go = node("a", "wgo", "＋ สร้างทริปแรก"); go.href = "/trips/new"; big.appendChild(go);
     return big;
   }
+  var tripView = "up"; // organizer list: "up" = coming trips (finished ones folded away), "all" = coming + finished
+  var VAN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16V7a2 2 0 0 1 2-2h9l5 5v6"/><circle cx="7.5" cy="17" r="1.8"/><circle cx="16.5" cy="17" r="1.8"/></svg>';
+  function sumBar(pane, list, up, done) { // switch + 3 totals; only worth showing with 2+ trips
+    var sw = node("div", "vseg"); sw.setAttribute("role", "group"); sw.setAttribute("aria-label", "แสดงทริป");
+    [["up", "กำลังจะถึง"], ["all", "ทั้งหมด"]].forEach(function (t) {
+      var b = node("button", tripView === t[0] ? "on" : "", t[1]); b.type = "button"; b.setAttribute("aria-pressed", tripView === t[0] ? "true" : "false");
+      b.addEventListener("click", function () { if (tripView !== t[0]) { tripView = t[0]; renderTrips(list); } }); sw.appendChild(b);
+    });
+    pane.appendChild(sw);
+    var booked = 0, cap = 0; up.forEach(function (x) { booked += x.booked || 0; cap += x.total || 0; });
+    var all = 0; list.forEach(function (x) { all += x.booked || 0; });
+    var cells = tripView === "up" ? [[up.length, "ทริปที่เปิดอยู่"], [booked, "จองแล้ว (ที่นั่ง)"], [Math.max(0, cap - booked), "ที่นั่งเหลือ", cap - booked <= 5]]
+      : [[list.length, "ทริปทั้งหมด"], [all, "ที่นั่งที่จองรวม"], [done.length, "ทริปที่จบแล้ว"]];
+    var g = node("div", "dsum"); cells.forEach(function (c) { var d = node("div", c[2] ? "warn" : ""); d.appendChild(node("b", null, String(c[0]))); d.appendChild(node("span", null, c[1])); g.appendChild(d); });
+    pane.appendChild(g);
+  }
   function renderTrips(list) {
     var pane = $("paneTrips"); pane.textContent = "";
     var up = list.filter(function (x) { return !x.ended; }), done = list.filter(function (x) { return x.ended; });
     if (!list.length) { pane.appendChild(noTrips()); return; }
+    var showSum = list.length >= 2, view = showSum ? tripView : "all";
+    if (showSum) sumBar(pane, list, up, done);
     if (up.length) section(pane, "กำลังจะถึง", "", up.length);
     up.forEach(function (x) {
       var c = node("div", "card"), r1 = node("div", "row1");
@@ -855,12 +883,15 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var mg = node("button", "ab mgo kb"); mg.type = "button"; mg.insertAdjacentHTML("beforeend", MG.dots); mg.setAttribute("aria-label", "จัดการทริป"); mg.title = "จัดการทริป";
       mg.addEventListener("click", function () { openManage(x); }); r1.appendChild(mg); hd.appendChild(r1);
       var p = statusPill(x);
-      if (x.organizer || p) { var sub = node("div", "org"); if (x.organizer) sub.appendChild(node("span", null, x.organizer)); if (p) sub.appendChild(p); hd.appendChild(sub); }
+      { var sub = node("div", "org"); if (x.organizer) sub.appendChild(node("span", null, x.organizer)); if (p) sub.appendChild(p);
+        var vc = node("span", "vchip"); vc.insertAdjacentHTML("beforeend", VAN_SVG); vc.appendChild(document.createTextNode("รถตู้ " + x.vans + " คัน")); sub.appendChild(vc); hd.appendChild(sub); }
       if (x.role === "helper") hd.appendChild(node("div", "rolep", "คุณเป็นผู้ช่วยจัดทริปนี้"));
       hd.appendChild(routeBox(x, true));
       var full = x.total && x.booked >= x.total, bar = node("div", "bar" + (full ? " full" : "")), bi = node("i"); bi.style.width = (x.total ? Math.min(100, Math.round(x.booked / x.total * 100)) : 0) + "%"; bar.appendChild(bi);
       var st = node("div", "stat"), sn = node("b", null, String(x.booked)); sn.appendChild(node("span", null, "/" + x.total)); sn.setAttribute("aria-label", "จองแล้ว " + x.booked + " จาก " + x.total + " ที่นั่ง");
-      st.appendChild(sn); st.appendChild(bar); st.appendChild(node("small", null, "รถตู้ " + x.vans + " คัน")); hd.appendChild(st);
+      var lf = Math.max(0, (x.total || 0) - (x.booked || 0)), sm = node("small", "left" + (x.total && lf > 0 && lf <= 2 ? " low" : ""));
+      if (x.total && lf === 0) sm.appendChild(node("b", null, "เต็มแล้ว")); else { sm.appendChild(document.createTextNode("เหลือ ")); sm.appendChild(node("b", null, lf + " ที่")); if (x.total && lf <= 2) sm.appendChild(document.createTextNode(" · ใกล้เต็ม")); }
+      st.appendChild(sn); st.appendChild(bar); st.appendChild(sm); hd.appendChild(st);
       if (!x.closed && closeText(x.closeAt)) hd.appendChild(node("div", "cat", "ปิดรับจองอัตโนมัติ " + closeText(x.closeAt)));
       c.appendChild(hd);
       var ros = node("button", "ab ros3", "รายชื่อ"); ros.type = "button"; ros.addEventListener("click", function () { openRoster(x); }); ros.addEventListener("pointerdown", function () { prefetchRoster(x.id); }); ros.insertAdjacentHTML("afterbegin", MG.team);
@@ -872,7 +903,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       tapCard(c, "/" + x.id); // tap the card: open the seat plan (buttons keep their own action)
       pane.appendChild(c);
     });
-    if (done.length) {
+    if (done.length && view === "up") {
+      var er = node("button", "endrow"); er.type = "button"; var el1 = node("span"); el1.appendChild(node("b", null, "จบแล้ว")); el1.appendChild(document.createTextNode(" · " + done.length + " ทริป"));
+      er.appendChild(el1); er.appendChild(node("i", null, "ดูทั้งหมด ›")); er.addEventListener("click", function () { tripView = "all"; renderTrips(list); }); pane.appendChild(er);
+    } else if (done.length) {
       section(pane, "จบแล้ว", "ลบอัตโนมัติหลังเดินทาง 60 วัน");
       done.forEach(function (x) {
         var c = node("div", "card dim"); tapCard(c, "/" + x.id);
