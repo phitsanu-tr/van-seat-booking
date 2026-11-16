@@ -1,8 +1,8 @@
 /* Shared look of the app. STANDARD: every font size, line height and picture size is an EVEN number of px.
    Page header (booking, create / edit trip): a 4px teal bar on the left (full height of the text), then the title and one short line.
    Title / line sizes step with the screen width (the short line is never allowed to wrap). */
-:root { --pg-t: 24px; --pg-tl: 32px; --pg-s: 14px; --pg-sl: 20px; --pg-bt: 2px; --pg-bb: 4px; } /* one size on every sub-page, any screen width */
-@media (max-width: 340px) { :root { --pg-t: 22px; --pg-tl: 28px; --pg-s: 12px; --pg-sl: 16px; --pg-bt: 2px; --pg-bb: 2px; } }
+:root { --pg-t: 26px; --pg-tl: 32px; --pg-s: 14px; --pg-sl: 20px; --pg-bt: 2px; --pg-bb: 4px; } /* one size on every sub-page, any screen width */
+@media (max-width: 340px) { :root { --pg-t: 24px; --pg-tl: 32px; --pg-s: 12px; --pg-sl: 16px; --pg-bt: 2px; --pg-bb: 2px; } }
 
 .hero { position: static; display: flex; align-items: center; gap: 14px; background: none; border-radius: 0; padding: 0 0 6px; }
 body { padding-top: 16px !important; } /* title starts 16px below the top on every page */

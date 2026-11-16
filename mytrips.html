@@ -1834,14 +1834,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   $("navNotif").addEventListener("click", function () { setTab("notif"); });
   $("mkRead").addEventListener("click", function () { if (window.VSBBell) VSBBell.read("all"); });
   function unreadN() { return window.VSBBell && VSBBell.ready ? VSBBell.unread : 0; }
-  function updateHead() { // page title + one fixed line that says what the tab is for (never a status, so it never repeats the empty-state text); the "สร้างทริป" capsule only on the trips page
-    var nm = $("meName").textContent || "", T = "", S = "";
-    if (tab === "home") { T = "สวัสดี " + nm; S = "ภาพรวมทริปและที่นั่งของคุณ"; }
-    else if (tab === "trips") { T = "ทริปของฉัน"; S = "ทริปที่คุณสร้างและดูแล"; }
-    else if (tab === "seats") { T = "ที่นั่งของฉัน"; S = "ที่นั่งที่คุณจองในทุกทริป"; }
-    else if (tab === "notif") { T = "แจ้งเตือน"; S = "การเปลี่ยนแปลงทริปของคุณ"; }
-    else { T = "โปรไฟล์"; S = "บัญชีและแพ็กเกจของคุณ"; }
-    $("ltT").textContent = T; $("ltS").textContent = S;
+  function updateHead() { // page title  the "สร้างทริป" capsule only on the trips page
+    var nm = $("meName").textContent || "", T = "";
+    if (tab === "home") { T = "สวัสดี " + nm; }
+    else if (tab === "trips") { T = "ทริปของฉัน"; }
+    else if (tab === "seats") { T = "ที่นั่งของฉัน"; }
+    else if (tab === "notif") { T = "แจ้งเตือน"; }
+    else { T = "โปรไฟล์"; }
+    $("ltT").textContent = T;
     document.body.classList.toggle("t-home", tab === "home");
     $("mkTrip").classList.toggle("show", (tab === "trips" || tab === "home") && !!(D && D.trips.length));
     $("abNew").hidden = !(D && D.trips.length); // shortcut only for organizers; with no trips the home banner already offers it
