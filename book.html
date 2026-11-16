@@ -461,7 +461,12 @@ body.v-info #deck, body.v-info #tripMini, body.v-info .hero .org, body.v-list .h
 .hbar .lback{display:none}
 body.signed .hbar .acct{display:none !important}
 body.signed .hbar .lback{display:inline-flex;align-items:center;gap:4px;width:36px;justify-content:center;height:36px;margin:0 0 8px -8px;font:600 16px/24px var(--font-display);color:#0b5f67;text-decoration:none}
-body.signed .hbar .lback svg{width:20px;height:20px}
+body.signed .hbar .lback svg{width:22px;height:22px}
+body.signed .hbar{position:relative;height:0;min-height:0}
+body.signed .hbar .brand{display:none}
+body.signed .hbar .lback{position:absolute;left:-8px;top:2px;margin:0;width:36px;height:36px}
+body.signed .hero{padding-top:4px}
+body.signed .hero h1{padding-left:28px}
 html.sgn .hero h1,body.signed .hero h1{font:700 26px/32px var(--font-display)} /* same title size as the bottom-menu pages */
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
