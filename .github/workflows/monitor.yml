@@ -1,0 +1,22 @@
+# Checks the live site every 30 minutes (scripts/smoke.js: pages answer, owner endpoints refuse without the key).
+# When it fails GitHub emails the repo owner about the failed run, which is the "site is down" alert.
+# Optional: add the repository secret OWNER_KEY to also check the owner endpoints; set the variable SITE to change the address.
+name: monitor
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check the live site
+        env:
+          SITE: ${{ vars.SITE || 'https://van-seat-booking.vercel.app' }}
+          OWNER_KEY: ${{ secrets.OWNER_KEY }}
+        run: node scripts/smoke.js

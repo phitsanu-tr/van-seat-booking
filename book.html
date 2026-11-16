@@ -4,7 +4,7 @@
 <script>try{if(/\bLine\/|\bLIFF\b|\bLINE\b/i.test(navigator.userAgent)||/liff\.state|[?&]liff/.test(location.search))document.documentElement.classList.add("in-line")}catch(e){}</script>
 <meta charset="utf-8">
 <link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
 button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; }html.in-line .vb-bar,html.in-line .hbar{display:none !important}</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
@@ -73,7 +73,7 @@ header.trip { display: block; }
 .chgban .ct em { font-style: normal; font-weight: 600; color: var(--ink); }
 .chgban .ct small { display: block; font-size: 12px; color: #8a979e; line-height: 16px}
 .chgban .cx { flex: none; border: 0; background: none; color: var(--muted); font-size: 22px; line-height: 22px; padding: 2px 8px; cursor: pointer; }
-.facts dd.chg { display: inline-block; justify-self: start; background: #fdf0dd; color: #b86e00; border-radius: 8px; padding: 0 8px; font-weight: 600; }
+.facts .fv.chg { display: inline-block; justify-self: start; background: #fdf0dd; color: #b86e00; border-radius: 8px; padding: 0 8px; font-weight: 600; }
 .acct .aav { width: 24px; height: 24px; border-radius: 50%; background: #06c755; color: #fff; font: 600 12px/24px var(--font-display); text-align: center; overflow: hidden; flex: none; }
 .acct .aav img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .acct span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -96,8 +96,8 @@ header.trip { display: block; }
 .facts { margin: 12px 0 0; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: 8px; font-size: 14px; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); line-height: 20px}
 .facts div { display: flex; align-items: flex-start; gap: 12px; }
 .facts svg { flex: none; width: 16px; height: 16px; color: var(--mine); margin-top: 4px; }
-.facts dt { position: absolute; width: 2px; height: 2px; overflow: hidden; clip: rect(0 0 0 0); }
-.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.facts .fk { position: absolute; width: 2px; height: 2px; overflow: hidden; clip: rect(0 0 0 0); }
+.facts .fv { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .deck, .seat { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; } /* a long press on the map must not start selecting text */
 .deck { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
 .tlbl { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 16px 0; font-size: 14px; color: var(--muted); line-height: 20px}
@@ -403,7 +403,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 /* fact rows on one line: icon, small grey label (เที่ยวไป / เที่ยวกลับ / จุดนัดพบ / รถตู้), value */
 .facts div.fr { display: grid; grid-template-columns: 16px 64px 1fr; column-gap: 12px; align-items: start; }
 .facts div.fr svg { margin-top: 2px; }
-.facts div.fr dt { position: static; width: auto; height: auto; overflow: visible; clip: auto; color: var(--muted); }
+.facts div.fr .fk { position: static; width: auto; height: auto; overflow: visible; clip: auto; color: var(--muted); }
 .vb-bell { border-color: #e8ecef!important; }
 .deck .tabs { gap: 12px; }
 .tab { border-color: #e8ecef!important; }
@@ -475,7 +475,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
     <div class="ended" id="closedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span><b>ปิดรับจองแล้ว</b> จองหรือยกเลิกเองไม่ได้ ถ้าต้องการเปลี่ยนที่นั่ง ติดต่อผู้จัดทริป</span></div>
     <div class="chgban" id="chgBan" hidden></div>
-    <dl class="facts" id="tripFacts" hidden></dl>
+    <div class="facts" id="tripFacts" role="list" aria-label="ข้อมูลทริป" hidden></div>
     <div class="invite" id="invite" hidden><span class="ok"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><span class="tx"><b id="invT">จองที่นั่งแล้ว</b><small>ชวนผู้ร่วมทริปมาจองด้วยกัน</small></span><button type="button" class="go" id="invGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>แชร์ใน LINE</button><button type="button" class="x" id="invX" aria-label="ปิด">×</button></div>
   </header>
 
@@ -1109,12 +1109,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (trip.organizer) fh.appendChild(el("div", "forg", trip.organizer));
     factsEl.appendChild(fh);
     rows.forEach(function (r) {
-      var d = el("div", "fr");
+      var d = el("div", "fr"); d.setAttribute("role", "listitem");
       var ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg");
       sv.setAttribute("viewBox", "0 0 24 24"); sv.setAttribute("fill", "none"); sv.setAttribute("stroke", "currentColor");
       sv.setAttribute("stroke-width", "2"); sv.setAttribute("stroke-linecap", "round"); sv.setAttribute("stroke-linejoin", "round");
       sv.setAttribute("aria-hidden", "true"); sv.innerHTML = IC[r[2]]; d.appendChild(sv);
-      d.appendChild(el("dt", null, r[0])); d.appendChild(el("dd", r[3] && CHG[r[3]] ? "chg" : null, r[1])); factsEl.appendChild(d);
+      d.appendChild(el("span", "fk", r[0])); d.appendChild(el("span", r[3] && CHG[r[3]] ? "fv chg" : "fv", r[1])); factsEl.appendChild(d);
     });
     factsEl.hidden = false;
     var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0] || trip.vans[0];
