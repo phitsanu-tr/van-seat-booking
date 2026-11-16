@@ -1305,7 +1305,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       $("name").value = t.name || ""; $("organizer").value = t.organizer || ""; tdSet(t.tripN, ""); $("departTime").value = t.departTime || ""; $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi(); stepLock();
       (function (m) { $("maxPer").value = String(m == null ? 4 : m); })(t.maxPerPerson);
       rows = t.vans.map(function (v) { return { id: "", label: v.label, plate: v.plate || "" }; });
-      $("lead").hidden = false; $("lead").textContent = "คัดลอกจากทริปเดิมแล้ว เลือกวันเดินทางใหม่ได้เลย";
+      
       setTimeout(function () { try { $("startDate").focus({ preventScroll: true }); } catch (e) {} }, 0);
     } catch (e) { toast("คัดลอกทริปเดิมไม่ได้ เริ่มกรอกใหม่ได้เลย", true); }
   }
@@ -1434,7 +1434,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     if (editing) $("edSk").hidden = false; else $("formMain").hidden = false; // edit: skeleton until the trip is loaded, then the whole form appears at once
     if (editing) {
-      document.querySelector(".hero").classList.add("is-edit"); $("title").textContent = "แก้ไขทริป"; $("lead").hidden = false; $("lead").textContent = "แก้ข้อมูลแล้วบันทึก ผู้ร่วมทริปเห็นทันที"; document.title = "แก้ไขทริป";
+      document.querySelector(".hero").classList.add("is-edit"); $("title").textContent = "แก้ไขทริป"; document.title = "แก้ไขทริป";
       $("submit").textContent = "บันทึก";
       try {
         var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store" });
