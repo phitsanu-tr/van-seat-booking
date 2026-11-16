@@ -26,7 +26,7 @@ body.signed main{padding-top:12px !important}
 body.signed .top .ltl{display:block;min-width:0;flex:1}
 /* page header: plain large title + one short line, same height on every tab; only the tab's own button (if any) on the right */
 body.signed .top{background:transparent !important;padding:0}
-body.signed .top > div{height:72px !important;box-sizing:border-box;padding:16px max(16px, env(safe-area-inset-left)) 4px !important;gap:12px}
+body.signed .top > div{height:56px !important;align-items:center;box-sizing:border-box;padding:16px max(16px, env(safe-area-inset-left)) 0 !important;gap:12px}
 /* app bar: logo tile + app name + short line */
 .abar{display:none}
 body.signed .abar{display:flex;align-items:center;gap:12px;max-width:460px;margin:0 auto;height:56px}
@@ -41,7 +41,7 @@ body.signed .abar{display:flex;align-items:center;gap:12px;max-width:460px;margi
 body.signed .top a.mkp{display:none !important}
 body.signed .top .ltl b{font-size:26px;line-height:32px}
 body.signed .top .ltl small{font-size:14px;line-height:20px;margin-top:0}
-body.signed main{padding-top:8px !important}
+body.signed main{padding-top:12px !important}
 body.signed #paneHome{font-size:14px;line-height:20px}
 /* soft teal tint fading out at the top of every signed-in tab */
 body.signed{background:#fff}
@@ -251,7 +251,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .stat small { font-size: 12px; line-height: 16px; color: var(--muted); white-space: nowrap; }
 .stat small.left { color: #4a5560; } .stat small.left b { display: inline; font-size: inherit; line-height: inherit; color: var(--mine); font-weight: 600; } .stat small.left.low, .stat small.left.low b { color: var(--amber); }
 .vchip { display: inline-flex; align-items: center; gap: 4px; background: #eef2f4; color: #4a5560; border-radius: 100px; font-size: 12px; line-height: 16px; padding: 2px 8px; } .vchip svg { width: 14px; height: 14px; flex: none; }
-.vseg { display: flex; background: #eef2f4; border-radius: 12px; padding: 3px; margin: 4px 0 12px; }
+.vseg { display: flex; background: #eef2f4; border-radius: 12px; padding: 3px; margin: 0 0 12px; }
 .vseg button { flex: 1; height: 32px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font: 500 14px/20px var(--font-body); }
 .vseg button.on { background: #fff; color: var(--mine); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 .dsum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 16px; }
