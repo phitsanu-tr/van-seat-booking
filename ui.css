@@ -10,3 +10,5 @@ body { padding-top: 16px !important; } /* title starts 16px below the top on eve
 .hero .ht { min-width: 0; flex: 1; }
 .hero h1 { font-size: var(--pg-t); line-height: var(--pg-tl); margin: 0; white-space: nowrap; overflow-wrap: normal; }
 .hero .org, .hero p { font-size: var(--pg-s); line-height: var(--pg-sl); margin: 0; padding: 0; color: var(--muted); font-weight: 400; }
+
+/* SPACING STANDARD (every page): 4 text lines of one group · 8 buttons / chips side by side · 12 inside a card, and under a group heading · 16 between neighbouring cards and under the page title (also the side gutter) · 24 above a group heading */

@@ -151,7 +151,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function render() {
     var d = S, p = d.plan, body = $("body"); body.textContent = "";
     if (!d.on) { body.innerHTML = '<div class="box"><div class="ic">🎁</div><h2>ตอนนี้ใช้ได้ทุกอย่างฟรี</h2><p>ยังไม่เปิดขายแพ็กเกจ เมื่อเปิดจะแจ้งให้ทราบก่อน</p></div>'; return; }
-    var wrap = document.createElement("div"); wrap.style.cssText = "display:flex;flex-direction:column;gap:12px";
+    var wrap = document.createElement("div"); wrap.style.cssText = "display:flex;flex-direction:column;gap:16px";
     var T = d.tiers[p.tier] || d.tiers.free;
     var cur = '<div class="cur"><span class="k">แพ็กเกจของคุณ</span><span class="t">' + esc(T.name) + '</span><span class="u">' +
       (p.tier === "free" ? "ใช้ฟรี ไม่มีวันหมดอายุ" : "ใช้ได้ถึง " + day(p.until) + (p.src === "gift" ? " · ของขวัญสำหรับผู้ใช้เดิม" : "")) + '</span>' +

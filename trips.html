@@ -161,7 +161,7 @@ input[type=text], input[type=date], input[type=time] { background: var(--surface
 .pk-col::before, .pk-col::after { content: ""; display: block; height: 44px; }
 .pk-colon { font: 600 20px/28px var(--font-display); width: 20px; text-align: center; }
 /* form grouped into cards (design B) */
-form#form { background: none; border: 0; padding: 0; gap: 12px; }
+form#form { background: none; border: 0; padding: 0; gap: 16px; }
 .fg { padding: 16px 16px 16px; }
 .hb { display: flex; align-items: center; gap: 12px; }
 .hb b { font: 600 16px/24px var(--font-display); }
@@ -299,7 +299,7 @@ select.sel { border-color: #dde3e7!important; }
 .lkn svg { width: 20px; height: 20px; flex: none; }
 .tdw.bad .tds button:not(.on) { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 14%, transparent); }
 .tdw > .fe { margin-top: -8px; } /* the card group already sits 16px above its message: same 8px as under a text field */
-.stp { display: flex; align-items: flex-start; margin: 0 0 4px; padding: 0 4px; }
+.stp { display: flex; align-items: flex-start; margin: 0; padding: 0 4px; }
 .stp .s { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
 .stp .s:not(:last-child)::after { content: ""; position: absolute; top: 14px; left: calc(50% + 20px); right: calc(-50% + 20px); height: 2px; border-radius: 2px; background: #dde3e7; }
 .stp .s.done::after { background: var(--mine); }

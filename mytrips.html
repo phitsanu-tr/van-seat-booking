@@ -55,7 +55,7 @@ body.signed{background:#fff}
 .plc .k{font-size:12px;color:#cfeaec; line-height: 16px}.plc b{font:700 20px/28px var(--font-display)}.plc .u{font-size:14px;color:#d4ecee; line-height: 20px}
 .plc .rw{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.plc .rw span{background:rgba(255,255,255,.14);border-radius:12px;padding:8px;font-size:12px;color:#d9eff1; line-height: 16px}.plc .rw b{display:block;font-size:16px;color:#fff; line-height: 24px}
 .plc .go{margin-top:12px;height:40px;border-radius:12px;background:#fff;color:var(--deep);font:600 14px/40px var(--font-display);text-align:center}
-.stg-h{font-size:14px;font-weight:600;color:var(--muted);margin:8px 2px -8px; line-height: 20px}
+.stg-h{font-size:14px;font-weight:600;color:var(--muted);margin:8px 0 -4px; line-height: 20px}
 #paneAcct .acchd .av{width:56px;height:56px;font-size:22px; line-height: 30px}
 #paneAcct .acchd .hn b{font-size:20px; line-height: 28px}
 .tabbar{padding-left:max(0px,calc((100% - 460px) / 2));padding-right:max(0px,calc((100% - 460px) / 2))} /* on a computer: same width as the page column */
@@ -201,7 +201,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .seg [aria-selected="true"] .n { background: var(--mine); }
 .seg #tabTrips[aria-selected="true"] .n { background: var(--amber); }
 
-.h2 { display: flex; justify-content: space-between; align-items: baseline; margin-top: 2px; }
+.h2 { display: flex; justify-content: space-between; align-items: baseline; margin-top: 0; }
 .h2:first-child { margin-top: 0; } /* first heading on a page: same 16px gap under the title as every other page */
 .h2 b { font: 600 16px/24px var(--font-display); color: var(--ink); }
 .h2.c { justify-content: flex-start; gap: 8px; }
@@ -209,6 +209,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .h2 span { font-size: 12px; color: var(--muted); line-height: 16px}
 .h2 .hlink { margin-left: auto; align-self: center; display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0; border: 0; background: none; color: var(--mine); font: 600 14px/20px var(--font-body); cursor: pointer; }
 .h2 .hlink svg { width: 16px; height: 16px; }
+.h2 + .card { margin-top: -4px; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
 .card.dim { opacity: .62; }
 /* cards you can tap (whole card opens the trip's seat plan): press feedback so the tap is felt */
@@ -251,10 +252,10 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .stat small { font-size: 12px; line-height: 16px; color: var(--muted); white-space: nowrap; }
 .stat small.left { color: #4a5560; } .stat small.left b { display: inline; font-size: inherit; line-height: inherit; color: var(--mine); font-weight: 600; } .stat small.left.low, .stat small.left.low b { color: var(--amber); }
 .vchip { display: inline-flex; align-items: center; gap: 4px; background: #eef2f4; color: #4a5560; border-radius: 100px; font-size: 12px; line-height: 16px; padding: 2px 8px; } .vchip svg { width: 14px; height: 14px; flex: none; }
-.vseg { display: flex; background: #eef2f4; border-radius: 12px; padding: 3px; margin: 0 0 12px; }
+.vseg { display: flex; background: #eef2f4; border-radius: 12px; padding: 3px; margin: 0; }
 .vseg button { flex: 1; height: 32px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font: 500 14px/20px var(--font-body); }
 .vseg button.on { background: #fff; color: var(--mine); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-.dsum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 16px; }
+.dsum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 8px; }
 .dsum div { background: #fff; border: 1px solid #e8ecef; border-radius: 16px; padding: 12px 12px 10px; min-width: 0; }
 .dsum b { display: block; font: 600 24px/32px var(--font-display); color: var(--mine); } .dsum span { display: block; font-size: 12px; line-height: 16px; color: var(--muted); } .dsum div.warn b { color: var(--amber); }
 .endrow { display: flex; width: 100%; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #e8ecef; border-radius: 16px; padding: 14px 16px; font: 400 14px/20px var(--font-body); color: #4a5560; text-align: left; }
@@ -572,8 +573,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   </section>
         <div class="mylist" id="hList"></div>
       </div>
-      <div id="paneTrips" style="display:flex;flex-direction:column;gap:12px" hidden></div>
-      <div id="paneSeats" style="display:flex;flex-direction:column;gap:12px" hidden></div>
+      <div id="paneTrips" style="display:flex;flex-direction:column;gap:16px" hidden></div>
+      <div id="paneSeats" style="display:flex;flex-direction:column;gap:16px" hidden></div>
       <div id="paneNotif" style="display:flex;flex-direction:column;gap:4px" hidden></div>
       <div id="paneAcct" style="display:flex;flex-direction:column;gap:16px" hidden></div>
     </div>
