@@ -1633,11 +1633,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   // "Seat pass" picture: dark-teal header like the admin pass. With a seat booked on this device it leads with
   // "my seat"; the date/time/meeting facts sit under the header and a QR code sits at the bottom.
-  var posterFixed = 0;
+  var posterFixed = 0, posterSpare = 0, posterExtra = 0, KEEP = 56; // posterSpare: spare 9:16 height shared out as section spacing, so the map panel keeps only KEEP of it
   function drawPoster(useQr) { // 9:16 output: size the van map so the whole card fits (side panel needs room, so 250-480 wide)
     var c0 = drawPoster0(useQr, 380);
     var tgt = 1008 * 16 / 9, pw = Math.max(250, Math.min(480, (tgt - posterFixed) / (H / W)));
-    return Math.abs(pw - 380) > 1 ? drawPoster0(useQr, pw) : c0;
+    posterSpare = 0; var c1 = Math.abs(pw - 380) > 1 ? drawPoster0(useQr, pw) : c0;
+    if (posterExtra > KEEP + 1) { posterSpare = (posterExtra - KEEP) / 3; var c2 = drawPoster0(useQr, pw); posterSpare = 0; return c2; }
+    return c1;
   }
   function drawPoster0(useQr, pwOv) {
     var OUT = 1080, PADO = 36, CW = OUT - 2 * PADO, X = 56, IW = CW - 2 * X;
@@ -1669,7 +1671,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var tdp = (trip.tripDays || "").split(" · "), rows = [];
     if (trip.tripDays) { rows.push(["รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]]); if (tdp[1]) rows.push(["วันที่จัดทริป", tdp[1] + yy]); }
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน · " + (trip.vans.length > 1 ? "คันละ " : "") + TOTAL + " ที่นั่ง"]);
-    y += 26;
+    y += 26 + posterSpare;
     // ---- travel schedule box
     var goD = (trip.startDate || trip.departTime) ? dayS(trip.startDate) : "", goT = trip.departTime || "";
     var bkD = (trip.endDate || trip.returnTime) ? dayS(trip.endDate || trip.startDate) : "", bkT = trip.returnTime || "";
@@ -1719,9 +1721,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       y += bh;
     }
     // ---- map card: van on the left, who booked what on the right
-    y += 24; heading("ผังที่นั่งและรายละเอียด");
+    y += 24 + posterSpare; heading("ผังที่นั่งและรายละเอียด");
     var MX = 36, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k, IP = 28;
-    var mh = IP + PH + IP, FHF = useQr ? 148 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + 24 + FHF + 36)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
+    var mh = IP + PH + IP, FHF = useQr ? 148 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + 24 + posterSpare + FHF + 36)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
     mh += extra;
     ctx.fillStyle = "#ffffff"; rrect(ctx, MX, y, MW, mh, 45); ctx.fill(); ctx.strokeStyle = DIV; ctx.lineWidth = 2; rrect(ctx, MX, y, MW, mh, 45); ctx.stroke();
     var cnt = Object.keys(seats).length;
@@ -1791,7 +1793,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       ctx.fillStyle = ORANGE; ctx.font = '600 26px ' + NF; ctx.textAlign = "left"; ctx.fillText("ที่นั่งของคุณ", sx + 28, ty + th / 2 + 9);
       ctx.fillStyle = INK; ctx.font = '700 32px ' + NF; ctx.textAlign = "right"; ctx.fillText(tln[0], sx + sw - 28, ty + th / 2 + 11); ctx.textAlign = "left";
     }
-    y += mh + 24;
+    y += mh + 24 + posterSpare;
     // ---- footer
     var url = "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var shortUrl = location.host + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
@@ -1815,7 +1817,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.fillText(su, tx0, bt + 84);
     ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.font = '400 26px "Noto Sans Thai", sans-serif';
     ctx.fillText(stamp, tx0, bt + 122);
-    var total = y + FH + 36; posterFixed = total - extra - PH;
+    posterExtra = extra; var total = y + FH + 36; posterFixed = total - extra - PH;
     // ---- compose onto a light backdrop with rounded corners
     var OW = 1544, k = OW / CW; // same output width as the seat pass / admin pass cards (386 x 4)
     var out = document.createElement("canvas"); out.width = OW; out.height = Math.max(Math.round(total * k), Math.round(OW * 16 / 9));
