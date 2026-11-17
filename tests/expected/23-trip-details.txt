@@ -1,18 +1,17 @@
-first visit {"hash":"#info","info":true,"h1":"รายละเอียดทริป","deck":false,"facts":true,"mini":false}
+first visit {"hash":"#info","info":true,"tab":"swInfo","deck":false,"facts":true}
 details text true true true true
-progress ว่างทั้งหมด 10 ที่นั่ง
-after go seats {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
-mini ทริปรายละเอียดแตะเพื่อดูข้อมูลทริป
-mini -> info {"hash":"#info","info":true,"h1":"รายละเอียดทริป","deck":false,"facts":true,"mini":false}
-back {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
-back again {"hash":"#info","info":true,"h1":"รายละเอียดทริป","deck":false,"facts":true,"mini":false}
-second visit {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
-roster button {"hash":"","info":false,"h1":"รายชื่อ","deck":true,"facts":false,"mini":true} list shown true
+progress เลือกที่นั่ง ว่าง 10 จาก 10 ที่นั่ง
+after go seats {"hash":"","info":false,"tab":"swMap","deck":true,"facts":false}
+info tab {"hash":"#info","info":true,"tab":"swInfo","deck":false,"facts":true}
+back {"hash":"","info":false,"tab":"swMap","deck":true,"facts":false}
+back again {"hash":"#info","info":true,"tab":"swInfo","deck":false,"facts":true}
+second visit {"hash":"","info":false,"tab":"swMap","deck":true,"facts":false}
+roster button {"hash":"","info":false,"tab":"swList","deck":true,"facts":false} list shown true
 booked 200
-details with my seat เหลือ 9 ที่นั่งจองแล้ว 1 / 10ที่นั่งของคุณ · ที่ 3
-organizer first visit {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
-link with ?v {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
-holds a seat {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
+details with my seat ดูที่นั่งของฉัน จองแล้ว · ที่ 3
+organizer first visit {"hash":"","info":false,"tab":"swMap","deck":true,"facts":false}
+link with ?v {"hash":"","info":false,"tab":"swMap","deck":true,"facts":false}
+holds a seat {"hash":"","info":false,"tab":"swMap","deck":true,"facts":false}
 cards [ 'card tk tap' ]
-after card tap /<id>#info {"hash":"#info","info":true,"h1":"รายละเอียดทริป","deck":false,"facts":true,"mini":false}
+after card tap /<id>#info {"hash":"#info","info":true,"tab":"swInfo","deck":false,"facts":true}
 ERR []
