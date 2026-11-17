@@ -1712,7 +1712,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     // ---- map card: van on the left, who booked what on the right
     y += 30; heading("ผังที่นั่งและรายละเอียด");
     var MX = 36, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k, IP = 28;
-    var mh = IP + PH + IP, FHF = useQr ? 164 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + 24 + FHF + 36)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
+    var mh = IP + PH + IP, FHF = useQr ? 148 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + 24 + FHF + 36)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
     mh += extra;
     ctx.fillStyle = "#ffffff"; rrect(ctx, MX, y, MW, mh, 45); ctx.fill(); ctx.strokeStyle = DIV; ctx.lineWidth = 2; rrect(ctx, MX, y, MW, mh, 45); ctx.stroke();
     var cnt = Object.keys(seats).length;
@@ -1749,7 +1749,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var withQr = useQr, FH = FHF;
     ctx.fillStyle = "#0b5f67"; rrect(ctx, 36, y, CW - 72, FH, 36); ctx.fill(); // rounded teal bar
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
-    var ql = 124, tx0 = X;
+    var ql = 108, tx0 = X;
     if (withQr) {
       var qy = y + (FH - ql) / 2;
       ctx.fillStyle = "#ffffff"; rrect(ctx, tx0, qy, ql, ql, 26); ctx.fill();
