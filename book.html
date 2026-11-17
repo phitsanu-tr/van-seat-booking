@@ -1632,7 +1632,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var posterFixed = 0;
   function drawPoster(useQr) { // 9:16 output: size the van map so the whole card fits (side panel needs room, so 250-440 wide)
     var c0 = drawPoster0(useQr, 380);
-    var tgt = 1008 * 16 / 9, pw = Math.max(250, Math.min(440, (tgt - posterFixed) / (H / W)));
+    var tgt = 1008 * 16 / 9, pw = Math.max(250, Math.min(460, (tgt - posterFixed) / (H / W)));
     return Math.abs(pw - 380) > 1 ? drawPoster0(useQr, pw) : c0;
   }
   function drawPoster0(useQr, pwOv) {
@@ -1667,15 +1667,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (trip.tripDays) { rows.push(["รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]]); if (tdp[1]) rows.push(["วันที่จัดทริป", tdp[1] + yy]); }
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน · " + (trip.vans.length * TOTAL) + " ที่นั่ง"]);
     if (seatLimit > 0) rows.push(["จำกัดที่นั่งต่อคน", seatLimit + " ที่นั่ง"]);
-    y += 34; heading("รายละเอียดทริป");
-    rows.forEach(function (r) {
-      ctx.font = '400 30px ' + NF; ctx.fillStyle = "#6b767c"; ctx.textAlign = "left"; ctx.fillText(r[0], X, y + 34);
-      var lw = ctx.measureText(r[0]).width;
-      ctx.font = '600 30px ' + NF; ctx.fillStyle = INK; ctx.textAlign = "right";
-      ctx.fillText(wrapText(ctx, r[1], IW - lw - 30, 1)[0], X + IW, y + 34); ctx.textAlign = "left";
-      y += 52;
-    });
-    y += 12; sep(); y += 30;
+    y += 34;
     // ---- travel schedule box
     var goD = (trip.startDate || trip.departTime) ? dayS(trip.startDate) : "", goT = trip.departTime || "";
     var bkD = (trip.endDate || trip.returnTime) ? dayS(trip.endDate || trip.startDate) : "", bkT = trip.returnTime || "";
@@ -1728,37 +1720,25 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var PX = MX + IP, PY = y + IP + extra / 2;
     drawPlan(ctx, PX, PY, k);
     drawSeats(ctx, PX, PY, k, PW);
-    var sx = PX + PW + 40, sw = MX + MW - IP - sx, sy = PY, sb = PY + PH; // side panel
+    var sx = PX + PW + 40, sw = MX + MW - IP - sx, sy = PY, sb = PY + PH; // side panel: count + trip details
     ctx.textAlign = "left";
-    var big = cnt > 0 ? cnt : TOTAL;
-    ctx.fillStyle = TEAL; ctx.font = '600 104px ' + PF; ctx.fillText(String(big), sx, sy + 92);
-    ctx.fillStyle = "#6b767c"; ctx.font = '400 28px ' + NF;
-    ctx.fillText(cnt > 0 ? "จองแล้ว จาก " + TOTAL + " ที่นั่ง" : "ที่นั่งว่างทั้งหมด", sx, sy + 92 + 44);
-    var ly = sy + 92 + 44 + 26, footH = (cur && (cur.plate || multi)) ? 70 : 0;
-    var list = []; for (var sn = 1; sn <= TOTAL; sn++) if (seats[sn]) list.push(sn);
-    var RH = 50, maxRows = Math.max(1, Math.floor((sb - footH - ly) / RH)), shown = list.length > maxRows ? maxRows - 1 : list.length;
-    for (var ri = 0; ri < shown; ri++) {
-      var sn2 = list[ri], mn = mine(sn2), ry2 = ly + ri * RH;
-      ctx.beginPath(); ctx.arc(sx + 20, ry2 + 24, 20, 0, Math.PI * 2); ctx.fillStyle = mn ? TEAL : "#dfe5e8"; ctx.fill();
-      ctx.fillStyle = mn ? "#ffffff" : INK; ctx.font = '600 24px ' + PF; ctx.textAlign = "center"; ctx.fillText(String(sn2), sx + 20, ry2 + 24 + 8); ctx.textAlign = "left";
-      ctx.fillStyle = mn ? TEAL : INK; ctx.font = (mn ? '600 ' : '400 ') + '30px ' + NF;
-      ctx.fillText(wrapText(ctx, seats[sn2].name || "", sw - 56, 1)[0], sx + 52, ry2 + 34);
-    }
-    if (shown < list.length) { ctx.fillStyle = "#6b767c"; ctx.font = '400 28px ' + NF; ctx.fillText("และอีก " + (list.length - shown) + " ที่นั่ง", sx + 52, ly + shown * RH + 34); }
-    if (footH) { // van label + plate pinned to the bottom of the panel
-      ctx.fillStyle = DIV; ctx.fillRect(sx, sb - footH + 6, sw, 2);
-      var fx = sx, fy = sb - 18;
-      if (multi && cur) {
-        ctx.font = '600 28px ' + PF; var lw2 = ctx.measureText(cur.label).width + 28;
-        ctx.fillStyle = TEAL; rrect(ctx, fx, fy - 32, lw2, 42, 12); ctx.fill();
-        ctx.fillStyle = "#ffffff"; ctx.textAlign = "center"; fillC(ctx, cur.label, fx + lw2 / 2, fy); ctx.textAlign = "left"; fx += lw2 + 14;
+    ctx.fillStyle = TEAL; ctx.font = '600 104px ' + PF; ctx.fillText(String(cnt), sx, sy + 92);
+    ctx.fillStyle = "#6b767c"; ctx.font = '400 28px ' + NF; ctx.fillText("จองแล้ว จาก " + TOTAL + " ที่นั่ง", sx, sy + 92 + 44);
+    var dy = sy + 92 + 44 + 20, plateRow = (cur && cur.plate) ? ["ทะเบียน", cur.plate] : null;
+    var drows = rows.slice(); if (plateRow) drows.push(plateRow);
+    var RH = 86; if (dy + drows.length * RH > sb) RH = Math.max(60, (sb - dy) / drows.length);
+    drows.forEach(function (r, i) {
+      var ry3 = dy + i * RH;
+      ctx.fillStyle = DIV; ctx.fillRect(sx, ry3, sw, 2);
+      ctx.fillStyle = "#6b767c"; ctx.font = '400 24px ' + NF; ctx.fillText(r[0], sx, ry3 + 32);
+      var vx = sx;
+      if (r[0] === "รถตู้" && multi && cur) { // van code badge before the numbers
+        ctx.font = '600 24px ' + PF; var bw4 = ctx.measureText(cur.label).width + 24;
+        ctx.fillStyle = TEAL; rrect(ctx, sx + sw - bw4, ry3 + 8, bw4, 34, 10); ctx.fill();
+        ctx.fillStyle = "#ffffff"; ctx.textAlign = "center"; fillC(ctx, cur.label, sx + sw - bw4 / 2, ry3 + 33); ctx.textAlign = "left";
       }
-      if (cur && cur.plate) {
-        ctx.fillStyle = "#6b767c"; ctx.font = '400 26px ' + NF; ctx.fillText("ทะเบียน ", fx, fy - 2);
-        var pw3 = ctx.measureText("ทะเบียน ").width;
-        ctx.fillStyle = INK; ctx.font = '600 26px ' + NF; ctx.fillText(wrapText(ctx, cur.plate, sw - (fx - sx) - pw3, 1)[0], fx + pw3, fy - 2);
-      }
-    }
+      ctx.fillStyle = INK; ctx.font = '600 30px ' + NF; ctx.fillText(wrapText(ctx, r[1], sw, 1)[0], vx, ry3 + 68);
+    });
     y += mh + 24;
     // ---- footer
     var url = "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
