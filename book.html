@@ -1670,12 +1670,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       ctx.lineTo(tx + 5, ty + 26); ctx.quadraticCurveTo(tx, ty + 26, tx, ty + 21); ctx.lineTo(tx, ty + 17); ctx.arc(tx, ty + 13, 4, Math.PI / 2, -Math.PI / 2, true); ctx.lineTo(tx, ty + 5); ctx.quadraticCurveTo(tx, ty, tx + 5, ty); ctx.stroke();
       ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(tx + 24, ty + 4); ctx.lineTo(tx + 24, ty + 22); ctx.stroke(); ctx.setLineDash([]);
     }
-    var codeT = "#" + TRIP.toUpperCase();
+    var codeT = TRIP.toUpperCase();
     ctx.textAlign = "left"; ctx.fillStyle = "#bfe9ed";
     if (false) { ctx.font = '600 34px ' + PF; ctx.fillStyle = "#ffffff"; ctx.fillText("VanTrip", X, 30 + 30); ctx.font = '400 26px ' + NF; ctx.fillStyle = "#bfe9ed";
       var lt = "SEAT PASS  " + codeT; ctx.textAlign = "right"; ctx.fillText(lt.split("").join(String.fromCharCode(8202)), X + IW, 30 + 29); ctx.textAlign = "left"; }
     else { ctx.font = '700 34px ' + PF; ctx.fillStyle = "#ffffff"; var w1 = ctx.measureText("VAN ").width; ctx.fillText("VAN", X, 30 + 32); ctx.fillStyle = "#fde9a6"; ctx.fillText("TRIP", X + w1, 30 + 32); ctx.fillStyle = "#ffffff"; ctx.fillStyle = "#bfe9ed"; ctx.font = '400 28px ' + NF;
-      ctx.textAlign = "right"; ctx.fillText(codeT.split("").join(String.fromCharCode(8202)), X + IW, 30 + 29); ctx.textAlign = "left"; }
+      ctx.textAlign = "right"; ctx.fillStyle = "#bfe9ed"; ctx.font = '400 28px ' + NF; ctx.fillText(codeT.split("").join(String.fromCharCode(8202)), X + IW, 30 + 29); ctx.textAlign = "left"; }
     ctx.fillStyle = "rgba(255,255,255,.22)"; ctx.fillRect(X, 30 + 36 + 22, IW, 2);
     ctx.fillStyle = "#ffffff"; ctx.font = '600 44px ' + PF;
     titleLines.forEach(function (ln, i) { ctx.fillText(ln, X, 30 + 36 + 22 + 2 + 24 + i * 58 + 42); });
