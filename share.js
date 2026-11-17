@@ -97,10 +97,10 @@
     if (hasTime || t.meetPoint) {
       gh("กำหนดการเดินทาง", !body.length).forEach(function (x) { body.push(x); });
       var card = []; // one bordered box: the times, then (under a hairline) the meeting point
-      if (hasTime) card.push({ type: "box", layout: "horizontal", paddingAll: "12px", contents: [
+      if (hasTime) card.push({ type: "box", layout: "horizontal", paddingAll: "12px", spacing: "8px", alignItems: "center", contents: [
         half("เดินทางไป", t.departTime ? t.departTime + " น." : "", shortY(t.startDate), false, nightBefore),
         plain ? { type: "image", url: ORIGIN + "/swap-icon.png", size: "20px", aspectRatio: "1:1", aspectMode: "fit", flex: 0, gravity: "center", margin: "8px" }
-          : { type: "box", layout: "vertical", flex: 0, width: "28px", height: "28px", cornerRadius: "14px", borderWidth: "1px", borderColor: "#dfe5e8", backgroundColor: "#ffffff", justifyContent: "center", alignItems: "center", gravity: "center", margin: "8px",
+          : { type: "box", layout: "vertical", flex: 0, width: "28px", height: "28px", cornerRadius: "14px", borderWidth: "1px", borderColor: "#dfe5e8", justifyContent: "center", alignItems: "center",
               contents: [{ type: "image", url: ORIGIN + "/swap-icon.png", size: "16px", aspectRatio: "1:1", aspectMode: "fit" }] },
         half("เดินทางกลับ", t.returnTime ? t.returnTime + " น." : "", shortY(t.endDate || t.startDate), true)] });
       if (t.meetPoint) {
