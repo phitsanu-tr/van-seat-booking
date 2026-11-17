@@ -416,7 +416,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 .facts .fhead { border-bottom-color: #e8ecef; padding-bottom: 16px; }
 /* trip card: chips (span + vans), two time boxes (ขาไป / ขากลับ), meeting point; the organizer sits above the seat map */
 .facts .two { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: start; gap: 8px; background: #f6f8f9; border-radius: 12px; padding: 12px 28px; }
-.facts .two .sw { width: 32px; height: 32px; margin: 0; align-self: center; color: var(--mine); }
+.facts .two .sw { width: 64px; height: 22px; margin: 0; align-self: center; color: var(--mine); }
 .facts .two:not(.one) .bx:last-child { text-align: right; }
 .facts .two.chg { background: #fdf0dd; }
 .facts .two.one { grid-template-columns: 1fr; }
@@ -1246,7 +1246,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (go || back) {
       two = el("div", "two" + (go && back ? "" : " one") + (CHG.date || CHG.time || CHG.rtime ? " chg" : ""));
       if (go) two.appendChild(go);
-      if (go && back) { var sw = svgIcon("swap"); sw.setAttribute("class", "sw"); two.appendChild(sw); }
+      if (go && back) { var sw = svgIcon("swap"); sw.setAttribute("class", "sw"); sw.setAttribute("viewBox", "0 0 64 22"); sw.innerHTML = '<path d="M3 6H61m-5-5l5 5-5 5M61 16H3m5-5l-5 5 5 5"/>'; // long two-way arrow two.appendChild(sw); }
       if (back) two.appendChild(back);
     }
     var nightNote = null; // shown only when departing the evening before the trip's first day
