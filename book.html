@@ -469,12 +469,12 @@ body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: non
 .modal .actions button.plain { border-color: transparent!important; background: #f1f4f6; }
 .mtxt h2 { font-size: 32px!important; line-height: 40px}
 
-/* signed in: no in-page back arrow (LINE has its own; browsers have theirs) + bell (brand and account chip only for visitors who still need to sign in) */
+/* signed in (html.sgn = the browser remembers a sign-in, so the layout is right from the first paint; body.signed confirms it): no in-page back arrow (LINE has its own; browsers have theirs) + bell (brand and account chip only for visitors who still need to sign in) */
 .hbar .lback{display:none}
-body.signed .hbar .acct{display:none !important}
-body.signed .hbar{position:relative;height:0;min-height:0}
-body.signed .hbar .brand{display:none}
-body.signed .hero{padding-top:4px}
+html.sgn .hbar .acct,body.signed .hbar .acct{display:none !important}
+html.sgn .hbar,body.signed .hbar{position:relative;height:0;min-height:0}
+html.sgn .hbar .brand,body.signed .hbar .brand{display:none}
+html.sgn .hero,body.signed .hero{padding-top:4px}
 html.sgn .hero h1,body.signed .hero h1{font:700 26px/32px var(--font-display)} /* same title size as the bottom-menu pages */
 </style>
 <script>/* a share card's "ดูรายละเอียดทริป" link carries ?info=1 (also inside liff.state): open the details view, whatever LINE did with the query */
