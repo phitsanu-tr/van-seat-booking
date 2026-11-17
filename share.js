@@ -76,7 +76,7 @@
   function infoBubble(t) { // card 1: shared from the trip details tab — everything about the trip, button opens the details
     var head = { type: "box", layout: "vertical", alignItems: "flex-start", backgroundColor: "#e6f3f3", paddingAll: "12px", contents: [
       txt("VanTrip", { size: "12px", weight: "bold", color: TEAL, wrap: false }),
-      txt(t.name || "ทริปรถตู้", { weight: "bold", size: "20px", color: TXT, margin: "4px" })] };
+      txt(String(t.name || "ทริปรถตู้"), { weight: "bold", size: String(t.name || "").length > 22 ? "16px" : "20px", color: TXT, margin: "4px", maxLines: 2 })] };
     var tdp = String(t.tripDays || "").split(" · "), n = Number(t.vans) || 0, body = [], g1 = [];
     if (t.organizer) g1.push(irow("ผู้จัด", t.organizer));
     if (tdp[0]) g1.push(irow("รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]));
