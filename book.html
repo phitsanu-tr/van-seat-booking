@@ -1819,7 +1819,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     y += mh + SEC + posterSpare;
     // ---- footer
-    var url = "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
+    var url = "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) + "&info=1" : "?info=1"); // the QR opens the trip details first (like the share card's details link); the details page has the button to the seat map
     var shortUrl = location.host + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var d = new Date(), pad = function (v) { return (v < 10 ? "0" : "") + v; };
     var stamp = "อัปเดตเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + String(d.getFullYear() + 543).slice(-2) + " · " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " น.";
