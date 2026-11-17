@@ -1825,7 +1825,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   async function shareFriend(kind) {
     kind = kind === "info" ? "info" : ""; // the click handlers pass an event, only the details tab passes "info"
     var u = inviteLink(kind), L = [], T = trip || {};
-    if (await VSBShare.send({ id: TRIP, name: T.name, organizer: T.organizer, tripDays: T.tripDays, vans: (T.vans || []).length, staffSeat: !!T.staffSeat, limit: seatLimit, startDate: T.startDate, endDate: T.endDate, departTime: T.departTime, returnTime: T.returnTime, meetPoint: T.meetPoint, closed: closed || ended }, kind)) return; // a card in the chat; otherwise the text link below
+    if (await VSBShare.send({ id: TRIP, name: T.name, organizer: T.organizer, tripDays: T.tripDays, vans: (T.vans || []).length, staffSeat: !!T.staffSeat, limit: seatLimit, startDate: T.startDate, tripStart: T.tripStart, endDate: T.endDate, departTime: T.departTime, returnTime: T.returnTime, meetPoint: T.meetPoint, closed: closed || ended }, kind)) return; // a card in the chat; otherwise the text link below
     L.push("🚐 " + (T.name || "จองที่นั่งรถตู้"), "");
     if (T.startDate || T.departTime) L.push("📅 เดินทางไป " + leg(T.startDate, T.departTime));
     if (T.endDate || T.returnTime) L.push("🔁 เดินทางกลับ " + leg(T.endDate || T.startDate, T.returnTime));

@@ -90,6 +90,10 @@
         half("เดินทางไป", t.departTime, short(t.startDate), false),
         { type: "image", url: ORIGIN + "/swap-icon.png", size: "20px", aspectRatio: "1:1", aspectMode: "fit", flex: 0, gravity: "center", margin: "8px" },
         half("เดินทางกลับ", t.returnTime, short(t.endDate || t.startDate), true)] });
+      if (t.tripStart && t.startDate && t.departTime && t.startDate < t.tripStart) // leaves the evening before the trip's first day (same rule as the details tab)
+        body.push({ type: "box", layout: "horizontal", margin: "8px", backgroundColor: "#fdf0dd", cornerRadius: "12px", paddingAll: "8px", paddingStart: "12px", paddingEnd: "12px", spacing: "8px", contents: [
+          txt("🌙", { size: "14px", flex: 0, wrap: false, gravity: "center" }),
+          txt("ออกเดินทางคืนก่อนวันเริ่มทริป", { size: "14px", color: "#8a5300", flex: 1, gravity: "center" })] });
     }
     var g3 = [];
     if (t.meetPoint) g3.push(irow("จุดนัดพบ", t.meetPoint));
