@@ -12,7 +12,7 @@ await A.request.fetch(B+'/api/seats?t='+ID+'&v=v2',{method:'PATCH',data:{seat:1,
 const inbox=async p=>{const d=await (await p.request.get(B+'/api/me?inbox=1')).json();return d.unread+' '+d.items.map(x=>x.k).join(',')};
 log('A',await inbox(A));log('B',await inbox(Bh));log('P',await inbox(P));log('Q',await inbox(Q));
 // P: mytrips tags
-await P.goto(B+'/mytrips?f='+Date.now()+'#seats');await P.waitForTimeout(1500);log('P tags',await P.$$eval('.ntag',e=>e.map(x=>x.textContent)),'badge',await P.textContent('.vb-n'));await P.screenshot({path:S+'/n1.png'});
+await P.goto(B+'/seats?f='+Date.now());await P.waitForTimeout(1500);log('P tags',await P.$$eval('.ntag',e=>e.map(x=>x.textContent)),'badge',await P.textContent('.vb-n'));await P.screenshot({path:S+'/n1.png'});
 // P booking page
 await P.goto(B+'/'+ID+'?v=v2');await P.waitForTimeout(1600);log('banner',(await P.textContent('#chgBan')).replace(/\s+/g,' '),'chg dd',await P.$$eval('.facts .bx.chg, .facts .fv.chg',e=>e.map(x=>(x.querySelector('.bt')||x).textContent)));await P.screenshot({path:S+'/n2.png'});
 log('no bell button on booking page',await P.locator('.vb-bell').count()===0);
@@ -20,5 +20,5 @@ await P.click('#chgBan .cx');await P.waitForTimeout(500);log('after x: banner hi
 // A cancels Q, then deletes trip
 await A.request.fetch(B+'/api/seats?t='+ID+'&v=v2',{method:'DELETE',data:{seat:1}});log('Q after cancel',await inbox(Q));
 await A.request.fetch(B+'/api/trip?t='+ID,{method:'DELETE'});log('P after delete',await inbox(P),'B',await inbox(Bh));
-await P.goto(B+'/mytrips?f='+Date.now()+'#notify');await P.waitForTimeout(1500);log('notify tab badge',await P.textContent('#navBadge').catch(()=>'(none)'),'items',await P.locator('.nf-item, .ni').count());await P.screenshot({path:S+'/n4.png'});
+await P.goto(B+'/notify?f='+Date.now());await P.waitForTimeout(1500);log('notify tab badge',await P.textContent('#navBadge').catch(()=>'(none)'),'items',await P.locator('.nf-item, .ni').count());await P.screenshot({path:S+'/n4.png'});
 log('ERR',errs);await b.close();})();

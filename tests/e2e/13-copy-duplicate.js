@@ -9,14 +9,14 @@ await Q.request.post(B+'/api/seats?t='+ID+'&v=v2',{data:{seat:5,name:'ฉิน'
 const clip=()=>A.evaluate(()=>navigator.clipboard.readText());
 const mask=t=>t.replace(/📅 .*/,'📅 <dates> · ออก 07:00').replace(/\/[a-z0-9]{8}$/m,'/<id>');
 // --- copy roster
-await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);
+await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);
 await A.click('.rtools button:first-child');await A.waitForTimeout(500);log('toast',await A.textContent('#toast'));
 log('copied text:\n'+mask(await clip()));
-await A.request.post(B+'/api/trip',{data:{t:ID,close:true}});await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);
+await A.request.post(B+'/api/trip',{data:{t:ID,close:true}});await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);
 await A.click('.rtools button:first-child');await A.waitForTimeout(500);log('closed trip last lines',JSON.stringify(mask(await clip()).split('\n').slice(-2)));
 await A.request.post(B+'/api/trip',{data:{t:ID,close:false}});
 // --- the "จัดการทริป" sheet: copy the list, close / reopen bookings
-await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(800);
+await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(800);
 log('manage sheet',await A.$$eval('.mgb',e=>e.map(x=>x.textContent)));await A.screenshot({path:S+'/manage.png'});
 await A.click('.mx');await A.waitForTimeout(300);log('x closes',await A.$$eval('.agrp',e=>e.length));await A.click('.ab.mgo');await A.waitForTimeout(800);
 log('no copy or seat map in manage',await A.$$eval('.mgb',e=>e.filter(x=>/คัดลอก|ผังที่นั่ง/.test(x.textContent)).length));
@@ -25,7 +25,7 @@ const closedNow=async()=>(await (await A.request.get(B+'/api/seats?t='+ID+'&v=v1
 log('closed',await closedNow(),'card share',(await A.textContent('.acts .ab.tl')).trim());
 await A.click('.ab.mgo');await A.waitForTimeout(500);await A.click('.mgb.op');await A.waitForTimeout(1200);log('reopened',await closedNow());
 // --- duplicate an upcoming trip
-await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);
+await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);
 await A.click('.ab.mgo');await A.waitForTimeout(300);log('duplicate link',(await A.getAttribute('.mgb:has-text("สร้างทริปซ้ำ")','href')).replace(ID,'<id>'));
 await A.click('.mgb:has-text("สร้างทริปซ้ำ")');await A.waitForTimeout(1800);
 const form=()=>A.evaluate(()=>({name:document.getElementById('name').value,org:document.getElementById('organizer').value,start:document.getElementById('startDate').value,end:document.getElementById('endDate').value,time:document.getElementById('departTime').value,meet:document.getElementById('meetPoint').value,max:document.getElementById('maxPer').value,close:document.getElementById('closeDate').value,vans:[...document.querySelectorAll('#vans input')].map(i=>i.value).filter(Boolean)}));
@@ -43,7 +43,7 @@ const old=await (await A.request.get(B+'/api/trip?t='+ID+'&roster=1')).json();lo
 await P.goto(B+'/trips/new?copy='+ID);await P.waitForTimeout(1800);log('stranger copy: name empty',await P.inputValue('#name')==='','toast',await P.evaluate(()=>(document.querySelector('.toast')||{}).textContent||''));
 // --- finished trip card
 const done=await (await A.request.post(B+'/api/trip',{data:{tripN:2,tripStart:HLP.day(-5),meetPoint:'จุดนัดพบ',name:'ทริปที่แล้ว',startDate:HLP.day(-5),endDate:HLP.day(-4),departTime:'06:00',vans:[{label:'A'}]}})).json();
-await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);
+await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);
 {const er=await A.$('.endrow');if(er){await er.click();await A.waitForTimeout(400);}} // finished trips are folded away behind "จบแล้ว · N ทริป" when there are 2+ trips
 log('finished card links',await A.$$eval('.card.dim .dfoot > *',e=>e.map(x=>x.textContent)));
 await A.click('.card.dim .cpy');await A.waitForTimeout(1800);log('copy finished trip: name',await A.inputValue('#name'),'start empty',await A.inputValue('#startDate')==='');

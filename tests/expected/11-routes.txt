@@ -1,9 +1,9 @@
-home -> app /mytrips create link /trips/new
+home -> app /home create link /trips/new
 edit button /trips/<id>
 edit page /trips/<id> title แก้ไขทริป name ทริปลิงก์
-cancel -> /mytrips#trips
+cancel -> /trips
 /trips/new title สร้างทริป
-cancel new -> /mytrips#trips
+cancel new -> /trips
 not organizer: submit disabled true
 book page 200 unknown edit id 404
 ERR []

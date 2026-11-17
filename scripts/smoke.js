@@ -8,7 +8,7 @@ if (!SITE) { console.error("set SITE=https://... first"); process.exit(1); }
 let bad = 0;
 const ok = (name, pass, extra) => { if (!pass) bad++; console.log((pass ? "PASS " : "FAIL ") + name + (extra ? "  " + extra : "")); };
 (async () => {
-  for (const p of ["/", "/plans", "/privacy", "/terms", "/mytrips"]) { const r = await fetch(SITE + p, { redirect: "manual" }).catch(() => null); ok("page " + p, !!r && r.status < 400, r ? String(r.status) : "no answer"); }
+  for (const p of ["/", "/plans", "/privacy", "/terms", "/home"]) { const r = await fetch(SITE + p, { redirect: "manual" }).catch(() => null); ok("page " + p, !!r && r.status < 400, r ? String(r.status) : "no answer"); }
   const noKey = await fetch(SITE + "/api/owner?audit=1").catch(() => null);
   ok("owner refuses without key", !!noKey && (noKey.status === 403 || noKey.status === 404), noKey ? String(noKey.status) : "no answer");
   if (!KEY) { console.log("(no OWNER_KEY given: skipping owner checks)"); }

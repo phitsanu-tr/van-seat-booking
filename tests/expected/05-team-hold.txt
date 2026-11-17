@@ -1,6 +1,6 @@
-invite url https://liff.line.me/2012285472-FvtYKx00/mytrips?join=…
+invite url https://liff.line.me/2012285472-FvtYKx00/home?join=…
 B (anon, LINE) retry screen 1
-B toast เข้าร่วมเป็นผู้ช่วยจัด ทริปทีม แล้ว url http://localhost:8765/mytrips#trips
+B toast เข้าร่วมเป็นผู้ช่วยจัด ทริปทีม แล้ว url http://localhost:8765/trips
 B role line คุณเป็นผู้ช่วยจัดทริปนี้
 B cancel Cat seat 200
 B PUT trip 200

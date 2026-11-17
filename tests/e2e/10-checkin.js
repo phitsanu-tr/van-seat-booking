@@ -23,10 +23,10 @@ ro=await roster();log('boarded follows the move',!!(ro.v2['7']&&ro.v2['7'].c),'o
 await patch(A,'v2',{seat:7,board:false});
 let lim=0;for(let i=0;i<12;i++){const r=await patch(A,'v1',{seat:5,board:i%2===0});if(r.status()===429)lim++;}log('12 quick ticks, rate limited',lim);
 await patch(A,'v1',{seat:5,board:false});
-await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);
+await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);
 log('tabs',await A.$$eval('.rtabs button',e=>e.map(x=>x.textContent)));
 // --- check-in tab, two organizers at once
-await Bo.goto(B+'/mytrips?f='+Date.now()+'#trips');await Bo.waitForTimeout(1200);await Bo.click('.ros3');await Bo.waitForTimeout(800);await Bo.click('.rtabs button:nth-child(2)');await Bo.waitForTimeout(600);
+await Bo.goto(B+'/trips?f='+Date.now());await Bo.waitForTimeout(1200);await Bo.click('.ros3');await Bo.waitForTimeout(800);await Bo.click('.rtabs button:nth-child(2)');await Bo.waitForTimeout(600);
 await A.click('.rtabs button:nth-child(2)');await A.waitForTimeout(600);
 const prog=p=>p.$eval('.bprog .pl span:last-child',e=>e.textContent);
 log('board start A',await prog(A),'miss',await A.textContent('.miss'));

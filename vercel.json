@@ -20,7 +20,7 @@
       "destination": "/owner.html"
     },
     {
-      "source": "/mytrips",
+      "source": "/(home|trips|seats|notify|profile)",
       "destination": "/mytrips.html"
     },
     {
@@ -89,7 +89,7 @@
       ]
     },
     {
-      "source": "/(trips/new|trips/[a-hj-km-np-z2-9]{6,8}|owner|mytrips|plans)",
+      "source": "/(trips/new|trips/[a-hj-km-np-z2-9]{6,8}|owner|home|trips|seats|notify|profile|plans)",
       "headers": [
         {
           "key": "X-Robots-Tag",

@@ -18,7 +18,7 @@ menu closes on outside click
 cancel sheet opens true
 Q single: picker 0 prefill ฉินนี่
 dark rules / 0
-dark rules /mytrips 0
+dark rules /home 0
 dark rules /<id> 0
 dark rules /trips/new 0
 dark rules /privacy 0

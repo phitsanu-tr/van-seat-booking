@@ -31,6 +31,6 @@ const Q=await user('Qin');await Q.goto(B+'/'+ID+'?v=v1');await Q.waitForTimeout(
 const R=await user('Rin');await R.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:4,name:'ริน'}});await R.goto(B+'/'+ID);await R.waitForTimeout(1500);log('holds a seat',JSON.stringify(await st(R)));
 // "my trips": tapping the card opens the details
 const S=await user('Sun');await S.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:5,name:'ซัน'}});
-await S.goto(B+'/mytrips?f='+Date.now()+'#seats');await S.waitForTimeout(2500);log('cards',await S.$$eval('.card',e=>e.map(x=>x.className)));
+await S.goto(B+'/seats?f='+Date.now());await S.waitForTimeout(2500);log('cards',await S.$$eval('.card',e=>e.map(x=>x.className)));
 await S.evaluate(()=>{const c=document.querySelector('.card.tap');c.click()});await S.waitForTimeout(1800);log('after card tap',await S.evaluate(()=>location.pathname.replace(/^\/[a-z0-9]{6,8}/,'/<id>')),JSON.stringify(await st(S)));
 log('ERR',errs);await b.close()})();

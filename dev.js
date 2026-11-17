@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Local dev server — no install, no accounts, no deploy:   node dev.js   then open http://localhost:8765
-// - serves the static pages with the same rewrites as vercel.json (/, /mytrips, /trips/new, /trips/<trip code>, /<trip code>)
+// - serves the static pages with the same rewrites as vercel.json (/, /home, /trips, /seats, /notify, /profile, /trips/new, /trips/<trip code>, /<trip code>)
 // - runs the real api/*.js handlers against a tiny in-memory fake of Upstash Redis
 // Data lives only in memory and is gone when you stop the server. Not used on Vercel.
 const http = require("http");
@@ -92,7 +92,7 @@ function route(pathname, query) {
   if (pathname === "/") return "/index.html";
   if (pathname === "/trips/new" || /^\/trips\/[a-z0-9]{3,16}\/?$/.test(pathname)) return "/trips.html"; // create / edit / seat-pass picture
   if (pathname === "/owner") return "/owner.html";
-  if (pathname === "/mytrips") return "/mytrips.html";
+  if (/^\/(home|trips|seats|notify|profile)$/.test(pathname)) return "/mytrips.html";
   if (pathname === "/privacy") return "/privacy.html";
   if (pathname === "/terms") return "/terms.html";
   if (pathname === "/plans") return "/plans.html";
@@ -140,7 +140,7 @@ function startApp() {
   app.listen(PORT, () => {
     console.log("\n  Van seat booking (local dev)\n");
     console.log("  Home            http://localhost:" + PORT + "/");
-    console.log("  My trips            http://localhost:" + PORT + "/mytrips");
+    console.log("  My trips            http://localhost:" + PORT + "/home");
     console.log("\n  Data is kept in memory only; it resets when you stop this server.\n");
   });
 }

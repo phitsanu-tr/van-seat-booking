@@ -48,7 +48,7 @@ from a to b (used for counts that depend on timing).
 | 08-inbox-rename | read state survives new notifications, bell updates on an open page, "⋯" rename menu, no dark-theme CSS |
 | 09-roster-scroll | a long passenger list scrolls inside the sheet on a short phone screen |
 | 10-checkin | check-in ticks: organizer-only, hidden from passengers, follow moves, live refresh; paid ticks rejected |
-| 11-routes | link scheme: /mytrips, /trips/new, /trips/<id>, old /trips#<id>-o, old seat-pass link goes to the booking page |
+| 11-routes | link scheme: /home /trips /seats /notify /profile, /trips/new, /trips/<id>, old /trips#<id>-o, old seat-pass link goes to the booking page |
 | 12-close-booking | close/reopen bookings, automatic closing time, what passengers and organizers can still do |
 | 13-copy-duplicate | copy the passenger list as text, duplicate a trip (upcoming and finished) |
 | 14-rounds | check-in rounds: names, new round, history, privacy, read-only summary after the trip |

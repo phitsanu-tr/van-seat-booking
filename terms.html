@@ -127,7 +127,7 @@ html, body { overscroll-behavior: none; } .lbk { transform: translateZ(0); posit
   <footer class="vfoot"></footer><script src="/footer.js"></script>
 </main>
 <div class="lbk"><button type="button" id="legalBack">ย้อนกลับ</button></div>
-<script>document.getElementById("legalBack").addEventListener("click", function () { var r = ""; try { r = new URL(document.referrer).origin; } catch (e) {} if (r === location.origin && history.length > 1) history.back(); else location.href = "/mytrips#account"; });</script>
+<script>document.getElementById("legalBack").addEventListener("click", function () { var r = ""; try { r = new URL(document.referrer).origin; } catch (e) {} if (r === location.origin && history.length > 1) history.back(); else location.href = "/profile"; });</script>
 
 <script src="/tabbar.js" data-tab="acct"></script>
 </body>

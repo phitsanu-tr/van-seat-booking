@@ -1,6 +1,6 @@
-/* Bottom menu (5 tabs) for the pages that sit outside /mytrips: trips form, plans, privacy, booking.
+/* Bottom menu (5 tabs) for the pages that sit outside the app tabs: trips form, plans, privacy, booking.
    Shown only when signed in. <script src="/tabbar.js" data-tab="trips|seats|acct"></script>
-   Same look as the tab bar inside /mytrips (kept in sync by hand). */
+   Same look as the tab bar inside the app (kept in sync by hand). */
 (function () {
   "use strict";
   var me = document.currentScript, active = (me && me.getAttribute("data-tab")) || "";
@@ -30,11 +30,11 @@
     function a(k, href, label, inner) { return '<a href="' + href + '" data-k="' + k + '"' + (active === k ? ' class="on" aria-current="page"' : "") + ">" + inner + label + "</a>"; }
     var nav = document.createElement("nav"); nav.className = "vt-bar"; nav.setAttribute("aria-label", "เมนูหลัก");
     nav.innerHTML =
-      a("home", "/mytrips", "หน้าหลัก", icon("home")) +
-      a("trips", "/mytrips#trips", "ทริปของฉัน", icon("trips")) +
-      a("seats", "/mytrips#seats", "ที่นั่งของฉัน", icon("seats")) +
-      a("notif", "/mytrips#notify", "แจ้งเตือน", icon("notif") + '<span class="nb" id="vtBadge" hidden></span>') +
-      a("acct", "/mytrips#account", "โปรไฟล์", '<span class="av" id="vtAv"></span>');
+      a("home", "/home", "หน้าหลัก", icon("home")) +
+      a("trips", "/trips", "ทริปของฉัน", icon("trips")) +
+      a("seats", "/seats", "ที่นั่งของฉัน", icon("seats")) +
+      a("notif", "/notify", "แจ้งเตือน", icon("notif") + '<span class="nb" id="vtBadge" hidden></span>') +
+      a("acct", "/profile", "โปรไฟล์", '<span class="av" id="vtAv"></span>');
     document.body.appendChild(nav); document.body.classList.add("vt-on"); document.documentElement.style.paddingBottom = "0"; /* the body padding already clears the bar + safe area; a page-level safe-area padding would add it twice */
     var av = document.getElementById("vtAv");
     if (user.pic) { var im = document.createElement("img"); im.alt = ""; im.src = user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = ini; }; av.appendChild(im); } else av.textContent = ini;

@@ -16,6 +16,6 @@ await p.click('#copyBox');await p.waitForTimeout(300);log('copied',await p.locat
 await p.goto(B+'/trips/'+ID);await p.reload();await p.waitForTimeout(1500);await p.click('#delBtn');await p.waitForTimeout(400);
 const btns=await p.$$eval('button',bs=>bs.filter(x=>x.offsetParent&&/ลบทริป/.test(x.textContent)).map(x=>x.id||x.className));log('confirm btns',btns);
 await p.evaluate(()=>{const x=[...document.querySelectorAll('button')].filter(x=>x.offsetParent&&/ลบทริป/.test(x.textContent)&&x.id!=='delBtn');x[x.length-1].click()});await p.waitForTimeout(1500);
-await p.waitForURL(/mytrips/,{timeout:8000});await p.waitForTimeout(900);log('toast after delete',await p.evaluate(()=>{const t=document.getElementById('toast');return t&&!t.hidden?t.textContent.trim()+' | bottom '+(getComputedStyle(t).top==='auto'||innerHeight-t.getBoundingClientRect().bottom>0):'none'}));
+await p.waitForURL(/\/trips$/,{timeout:8000});await p.waitForTimeout(900);log('toast after delete',await p.evaluate(()=>{const t=document.getElementById('toast');return t&&!t.hidden?t.textContent.trim()+' | bottom '+(getComputedStyle(t).top==='auto'||innerHeight-t.getBoundingClientRect().bottom>0):'none'}));
 log('after delete url',p.url(),'status',(await fetch(B+'/api/seats?t='+ID)).status);
 log('ERR',errs);await b.close();})();

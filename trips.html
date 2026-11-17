@@ -351,7 +351,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 <style id="vt-tap">*{-webkit-tap-highlight-color:transparent}:focus:not(:focus-visible){outline:none}a:focus-visible,button:focus-visible,[role=button]:focus-visible,summary:focus-visible{outline:2px solid #0e7c86;outline-offset:2px}</style>
 </head>
 <body class="creating">
-<script src="/bell.js"></script><script src="/share.js"></script><script>VSBBell.bar("/mytrips#trips");</script>
+<script src="/bell.js"></script><script src="/share.js"></script><script>VSBBell.bar("/trips");</script>
 <div class="edsk" id="edSk" hidden aria-hidden="true"><div><div style="font:600 24px/32px var(--font-display)">แก้ไขทริป</div><div style="font:14px/20px var(--font-body);color:var(--muted)">แก้ข้อมูลแล้วบันทึก ผู้ร่วมทริปเห็นทันที</div></div><div class="b" style="height:64px"></div><div class="b" style="height:248px"></div><div class="b" style="height:248px"></div></div>
 <main id="formMain" hidden>
   <section class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht">
@@ -844,20 +844,20 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   ["input", "change"].forEach(function (ev) { $("form").addEventListener(ev, function () { dirty = true; }); });
   $("cancelBtn").addEventListener("click", async function () {
     if (!editing && step > 1) { setStep(step - 1); return; } // "ย้อนกลับ" between the create steps
-    var dest = "/mytrips#trips";
+    var dest = "/trips";
     if (dirty && !(await askConfirm(editing ? "ออกโดยไม่บันทึก?" : "ยกเลิกการสร้างทริป?", "ข้อมูลที่กรอกไว้จะไม่ถูกบันทึก", "ออกจากหน้านี้", $("cancelBtn")))) return;
     location.href = dest;
   });
 
   $("cancelTop").addEventListener("click", async function () { // ✕ beside the title: leave the whole form (asks first when something was typed)
     if (dirty && !(await askConfirm(editing ? "ออกโดยไม่บันทึก?" : "ยกเลิกการสร้างทริป?", "ข้อมูลที่กรอกไว้จะไม่ถูกบันทึก", "ออก"))) return;
-    location.href = "/mytrips#trips";
+    location.href = "/trips";
   });
   var topBack = document.querySelector(".vb-back"); // the arrow in the top bar asks first too
   if (topBack) topBack.addEventListener("click", async function (e) {
     e.preventDefault(); e.stopImmediatePropagation();
     if (dirty && !(await askConfirm(editing ? "ออกโดยไม่บันทึก?" : "ยกเลิกการสร้างทริป?", "ข้อมูลที่กรอกไว้จะไม่ถูกบันทึก", "ออก"))) return;
-    location.href = "/mytrips#trips";
+    location.href = "/trips";
   }, true);
 
   // the bottom menu (added by /tabbar.js) asks first too when the form has unsaved input
@@ -982,7 +982,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (kind === "trips" && !editing) {
         dirty = false;
         var ref = ""; try { ref = document.referrer && new URL(document.referrer).origin === location.origin ? document.referrer : ""; } catch (e) {}
-        if (ref && history.length > 1) history.back(); else location.href = "/mytrips#trips";
+        if (ref && history.length > 1) history.back(); else location.href = "/trips";
       }
     }
     xb.addEventListener("click", dismiss);
@@ -1055,16 +1055,16 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   $("openShare").addEventListener("click", function (e) {
     if (!backToList || !shown) return;
     e.preventDefault();
-    try { sessionStorage.setItem("vsb_back_list", "1"); history.replaceState(null, "", "/mytrips#trips"); } catch (x) {}
+    try { sessionStorage.setItem("vsb_back_list", "1"); history.replaceState(null, "", "/trips"); } catch (x) {}
     location.href = "/" + shown.id;
   });
   window.addEventListener("pageshow", function () { // came Back to this page (bfcache): go on to my trips
     var f = null; try { f = sessionStorage.getItem("vsb_back_list"); sessionStorage.removeItem("vsb_back_list"); } catch (x) {}
-    if (f && location.pathname === "/mytrips") location.replace("/mytrips#trips");
+    if (f && location.pathname === "/trips") location.replace("/trips");
   });
   var goList = false; // right after creating or saving a trip, closing the result sheet leads to the my-trips list
   function closeResult() {
-    if (goList) { location.href = "/mytrips#trips"; return; }
+    if (goList) { location.href = "/trips"; return; }
     $("backdrop").hidden = true; document.body.style.overflow = "";
   }
   $("closeX").addEventListener("click", closeResult);
@@ -1282,7 +1282,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!r.ok && r.status !== 404) { var d = {}; try { d = await r.json(); } catch (e) {} toast(ERR[d.error] || "ลบไม่สำเร็จ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; return; }
       var dj = {}; try { dj = await r.json(); } catch (e) {}
       try { sessionStorage.setItem("van-flash", "ลบทริปแล้ว" + (dj.refunded ? " · คืนโควตา 1 ทริป" : dj.capped ? " · ครบสิทธิ์คืนโควตาเดือนนี้" : "")); } catch (e) {}
-      location.href = "/mytrips#trips";
+      location.href = "/trips";
     } catch (e) { toast("เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง"); $("delBtn").disabled = false; }
   });
 
@@ -1371,11 +1371,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   window.addEventListener("popstate", async function () {
     if (!guardOn) return;
     guardOn = false;
-    if (editing) { location.replace("/mytrips#trips"); return; } // just created: back goes to the trips list
+    if (editing) { location.replace("/trips"); return; } // just created: back goes to the trips list
     if (step > 1) { setStep(step - 1); armBack(); return; }
     if (dirty && !(await askConfirm("ยกเลิกการสร้างทริป?", "ข้อมูลที่กรอกไว้จะไม่ถูกบันทึก", "ออก"))) { armBack(); return; }
     dirty = false; history.back();
-    setTimeout(function () { location.href = "/mytrips#trips"; }, 400); // opened straight into this page: nothing to go back to
+    setTimeout(function () { location.href = "/trips"; }, 400); // opened straight into this page: nothing to go back to
   });
   // picking the go date fills the return date with the same day (one-day trips); a later return date stays
   // editing: "บันทึก" is faded until something differs from what was loaded (back to faded if the change is undone)
@@ -1425,7 +1425,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var who3 = await (await fetch("/api/auth?me=1", { cache: "no-store" })).json();
         if (!who3 || !who3.user) {
           var q3 = new URLSearchParams(location.search); q3.delete("le"); q3.delete("li");
-          location.replace("/mytrips?for=new" + (q.has("le") ? "&le=" + encodeURIComponent(q.get("le")) : "") + "&r=" + encodeURIComponent("/trips/new" + (q3.toString() ? "?" + q3 : "")));
+          location.replace("/home?for=new" + (q.has("le") ? "&le=" + encodeURIComponent(q.get("le")) : "") + "&r=" + encodeURIComponent("/trips/new" + (q3.toString() ? "?" + q3 : "")));
           return;
         }
       } catch (e) {}

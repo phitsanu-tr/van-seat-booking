@@ -116,7 +116,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   <footer class="vfoot"></footer><script src="/footer.js"></script>
 </main>
 <div class="lbk"><button type="button" id="legalBack">ย้อนกลับ</button></div>
-<script>document.getElementById("legalBack").addEventListener("click", function () { var r = ""; try { r = new URL(document.referrer).origin; } catch (e) {} if (typeof NEXT === "string" && NEXT) location.href = NEXT; else if (r === location.origin && history.length > 1 && !/[?&](o|c)=/.test(location.search)) history.back(); else location.href = "/mytrips#account"; });</script>
+<script>document.getElementById("legalBack").addEventListener("click", function () { var r = ""; try { r = new URL(document.referrer).origin; } catch (e) {} if (typeof NEXT === "string" && NEXT) location.href = NEXT; else if (r === location.origin && history.length > 1 && !/[?&](o|c)=/.test(location.search)) history.back(); else location.href = "/profile"; });</script>
 
 <div class="toast" id="toast" hidden></div>
 <div id="rfBd" hidden><div class="rfd" role="dialog" aria-modal="true" aria-labelledby="rfT"><button type="button" class="rx" id="rfX" aria-label="ปิด"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><h3 id="rfT">ขอคืนเงิน</h3><p id="rfSub"></p><div id="rfOps"></div><textarea id="rfNote" maxlength="300" placeholder="รายละเอียดเพิ่มเติม (ไม่บังคับ)"></textarea><button type="button" class="btn" id="rfGo">ส่งคำขอคืนเงิน</button><div class="note">ผู้ดูแลจะตรวจสอบตามเงื่อนไขการคืนเงิน แล้วคืนเงินเข้าช่องทางที่ใช้ชำระ</div></div></div>
@@ -238,7 +238,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     function after() {
       var a = document.createElement("div"); a.style.cssText = "display:flex;flex-direction:column;gap:12px;width:100%";
       if (NEXT) { var n = document.createElement("a"); n.className = "btn"; n.href = NEXT; n.textContent = "กลับไปทำต่อ"; a.appendChild(n); }
-      var m = document.createElement("a"); m.className = "btn" + (NEXT ? " w" : ""); m.href = "/mytrips"; m.textContent = "ไปหน้าแอป"; a.appendChild(m);
+      var m = document.createElement("a"); m.className = "btn" + (NEXT ? " w" : ""); m.href = "/home"; m.textContent = "ไปหน้าแอป"; a.appendChild(m);
       body.firstChild.appendChild(a);
     }
     function poll() {

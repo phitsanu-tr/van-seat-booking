@@ -7,12 +7,12 @@ const A=await user('Ann'),C=await user('Cat');
 const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(45),meetPoint:'จุดนัดพบ',name:'ทริปทีม',startDate:HLP.day(45),vans:[{label:'1'}]}})).json();const ID=tr.id;
 await C.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:4,name:'แคท'}});
 // A creates invite in UI
-await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);await A.click('.mgb:has-text("ผู้ช่วยจัดทริป")');await A.waitForTimeout(700);await A.screenshot({path:S+'/t1.png'});
+await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);await A.click('.mgb:has-text("ผู้ช่วยจัดทริป")');await A.waitForTimeout(700);await A.screenshot({path:S+'/t1.png'});
 await A.click('.sheet .b-amber');await A.waitForTimeout(700);const url=await A.textContent('.ilink code');log('invite url',url.replace(/join=\w+/,'join=…'));await A.screenshot({path:S+'/t2.png'});
 // B (not signed in) opens invite link -> login view -> sign in -> joined
 const local=url.replace(/^https:\/\/liff\.line\.me\/[^/]+/,B);const jc=(url.match(/join=(\w+)/)||[])[1];
 const Bp=await ctx('Bob');await Bp.goto(local);await Bp.waitForTimeout(1000);log('B (anon, LINE) retry screen',await Bp.locator('text=เข้าสู่ระบบไม่สำเร็จ').count());
-await Bp.goto(B+'/api/auth?start=1&as=Bob&r='+encodeURIComponent('/mytrips?join='+jc));await Bp.waitForTimeout(1500);log('B toast',await Bp.textContent('#toast'),'url',Bp.url());
+await Bp.goto(B+'/api/auth?start=1&as=Bob&r='+encodeURIComponent('/home?join='+jc));await Bp.waitForTimeout(1500);log('B toast',await Bp.textContent('#toast'),'url',Bp.url());
 await Bp.screenshot({path:S+'/t3.png'});log('B role line',await Bp.textContent('.rolep').catch(()=>'none'));
 // helper rights
 log('B cancel Cat seat',(await Bp.request.fetch(B+'/api/seats?t='+ID+'&v=v1',{method:'DELETE',data:{seat:4}})).status());
@@ -27,7 +27,7 @@ const fresh=async()=>(await (await A.request.post(B+'/api/trip',{data:{t:ID,invi
 for(const n of ['Dan']){const p=await user(n);log(n,'join fresh',(await p.request.post(B+'/api/trip',{data:{join:await fresh()}})).status());}
 const fullInv=await A.request.post(B+'/api/trip',{data:{t:ID,invite:true}});log('invite when full',fullInv.status(),JSON.stringify(await fullInv.json()));
 // transfer to helper 0 (Bob) via UI
-await A.goto(B+'/mytrips?f='+Date.now()+'#trips');await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);await A.click('.mgb:has-text("ผู้ช่วยจัดทริป")');await A.waitForTimeout(800);await A.screenshot({path:S+'/t4.png'});
+await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);await A.click('.mgb:has-text("ผู้ช่วยจัดทริป")');await A.waitForTimeout(800);await A.screenshot({path:S+'/t4.png'});
 await A.click('.rrow >> nth=1 >> text=โอนให้');await A.click('.rrow >> nth=1 >> text=ยืนยันโอน?');await A.waitForTimeout(1200);
 const team=await (await A.request.get(B+'/api/trip?t='+ID)).json();log('after transfer A role',team.team.role,'owner',team.team.ownerName,'helpers',team.team.helpers.map(h=>h.name).join(','));
 log('A delete now',(await A.request.fetch(B+'/api/trip?t='+ID,{method:'DELETE'})).status());
