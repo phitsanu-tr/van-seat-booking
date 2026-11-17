@@ -392,6 +392,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 
 .list li.mine-row .sn { background: var(--mine); color: var(--mine-ink); }
 .list li.none, .list li.free { display: block; padding: 12px 28px; font-size: 14px; color: var(--muted); line-height: 20px}
+.list li.none { margin: 6px 8px 4px; padding: 14px 12px; border-radius: 14px; background: #f3f6f7; text-align: center; border-bottom: 0; }
 .list li.free b { color: var(--ink); font-weight: 600; margin-right: 0; }
 .list h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0; padding: 14px 16px 8px; line-height: 28px}
 .list h2 small.lsub { font: 600 12px/16px var(--font-body); border-radius: 1000px; padding: 4px 10px; color: #0b5f67; background: #e3f2f3; }
@@ -1165,7 +1166,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     for (var n = 1; n <= TOTAL; n++) { if (seats[n]) booked.push(n); else free.push(n); }
     document.getElementById("listTitle").textContent = booked.length ? "จองแล้ว " + booked.length + " คน" : "ยังไม่มีคนจอง";
     var lsub = document.getElementById("listSub"); lsub.className = "lsub" + (loaded && free.length === 0 ? " full" : loaded && booked.length && free.length <= 3 ? " low" : "");
-    lsub.textContent = !loaded ? "" : free.length === 0 ? "เต็มแล้ว" : booked.length ? "เหลือ " + free.length + " ที่นั่ง" : "ว่างทั้งหมด " + TOTAL + " ที่นั่ง";
+    lsub.textContent = !loaded ? "" : free.length === 0 ? "เต็มแล้ว" : booked.length ? "เหลือ " + free.length + " ที่นั่ง" : "ว่าง " + TOTAL + " ที่นั่ง";
     booked.forEach(function (n) {
       var m = mine(n);
       var li = el("li", "bk" + (m ? " mine-row" : ""));
@@ -1176,11 +1177,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (m) li.appendChild(el("span", "me", "ที่นั่งของคุณ"));
       listEl.appendChild(li);
     });
-    if (loaded && !booked.length) listEl.appendChild(el("li", "none", "ยังไม่มีใครจอง แตะที่ว่างในผังเพื่อจองเลย"));
-    if (loaded && booked.length && free.length) {
+    if (loaded && !booked.length) listEl.appendChild(el("li", "none", "แตะที่นั่งว่างในผังเพื่อจอง"));
+    if (loaded && free.length) {
       var fl = el("li", "free"); fl.appendChild(el("b", null, "ที่นั่งว่าง")); free.forEach(function (n) { fl.appendChild(el("span", "fn", String(n))); }); listEl.appendChild(fl);
     }
-    if (loaded && !free.length) listEl.appendChild(el("li", "none", "เต็มแล้ว"));
     countEl.textContent = "";
     countEl.appendChild(document.createTextNode("จองแล้ว "));
     countEl.appendChild(el("b", null, loaded ? String(Object.keys(seats).length) : "-"));
