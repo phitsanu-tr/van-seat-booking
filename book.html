@@ -1080,6 +1080,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var on = infoMode();
     document.body.classList.toggle("v-info", on);
     document.body.classList.toggle("v-list", !on && view === "list");
+    var h = document.querySelector(".hero h1");
+    if (h) h.textContent = on ? "รายละเอียดทริป" : (view === "list" ? "รายชื่อผู้ร่วมทริป" : "เลือกที่นั่ง");
     document.getElementById("swInfo").setAttribute("aria-selected", on ? "true" : "false");
     document.getElementById("swMap").setAttribute("aria-selected", !on && view === "map" ? "true" : "false");
     document.getElementById("swList").setAttribute("aria-selected", !on && view === "list" ? "true" : "false");
