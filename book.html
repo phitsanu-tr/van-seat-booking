@@ -463,6 +463,9 @@ body.signed .hbar .brand{display:none}
 body.signed .hero{padding-top:4px}
 html.sgn .hero h1,body.signed .hero h1{font:700 26px/32px var(--font-display)} /* same title size as the bottom-menu pages */
 </style>
+<script>/* a share card's "ดูรายละเอียดทริป" link carries ?info=1 (also inside liff.state): open the details view, whatever LINE did with the query */
+try{var _q=new URLSearchParams(location.search),_s=_q.get("liff.state")||"";if(!location.hash&&(/(^|&)info=1(&|$)/.test(location.search.slice(1))||/[?&]info=1\b/.test(_s)))history.replaceState(history.state,"",location.pathname+location.search+"#info")}catch(e){}
+</script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 (function(){
