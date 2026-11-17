@@ -1723,7 +1723,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     // ---- map card: van on the left, who booked what on the right
     y += SEC + posterSpare; heading("ผังที่นั่งและรายละเอียด");
-    var MX = 36, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k, IP = 28;
+    var MX = 56, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k, IP = 28;
     var mh = IP + PH + IP, FHF = useQr ? 220 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + SEC + posterSpare + FHF)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
     mh += extra;
     ctx.fillStyle = "#ffffff"; rrect(ctx, MX, y, MW, mh, 45); ctx.fill(); ctx.strokeStyle = DIV; ctx.lineWidth = 2; rrect(ctx, MX, y, MW, mh, 45); ctx.stroke();
@@ -1765,15 +1765,23 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     gy += 24 + sp;
     ctx.fillStyle = "#0b5f67"; ctx.font = '600 28px ' + PF; ctx.fillText("สถานะการจอง", sx, gy + 28);
     gy += 40;
-    ctx.fillStyle = TEAL; ctx.font = '600 96px ' + PF; ctx.fillText(String(cnt), sx, gy + 86);
-    var cw0 = ctx.measureText(String(cnt)).width;
-    ctx.fillStyle = "#6b767c"; ctx.font = '400 30px ' + PF; ctx.fillText("/ " + TOTAL, sx + cw0 + 14, gy + 52);
-    ctx.font = '400 28px ' + NF; ctx.fillText("จองแล้ว", sx + cw0 + 14, gy + 90);
     var left = TOTAL - cnt, pTxt = left <= 0 ? "เต็มแล้ว" : "เหลือ " + left + " ที่นั่ง";
     var pBg = left <= 0 ? "#eceff1" : (left <= 3 ? "#fff1e0" : "#e3f2f3"), pFg = left <= 0 ? "#5d6b73" : (left <= 3 ? "#c2570c" : "#0b5f67");
-    ctx.font = '600 28px ' + NF; var pw4 = ctx.measureText(pTxt).width + 36;
+    // fit count block + pill in the column without overlap: full pill text, then the short one, then a smaller count
+    var cz = 96, cw0 = 0, lh = 0, pw4 = 0;
+    function fitStat() {
+      ctx.font = '600 ' + cz + 'px ' + PF; cw0 = ctx.measureText(String(cnt)).width;
+      ctx.font = '400 28px ' + NF; lh = Math.max(ctx.measureText("จองแล้ว").width, (ctx.font = '400 30px ' + PF, ctx.measureText("/ " + TOTAL).width));
+      ctx.font = '600 28px ' + NF; pw4 = ctx.measureText(pTxt).width + 36;
+      return cw0 + 14 + lh + 16 <= sw - pw4;
+    }
+    if (!fitStat() && left > 0) { pTxt = "เหลือ " + left; fitStat(); }
+    while (!fitStat() && cz > 64) cz -= 4;
+    ctx.fillStyle = TEAL; ctx.font = '600 ' + cz + 'px ' + PF; ctx.fillText(String(cnt), sx, gy + 86);
+    ctx.fillStyle = "#6b767c"; ctx.font = '400 30px ' + PF; ctx.fillText("/ " + TOTAL, sx + cw0 + 14, gy + 52);
+    ctx.font = '400 28px ' + NF; ctx.fillText("จองแล้ว", sx + cw0 + 14, gy + 90);
     ctx.fillStyle = pBg; rrect(ctx, sx + sw - pw4, gy + 28, pw4, 48, 24); ctx.fill();
-    ctx.fillStyle = pFg; ctx.textAlign = "center"; fillC(ctx, pTxt, sx + sw - pw4 / 2, gy + 62); ctx.textAlign = "left";
+    ctx.font = '600 28px ' + NF; ctx.fillStyle = pFg; ctx.textAlign = "center"; fillC(ctx, pTxt, sx + sw - pw4 / 2, gy + 62); ctx.textAlign = "left";
     var by2 = gy + 86 - 14; // (no progress bar: the status pill says it)
     if (cur) {
       var sgy = by2 + 14 + 24 + 16 + sp;
