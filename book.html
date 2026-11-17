@@ -450,6 +450,8 @@ body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: non
 .infoact .ibtns .ipri { padding: 4px 8px; }
 .infoact .ibtns .ipri small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .infoact .ibtns .ipri small { font: 400 12px/16px var(--font-body); opacity: .9; }
+.infoact .ibtns .ipri.sk { background: color-mix(in srgb, var(--ink) 9%, var(--surface)); border-radius: 16px; }
+.infoact .ibtns .ipri.sk span, .infoact .ibtns .ipri.sk small { color: transparent; }
 .infoact .ibtns .isec { background: #e4f3f4; color: #0b5f67; border: 0; }
 .infoact .ibtns svg { width: 16px; height: 16px; }
 #tripHdr > .vsw { margin-top: 16px; }
@@ -1090,7 +1092,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     applyMode();
   }
   // #info = trip details, no hash = seat map / list. Browser back moves between them (pushState), so back from the map goes to the details.
-  var mineLine = "", mineLoaded = false, wasInfo = false;
+  var mineLine = "", mineLoaded = false, mineDone = false, wasInfo = false; // mineDone: the first answer to "which seats are mine" has arrived (until then the main button is a skeleton)
   function infoMode() { return location.hash === "#info"; }
   function applyMode() {
     var on = infoMode();
@@ -1112,8 +1114,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       ms.forEach(function (x) { if (mv.indexOf(x.vanLabel) < 0) mv.push(x.vanLabel); });
       // "จองแล้ว 3 ที่นั่ง" (+ "· คัน A" or "· 2 คัน" on a multi-van trip): a count never overflows the button, the map shows which seats
       mineLine = ms.length ? "จองแล้ว " + ms.length + " ที่นั่ง" + (multi ? (mv.length > 1 ? " · " + mv.length + " คัน" : " · คัน " + mv[0]) : "") : "";
+      mineDone = true;
       if (trip) renderTrip();
-    }).catch(function () { mineLoaded = false; });
+    }).catch(function () { mineLoaded = false; mineDone = true; if (trip) renderTrip(); });
   }
   function goView(hash) {
     try { history.pushState({ vsb: 1 }, "", location.pathname + location.search + hash); } catch (e) { location.hash = hash; }
@@ -1275,7 +1278,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (mineLine) { gl = "ดูที่นั่งของฉัน"; gsub = mineLine; }
     else if (trip.vans.length && rest > 0) { gl = "เลือกที่นั่ง"; gsub = "ว่าง " + rest + " จาก " + tot + " ที่นั่ง"; }
     gs.textContent = ""; gs.className = "ipri" + (gsub ? " two" : "");
-    gs.appendChild(el("span", null, gl)); if (gsub) gs.appendChild(el("small", null, gsub));
+    if (me && !mineDone) { // signed in, still asking which seat is mine: a skeleton instead of wording that would flip a moment later
+      gs.className = "ipri two sk"; gs.disabled = true; gs.setAttribute("aria-busy", "true");
+      gs.appendChild(el("span", null, "ดูผังที่นั่ง")); gs.appendChild(el("small", null, "กำลังโหลด…"));
+    } else {
+      gs.disabled = false; gs.removeAttribute("aria-busy");
+      gs.appendChild(el("span", null, gl)); if (gsub) gs.appendChild(el("small", null, gsub));
+    }
     document.getElementById("infoAct").hidden = false; document.getElementById("infoShare").hidden = false;
     if (infoMode() && me && !mineLoaded) loadMine(); // signed in after the page opened on the details
     factsEl.hidden = false;
