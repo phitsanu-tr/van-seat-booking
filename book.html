@@ -73,7 +73,6 @@ header.trip { display: block; }
 .chgban .ct em { font-style: normal; font-weight: 600; color: var(--ink); }
 .chgban .ct small { display: block; font-size: 12px; color: #8a979e; line-height: 16px}
 .chgban .cx { flex: none; border: 0; background: none; color: var(--muted); font-size: 22px; line-height: 22px; padding: 2px 8px; cursor: pointer; }
-.facts .fv.chg { display: inline-block; justify-self: start; background: #fdf0dd; color: #b86e00; border-radius: 8px; padding: 0 8px; font-weight: 600; }
 .acct .aav { width: 24px; height: 24px; border-radius: 50%; background: #06c755; color: #fff; font: 600 12px/24px var(--font-display); text-align: center; overflow: hidden; flex: none; }
 .acct .aav img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .acct span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -93,7 +92,7 @@ header.trip { display: block; }
 .facts .fhead:only-child { padding-bottom: 0; border-bottom: 0; }
 .fhead .ftitle { font: 600 16px/24px var(--font-display); line-height: 24px; color: var(--ink); overflow-wrap: anywhere; font-size: 16px; }
 .fhead .forg { font-size: 12px; font-weight: 600; color: var(--mine); margin-top: 2px; overflow-wrap: anywhere; line-height: 16px}
-.facts { margin: 16px 0 0; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: 8px; font-size: 14px; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); line-height: 20px}
+.facts { margin: 16px 0 0; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: 0; font-size: 14px; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); line-height: 20px}
 .facts div { display: flex; align-items: flex-start; gap: 12px; }
 .facts svg { flex: none; width: 16px; height: 16px; color: var(--mine); margin-top: 4px; }
 .facts .fk { position: absolute; width: 2px; height: 2px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -399,7 +398,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 12px 16px; cursor: pointer; background: var(--danger); color: var(--paper); border: 1.5px solid var(--danger); }
 /* kept as late rules: they must stay after rules above to win (same element, same property) */
 .deck { border-color: #e8ecef; }
-.facts .fhead { border-bottom-color: #e8ecef; padding-bottom: 12px; }
+.facts .fhead { border-bottom-color: #e8ecef; padding-bottom: 16px; }
 /* trip card: chips (span + vans), two time boxes (ขาไป / ขากลับ), meeting point; the organizer sits above the seat map */
 .facts .two { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: start; gap: 8px; background: #f6f8f9; border-radius: 12px; padding: 12px; }
 .facts .two .sw { width: 32px; height: 32px; margin: 0; align-self: center; color: var(--mine); }
@@ -411,11 +410,17 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 .facts .bx .bt { display: block; font: 600 20px/28px var(--font-display); color: var(--ink); margin: 4px 0; overflow-wrap: anywhere; }
 .facts .bx .bd2 { display: block; font-size: 12px; line-height: 16px; color: #4a5560; }
 .facts .bx.chg .bt, .facts .bx.chg .bd2 { color: #b86e00; }
-.facts .meet { display: flex; gap: 12px; align-items: flex-start; padding-top: 12px; border-top: 1px solid #e8ecef; }
-.facts .meet svg { margin-top: 2px; }
-.facts .meet > div { display: block; min-width: 0; }
-.facts .meet .fv { display: block; }
-.facts .meet .mk { display: block; font-size: 12px; line-height: 16px; color: var(--muted); }
+.facts .fgrp { display: grid; gap: 12px; padding-top: 16px; margin-top: 16px; border-top: 1px solid #e8ecef; }
+.facts .fhead + .fgrp { margin-top: 0; border-top: 0; }
+.facts .fgh { display: block; font: 600 14px/20px var(--font-display); color: var(--deep); }
+.facts .frows { display: grid; gap: 8px; }
+.facts .frow { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; font-size: 14px; line-height: 20px; }
+.facts .frow .fk2 { flex: none; color: var(--muted); }
+.facts .frow b { font-weight: 600; text-align: right; min-width: 0; overflow-wrap: anywhere; }
+.facts .frow b.chg { background: #fdf0dd; color: #b86e00; border-radius: 8px; padding: 0 8px; }
+.facts .frow.stack { display: block; }
+.facts .frow.stack b { display: block; text-align: left; margin-top: 4px; }
+.facts .frow.stack b.chg { display: inline-block; }
 /* two views of one page: #info = trip details (from "ทริปของฉัน"), otherwise the seat map */
 body:not(.v-info) #tripFacts, body:not(.v-info) #infoAct { display: none !important; }
 body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: none !important; }
@@ -1181,11 +1186,19 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var fh = el("div", "fhead");
     fh.appendChild(el("div", "ftitle", trip.name));
     factsEl.appendChild(fh);
-    // duration row: how many days (with dates)
-    function infoRow(icon, label, value, cls) {
-      var row = el("div", "meet"); row.setAttribute("role", "listitem"); row.appendChild(svgIcon(icon));
-      var t = el("div"); t.appendChild(el("span", "mk", label)); t.appendChild(el("span", cls || "fv", value));
-      row.appendChild(t); return row;
+    // facts are grouped: travel (times + format + dates), meeting & van, booking. Rows are label (left) + value (right); a long value stacks under its label.
+    function frow(label, value, chg) {
+      var r = el("div", "frow" + (String(value).length > 22 ? " stack" : "")); r.setAttribute("role", "listitem");
+      r.appendChild(el("span", "fk2", label)); r.appendChild(el("b", chg ? "chg" : null, value)); return r;
+    }
+    function fgroup(title, parts) {
+      parts = parts.filter(Boolean); if (!parts.length) return;
+      var g = el("div", "fgrp"); g.setAttribute("role", "group"); g.setAttribute("aria-label", title);
+      g.appendChild(el("div", "fgh", title));
+      var rows = el("div", "frows"), hasRows = false;
+      parts.forEach(function (p) { if (p.classList.contains("two")) g.appendChild(p); else { rows.appendChild(p); hasRows = true; } });
+      if (hasRows) g.appendChild(rows);
+      factsEl.appendChild(g);
     }
     // two boxes: label, time big, day small. A box without a time shows the day big instead.
     function box(label, iso, tm, chgKey) {
@@ -1199,29 +1212,35 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     var go = box("เดินทางไป", trip.startDate, trip.departTime, "time");
     var back = box("เดินทางกลับ", trip.endDate || trip.startDate, trip.returnTime, "rtime");
+    var go = box("เดินทางไป", trip.startDate, trip.departTime, "time");
+    var back = box("เดินทางกลับ", trip.endDate || trip.startDate, trip.returnTime, "rtime");
+    var two = null;
     if (go || back) {
-      var two = el("div", "two" + (go && back ? "" : " one") + (CHG.date || CHG.time || CHG.rtime ? " chg" : ""));
+      two = el("div", "two" + (go && back ? "" : " one") + (CHG.date || CHG.time || CHG.rtime ? " chg" : ""));
       if (go) two.appendChild(go);
       if (go && back) { var sw = svgIcon("swap"); sw.setAttribute("class", "sw"); two.appendChild(sw); }
       if (back) two.appendChild(back);
-      factsEl.appendChild(two);
     }
-    if (trip.tripDays) { var yy = ""; var t0 = parseD(trip.tripStart); if (t0) yy = " " + String(new Date(t0.y - 543, t0.mo, t0.d + Math.max(0, (Number(trip.tripN) || 1) - 1)).getFullYear() + 543).slice(-2); factsEl.appendChild(infoRow("cal", "ระยะเวลา", trip.tripDays + yy)); }
-    if (trip.meetPoint) {
-      var mp = el("div", "meet"); mp.setAttribute("role", "listitem"); mp.appendChild(svgIcon("pin"));
-      var mt = el("div"); mt.appendChild(el("span", "mk", "จุดนัดพบ"));
-      mt.appendChild(el("span", CHG.meet ? "fv chg" : "fv", trip.meetPoint));
-      mp.appendChild(mt); factsEl.appendChild(mp);
+    var fmtRow = null, dateRow = null;
+    if (trip.tripDays) {
+      var yy = ""; var t0 = parseD(trip.tripStart); if (t0) yy = " " + String(new Date(t0.y - 543, t0.mo, t0.d + Math.max(0, (Number(trip.tripN) || 1) - 1)).getFullYear() + 543).slice(-2);
+      var tdp = trip.tripDays.split(" · ");
+      fmtRow = frow("รูปแบบ", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]);
+      if (tdp[1]) dateRow = frow("วันที่จัดทริป", tdp[1] + yy);
     }
     var tot = trip.vans.length * TOTAL, booked = 0;
     trip.vans.forEach(function (v) { booked += counts[v.id] != null ? counts[v.id] : (v.id === curVan ? Object.keys(seats).length : 0); });
     var rest = tot - booked;
-    if (trip.vans.length) {
-      var vtxt = trip.vans.length + " คัน";
-      if (!mineLine) vtxt += " · " + (booked === 0 ? "ว่างทั้งหมด " + tot + " ที่นั่ง" : rest <= 0 ? "เต็มแล้ว" : "เหลือ " + rest + " ที่นั่ง"); // your own seat is not repeated here
-      factsEl.appendChild(infoRow("van", "รถตู้", vtxt));
-    }
-    if (trip.organizer) factsEl.appendChild(infoRow("usr", "ผู้จัด", trip.organizer));
+    fgroup("การเดินทาง", [two, fmtRow, dateRow]);
+    fgroup("นัดหมายและรถตู้", [
+      trip.meetPoint ? frow("จุดนัดพบ", trip.meetPoint, CHG.meet) : null,
+      trip.vans.length ? frow("รถตู้", trip.vans.length + " คัน (" + tot + " ที่นั่ง)") : null,
+      trip.organizer ? frow("ผู้จัด", trip.organizer) : null
+    ]);
+    fgroup("การจอง", [
+      trip.vans.length ? frow("ที่นั่งว่าง", rest <= 0 ? "เต็มแล้ว" : rest + " ที่นั่ง") : null,
+      seatLimit > 0 ? frow("จองได้", "คนละไม่เกิน " + seatLimit + " ที่นั่ง") : null
+    ]);
     document.getElementById("infoAct").hidden = false; document.getElementById("infoShare").hidden = false;
     if (infoMode() && me && !mineLoaded) loadMine(); // signed in after the page opened on the details
     factsEl.hidden = false;
