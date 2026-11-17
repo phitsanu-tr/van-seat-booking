@@ -1665,7 +1665,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var tdp = (trip.tripDays || "").split(" · "), rows = [];
     if (trip.tripDays) { rows.push(["รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]]); if (tdp[1]) rows.push(["วันที่จัดทริป", tdp[1] + yy]); }
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน"]);
-    if (seatLimit > 0) rows.push(["จำกัดที่นั่งต่อคน", seatLimit + " ที่นั่ง"]);
     y += 26;
     // ---- travel schedule box
     var goD = (trip.startDate || trip.departTime) ? dayS(trip.startDate) : "", goT = trip.departTime || "";
