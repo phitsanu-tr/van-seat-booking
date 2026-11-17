@@ -15,7 +15,7 @@
   function liffUrl(id, kind) { return "https://liff.line.me/" + LIFF_ID + "/" + id + (kind === "info" ? "?info=1" : ""); } // ?info=1: open the trip details tab instead of the seat map
   function shortY(iso) { // short() plus the Buddhist-era year when the date is not in the current year
     var m = /^(\d{4})-/.exec(String(iso || "")), d = short(iso);
-    return d && m && +m[1] !== new Date().getFullYear() ? d + " " + (+m[1] + 543) : d;
+    return d && m && +m[1] !== new Date().getFullYear() ? d + " " + String((+m[1] + 543) % 100).padStart(2, "0") : d;
   }
   function short(iso) { // "ศ. 15 ม.ค." — no year, so it fits the narrow half of the card
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || "")); if (!m) return "";
@@ -85,7 +85,7 @@
     if (t.organizer) g1.push(irow("ผู้จัด", t.organizer));
     if (tdp[0]) g1.push(irow("รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]));
     var ty = /^(\d{4})-/.exec(String(t.tripStart || t.startDate || "")); // add the Buddhist-era year only when the trip is not in the current year
-    if (tdp[1]) g1.push(irow("วันที่จัดทริป", tdp[1] + (ty && +ty[1] !== new Date().getFullYear() ? " " + (+ty[1] + 543) : "")));
+    if (tdp[1]) g1.push(irow("วันที่จัดทริป", tdp[1] + (ty && +ty[1] !== new Date().getFullYear() ? " " + String((+ty[1] + 543) % 100).padStart(2, "0") : "")));
     if (n > 0) g1.push(irow("รถตู้", n + " คัน (" + (n * 10 - (t.staffSeat ? n : 0)) + " ที่นั่ง)"));
     if (Number(t.limit) > 0) g1.push(irow("จำกัดที่นั่งต่อคน", Number(t.limit) + " ที่นั่ง"));
     if (g1.length) { gh("รายละเอียดทริป", true).forEach(function (x) { body.push(x); }); g1.forEach(function (r) { body.push(r); }); }
