@@ -93,7 +93,7 @@ header.trip { display: block; }
 .facts .fhead:only-child { padding-bottom: 0; border-bottom: 0; }
 .fhead .ftitle { font: 600 16px/24px var(--font-display); line-height: 24px; color: var(--ink); overflow-wrap: anywhere; font-size: 16px; }
 .fhead .forg { font-size: 12px; font-weight: 600; color: var(--mine); margin-top: 2px; overflow-wrap: anywhere; line-height: 16px}
-.facts { margin: 12px 0 0; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: 8px; font-size: 14px; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); line-height: 20px}
+.facts { margin: 16px 0 0; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: 8px; font-size: 14px; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); line-height: 20px}
 .facts div { display: flex; align-items: flex-start; gap: 12px; }
 .facts svg { flex: none; width: 16px; height: 16px; color: var(--mine); margin-top: 4px; }
 .facts .fk { position: absolute; width: 2px; height: 2px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -361,10 +361,10 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .msg.nmmsg.info { color: var(--muted); }
 
 .list { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-.vsw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 16px; background: color-mix(in srgb, var(--ink) 9%, var(--bg)); }
-.vsw button { font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 14px; line-height: 20px; min-height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 4px; white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.vsw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 0; border-radius: 0; background: none; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+.vsw button { font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 14px; line-height: 20px; min-height: 44px; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; border-radius: 0; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 4px; white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .vsw button svg { width: 16px; height: 16px; flex: none; }
-.vsw button[aria-selected="true"] { background: var(--surface); color: var(--mine); box-shadow: 0 1px 3px rgba(0, 0, 0, .14); }
+.vsw button[aria-selected="true"] { background: none; color: var(--mine); box-shadow: none; border-bottom-color: var(--mine); }
 .vsw button:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 .list h2 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .list h2 small { font-family: var(--font-body); font-size: 12px; font-weight: 400; color: var(--muted); line-height: 16px}
