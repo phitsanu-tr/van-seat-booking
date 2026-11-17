@@ -96,10 +96,12 @@
     var nightBefore = !!(hasTime && t.tripStart && t.startDate && t.departTime && t.startDate < t.tripStart); // leaves the evening before the trip's first day (same rule as the details tab)
     if (hasTime || t.meetPoint) {
       gh("กำหนดการเดินทาง", !body.length).forEach(function (x) { body.push(x); });
-      var card = []; // one grey box: the times, then (under a hairline) the meeting point
+      var card = []; // one bordered box: the times, then (under a hairline) the meeting point
       if (hasTime) card.push({ type: "box", layout: "horizontal", paddingAll: "12px", contents: [
         half("เดินทางไป", t.departTime ? t.departTime + " น." : "", shortY(t.startDate), false, nightBefore),
-        { type: "image", url: ORIGIN + "/swap-icon.png", size: "20px", aspectRatio: "1:1", aspectMode: "fit", flex: 0, gravity: "center", margin: "8px" },
+        plain ? { type: "image", url: ORIGIN + "/swap-icon.png", size: "20px", aspectRatio: "1:1", aspectMode: "fit", flex: 0, gravity: "center", margin: "8px" }
+          : { type: "box", layout: "vertical", flex: 0, width: "28px", height: "28px", cornerRadius: "14px", borderWidth: "1px", borderColor: "#dfe5e8", backgroundColor: "#ffffff", justifyContent: "center", alignItems: "center", gravity: "center", margin: "8px",
+              contents: [{ type: "image", url: ORIGIN + "/swap-icon.png", size: "16px", aspectRatio: "1:1", aspectMode: "fit" }] },
         half("เดินทางกลับ", t.returnTime ? t.returnTime + " น." : "", shortY(t.endDate || t.startDate), true)] });
       if (t.meetPoint) {
         if (hasTime) card.push({ type: "box", layout: "vertical", paddingStart: "12px", paddingEnd: "12px", contents: [{ type: "separator", color: "#dfe5e8" }] }); // inset hairline, not edge to edge
@@ -107,7 +109,7 @@
           txt("จุดนัดพบ", { size: "12px", color: SUB }),
           txt(t.meetPoint, { size: "14px", weight: "bold", color: TXT })] });
       }
-      body.push({ type: "box", layout: "vertical", margin: "8px", backgroundColor: "#f6f8f9", cornerRadius: "12px", contents: card });
+      body.push(Object.assign({ type: "box", layout: "vertical", margin: "8px", cornerRadius: "12px", contents: card }, plain ? { backgroundColor: "#f6f8f9" } : { backgroundColor: "#ffffff", borderWidth: "1px", borderColor: "#dfe5e8" })); // plain = fallback look if LINE rejects the richer card
     }
     return { type: "bubble", size: "mega", header: head,
       body: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "4px", paddingBottom: "8px", contents: body },
