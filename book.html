@@ -430,6 +430,8 @@ body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: non
 .infoact .ibtns { display: grid; gap: 8px; }
 .infoact .ibtns button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border-radius: 16px; font: 600 16px/24px var(--font-display); cursor: pointer; }
 .infoact .ibtns .ipri { background: var(--mine); color: #fff; border: 0; }
+.infoact .ibtns .ipri.two { flex-direction: column; gap: 0; padding: 4px 16px; }
+.infoact .ibtns .ipri small { font: 400 12px/16px var(--font-body); opacity: .9; }
 .infoact .ibtns .isec { background: #e4f3f4; color: #0b5f67; border: 0; }
 .infoact .ibtns svg { width: 16px; height: 16px; }
 #tripHdr > .vsw { margin-top: 16px; }
@@ -1248,6 +1250,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       trip.vans.length ? frow("ที่นั่งว่าง", rest <= 0 ? "เต็มแล้ว" : rest + " ที่นั่ง") : null,
       seatLimit > 0 ? frow("จำกัดที่นั่งต่อคน", seatLimit + " ที่นั่ง") : null
     ]);
+    // main button: wording follows the viewer's state (has a seat / seats left / full)
+    var gs = document.getElementById("goSeats"), gl = "ดูผังที่นั่ง", gsub = "";
+    if (mineLine) { gl = "ดูที่นั่งของฉัน"; gsub = "จองแล้ว · " + mineLine; }
+    else if (trip.vans.length && rest > 0) { gl = "เลือกที่นั่ง"; gsub = "ว่าง " + rest + " จาก " + tot + " ที่นั่ง"; }
+    gs.textContent = ""; gs.className = "ipri" + (gsub ? " two" : "");
+    gs.appendChild(el("span", null, gl)); if (gsub) gs.appendChild(el("small", null, gsub));
     document.getElementById("infoAct").hidden = false; document.getElementById("infoShare").hidden = false;
     if (infoMode() && me && !mineLoaded) loadMine(); // signed in after the page opened on the details
     factsEl.hidden = false;
