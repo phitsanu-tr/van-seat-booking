@@ -405,7 +405,6 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 .facts .fchip { display: inline-flex; align-items: center; gap: 4px; border-radius: 100px; padding: 2px 12px; font-size: 12px; line-height: 20px; font-weight: 600; background: #eef2f4; color: #4a5560; }
 .facts .fchip.span { background: #e4f3f4; color: var(--deep); }
 .facts .fchip.seat { background: #e4f3f4; color: var(--deep); }
-.facts .fchip.mine { background: var(--mine); color: var(--mine-ink); }
 .facts .fchip.full { background: #fdf0dc; color: #b86e00; }
 .facts .fchip svg { width: 13px; height: 13px; margin: 0; color: inherit; }
 .facts .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -1220,9 +1219,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     var tot = trip.vans.length * TOTAL, booked = 0;
     trip.vans.forEach(function (v) { booked += counts[v.id] != null ? counts[v.id] : (v.id === curVan ? Object.keys(seats).length : 0); });
-    var rest = tot - booked, sc = el("span", "fchip " + (mineLine ? "mine" : rest <= 0 ? "full" : "seat"));
-    sc.textContent = mineLine ? "คุณจอง" + (mineLine.indexOf("ที่") === 0 ? "" : " ") + mineLine : booked === 0 ? "ว่างทั้งหมด " + tot + " ที่นั่ง" : rest <= 0 ? "เต็มแล้ว" : "เหลือ " + rest + " ที่นั่ง";
-    chips.appendChild(sc); if (!chips.parentNode) factsEl.appendChild(chips);
+    var rest = tot - booked;
+    if (!mineLine) { // your own seat is not repeated here; only the seats-left status shows before you book
+      var sc = el("span", "fchip " + (rest <= 0 ? "full" : "seat"));
+      sc.textContent = booked === 0 ? "ว่างทั้งหมด " + tot + " ที่นั่ง" : rest <= 0 ? "เต็มแล้ว" : "เหลือ " + rest + " ที่นั่ง";
+      chips.appendChild(sc);
+    }
+    if (!chips.parentNode) factsEl.appendChild(chips);
     document.getElementById("infoAct").hidden = false; document.getElementById("infoShare").hidden = false;
     if (infoMode() && me && !mineLoaded) loadMine(); // signed in after the page opened on the details
     factsEl.hidden = false;
