@@ -1664,7 +1664,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (t0) yy = " " + String(new Date(t0.y - 543, t0.mo, t0.d + Math.max(0, (Number(trip.tripN) || 1) - 1)).getFullYear() + 543).slice(-2);
     var tdp = (trip.tripDays || "").split(" · "), rows = [];
     if (trip.tripDays) { rows.push(["รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]]); if (tdp[1]) rows.push(["วันที่จัดทริป", tdp[1] + yy]); }
-    if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน · " + (trip.vans.length * TOTAL) + " ที่นั่ง"]);
+    if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน"]);
     if (seatLimit > 0) rows.push(["จำกัดที่นั่งต่อคน", seatLimit + " ที่นั่ง"]);
     y += 26;
     // ---- travel schedule box
@@ -1727,9 +1727,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     drawSeats(ctx, PX, PY, k, PW);
     var sx = PX + PW + 36, sw = MX + MW - IP - 8 - sx, sy = PY, sb = PY + PH; // side panel: count + bar + trip details
     ctx.textAlign = "left";
-    var plateRow = (cur && cur.plate) ? ["ทะเบียน", cur.plate] : null;
-    var drows = rows.slice(); if (plateRow) drows.push(plateRow);
-    var RH = 66, HD = 44, BK = 40 + 96 + 22 + 14 + 14 + 40, GAP = 34, blockH = HD + drows.length * RH + GAP + BK;
+    var drows = rows.slice();
+    var vname = cur ? (/^คัน/.test(cur.label) ? cur.label : "คัน " + cur.label) : "", plateTxt = (cur && cur.plate) || "";
+    ctx.font = '700 28px ' + PF; var pLines = plateTxt ? wrapText(ctx, plateTxt, sw - 40, 2) : [];
+    var SIGN = cur ? 34 + 58 + 62 + (pLines.length ? 26 + 38 * pLines.length : 0) : 0;
+    var RH = 66, HD = 44, BK = 40 + 96 + 22 + 14 + 14 + 40 + SIGN, GAP = 34, blockH = HD + drows.length * RH + GAP + BK;
     if (blockH > PH - 20) { RH = Math.max(52, (PH - 20 - HD - GAP - BK) / drows.length); blockH = HD + drows.length * RH + GAP + BK; }
     sy = PY + 14; // level with the van's front
     ctx.fillStyle = "#0b5f67"; ctx.font = '600 28px ' + PF; ctx.fillText("รายละเอียดทริป", sx, sy + 28);
@@ -1753,15 +1755,24 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var cw0 = ctx.measureText(String(cnt)).width;
     ctx.fillStyle = "#6b767c"; ctx.font = '400 30px ' + PF; ctx.fillText("/ " + TOTAL + " ที่นั่ง", sx + cw0 + 14, gy + 52);
     ctx.fillStyle = TEAL; ctx.font = '600 30px ' + NF; ctx.fillText("จองแล้ว", sx + cw0 + 14, gy + 90);
-    if (multi && cur) { // van code badge after "จองแล้ว"
-      var tw5 = ctx.measureText("จองแล้ว").width; ctx.font = '600 26px ' + PF; var bw5 = ctx.measureText(cur.label).width + 24;
-      ctx.fillStyle = TEAL; rrect(ctx, sx + cw0 + 14 + tw5 + 14, gy + 64, bw5, 36, 10); ctx.fill();
-      ctx.fillStyle = "#ffffff"; ctx.textAlign = "center"; fillC(ctx, cur.label, sx + cw0 + 14 + tw5 + 14 + bw5 / 2, gy + 91); ctx.textAlign = "left";
-    }
     var by2 = gy + 86 + 22;
     ctx.fillStyle = "#e3e8ea"; rrect(ctx, sx, by2, sw, 14, 7); ctx.fill();
     if (cnt > 0) { ctx.fillStyle = TEAL; rrect(ctx, sx, by2, Math.max(14, sw * Math.min(1, cnt / TOTAL)), 14, 7); ctx.fill(); }
     ctx.fillStyle = "#6b767c"; ctx.font = '400 28px ' + NF; ctx.fillText(cnt >= TOTAL ? "เต็มแล้ว" : "ว่าง " + (TOTAL - cnt) + " ที่นั่ง", sx, by2 + 14 + 38);
+    if (cur) { // van sign: name bar on top, plate underneath
+      var sgy = by2 + 14 + 38 + 34, nh = 62, ph = pLines.length ? 26 + 38 * pLines.length : 0, sh = nh + ph;
+      ctx.fillStyle = "#cfe3e5"; ctx.fillRect(sx, sgy - 18, sw, 3);
+      sgy += 18;
+      ctx.save(); rrect(ctx, sx, sgy, sw, sh, 20); ctx.clip();
+      ctx.fillStyle = "#0b5f67"; ctx.fillRect(sx, sgy, sw, nh);
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(sx, sgy + nh, sw, ph);
+      ctx.restore();
+      ctx.strokeStyle = "#0b5f67"; ctx.lineWidth = 3; rrect(ctx, sx, sgy, sw, sh, 20); ctx.stroke();
+      ctx.fillStyle = "#ffffff"; ctx.font = '700 44px ' + PF; ctx.textAlign = "center"; fillC(ctx, vname, sx + sw / 2, sgy + 46);
+      ctx.fillStyle = INK; ctx.font = '700 28px ' + PF;
+      pLines.forEach(function (ln, i) { fillC(ctx, ln, sx + sw / 2, sgy + nh + 14 + 28 + i * 38); });
+      ctx.textAlign = "left";
+    }
     y += mh + 24;
     // ---- footer
     var url = "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
