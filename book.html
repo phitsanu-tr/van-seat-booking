@@ -402,8 +402,10 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .list li.bk + li.free { border-top: 0; }
 .list li.bk:has(+ li.free) { border-bottom: 0; }
 .list li.mine-row + li.free { margin-top: 0; }
-.list li.free { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 28px 14px; }
-.list li.free .fn { min-width: 26px; height: 26px; padding: 0 4px; box-sizing: border-box; border-radius: 9px; border: 1.5px dashed color-mix(in srgb, var(--mine) 45%, transparent); display: inline-flex; align-items: center; justify-content: center; font: 600 13px/18px var(--font-display); color: var(--mine); font-variant-numeric: tabular-nums; }
+.list li.free { display: block; padding: 10px 16px 14px; }
+.list li.free b { display: block; margin: 0 0 8px; font-size: 13px; }
+.list li.free .fns { display: flex; flex-wrap: nowrap; gap: 4px; justify-content: flex-start; } /* one line even on the smallest screen: the chips shrink */
+.list li.free .fn { flex: 0 1 30px; min-width: 0; height: 26px; padding: 0; box-sizing: border-box; border-radius: 9px; border: 1.5px dashed color-mix(in srgb, var(--mine) 45%, transparent); display: inline-flex; align-items: center; justify-content: center; font: 600 13px/18px var(--font-display); color: var(--mine); font-variant-numeric: tabular-nums; }
 .list ul { list-style: none; margin: 0; padding: 0; }
 .list li { display: grid; grid-template-columns: 64px minmax(0, 1fr); padding: 8px 16px; border-bottom: 1px solid var(--line); gap: 8px; }
 .list li:last-child { border-bottom: 0; }
@@ -1179,7 +1181,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     });
     if (loaded && !booked.length) listEl.appendChild(el("li", "none", "แตะที่นั่งว่างในผังเพื่อจอง"));
     if (loaded && free.length) {
-      var fl = el("li", "free"); fl.appendChild(el("b", null, "ที่นั่งว่าง")); free.forEach(function (n) { fl.appendChild(el("span", "fn", String(n))); }); listEl.appendChild(fl);
+      var fl = el("li", "free"); fl.appendChild(el("b", null, "ที่นั่งว่าง")); var fns = el("div", "fns"); free.forEach(function (n) { fns.appendChild(el("span", "fn", String(n))); }); fl.appendChild(fns); listEl.appendChild(fl);
     }
     countEl.textContent = "";
     countEl.appendChild(document.createTextNode("จองแล้ว "));
