@@ -1,6 +1,6 @@
 form maxPer default 1
-dbg { t: '', fe: [], url: 'http://localhost:8765/v5btnvfp/edit' }
-created /v5btnvfp/edit
+dbg { t: '', fe: [], url: 'http://localhost:8765/<id>/edit' }
+created /<id>/edit
 edit maxPer 2
 note จองได้ไม่เกิน 2 ที่นั่งต่อคน (รวมทุกคัน)
 first booking name empty true

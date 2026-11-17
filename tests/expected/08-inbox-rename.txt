@@ -19,7 +19,7 @@ cancel sheet opens true
 Q single: picker 0 prefill ฉินนี่
 dark rules / 0
 dark rules /home 0
-dark rules /x895gw4c/seats 0
+dark rules /<id>/seats 0
 dark rules /new 0
 dark rules /privacy 0
 ERR []

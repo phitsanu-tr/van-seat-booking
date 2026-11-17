@@ -16,8 +16,8 @@ copied text:
 รวม 3/20 ที่นั่ง
 
 จองที่นั่งได้ที่นี่ 👇
-https://liff.line.me/2012285472-FvtYKx00/wc7c8qbk/seats
-closed trip last lines ["ปิดรับจองแล้ว · ดูผังที่นั่ง 👇","https://liff.line.me/2012285472-FvtYKx00/wc7c8qbk/seats"]
+https://liff.line.me/2012285472-FvtYKx00/<id>/seats
+closed trip last lines ["ปิดรับจองแล้ว · ดูผังที่นั่ง 👇","https://liff.line.me/2012285472-FvtYKx00/<id>/seats"]
 manage sheet [ 'แก้ไขทริป›', 'ผู้ช่วยจัดทริป0/2›', 'สร้างทริปซ้ำ›', 'ปิดรับจอง' ]
 x closes 0
 no copy or seat map in manage 0
