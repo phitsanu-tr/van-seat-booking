@@ -508,7 +508,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 <main>
   <header class="trip" id="tripHdr">
     <div class="hbar"><a class="lback" id="lback" href="/mytrips" aria-label="กลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><a class="brand" href="/mytrips">VanTrip</a><span class="bellhost" id="bellHost"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div>
-    <div class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht"><h1>ที่นั่งของฉัน</h1></div><button type="button" class="hshare" id="infoShare" aria-label="แชร์ทริปนี้" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg></button></div>
+    <div class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht"><h1>รายละเอียดทริป</h1></div><button type="button" class="hshare" id="infoShare" aria-label="แชร์ทริปนี้" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg></button></div>
     <div class="vsw" id="viewSw" role="tablist" aria-label="เลือกมุมมอง">
     <button type="button" role="tab" id="swInfo" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>ข้อมูลทริป</button>
     <button type="button" role="tab" id="swMap" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h3v3H8zM13 7h3v3h-3zM8 14h3v3H8zM13 14h3v3h-3z"/></svg>ผังที่นั่ง</button>
@@ -1080,8 +1080,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var on = infoMode();
     document.body.classList.toggle("v-info", on);
     document.body.classList.toggle("v-list", !on && view === "list");
-    var h = document.querySelector(".hero h1");
-    if (h) h.textContent = on ? "รายละเอียดทริป" : (view === "list" ? "รายชื่อผู้ร่วมทริป" : "เลือกที่นั่ง");
     document.getElementById("swInfo").setAttribute("aria-selected", on ? "true" : "false");
     document.getElementById("swMap").setAttribute("aria-selected", !on && view === "map" ? "true" : "false");
     document.getElementById("swList").setAttribute("aria-selected", !on && view === "list" ? "true" : "false");
