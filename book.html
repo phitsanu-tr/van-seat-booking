@@ -1633,7 +1633,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   // "Seat pass" picture: dark-teal header like the admin pass. With a seat booked on this device it leads with
   // "my seat"; the date/time/meeting facts sit under the header and a QR code sits at the bottom.
-  var posterFixed = 0, posterSpare = 0, posterExtra = 0, KEEP = 56; // posterSpare: spare 9:16 height shared out as section spacing, so the map panel keeps only KEEP of it
+  var FIT = true, posterFixed = 0, posterSpare = 0, posterExtra = 0, KEEP = 56; // posterSpare: spare 9:16 height shared out as section spacing, so the map panel keeps only KEEP of it
   function drawPoster(useQr) { // 9:16 output: size the van map so the whole card fits (side panel needs room, so 250-480 wide)
     var c0 = drawPoster0(useQr, 380);
     var tgt = 1008 * 16 / 9, pw = Math.max(250, Math.min(480, (tgt - posterFixed) / (H / W)));
@@ -1746,7 +1746,17 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var shEst = cur ? 62 + (pLines.length ? 26 + 38 * pLines.length : 0) : 0;
     var below = 96 + 24 + 40 + 126 + (cur ? 24 + 56 + shEst : 0) + (tagOn ? 26 + th : 0); // everything under the last detail row
     if (drows.length > 1 && 14 + HD + (drows.length - 1) * RH + below > PH + 20) RH = Math.max(84, (PH + 20 - 14 - HD - below) / (drows.length - 1)); // may run 20 below the van's rear: the panel has padding there
-    sy = PY + 14; // level with the van's front
+    var VI = 27, VB = 20, sp = 0; // VI: the drawn van sits about 20 inside its box top and bottom. column spans the van top-to-bottom: any spare height is shared across the row gaps and the four divider gaps
+    if (FIT) {
+      var spare = PH - VI - VB - (HD + (drows.length - 1) * RH + below) + 4, RH0 = RH, rowSp = 0; // heading's top edge sits 4 below sy
+      if (spare > 0) sp = rowSp = Math.min(40, spare / (drows.length - 1 + 4));
+      else if (spare < 0) { // too tall (e.g. the passenger's tag): tighten the rows first (min 84), then the divider gaps (down to -8 each)
+        if (drows.length > 1) RH = Math.max(84, RH + spare / (drows.length - 1));
+        sp = Math.max(-8, (spare - (RH - RH0) * (drows.length - 1)) / 4);
+      }
+      RH += rowSp;
+    }
+    sy = FIT ? PY + VI - 4 : PY + 14; // FIT: heading level with the van's roof
     ctx.fillStyle = "#0b5f67"; ctx.font = '600 28px ' + PF; ctx.fillText("รายละเอียดทริป", sx, sy + 28);
     var dy = sy + HD;
     drows.forEach(function (r, i) { // label small on top, value full size below (same size on every row)
@@ -1755,9 +1765,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       ctx.fillStyle = INK; ctx.font = '600 32px ' + NF; ctx.fillText(wrapText(ctx, r[1], sw, 1)[0], sx, ry3 + 22 + 38);
     });
     // ---- booking group, then the van sign (name bar + plate under one heading)
-    var gy = dy + (drows.length - 1) * RH + 68 + 28; // 28 clear above and below every divider
+    var gy = dy + (drows.length - 1) * RH + 68 + 28 + sp; // 28 clear above and below every divider
     ctx.fillStyle = DIV; ctx.fillRect(sx, gy, sw, 2); // thin divider between groups
-    gy += 24;
+    gy += 24 + sp;
     ctx.fillStyle = "#0b5f67"; ctx.font = '600 28px ' + PF; ctx.fillText("สถานะการจอง", sx, gy + 28);
     gy += 40;
     ctx.fillStyle = TEAL; ctx.font = '600 96px ' + PF; ctx.fillText(String(cnt), sx, gy + 86);
@@ -1771,9 +1781,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.fillStyle = pFg; ctx.textAlign = "center"; fillC(ctx, pTxt, sx + sw - pw4 / 2, gy + 62); ctx.textAlign = "left";
     var by2 = gy + 86 - 14; // (no progress bar: the status pill says it)
     if (cur) {
-      var sgy = by2 + 14 + 24 + 16;
+      var sgy = by2 + 14 + 24 + 16 + sp;
       ctx.fillStyle = DIV; ctx.fillRect(sx, sgy, sw, 2);
-      sgy += 24;
+      sgy += 24 + sp;
       ctx.fillStyle = "#0b5f67"; ctx.font = '600 28px ' + PF; ctx.fillText("รถตู้และทะเบียน", sx, sgy + 28);
       sgy += 56;
       var nh = 62, ph = pLines.length ? 26 + 38 * pLines.length : 0, sh = nh + ph;
