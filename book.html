@@ -1605,7 +1605,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!s) { // free seat: number in the corner like a booked one, "ว่าง" centred
         var nz0 = Math.max(26 * k, 21);
         ctx.fillStyle = INK; ctx.font = '500 ' + nz0 + 'px Prompt, "Noto Sans Thai", sans-serif'; ctx.textAlign = "right"; ctx.fillText(String(n), bx + bw - 12 * k, by + 9 * k + 0.74 * nz0); ctx.textAlign = "center";
-        var vz = Math.max(PW * 0.056, 24); ctx.fillStyle = TEAL; ctx.font = '500 ' + vz + 'px "Noto Sans Thai", sans-serif';
+        var vz = Math.max(40 * k, 32); ctx.fillStyle = "#8a959b"; ctx.font = '500 ' + vz + 'px "Noto Sans Thai", sans-serif'; // same size as a name, soft grey so it reads as empty
         fillC(ctx, "ว่าง", bx + bw / 2, by + bh / 2 + vz * 0.32);
         continue;
       }
