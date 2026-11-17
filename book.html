@@ -1674,7 +1674,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.textAlign = "left"; ctx.fillStyle = "#bfe9ed";
     if (false) { ctx.font = '600 34px ' + PF; ctx.fillStyle = "#ffffff"; ctx.fillText("VanTrip", X, 30 + 30); ctx.font = '400 26px ' + NF; ctx.fillStyle = "#bfe9ed";
       var lt = "SEAT PASS  " + codeT; ctx.textAlign = "right"; ctx.fillText(lt.split("").join(String.fromCharCode(8202)), X + IW, 30 + 29); ctx.textAlign = "left"; }
-    else { ticket(X, 30 + 5); ctx.font = '400 28px ' + NF; ctx.fillText("SEAT PASS".split("").join(String.fromCharCode(8202, 8202)), X + 36 + 18, 30 + 29);
+    else { ticket(X, 30 + 5); ctx.font = '600 34px ' + PF; ctx.fillStyle = "#ffffff"; ctx.fillText("VanTrip", X + 36 + 18, 30 + 32); ctx.fillStyle = "#bfe9ed"; ctx.font = '400 28px ' + NF;
       ctx.textAlign = "right"; ctx.fillText(codeT.split("").join(String.fromCharCode(8202)), X + IW, 30 + 29); ctx.textAlign = "left"; }
     ctx.fillStyle = "rgba(255,255,255,.22)"; ctx.fillRect(X, 30 + 36 + 22, IW, 2);
     ctx.fillStyle = "#ffffff"; ctx.font = '600 44px ' + PF;
@@ -1845,7 +1845,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var lbl = "สร้างโดย ", lw = ctx.measureText(lbl).width; ctx.fillText(lbl, tx0, bt + 158);
       ctx.fillStyle = "#ffffff"; ctx.font = '600 26px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, who, fw - lw, 1)[0], tx0 + lw, bt + 158);
     }
-    ctx.font = '600 34px Prompt, "Noto Sans Thai", sans-serif'; ctx.fillStyle = "#bfe9ed"; ctx.textAlign = "right"; ctx.fillText("VanTrip", CW - X, bt + 158); ctx.textAlign = "left";
+    
     posterExtra = extra; var total = y + FH; posterFixed = total - extra - PH;
     // ---- compose onto a light backdrop with rounded corners
     var OW = 1544, k = OW / CW; // same output width as the seat pass / admin pass cards (386 x 4)
