@@ -79,7 +79,11 @@
   }
   function infoBubble(t) { // card 1: shared from the trip details tab — everything about the trip, button opens the details
     var head = { type: "box", layout: "vertical", alignItems: "flex-start", backgroundColor: "#e6f3f3", paddingAll: "12px", contents: [
-      txt("VanTrip", { size: "12px", weight: "bold", color: TEAL, wrap: false }),
+      { type: "box", layout: "horizontal", spacing: "8px", alignItems: "center", width: "100%", contents: [ // brand, a hairline running right, then the trip code in a small pill
+        txt("VanTrip", { size: "12px", weight: "bold", color: TEAL, wrap: false, flex: 0, gravity: "center" })].concat(t.id ? [
+        { type: "box", layout: "vertical", flex: 1, height: "1px", backgroundColor: "#a9d3d6", gravity: "center", contents: [] },
+        { type: "box", layout: "vertical", flex: 0, backgroundColor: "#ffffff", borderWidth: "1px", borderColor: "#a9d3d6", cornerRadius: "10px", paddingStart: "8px", paddingEnd: "8px", paddingTop: "1px", paddingBottom: "1px",
+          contents: [txt(String(t.id), { size: "12px", weight: "bold", color: TEAL, wrap: false })] }] : []) },
       txt(String(t.name || "ทริปรถตู้"), { weight: "bold", size: "20px", color: TXT, margin: "4px", maxLines: 2 })] };
     var tdp = String(t.tripDays || "").split(" · "), n = Number(t.vans) || 0, body = [], g1 = [];
     if (t.organizer) g1.push(irow("ผู้จัด", t.organizer));
