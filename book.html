@@ -445,6 +445,10 @@ body.v-info #deck, body.v-info #tripMini, body.v-info .hero .org, body.v-list .h
 .infoact .ibtns .ipri { background: var(--mine); color: #fff; border: 0; }
 .infoact .ibtns .isec { background: var(--surface); color: var(--ink); border: 1.5px solid #cfd9dd; }
 .infoact .ibtns svg { width: 16px; height: 16px; }
+.hero .hshare { flex: none; width: 44px; height: 44px; margin: -6px 0; display: none; align-items: center; justify-content: center; background: var(--surface); color: var(--ink); border: 1.5px solid #cfd9dd; border-radius: 12px; cursor: pointer; }
+.hero .hshare svg { width: 20px; height: 20px; }
+body.v-info .hero .hshare:not([hidden]) { display: flex; }
+.facts .bx .bd3 { display: block; font-size: 12px; line-height: 16px; color: #b86e00; }
 .vb-bell { border-color: #e8ecef!important; }
 .deck .tabs { gap: 12px; }
 .tab { border-color: #e8ecef!important; }
@@ -512,14 +516,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 <main>
   <header class="trip" id="tripHdr">
     <div class="hbar"><a class="lback" id="lback" href="/mytrips" aria-label="กลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><a class="brand" href="/mytrips">VanTrip</a><span class="bellhost" id="bellHost"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div>
-    <div class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht"><h1>ที่นั่งของฉัน</h1></div></div>
+    <div class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht"><h1>ที่นั่งของฉัน</h1></div><button type="button" class="hshare" id="infoShare" aria-label="แชร์ทริปนี้" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg></button></div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
     <div class="ended" id="closedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span><b>ปิดรับจองแล้ว</b> จองหรือยกเลิกเองไม่ได้ ถ้าต้องการเปลี่ยนที่นั่ง ติดต่อผู้จัดทริป</span></div>
     <div class="chgban" id="chgBan" hidden></div>
     <div class="facts" id="tripFacts" role="list" aria-label="ข้อมูลทริป" hidden></div>
     <div class="infoact" id="infoAct" hidden>
       <div class="icard" id="infoProg"></div>
-      <div class="ibtns"><button type="button" class="ipri" id="goSeats">ไปที่ผังที่นั่ง</button><button type="button" class="isec" id="goRoster">รายชื่อผู้ร่วมทริป</button><button type="button" class="isec" id="infoShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg>แชร์ทริปนี้</button></div>
+      <div class="ibtns"><button type="button" class="ipri" id="goSeats">ไปที่ผังที่นั่ง</button><button type="button" class="isec" id="goRoster">รายชื่อผู้ร่วมทริป</button></div>
     </div>
     <div class="tmini" id="tripMini" hidden><div class="tx"><b id="miniT"></b><span id="miniS"></span></div><button type="button" class="tinfo" id="miniInfo">ข้อมูลทริป<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
     <div class="invite" id="invite" hidden><span class="ok"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><span class="tx"><b id="invT">จองที่นั่งแล้ว</b><small>ชวนผู้ร่วมทริปมาจองด้วยกัน</small></span><button type="button" class="go" id="invGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>แชร์ใน LINE</button><button type="button" class="x" id="invX" aria-label="ปิด">×</button></div>
@@ -1199,8 +1203,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     factsEl.appendChild(fh);
     // chips: how many days (with dates) + how many vans
     var chips = el("div", "fchips"); chips.setAttribute("role", "listitem");
-    if (trip.tripDays) chips.appendChild(el("span", "fchip span", trip.tripDays));
-    if (trip.vans.length) { var vc = el("span", "fchip"); vc.appendChild(svgIcon("van")); vc.appendChild(document.createTextNode(trip.vans.length + " คัน · " + trip.vans.length * TOTAL + " ที่นั่ง")); chips.appendChild(vc); }
+    if (trip.tripDays) { var yy = ""; var t0 = parseD(trip.tripStart); if (t0) yy = " " + String(new Date(t0.y - 543, t0.mo, t0.d + Math.max(0, (Number(trip.tripN) || 1) - 1)).getFullYear() + 543).slice(-2); chips.appendChild(el("span", "fchip span", trip.tripDays + yy)); }
+    if (trip.vans.length) { var vc = el("span", "fchip"); vc.appendChild(svgIcon("van")); vc.appendChild(document.createTextNode(trip.vans.length + " คัน")); chips.appendChild(vc); }
     if (chips.childNodes.length) factsEl.appendChild(chips);
     // two boxes: label, time big, day small. A box without a time shows the day big instead.
     function box(label, iso, tm, chgKey) {
@@ -1209,6 +1213,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       d.appendChild(el("span", "bk", label));
       d.appendChild(el("span", "bt", tm || dayS(iso)));
       if (tm && iso) d.appendChild(el("span", "bd2", dayS(iso)));
+      if (chgKey === "time" && iso && trip.tripStart && iso < trip.tripStart) d.appendChild(el("span", "bd3", "ออกคืนก่อนวันเริ่มทริป"));
       return d;
     }
     var go = box("ขาไป", trip.startDate, trip.departTime, "time");
@@ -1231,10 +1236,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     document.getElementById("miniS").textContent = [leg(trip.startDate, trip.departTime), trip.organizer].filter(Boolean).join(" · ");
     document.getElementById("tripMini").hidden = false;
     var ip = document.getElementById("infoProg"); ip.textContent = "";
-    var bar = el("div", "ibar"), fill = el("i"); fill.style.width = (tot ? Math.min(100, Math.round(booked / tot * 100)) : 0) + "%"; bar.appendChild(fill); ip.appendChild(bar);
-    var irow = el("div", "irow"); irow.appendChild(el("b", null, tot - booked > 0 ? "เหลือ " + (tot - booked) + " ที่นั่ง" : "เต็มแล้ว")); irow.appendChild(el("span", null, "จองแล้ว " + booked + " / " + tot)); ip.appendChild(irow);
+    if (booked > 0) { var bar = el("div", "ibar"), fill = el("i"); fill.style.width = (tot ? Math.min(100, Math.round(booked / tot * 100)) : 0) + "%"; bar.appendChild(fill); ip.appendChild(bar); }
+    var irow = el("div", "irow"); irow.appendChild(el("b", null, booked === 0 ? "ว่างทั้งหมด " + tot + " ที่นั่ง" : tot - booked > 0 ? "เหลือ " + (tot - booked) + " ที่นั่ง" : "เต็มแล้ว")); if (booked > 0) irow.appendChild(el("span", null, "จองแล้ว " + booked + " / " + tot)); ip.appendChild(irow);
     if (mineLine) { var im = el("div", "imine"); im.appendChild(document.createTextNode("ที่นั่งของคุณ · ")); im.appendChild(el("b", null, mineLine)); ip.appendChild(im); }
-    document.getElementById("infoAct").hidden = false;
+    document.getElementById("infoAct").hidden = false; document.getElementById("infoShare").hidden = false;
     if (infoMode() && me && !mineLoaded) loadMine(); // signed in after the page opened on the details
     factsEl.hidden = false;
     var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0] || trip.vans[0];

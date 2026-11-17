@@ -1,6 +1,6 @@
 first visit {"hash":"#info","info":true,"h1":"รายละเอียดทริป","deck":false,"facts":true,"mini":false}
 details text true true true true
-progress เหลือ 10 ที่นั่งจองแล้ว 0 / 10
+progress ว่างทั้งหมด 10 ที่นั่ง
 after go seats {"hash":"","info":false,"h1":"ผังที่นั่ง","deck":true,"facts":false,"mini":true}
 mini <วัน> · 19:00 · ทัวร์ตัวตึงข้อมูลทริป
 mini -> info {"hash":"#info","info":true,"h1":"รายละเอียดทริป","deck":false,"facts":true,"mini":false}
