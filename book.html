@@ -1838,7 +1838,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var b1 = bt + 40 + 0.8 * (FT - 41), b2 = b1 + 0.5 * FT + 0.8 * FU, b3 = b2 + 0.6 * FU + 0.76 * FS, b4 = b3 + 1.38 * Math.max(FS, FN);
     var last = who ? b4 : b3, shift = (last - (bt + (who ? 158 : 122))) / 2; b1 -= shift; b2 -= shift; b3 -= shift; b4 -= shift;
     ctx.fillStyle = "#ffffff"; ctx.font = '600 ' + FT + 'px Prompt, "Noto Sans Thai", sans-serif';
-    ctx.fillText(withQr ? "สแกนดูรายละเอียดและจองที่นั่ง" : "ดูรายละเอียดและจองที่นั่งที่", tx0, b1);
+    ctx.fillText(withQr ? "สแกนเพื่อดูรายละเอียดทริป" : "ดูรายละเอียดทริปที่", tx0, b1);
     ctx.fillStyle = "#bfe9ed"; ctx.font = '400 ' + FU + 'px "Noto Sans Thai", sans-serif';
     var su = shortUrl; while (su.length > 8 && ctx.measureText(su).width > fw) su = su.slice(0, -2) + "…";
     ctx.fillText(su, tx0, b2);
