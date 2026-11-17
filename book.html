@@ -219,9 +219,6 @@ body.sk #tripHdr > :not(.hero) { display: none; }
 @media (max-width: 350px) { .imgm .imgh { font-size: 12px; line-height: 16px} }
 .imgm .imgh.lt { font-size: 12px; line-height: 16px; color: var(--muted); }
 .deck .list { border: 0; border-radius: 0; }
-.deck .vsw { background: linear-gradient(color-mix(in srgb, var(--line) 60%, transparent), color-mix(in srgb, var(--line) 60%, transparent)) 16px 100% / calc(100% - 32px) 1px no-repeat; border-radius: 0; padding: 0 16px; gap: 0; }
-.deck .vsw button { border-radius: 0; border-bottom: 3px solid transparent; margin-bottom: 0; min-height: 44px; }
-.deck .vsw button[aria-selected="true"] { background: none; box-shadow: none; border-bottom-color: var(--mine); }
 .shead { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 8px 8px; }
 .shead .count { margin-left: auto; }
 @media (max-width: 350px) { .shead { flex-wrap: wrap; row-gap: 2px; } .shead .plate { flex: 1 1 100%; } }
@@ -364,8 +361,8 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .msg.nmmsg.info { color: var(--muted); }
 
 .list { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-.vsw { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 16px; background: color-mix(in srgb, var(--ink) 9%, var(--bg)); }
-.vsw button { font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 16px; min-height: 42px; border: 0; border-radius: 12px; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.vsw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 16px; background: color-mix(in srgb, var(--ink) 9%, var(--bg)); }
+.vsw button { font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 14px; line-height: 20px; min-height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 4px; white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .vsw button svg { width: 16px; height: 16px; flex: none; }
 .vsw button[aria-selected="true"] { background: var(--surface); color: var(--mine); box-shadow: 0 1px 3px rgba(0, 0, 0, .14); }
 .vsw button:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
@@ -420,18 +417,11 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 .facts .meet .mk { display: block; font-size: 12px; line-height: 16px; color: var(--muted); }
 /* two views of one page: #info = trip details (from "ทริปของฉัน"), otherwise the seat map */
 body:not(.v-info) #tripFacts, body:not(.v-info) #infoAct { display: none !important; }
-body.v-info #deck, body.v-info #tripMini, body.v-info .hero .org, body.v-list .hero .org { display: none !important; }
+body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: none !important; }
 .facts .orgl { display: flex; align-items: center; gap: 8px; font-size: 12px; line-height: 16px; color: var(--mine); margin-bottom: 4px; }
 .facts .orgl svg { width: 14px; height: 14px; margin: 0; }
 .facts .orgl b { font-weight: 600; overflow-wrap: anywhere; }
 .facts .fhead .ftitle { }
-.tmini { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; margin: 12px 0 0; padding: 12px 16px; text-align: left; background: var(--surface); border: 1px solid #e3e6ea; border-radius: 16px; box-shadow: 0 2px 8px rgba(20,40,50,.04); color: inherit; font: inherit; cursor: pointer; }
-.tmini .tic { flex: none; width: 32px; height: 32px; border-radius: 50%; background: #e4f3f4; color: #0b5f67; display: flex; align-items: center; justify-content: center; }
-.tmini .tic svg { width: 18px; height: 18px; }
-.tmini .tx { flex: 1; min-width: 0; }
-.tmini .tx b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font: 600 16px/24px var(--font-display); overflow: hidden; overflow-wrap: anywhere; }
-.tmini .tx span { display: block; font-size: 12px; line-height: 16px; color: #0b5f67; font-weight: 600; margin-top: 2px; }
-.tmini .tch { flex: none; width: 20px; height: 20px; color: var(--muted); }
 .infoact { display: grid; gap: 16px; margin: 16px 0 0; }
 .infoact .icard { padding: 16px; background: var(--surface); border: 1px solid #e8ecef; border-radius: 16px; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); display: grid; gap: 12px; }
 .infoact .ibar { height: 10px; border-radius: 10px; background: #eef2f4; overflow: hidden; }
@@ -440,13 +430,14 @@ body.v-info #deck, body.v-info #tripMini, body.v-info .hero .org, body.v-list .h
 .infoact .irow b { font: 600 16px/24px var(--font-display); color: var(--deep); }
 .infoact .irow span { font-size: 12px; color: var(--muted); }
 .infoact .imine { background: #e4f3f4; color: var(--deep); border-radius: 12px; padding: 4px 12px; font-size: 14px; line-height: 20px; }
-.infoact .ibtns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.infoact .ibtns { display: grid; gap: 8px; }
 .infoact .ibtns button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border-radius: 16px; font: 600 16px/24px var(--font-display); cursor: pointer; }
 .infoact .ibtns .ipri { background: var(--mine); color: #fff; border: 0; }
 .infoact .ibtns .isec { background: #e4f3f4; color: #0b5f67; border: 0; }
 .infoact .ibtns svg { width: 16px; height: 16px; }
+#tripHdr > .vsw { margin-top: 16px; }
 .hero .hshare { flex: none; width: 44px; height: 44px; margin: 0; display: none; align-items: center; justify-content: center; background: #e4f3f4; color: var(--deep); border: 0; border-radius: 50%; cursor: pointer; }
-body.v-info .hero { min-height: 44px; }
+#tripHdr .hero { min-height: 52px; }
 .hero .hshare svg { width: 20px; height: 20px; }
 body.v-info .hero .hshare:not([hidden]) { display: flex; }
 .facts .bx .bd3 { display: block; font-size: 12px; line-height: 16px; color: #b86e00; }
@@ -518,15 +509,19 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   <header class="trip" id="tripHdr">
     <div class="hbar"><a class="lback" id="lback" href="/mytrips" aria-label="กลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><a class="brand" href="/mytrips">VanTrip</a><span class="bellhost" id="bellHost"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div>
     <div class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht"><h1>ที่นั่งของฉัน</h1></div><button type="button" class="hshare" id="infoShare" aria-label="แชร์ทริปนี้" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg></button></div>
+    <div class="vsw" id="viewSw" role="tablist" aria-label="เลือกมุมมอง">
+    <button type="button" role="tab" id="swInfo" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>ข้อมูลทริป</button>
+    <button type="button" role="tab" id="swMap" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h3v3H8zM13 7h3v3h-3zM8 14h3v3H8zM13 14h3v3h-3z"/></svg>ผังที่นั่ง</button>
+    <button type="button" role="tab" id="swList" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>รายชื่อ</button>
+  </div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
     <div class="ended" id="closedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span><b>ปิดรับจองแล้ว</b> จองหรือยกเลิกเองไม่ได้ ถ้าต้องการเปลี่ยนที่นั่ง ติดต่อผู้จัดทริป</span></div>
     <div class="chgban" id="chgBan" hidden></div>
     <div class="facts" id="tripFacts" role="list" aria-label="ข้อมูลทริป" hidden></div>
     <div class="infoact" id="infoAct" hidden>
       <div class="icard" id="infoProg"></div>
-      <div class="ibtns"><button type="button" class="ipri" id="goSeats">ดูผังที่นั่ง</button><button type="button" class="isec" id="goRoster">ดูรายชื่อ</button></div>
+      <div class="ibtns"><button type="button" class="ipri" id="goSeats">ดูผังที่นั่ง</button></div>
     </div>
-    <div id="tripMini" hidden><button type="button" class="tmini" id="miniInfo"><span class="tic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg></span><span class="tx"><b id="miniT"></b><span id="miniS">แตะเพื่อดูข้อมูลทริป</span></span><svg class="tch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
     <div class="invite" id="invite" hidden><span class="ok"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><span class="tx"><b id="invT">จองที่นั่งแล้ว</b><small>ชวนผู้ร่วมทริปมาจองด้วยกัน</small></span><button type="button" class="go" id="invGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>แชร์ใน LINE</button><button type="button" class="x" id="invX" aria-label="ปิด">×</button></div>
   </header>
 
@@ -541,10 +536,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   <div class="tlbl" id="tabLbl" hidden><span class="tl"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg>เลือกรถตู้</span></div>
   <div class="tabs" id="tabs" role="tablist" aria-label="เลือกคันรถ" hidden></div>
 
-  <div class="vsw" id="viewSw" role="tablist" aria-label="เลือกมุมมอง">
-    <button type="button" role="tab" id="swMap" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h3v3H8zM13 7h3v3h-3zM8 14h3v3H8zM13 14h3v3h-3z"/></svg>ผังที่นั่ง</button>
-    <button type="button" role="tab" id="swList" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>รายชื่อ</button>
-  </div>
 
   <section class="sheet" id="sheetView" aria-label="ผังที่นั่งรถตู้">
     <div id="notice"></div>
@@ -1080,8 +1071,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     try { sessionStorage.setItem("van-view", v); } catch (e) {}
     document.getElementById("sheetView").hidden = v !== "map";
     document.getElementById("listView").hidden = v !== "list";
-    document.getElementById("swMap").setAttribute("aria-selected", v === "map" ? "true" : "false");
-    document.getElementById("swList").setAttribute("aria-selected", v === "list" ? "true" : "false");
     applyMode();
   }
   // #info = trip details, no hash = seat map / list. Browser back moves between them (pushState), so back from the map goes to the details.
@@ -1091,8 +1080,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var on = infoMode();
     document.body.classList.toggle("v-info", on);
     document.body.classList.toggle("v-list", !on && view === "list");
-    var h = document.querySelector(".hero h1");
-    if (h) h.textContent = on ? "รายละเอียดทริป" : (view === "list" ? "รายชื่อ" : "ผังที่นั่ง");
+    document.getElementById("swInfo").setAttribute("aria-selected", on ? "true" : "false");
+    document.getElementById("swMap").setAttribute("aria-selected", !on && view === "map" ? "true" : "false");
+    document.getElementById("swList").setAttribute("aria-selected", !on && view === "list" ? "true" : "false");
     if (on && !wasInfo) mineLoaded = false; // coming (back) to the details: ask again which seat is mine
     wasInfo = on;
     if (on && !mineLoaded && me) loadMine();
@@ -1112,9 +1102,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   window.addEventListener("popstate", applyMode);
   window.addEventListener("hashchange", applyMode);
-  document.getElementById("goSeats").addEventListener("click", function () { goView(""); });
-  document.getElementById("goRoster").addEventListener("click", function () { goView(""); setView("list"); });
-  document.getElementById("miniInfo").addEventListener("click", function () { goView("#info"); });
+  document.getElementById("goSeats").addEventListener("click", function () { goView(""); setView("map"); });
   document.getElementById("infoShare").addEventListener("click", function () { shareFriend(); });
   // first time this person opens this trip (and has no seat, isn't the organizer, link carries no seat/van): details first, once
   var entryDecided = false;
@@ -1127,8 +1115,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     try { history.replaceState(history.state, "", location.pathname + location.search + "#info"); } catch (e) {}
     applyMode();
   }
-  document.getElementById("swMap").addEventListener("click", function () { setView("map"); });
-  document.getElementById("swList").addEventListener("click", function () { setView("list"); });
+  document.getElementById("swInfo").addEventListener("click", function () { if (!infoMode()) goView("#info"); });
+  document.getElementById("swMap").addEventListener("click", function () { if (infoMode()) goView(""); setView("map"); });
+  document.getElementById("swList").addEventListener("click", function () { if (infoMode()) goView(""); setView("list"); });
   setView(view);
 
   var SHORT_M = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
@@ -1233,8 +1222,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     var tot = trip.vans.length * TOTAL, booked = 0;
     trip.vans.forEach(function (v) { booked += counts[v.id] != null ? counts[v.id] : (v.id === curVan ? Object.keys(seats).length : 0); });
-    document.getElementById("miniT").textContent = trip.name;
-    document.getElementById("tripMini").hidden = false;
     var ip = document.getElementById("infoProg"); ip.textContent = "";
     if (booked > 0) { var bar = el("div", "ibar"), fill = el("i"); fill.style.width = (tot ? Math.min(100, Math.round(booked / tot * 100)) : 0) + "%"; bar.appendChild(fill); ip.appendChild(bar); }
     var irow = el("div", "irow"); irow.appendChild(el("b", null, booked === 0 ? "ว่างทั้งหมด " + tot + " ที่นั่ง" : tot - booked > 0 ? "เหลือ " + (tot - booked) + " ที่นั่ง" : "เต็มแล้ว")); if (booked > 0) irow.appendChild(el("span", null, "จองแล้ว " + booked + " / " + tot)); ip.appendChild(irow);
