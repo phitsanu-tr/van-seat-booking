@@ -1731,7 +1731,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var vname = cur ? (/^คัน/.test(cur.label) ? cur.label : "คัน " + cur.label) : "", plateTxt = (cur && cur.plate) || "";
     ctx.font = '700 28px ' + PF; var pLines = plateTxt ? wrapText(ctx, plateTxt, sw - 40, 2) : [];
     var SIGN = cur ? 34 + 40 + 62 + (pLines.length ? 26 + 38 * pLines.length : 0) : 0;
-    var RH = 66, HD = 44, BK = 40 + 96 + 22 + 14 + 14 + SIGN, GAP = 34, blockH = HD + drows.length * RH + GAP + BK;
+    var RH = 66, HD = 44, BK = 40 + 96 + 8 + 14 + 16 + SIGN, GAP = 34, blockH = HD + drows.length * RH + GAP + BK;
     if (blockH > PH - 20) { RH = Math.max(52, (PH - 20 - HD - GAP - BK) / drows.length); blockH = HD + drows.length * RH + GAP + BK; }
     sy = PY + 14; // level with the van's front
     ctx.fillStyle = "#0b5f67"; ctx.font = '600 28px ' + PF; ctx.fillText("รายละเอียดทริป", sx, sy + 28);
@@ -1759,11 +1759,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.font = '600 28px ' + NF; var pw4 = ctx.measureText(pTxt).width + 36;
     ctx.fillStyle = pBg; rrect(ctx, sx + sw - pw4, gy + 28, pw4, 48, 24); ctx.fill();
     ctx.fillStyle = pFg; ctx.textAlign = "center"; fillC(ctx, pTxt, sx + sw - pw4 / 2, gy + 62); ctx.textAlign = "left";
-    var by2 = gy + 86 + 22;
-    ctx.fillStyle = "#e3e8ea"; rrect(ctx, sx, by2, sw, 14, 7); ctx.fill();
-    if (cnt > 0) { ctx.fillStyle = TEAL; rrect(ctx, sx, by2, Math.max(14, sw * Math.min(1, cnt / TOTAL)), 14, 7); ctx.fill(); }
+    var by2 = gy + 86 - 14; // (no progress bar: the status pill says it)
     if (cur) {
-      var sgy = by2 + 14 + 24;
+      var sgy = by2 + 14 + 24 + 16;
       ctx.fillStyle = DIV; ctx.fillRect(sx, sgy, sw, 2);
       sgy += GAP / 2 + 6;
       ctx.fillStyle = "#0b5f67"; ctx.font = '600 28px ' + PF; ctx.fillText("รถตู้และทะเบียน", sx, sgy + 28);
