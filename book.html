@@ -1250,7 +1250,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     fgroup("กำหนดการเดินทาง", [two, nightNote]);
     fgroup("จุดนัดพบและรถตู้", [
       trip.meetPoint ? frow("จุดนัดพบ", trip.meetPoint, CHG.meet) : null,
-      trip.vans.length ? frow("รถตู้", trip.vans.length + " คัน (" + tot + " ที่นั่ง)") : null,
+      trip.vans.length ? frow("รถตู้", trip.vans.length + " คัน · " + tot + " ที่นั่ง") : null,
       trip.vans.length ? frow("ที่นั่งว่าง", rest <= 0 ? "เต็มแล้ว" : rest + " ที่นั่ง") : null,
       seatLimit > 0 ? frow("จำกัดที่นั่งต่อคน", seatLimit + " ที่นั่ง") : null
     ]);
