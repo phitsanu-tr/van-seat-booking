@@ -11,7 +11,7 @@ await Bh.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{move:{fromVan:'v1',fro
 await A.request.fetch(B+'/api/seats?t='+ID+'&v=v2',{method:'PATCH',data:{seat:1,name:'ฉินนี่'}});
 const inbox=async p=>{const d=await (await p.request.get(B+'/api/me?inbox=1')).json();return d.unread+' '+d.items.map(x=>x.k).join(',')};
 log('A',await inbox(A));log('B',await inbox(Bh));log('P',await inbox(P));log('Q',await inbox(Q));
-// P: mytrips tags
+// P: app tags
 await P.goto(B+'/seats?f='+Date.now());await P.waitForTimeout(1500);log('P tags',await P.$$eval('.ntag',e=>e.map(x=>x.textContent)),'badge',await P.textContent('.vb-n'));await P.screenshot({path:S+'/n1.png'});
 // P booking page
 await P.goto(B+'/'+ID+'?v=v2');await P.waitForTimeout(1600);log('banner',(await P.textContent('#chgBan')).replace(/\s+/g,' '),'chg dd',await P.$$eval('.facts .bx.chg, .facts .fv.chg',e=>e.map(x=>(x.querySelector('.bt')||x).textContent)));await P.screenshot({path:S+'/n2.png'});

@@ -1852,7 +1852,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.fillStyle = "#ffffff"; ctx.font = '600 ' + FT + 'px Prompt, "Noto Sans Thai", sans-serif';
     ctx.fillText(withQr ? "สแกนเพื่อดูรายละเอียดทริป" : "ดูรายละเอียดทริปที่", tx0, b1);
     ctx.fillStyle = "#bfe9ed"; ctx.font = '400 ' + FU + 'px "Noto Sans Thai", sans-serif';
-    var su = shortUrl; while (su.length > 8 && ctx.measureText(su).width > fw) su = su.slice(0, -2) + "…";
+    var su = withQr ? "รหัสทริป " + TRIP.toUpperCase() : shortUrl; // with the QR: the trip code (same as the header), nothing to type; without it: the link
+    if (withQr) { ctx.fillStyle = "#fde9a6"; ctx.font = '700 ' + (FU + 4) + 'px "Noto Sans Thai", sans-serif'; }
+    while (su.length > 8 && ctx.measureText(su).width > fw) su = su.slice(0, -2) + "…";
     ctx.fillText(su, tx0, b2);
     ctx.fillStyle = "rgba(255,255,255,.72)"; ctx.font = '400 ' + FS + 'px "Noto Sans Thai", sans-serif';
     ctx.fillText(stamp, tx0, b3);

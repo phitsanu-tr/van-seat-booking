@@ -10,7 +10,7 @@
 |---|---|
 | `index.html` | หน้าแรก `/` (เลือกทางผู้จัด/ผู้จอง, ช่องใส่รหัสทริป) |
 | `book.html` | หน้าจองที่นั่ง `/<รหัสทริป>` (ผังรถ รายชื่อ บัตรที่นั่ง) |
-| `mytrips.html` | `/mytrips` ทริปของฉัน (ผู้จัด) + ที่นั่งของฉัน (ผู้จอง), รายชื่อผู้จอง, เช็กชื่อขึ้นรถ, เมนูบัญชี |
+| `app.html` | `/home` `/trips` `/seats` `/notify` `/profile` ทริปของฉัน (ผู้จัด) + ที่นั่งของฉัน (ผู้จอง), รายชื่อผู้จอง, เช็กชื่อขึ้นรถ, เมนูบัญชี |
 | `trips.html` | `/trips/new` สร้างทริป · `/trips/<รหัส>` แก้ทริป |
 | `privacy.html` | `/privacy` นโยบายความเป็นส่วนตัว |
 | `owner.html` | `/owner` หน้าผู้พัฒนา (ดูทุกทริป ลบทริป ดูประวัติ) |
@@ -47,7 +47,7 @@
 - รายชื่อผู้จอง: คัดลอกรายชื่อไปวางในกลุ่ม, แก้ชื่อ, ย้ายที่นั่ง/คัน (เลือกที่นั่งที่มีคน = สลับ), ยกเลิกให้
 - เช็กชื่อขึ้นรถเป็นรอบ (ขาไป ขากลับ จุดแวะ) ดูประวัติรอบย้อนหลัง คัดลอกรายชื่อคนที่ยังไม่มา
 - ปิดรับจองเอง หรือตั้งเวลาปิดอัตโนมัติ (ระหว่างปิด ผู้จองจอง/ยกเลิกเองไม่ได้ ผู้จัดยังจัดการได้)
-- ผู้ช่วยจัดทริปสูงสุด 2 คน ผ่านลิงก์เชิญ `/mytrips?join=<รหัส>` (ใช้ได้ 7 วัน) · ผู้ช่วยแก้ทริปและจัดการที่นั่งได้ แต่ลบทริป เชิญ หรือนำผู้ช่วยออกไม่ได้ · เจ้าของโอนทริปให้ผู้ช่วยได้
+- ผู้ช่วยจัดทริปสูงสุด 2 คน ผ่านลิงก์เชิญ `/home?join=<รหัส>` (ใช้ได้ 7 วัน) · ผู้ช่วยแก้ทริปและจัดการที่นั่งได้ แต่ลบทริป เชิญ หรือนำผู้ช่วยออกไม่ได้ · เจ้าของโอนทริปให้ผู้ช่วยได้
 - สร้างทริปซ้ำจากทริปเดิม
 
 **ผู้จอง**
@@ -55,7 +55,7 @@
 - ระหว่างล็อกอิน ระบบกันที่นั่งไว้ 5 นาที
 - ยกเลิกหรือแก้ชื่อได้เฉพาะที่นั่งของตัวเอง · มีรูปบัตรที่นั่งไว้บันทึก/แชร์
 - แจ้งเตือนในหน้าเว็บ (กระดิ่ง) เมื่อผู้จัดเปลี่ยนรายละเอียดทริป ย้าย/ยกเลิก/แก้ชื่อที่นั่งของเรา ลบคันรถ หรือลบทริป
-- "ลบข้อมูลของฉัน" (เมนูบัญชีใน `/mytrips`): ยกเลิกที่นั่งในทริปที่ยังไม่ถึง, ทริปที่จบแล้วเก็บชื่อไว้แต่ตัดบัญชีออก, ทริปที่สร้างเลือกลบหรือเก็บ (มีผู้ช่วย = โอนให้ผู้ช่วยคนแรก), ออกจากระบบทุกเครื่อง
+- "ลบข้อมูลของฉัน" (เมนูบัญชีใน `/profile`): ยกเลิกที่นั่งในทริปที่ยังไม่ถึง, ทริปที่จบแล้วเก็บชื่อไว้แต่ตัดบัญชีออก, ทริปที่สร้างเลือกลบหรือเก็บ (มีผู้ช่วย = โอนให้ผู้ช่วยคนแรก), ออกจากระบบทุกเครื่อง
 
 **ความถูกต้องเมื่อกดพร้อมกัน**
 - จองที่นั่งเดียวกันพร้อมกัน ได้คนแรกคนเดียว (`HSETNX`)
@@ -123,7 +123,7 @@ node dev.js
 
 เปิด http://localhost:8765 ใช้กติกา rewrite เดียวกับ `vercel.json` และรัน `api/*.js` จริงกับ Redis จำลองในหน่วยความจำ (ข้อมูลหายเมื่อปิด) ไม่ต้องมีบัญชีใด ๆ ต้องมี Node 18 ขึ้นไป
 
-- ล็อกอินจำลองแทน LINE: `/api/auth?start=1&as=ชื่อ&r=/mytrips`
+- ล็อกอินจำลองแทน LINE: `/api/auth?start=1&as=ชื่อ&r=/home`
 - หน้า owner: `OWNER_KEY=คีย์ยาว16ตัวขึ้นไป node dev.js`
 
 ## ทดสอบอัตโนมัติ
@@ -146,5 +146,5 @@ node dev.js
 ## UI standard
 - All font sizes and picture sizes are **even px** (22, 24, 26, 28 …). See `ui.css`.
 - Page header (booking, create / edit trip): 4px teal bar on the left (stretches to the full height of the two text lines, so it always matches the text), then the title and one short line. Title / line sizes step with the screen width: 28/16 (≥414px), 26/14, 24/14, 22/12 (≤340px); the short line never wraps. Styles live in `ui.css`.
-- Bottom menu: the 5-tab bar is in `/mytrips` itself and, for signed-in users, on the trips form, plans, privacy and booking pages through `tabbar.js` (`data-tab` marks the active tab; keep its look in sync with the bar in `mytrips.html`). The trips form asks before leaving when there is unsaved input.
+- Bottom menu: the 5-tab bar is in the app itself (`/home`, `/trips`, `/seats`, `/notify`, `/profile`) and, for signed-in users, on the trips form, plans, privacy and booking pages through `tabbar.js` (`data-tab` marks the active tab; keep its look in sync with the bar in `app.html`). The trips form asks before leaving when there is unsaved input.
 - Top bar on every page: back arrow (sub-pages) · app name · bell.

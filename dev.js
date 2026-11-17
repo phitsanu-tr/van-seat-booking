@@ -92,7 +92,7 @@ function route(pathname, query) {
   if (pathname === "/") return "/index.html";
   if (pathname === "/trips/new" || /^\/trips\/[a-z0-9]{3,16}\/?$/.test(pathname)) return "/trips.html"; // create / edit / seat-pass picture
   if (pathname === "/owner") return "/owner.html";
-  if (/^\/(home|trips|seats|notify|profile)$/.test(pathname)) return "/mytrips.html";
+  if (/^\/(home|trips|seats|notify|profile)$/.test(pathname)) return "/app.html";
   if (pathname === "/privacy") return "/privacy.html";
   if (pathname === "/terms") return "/terms.html";
   if (pathname === "/plans") return "/plans.html";

@@ -21,7 +21,7 @@
     },
     {
       "source": "/(home|trips|seats|notify|profile)",
-      "destination": "/mytrips.html"
+      "destination": "/app.html"
     },
     {
       "source": "/plans",
