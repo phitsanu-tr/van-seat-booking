@@ -429,7 +429,7 @@ body.v-info #deck, body.v-info #tripMini, body.v-info .hero .org, body.v-list .h
 .tmini .tic { flex: none; width: 32px; height: 32px; border-radius: 50%; background: #e4f3f4; color: #0b5f67; display: flex; align-items: center; justify-content: center; }
 .tmini .tic svg { width: 18px; height: 18px; }
 .tmini .tx { flex: 1; min-width: 0; }
-.tmini .tx b { display: block; font: 600 16px/24px var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tmini .tx b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font: 600 16px/24px var(--font-display); overflow: hidden; overflow-wrap: anywhere; }
 .tmini .tx span { display: block; font-size: 12px; line-height: 16px; color: #0b5f67; font-weight: 600; margin-top: 2px; }
 .tmini .tch { flex: none; width: 20px; height: 20px; color: var(--muted); }
 .infoact { display: grid; gap: 16px; margin: 16px 0 0; }
