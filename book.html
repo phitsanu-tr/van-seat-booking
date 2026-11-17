@@ -1822,15 +1822,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.fillStyle = "#bfe9ed"; ctx.font = '400 30px "Noto Sans Thai", sans-serif';
     var su = shortUrl; while (su.length > 8 && ctx.measureText(su).width > fw) su = su.slice(0, -2) + "…";
     ctx.fillText(su, tx0, bt + 84);
-    var sy2 = bt + 122;
-    if (who) { // created by (LINE name), on its own line above the update time
-      ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.font = '400 26px "Noto Sans Thai", sans-serif';
-      var lbl = "สร้างโดย ", lw = ctx.measureText(lbl).width; ctx.fillText(lbl, tx0, bt + 122);
-      ctx.fillStyle = "#ffffff"; ctx.font = '600 26px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, who, fw - lw, 1)[0], tx0 + lw, bt + 122);
-      sy2 = bt + 158;
-    }
     ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.font = '400 26px "Noto Sans Thai", sans-serif';
-    ctx.fillText(stamp, tx0, sy2);
+    ctx.fillText(stamp, tx0, bt + 122);
+    if (who) { // created by (organizer name): the last line, under the update time
+      var lbl = "สร้างโดย ", lw = ctx.measureText(lbl).width; ctx.fillText(lbl, tx0, bt + 158);
+      ctx.fillStyle = "#ffffff"; ctx.font = '600 26px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, who, fw - lw, 1)[0], tx0 + lw, bt + 158);
+    }
     posterExtra = extra; var total = y + FH; posterFixed = total - extra - PH;
     // ---- compose onto a light backdrop with rounded corners
     var OW = 1544, k = OW / CW; // same output width as the seat pass / admin pass cards (386 x 4)
