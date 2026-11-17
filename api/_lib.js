@@ -191,7 +191,7 @@ async function errLog(where, req, err, quiet) {
 
 // Booking names: Thai + English letters only, up to 16, no spaces/digits/symbols.
 // Thai vowel/tone marks must follow a consonant (or another mark); leading vowels (เ แ โ ใ ไ) may start a name.
-const NAME_MAX = 16;
+const NAME_MAX = 12;
 // Reserved words a booking name can't use (case- and Thai tone/marks-insensitive). The organizer and helpers may use
 // the staff words (e.g. "staff" on a crew seat); the exact-match words are blocked for everyone.
 const RESERVED_IN = ["admin", "แอดมิน", "แอดมิ้น", "staff", "สตาฟ", "สตาฟฟ์", "สต๊าฟ", "สตาป", "owner", "organizer", "ผู้ดูแล", "ผู้จัด"];

@@ -1096,7 +1096,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
 
   // ---- organizer: passenger list per van, rename / move (swap) / cancel ----
-  var NAME_MAX = 16;
+  var NAME_MAX = 12;
   function cleanName(input) { // same rules as the server (Thai + English letters only, marks after a consonant)
     var src = Array.from(String(input == null ? "" : input).normalize("NFC")), out = "", prev = "", marks = 0;
     for (var i = 0; i < src.length; i++) {

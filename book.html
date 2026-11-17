@@ -736,7 +736,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     return e;
   }
   // Same rules as api/_lib.js cleanName (the server re-checks).
-  var NAME_MAX = 16;
+  var NAME_MAX = 12;
   function cleanName(input) {
     var src = Array.from(String(input == null ? "" : input).normalize("NFC"));
     var out = "", prev = "", marks = 0, removed = false, truncated = false, markRemoved = false;
@@ -883,7 +883,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var renaming = false; // the dialog shows the "edit name" form for the visitor's own seat
   function closeModal() { selected = null; message = ""; confirming = false; renaming = false; renderAll(); }
   function openSeat(n) { selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll(); }
-  function attachNameField(input, onEnter) { // the name box with its live "n/16" counter and the character notes, shared by booking a seat and editing a name
+  function attachNameField(input, onEnter) { // the name box with its live "n/12" counter and the character notes, shared by booking a seat and editing a name
       var wrap = el("div", "nmwrap");
       var cnt = el("span", "nmcnt"); cnt.setAttribute("aria-hidden", "true");
       var noteBox = el("div", "msg nmmsg"); noteBox.setAttribute("role", "status");

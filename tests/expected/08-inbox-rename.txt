@@ -9,7 +9,7 @@ ticket buttons [ 'ดูผังที่นั่ง', '⋯' ]
 menu items [ 'แก้ชื่อบนผัง', 'ยกเลิกที่นั่ง' ]
 picker [ 'รถ 1 · ที่นั่ง 3แพท', 'รถ 2 · ที่นั่ง 5แพทสอง' ] input disabled true
 prefill แพทสอง
-cleaned แพทabc count 6/16
+cleaned แพทabc count 6/12
 toast แก้ชื่อที่นั่ง 5 เป็น แพทใหม่ แล้ว
 server v2 s5 "แพทใหม่"
 menu closes on outside click
