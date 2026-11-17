@@ -433,9 +433,9 @@ body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: non
 .infoact .ibtns .isec { background: #e4f3f4; color: #0b5f67; border: 0; }
 .infoact .ibtns svg { width: 16px; height: 16px; }
 #tripHdr > .vsw { margin-top: 16px; }
-.hero .hshare { flex: none; width: 44px; height: 44px; margin: 0; display: none; align-items: center; justify-content: center; background: #e4f3f4; color: var(--deep); border: 0; border-radius: 50%; cursor: pointer; }
+.hero .hshare { flex: none; height: 44px; padding: 0 16px; gap: 8px; margin: 0; display: none; align-items: center; justify-content: center; background: #e4f3f4; color: var(--deep); border: 0; border-radius: 22px; cursor: pointer; font: 600 14px/20px Prompt, sans-serif; }
 #tripHdr .hero { min-height: 52px; }
-.hero .hshare svg { width: 20px; height: 20px; }
+.hero .hshare svg { width: 20px; height: 20px; transform: translateY(1px); }
 body.v-info .hero .hshare:not([hidden]) { display: flex; }
 .facts .nnote { display: flex; align-items: center; gap: 8px; margin-top: -4px; padding: 8px 12px; background: #fdf0dd; color: #8a5300; font-size: 14px; line-height: 20px; }
 .facts .nnote svg { width: 16px; height: 16px; flex: none; color: inherit; margin-top: 0; }
@@ -506,7 +506,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 <main>
   <header class="trip" id="tripHdr">
     <div class="hbar"><a class="lback" id="lback" href="/mytrips" aria-label="กลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><a class="brand" href="/mytrips">VanTrip</a><span class="bellhost" id="bellHost"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div>
-    <div class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht"><h1>รายละเอียดทริป</h1></div><button type="button" class="hshare" id="infoShare" aria-label="แชร์ทริปนี้" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg></button></div>
+    <div class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht"><h1>รายละเอียดทริป</h1></div><button type="button" class="hshare" id="infoShare" aria-label="แชร์ทริปนี้" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg><span>แชร์</span></button></div>
     <div class="vsw" id="viewSw" role="tablist" aria-label="เลือกมุมมอง">
     <button type="button" role="tab" id="swInfo" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>ข้อมูลทริป</button>
     <button type="button" role="tab" id="swMap" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h3v3H8zM13 7h3v3h-3zM8 14h3v3H8zM13 14h3v3h-3z"/></svg>ผังที่นั่ง</button>
