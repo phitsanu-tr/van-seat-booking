@@ -1736,12 +1736,18 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     sy = PY + 14; // level with the van's front
     ctx.fillStyle = "#0b5f67"; ctx.font = '600 28px ' + PF; ctx.fillText("รายละเอียดทริป", sx, sy + 28);
     var dy = sy + HD;
+    var fzAll = 30; // one common value size = smallest any row needs
+    drows.forEach(function (r) {
+      var l0 = r[0] === "จำกัดที่นั่งต่อคน" ? "จำกัดต่อคน" : r[0];
+      ctx.font = '400 26px ' + NF; var lw0 = ctx.measureText(l0).width + 16;
+      ctx.font = '600 ' + fzAll + 'px ' + NF;
+      while (fzAll > 22 && ctx.measureText(r[1]).width > sw - lw0) { fzAll -= 1; ctx.font = '600 ' + fzAll + 'px ' + NF; }
+    });
     drows.forEach(function (r, i) {
       var ry3 = dy + i * RH, lbl = r[0] === "จำกัดที่นั่งต่อคน" ? "จำกัดต่อคน" : r[0];
       ctx.fillStyle = "#6b767c"; ctx.font = '400 26px ' + NF; ctx.textAlign = "left"; ctx.fillText(lbl, sx, ry3 + RH / 2 + 10);
-      var lw3 = ctx.measureText(lbl).width + 16, fz = 30, val = r[1];
-      ctx.fillStyle = INK; ctx.font = '600 ' + fz + 'px ' + NF;
-      while (fz > 22 && ctx.measureText(val).width > sw - lw3) { fz -= 1; ctx.font = '600 ' + fz + 'px ' + NF; }
+      var lw3 = ctx.measureText(lbl).width + 16, val = r[1];
+      ctx.fillStyle = INK; ctx.font = '600 ' + fzAll + 'px ' + NF;
       ctx.textAlign = "right"; ctx.fillText(wrapText(ctx, val, sw - lw3, 1)[0], sx + sw, ry3 + RH / 2 + 10); ctx.textAlign = "left";
     });
     // ---- booking group, then the van sign (name bar + plate under one heading)
