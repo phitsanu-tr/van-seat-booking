@@ -1810,7 +1810,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     var fw = CW - X - tx0, bt = y + (FH - 128) / 2;
     ctx.fillStyle = "#ffffff"; ctx.font = '600 41px Prompt, "Noto Sans Thai", sans-serif';
-    ctx.fillText(withQr ? "สแกนเพื่อจองที่นั่ง" : "จองที่นั่งที่", tx0, bt + 40);
+    ctx.fillText(withQr ? "สแกนเพื่อดูผังและจองที่นั่ง" : "ดูผังและจองที่นั่งที่", tx0, bt + 40);
     ctx.fillStyle = "#bfe9ed"; ctx.font = '400 30px "Noto Sans Thai", sans-serif';
     var su = shortUrl; while (su.length > 8 && ctx.measureText(su).width > fw) su = su.slice(0, -2) + "…";
     ctx.fillText(su, tx0, bt + 84);
