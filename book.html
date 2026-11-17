@@ -1731,18 +1731,30 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var vname = cur ? (/^คัน/.test(cur.label) ? cur.label : "คัน " + cur.label) : "", plateTxt = (cur && cur.plate) || "";
     ctx.font = '700 28px ' + PF; var pLines = plateTxt ? wrapText(ctx, plateTxt, sw - 40, 2) : [];
     var SIGN = cur ? 34 + 40 + 62 + (pLines.length ? 26 + 38 * pLines.length : 0) : 0;
-    var RH = 84, HD = 56, BK = 40 + 96 + 8 + 14 + 16 + SIGN, GAP = 34, blockH = HD + drows.length * RH + GAP + BK;
-    if (blockH > PH - 20) { RH = Math.max(70, (PH - 20 - HD - GAP - BK) / drows.length); blockH = HD + drows.length * RH + GAP + BK; }
+    var RH = 66, HD = 44, EX = 38, BK = 40 + 96 + 8 + 14 + 16 + SIGN, GAP = 34;
+    var lblOf = function (r) { return r[0] === "จำกัดที่นั่งต่อคน" ? "จำกัดต่อคน" : r[0]; };
+    var FZ = 30; // same value size on every row; a value too long for its row drops to a second line, right-aligned
+    var plan = drows.map(function (r) {
+      ctx.font = '400 26px ' + NF; var lw = ctx.measureText(lblOf(r)).width + 16;
+      ctx.font = '600 ' + FZ + 'px ' + NF;
+      if (ctx.measureText(r[1]).width <= sw - lw) return { lines: [r[1]], wrap: false };
+      return { lines: wrapText(ctx, r[1], sw, 2), wrap: true };
+    });
+    var rowsH = function () { var t = 0; plan.forEach(function (p) { t += RH + (p.wrap ? EX * p.lines.length : 0); }); return t; };
+    if (HD + rowsH() + GAP + BK > PH - 20) { RH = Math.max(52, RH - (HD + rowsH() + GAP + BK - (PH - 20)) / drows.length); }
     sy = PY + 14; // level with the van's front
     ctx.fillStyle = "#0b5f67"; ctx.font = '600 28px ' + PF; ctx.fillText("รายละเอียดทริป", sx, sy + 28);
-    var dy = sy + HD;
-    drows.forEach(function (r, i) { // label small on top, value full size below (same size on every row)
-      var ry3 = dy + i * RH, lbl = r[0] === "จำกัดที่นั่งต่อคน" ? "จำกัดต่อคน" : r[0];
-      ctx.fillStyle = "#6b767c"; ctx.font = '400 24px ' + NF; ctx.textAlign = "left"; ctx.fillText(lbl, sx, ry3 + 24);
-      ctx.fillStyle = INK; ctx.font = '600 32px ' + NF; ctx.fillText(wrapText(ctx, r[1], sw, 1)[0], sx, ry3 + 24 + 12 + 30);
+    var dy = sy + HD, cyy = dy;
+    drows.forEach(function (r, i) {
+      var p = plan[i], base = cyy + RH / 2 + 10;
+      ctx.fillStyle = "#6b767c"; ctx.font = '400 26px ' + NF; ctx.textAlign = "left"; ctx.fillText(lblOf(r), sx, base);
+      ctx.fillStyle = INK; ctx.font = '600 ' + FZ + 'px ' + NF; ctx.textAlign = "right";
+      p.lines.forEach(function (ln, j) { ctx.fillText(ln, sx + sw, base + (p.wrap ? EX * (j + 1) : 0)); });
+      ctx.textAlign = "left";
+      cyy += RH + (p.wrap ? EX * p.lines.length : 0);
     });
     // ---- booking group, then the van sign (name bar + plate under one heading)
-    var gy = dy + drows.length * RH + GAP / 2;
+    var gy = cyy + GAP / 2;
     ctx.fillStyle = DIV; ctx.fillRect(sx, gy, sw, 2); // thin divider between groups
     gy += GAP / 2;
     ctx.fillStyle = "#0b5f67"; ctx.font = '600 28px ' + PF; ctx.fillText("ที่นั่ง", sx, gy + 28);
