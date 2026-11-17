@@ -1722,10 +1722,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     mh += extra;
     ctx.fillStyle = "#ffffff"; rrect(ctx, MX, y, MW, mh, 45); ctx.fill(); ctx.strokeStyle = DIV; ctx.lineWidth = 2; rrect(ctx, MX, y, MW, mh, 45); ctx.stroke();
     var cnt = Object.keys(seats).length;
-    var PX = MX + MW - IP - PW, PY = y + IP + extra / 2; // van on the right, trip facts on the left
+    var PX = MX + IP, PY = y + IP + extra / 2; // van on the left, trip facts on the right
     drawPlan(ctx, PX, PY, k);
     drawSeats(ctx, PX, PY, k, PW);
-    var sx = MX + IP + 8, sw = PX - 36 - sx, sy = PY, sb = PY + PH; // side panel: count + bar + trip details
+    var sx = PX + PW + 36, sw = MX + MW - IP - 8 - sx, sy = PY, sb = PY + PH; // side panel: count + bar + trip details
     ctx.textAlign = "left";
     var plateRow = (cur && cur.plate) ? ["ทะเบียน", cur.plate] : null;
     var drows = rows.slice(); if (plateRow) drows.push(plateRow);
