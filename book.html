@@ -1724,7 +1724,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     // ---- map card: van on the left, who booked what on the right
     y += SEC + posterSpare; heading("ผังที่นั่งและรายละเอียด");
     var MX = 36, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k, IP = 28;
-    var mh = IP + PH + IP, FHF = useQr ? 184 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + SEC + posterSpare + FHF + 36)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
+    var mh = IP + PH + IP, FHF = useQr ? 220 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + SEC + posterSpare + FHF)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
     mh += extra;
     ctx.fillStyle = "#ffffff"; rrect(ctx, MX, y, MW, mh, 45); ctx.fill(); ctx.strokeStyle = DIV; ctx.lineWidth = 2; rrect(ctx, MX, y, MW, mh, 45); ctx.stroke();
     var cnt = Object.keys(seats).length;
@@ -1799,9 +1799,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var d = new Date(), pad = function (v) { return (v < 10 ? "0" : "") + v; };
     var stamp = "อัปเดตเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + pad(d.getHours()) + ":" + pad(d.getMinutes());
     var withQr = useQr, FH = FHF;
-    ctx.fillStyle = "#0b5f67"; rrect(ctx, 36, y, CW - 72, FH, 36); ctx.fill(); // rounded teal bar
+    ctx.fillStyle = "#0b5f67"; ctx.fillRect(0, y, CW, FH); // teal band, full width, flush with the bottom edge
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
-    var ql = 140, tx0 = X;
+    var ql = 172, tx0 = X;
     if (withQr) {
       var qy = y + (FH - ql) / 2;
       ctx.fillStyle = "#ffffff"; rrect(ctx, tx0, qy, ql, ql, 26); ctx.fill();
@@ -1816,7 +1816,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.fillText(su, tx0, bt + 84);
     ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.font = '400 26px "Noto Sans Thai", sans-serif';
     ctx.fillText(stamp, tx0, bt + 122);
-    posterExtra = extra; var total = y + FH + 36; posterFixed = total - extra - PH;
+    posterExtra = extra; var total = y + FH; posterFixed = total - extra - PH;
     // ---- compose onto a light backdrop with rounded corners
     var OW = 1544, k = OW / CW; // same output width as the seat pass / admin pass cards (386 x 4)
     var out = document.createElement("canvas"); out.width = OW; out.height = Math.max(Math.round(total * k), Math.round(OW * 16 / 9));
