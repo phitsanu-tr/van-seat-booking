@@ -1834,6 +1834,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       tx0 += ql + 34;
     }
     var fw = CW - X - tx0, who = (trip.organizer || "").trim(), bt = y + (FH - (who ? 164 : 128)) / 2;
+    ctx.font = '700 34px Prompt, "Noto Sans Thai", sans-serif'; var WMW = ctx.measureText("VAN TRIP").width; // wordmark width: a long organizer name stops short of it
     var FT = 41, FU = 30, FS = 28, FN = 28; // title, link, update time, created-by
     var b1 = bt + 40 + 0.8 * (FT - 41), b2 = b1 + 0.5 * FT + 0.8 * FU, b3 = b2 + 0.6 * FU + 0.76 * FS, b4 = b3 + 1.38 * Math.max(FS, FN);
     var last = who ? b4 : b3, shift = (last - (bt + (who ? 158 : 122))) / 2; b1 -= shift; b2 -= shift; b3 -= shift; b4 -= shift;
@@ -1847,8 +1848,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (who) { // created by (organizer name): the last line, under the update time
       ctx.font = '400 ' + FN + 'px "Noto Sans Thai", sans-serif';
       var lbl = "สร้างโดย ", lw = ctx.measureText(lbl).width; ctx.fillText(lbl, tx0, b4);
-      ctx.fillStyle = "#fde9a6"; ctx.font = '600 ' + FN + 'px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, who, fw - lw, 1)[0], tx0 + lw, b4);
+      ctx.fillStyle = "#fde9a6"; ctx.font = '600 ' + FN + 'px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, who, fw - lw - WMW - 24, 1)[0], tx0 + lw, b4);
     }
+    // VAN TRIP wordmark (same as the header), bottom-right of the footer, on the baseline of the last text line
+    ctx.font = '700 34px Prompt, "Noto Sans Thai", sans-serif'; ctx.textAlign = "left";
+    var wTrip = ctx.measureText("TRIP").width, wVan = ctx.measureText("VAN ").width, wx = CW - X - wTrip - wVan, wy = who ? b4 : b3;
+    ctx.fillStyle = "#ffffff"; ctx.fillText("VAN", wx, wy); ctx.fillStyle = "#fde9a6"; ctx.fillText("TRIP", wx + wVan, wy);
     posterExtra = extra; var total = y + FH; posterFixed = total - extra - PH;
     // ---- compose onto a light backdrop with rounded corners
     var OW = 1544, k = OW / CW; // same output width as the seat pass / admin pass cards (386 x 4)
