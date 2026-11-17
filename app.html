@@ -343,7 +343,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .bd { position: fixed; inset: 0; background: rgba(27,31,34,.4); display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
 .sheet { width: 100%; max-width: 460px; background: var(--surface); border-radius: 24px 24px 0 0; padding: 20px 20px calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; }
 .sheet h3 { font: 600 20px/28px var(--font-display); margin: 0; font-size: 20px; }
-.sheet { max-height: 88vh; max-height: 88dvh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; gap: 16px; }
+.sheet { max-height: 94vh; max-height: 94dvh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; gap: 16px; }
 .sheet > * { flex-shrink: 0; }
 .sheet.tall { max-height: 80vh; max-height: 80dvh; }
 .sk { background: linear-gradient(90deg, #e9eef1 25%, #f4f7f8 50%, #e9eef1 75%); background-size: 200% 100%; animation: skel 1.2s linear infinite; border-radius: 8px; color: transparent !important; }
@@ -408,7 +408,9 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .bprog .bar i { background: #1f7a3f; }
 .miss { background: var(--amber-tint); border-radius: 12px; padding: 8px 12px; font-size: 14px; line-height: 20px; color: var(--amber); }
 .miss.done { background: #e6f4ea; color: #1f7a3f; }
-.round { display: flex; align-items: center; gap: 12px; background: var(--tint); border-radius: 12px; padding: 8px 8px 8px 12px; }
+.round { display: flex; flex-direction: column; gap: 8px; background: var(--tint); border-radius: 12px; padding: 8px 12px 12px; }
+.round .rtop { display: flex; align-items: center; gap: 12px; margin-right: -4px; }
+.round .bar { background: #fff; }
 .round .n { flex: none; height: 28px; padding: 0 8px; border-radius: 100px; background: var(--mine); color: #fff; font: 600 14px/28px var(--font-display); font-size: 12px; }
 .round .t { flex: 1; min-width: 0; font-size: 12px; color: var(--deep); line-height: 16px; }
 .round .t b { display: block; font: 600 14px/20px var(--font-display); color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1170,7 +1172,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         });
       });
       st.tab = keep.tab; st.van = keep.van; st.boardView = keep.bv; st.lastView = null;
-      st.lockedH = Math.min(Math.max(max, st.lockedH || 0), Math.round(window.innerHeight * 0.8)); ROSTER_H[x.id] = st.lockedH;
+      st.lockedH = Math.min(Math.max(max, st.lockedH || 0), Math.round(window.innerHeight * 0.92)); ROSTER_H[x.id] = st.lockedH;
       sh.style.height = st.lockedH + "px";
       draw();
     }
@@ -1199,7 +1201,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     function drawList() {
       sheetHead(sh, "รายชื่อผู้จอง", close);
-      sh.appendChild(node("p", null, st.trip.name + (st.ended ? " · ทริปจบแล้ว ดูได้อย่างเดียว" : "")));
+      if (st.tab !== "board" || st.ended) sh.appendChild(node("p", null, st.trip.name + (st.ended ? " · ทริปจบแล้ว ดูได้อย่างเดียว" : "")));
       var tabs = node("div", "rtabs");
       [["seats", "ที่นั่ง"], ["board", "เช็กชื่อ"]].forEach(function (tb) {
         var b = node("button", st.tab === tb[0] ? "on" : null, tb[1]); b.type = "button"; b.setAttribute("aria-pressed", st.tab === tb[0] ? "true" : "false");
@@ -1392,15 +1394,187 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (st.ended) return drawHistory(true); // after the trip: a read-only summary of every round
       if (st.boardView === "hist") return drawHistory(false);
       var b = board(), all = everyone(), inN = all.filter(function (e) { return e.s.c; }).length, multi = st.trip.vans.length > 1;
-      var rh = node("div", "round"), rnum = node("span", "n", "รอบที่ " + b.cur.i), rt = node("span", "t");
+      var rh = node("div", "round"), rtop = node("div", "rtop"), rnum = node("span", "n", "รอบที่ " + b.cur.i), rt = node("span", "t");
       rt.appendChild(node("b", null, b.cur.name || (b.cur.i === 1 ? "รอบแรก" : "เช็กรอบใหม่")));
       rt.appendChild(document.createTextNode(b.cur.at ? "เริ่ม " + stamp(b.cur.at) + (b.cur.by ? " โดย " + b.cur.by : "") : "แตะชื่อเมื่อขึ้นรถแล้ว"));
       var pen = node("button", "rpen"); pen.type = "button"; pen.innerHTML = PEN_SVG; pen.setAttribute("aria-label", b.cur.name ? "แก้ชื่อรอบ" : "ตั้งชื่อรอบ");
       pen.addEventListener("click", function () { roundDialog("name"); });
-      rh.appendChild(rnum); rh.appendChild(rt); rh.appendChild(pen); sh.appendChild(rh);
+      rtop.appendChild(rnum); rtop.appendChild(rt); rtop.appendChild(pen); rh.appendChild(rtop);
       var pg = node("div", "bprog"), pl = node("div", "pl"), right = node("span"); right.appendChild(node("b", null, String(inN))); right.appendChild(document.createTextNode(" / " + all.length + " ขึ้นรถแล้ว"));
       pl.appendChild(node("span", null, multi ? "ทั้งทริป" : st.trip.departTime ? "ออก " + st.trip.departTime : "")); pl.appendChild(right); pg.appendChild(pl);
-      var bar = node("div", "bar"), bi = node("i"); bi.style.width = (all.length ? Math.round(inN / all.length * 100) : 0) + "%"; bar.appendChild(bi); pg.appendChild(bar); sh.appendChild(pg);
+      var bar = node("div", "bar"), bi = node("i"); bi.style.width = (all.length ? Math.round(inN / all.length * 100) : 0) + "%"; bar.appendChild(bi); pg.appendChild(bar); rh.appendChild(pg); sh.appendChild(rh);
+      if (multi) {
+        var row = node("div", "vchips");
+        st.trip.vans.forEach(function (v) {
+          var vs = st.roster[v.id] || {}, ks = Object.keys(vs), on = ks.filter(function (k) { return vs[k].c; }).length;
+          var bb = node("button", v.id === st.van ? "on" : null, "คัน " + v.label + " · " + on + "/" + ks.length); bb.type = "button"; bb.addEventListener("click", function () { st.van = v.id; draw(); }); row.appendChild(bb);
+        });
+        sh.appendChild(row);
+      }
+      var seats = st.roster[st.van] || {}, nums = Object.keys(seats).map(Number).sort(function (a, c) { return a - c; });
+      if (!nums.length) sh.appendChild(node("div", "empty", "คัน " + vanLabel(st.van) + " ยังไม่มีผู้จอง"));
+      else {
+        var list = node("div", "rlist");
+        nums.forEach(function (n) {
+          var s = seats[n], row = node("div", "rrow");
+          row.appendChild(node("div", "no", String(n)));
+          var nm = node("div", "nm2"); nm.appendChild(node("b", null, s.name)); nm.appendChild(node("small", null, when(s.at) + (s.a ? "" : " · ผู้จองลบบัญชีแล้ว")));
+          if (s.nt) { var ntl = node("small", "ntl"); ntl.textContent = "📝 " + s.nt; nm.appendChild(ntl); } row.appendChild(nm);
+          if (!st.ended) {
+            var ra = node("div", "ra");
+            var b1 = node("button", null, "แก้ชื่อ"); b1.type = "button"; b1.addEventListener("click", function () { st.sel = { v: st.van, s: n, name: s.name }; st.mode = "rename"; draw(); });
+            var b2 = node("button", null, "ย้าย"); b2.type = "button"; b2.addEventListener("click", function () { st.sel = { v: st.van, s: n, name: s.name, tv: st.van, ts: null }; st.mode = "move"; draw(); });
+            var b3 = node("button", "dg", "ยกเลิก"); b3.type = "button"; b3.addEventListener("click", function () { cancelOne(st.van, n, s.name, b3); });
+            var b0 = node("button", null, s.nt ? "📝" : "โน้ต"); b0.type = "button"; b0.setAttribute("aria-label", "หมายเหตุ ที่นั่ง " + n);
+            b0.addEventListener("click", function () { st.sel = { v: st.van, s: n, name: s.name, nt: s.nt || "" }; st.mode = "note"; draw(); });
+            ra.appendChild(b0); ra.appendChild(b1); ra.appendChild(b2); ra.appendChild(b3); row.appendChild(ra);
+          }
+          list.appendChild(row);
+        });
+        sh.appendChild(list);
+      }
+      sh.appendChild(node("div", "rfree", "ว่าง " + (10 - nums.length) + " ที่นั่ง"));
+    }
+    var TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    function everyone() { // [{v, n, s}] across all vans, by van then seat
+      var out = [];
+      st.trip.vans.forEach(function (v) { var seats = st.roster[v.id] || {}; Object.keys(seats).map(Number).sort(function (a, b) { return a - b; }).forEach(function (n) { out.push({ v: v.id, n: n, s: seats[n] }); }); });
+      return out;
+    }
+    function footer(label, onCopy) {
+      var f = node("div", "rtools"), cp = node("button", null); cp.type = "button"; cp.innerHTML = COPY_SVG; cp.appendChild(document.createTextNode(label)); cp.addEventListener("click", onCopy);
+      f.style.gridTemplateColumns = "1fr"; f.appendChild(cp); sh.appendChild(f);
+    }
+    // a check-in tick on one seat: shown at once, saved in the background, put back if saving fails
+    async function flag(v, n, field, on) {
+      var s = st.roster[v] && st.roster[v][n]; if (!s) return;
+      var before = { c: s.c };
+      if (on) s.c = s.c || Date.now(); else delete s.c;
+      st.pending++; draw();
+      var body = { seat: n }; body[field] = on;
+      var r = await seatApi("PATCH", x.id, v, body);
+      st.pending--;
+      if (!r.ok) {
+        if (before.c) s.c = before.c; else delete s.c;
+        toast(r.data && r.data.error === "no_seat" ? "ที่นั่งนี้ถูกยกเลิกไปแล้ว" : apiErr(r.data), true);
+        if (r.data && r.data.error === "no_seat") return fetchRoster(true);
+        return draw();
+      }
+      if (field === "board" && r.data && r.data.c) s.c = r.data.c;
+      if (!st.pending) draw();
+    }
+    function hhmm(ts) { var d = new Date(Number(ts) + 7 * 3600 * 1000); return String(d.getUTCHours()).padStart(2, "0") + ":" + String(d.getUTCMinutes()).padStart(2, "0"); }
+    // ---- check-in rounds: the current round, earlier rounds (summaries), and the "new round" dialog ----
+    var ROUND_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg>';
+    var CLOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    var PEN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10-10-4-4L4 16v4zM13.5 6.5l4 4"/></svg>';
+    var ROUND_NAMES = ["เที่ยวไป", "เที่ยวกลับ", "แวะพัก", "แวะกินข้าว", "วันที่ 2"];
+    function board() { var b = st.board || {}; return { cur: b.cur || { i: 1, name: "", at: 0, by: "" }, hist: b.hist || [] }; }
+    function roundTitle(r) { return "รอบที่ " + r.i + (r.name ? " · " + r.name : ""); }
+    function stamp(ts) { // "15.32 น." today, "30 ต.ค. 15.32 น." on another day
+      if (!ts) return "";
+      var d = new Date(Number(ts) + 7 * 3600 * 1000), n = new Date(Date.now() + 7 * 3600 * 1000);
+      return (d.getUTCDate() === n.getUTCDate() && d.getUTCMonth() === n.getUTCMonth() ? "" : d.getUTCDate() + " " + MON[d.getUTCMonth()] + " ") + hhmm(ts);
+    }
+    function liveRound() { // the current round as a summary, from the ticks now on the list
+      var all = everyone(), b = board(), ts = all.filter(function (e) { return e.s.c; }).map(function (e) { return e.s.c; });
+      var who = []; all.forEach(function (e) { if (e.s.c && e.s.cb && who.indexOf(e.s.cb) < 0) who.push(e.s.cb); }); // nobody started round 1: show who is checking it
+      return { i: b.cur.i, name: b.cur.name, by: b.cur.by || who.slice(0, 3).join(", "), start: b.cur.at || (ts.length ? Math.min.apply(null, ts) : 0), end: ts.length ? Math.max.apply(null, ts) : 0,
+        n: ts.length, total: all.length, miss: all.filter(function (e) { return !e.s.c; }).map(function (e) { return { vl: vanLabel(e.v), s: e.n, n: e.s.name }; }), live: true };
+    }
+    function missText(r, max) {
+      var m = r.miss || [], multi = st.trip.vans.length > 1;
+      return m.slice(0, max || 5).map(function (x) { return x.n + " (" + (multi ? "คัน " + x.vl + " " : "") + "ที่ " + x.s + ")"; }).join(", ") + (m.length > (max || 5) ? " และอีก " + (m.length - (max || 5)) + " คน" : "");
+    }
+    function roundCard(r, current) {
+      var c = node("div", "rc" + (current ? " cur" : "")), top = node("div", "top");
+      top.appendChild(node("span", "rn", "รอบที่ " + r.i)); top.appendChild(node("span", "rnm", r.name || (r.i === 1 ? "รอบแรก" : "ไม่ได้ตั้งชื่อ")));
+      var full = r.total && r.n >= r.total;
+      top.appendChild(node("span", "rst " + (current ? "now" : full ? "ok" : "ms"), current ? "กำลังเช็ก " + r.n + "/" + r.total : full ? "ครบ " + r.n + "/" + r.total : "ขาด " + (r.total - r.n)));
+      c.appendChild(top);
+      var meta = node("div", "rmeta"), bits = [];
+      if (r.start) bits.push(current ? "เริ่ม " + stamp(r.start) : stamp(r.start) + (r.end ? " – " + hhmm(r.end) : ""));
+      if (!current && !full) bits.push("ขึ้น " + r.n + "/" + r.total);
+      if (r.by) bits.push("โดย " + r.by);
+      meta.textContent = bits.join(" · ") || (current ? "ยังไม่มีใครถูกติ๊ก" : "");
+      if (!current && !full && r.miss && r.miss.length) { meta.appendChild(node("br")); meta.appendChild(node("b", null, "ขาด: " + missText(r, 6))); }
+      c.appendChild(meta);
+      return c;
+    }
+    function summaryText() {
+      var b = board(), rounds = [liveRound()].concat(b.hist), L = ["🚐 สรุปเช็กชื่อ · " + st.trip.name];
+      rounds.slice().reverse().forEach(function (r) {
+        var full = r.total && r.n >= r.total, now = r.live && !st.ended; // the round still being checked is not "missing" anyone yet
+        L.push(roundTitle(r) + " · " + (now ? "กำลังเช็ก " : full ? "ครบ " : "ขึ้น ") + r.n + "/" + r.total + (r.start ? " · " + stamp(r.start) : ""));
+        if (!full && r.miss && r.miss.length) L.push("  " + (now ? "ยังไม่มา" : "ขาด") + ": " + missText(r, 40));
+      });
+      return L.join("\n");
+    }
+    function drawHistory(endedView) {
+      var b = board();
+      if (!endedView) {
+        var back = node("button", "rback"); back.type = "button"; back.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
+        back.appendChild(document.createTextNode("กลับไปรอบปัจจุบัน")); back.addEventListener("click", function () { st.boardView = "cur"; draw(); }); sh.appendChild(back);
+      }
+      var rounds = [liveRound()].concat(b.hist);
+      sh.appendChild(node("div", "rhead", endedView ? "สรุปการเช็กชื่อ · " + rounds.length + " รอบ" : "ประวัติการเช็กชื่อ"));
+      var list = node("div", "rlist rhl");
+      rounds.forEach(function (r, k) { list.appendChild(roundCard(r, k === 0 && !endedView)); });
+      sh.appendChild(list);
+      sh.appendChild(node("div", "rfree", endedView ? "รอบสุดท้ายสรุปจากติ๊กที่มีตอนทริปจบ · ดูย้อนหลังได้จนทริปถูกลบ (60 วันหลังเดินทาง)" : "เก็บเฉพาะสรุปของแต่ละรอบ (ครบไหม ใครขาด เวลาเริ่ม–จบ) · เห็นเฉพาะทีมผู้จัด · ลบพร้อมทริป"));
+      footer("คัดลอกสรุปทุกรอบ", function () { copyText(summaryText(), "คัดลอกสรุปการเช็กชื่อแล้ว"); });
+    }
+    // dialog: start a new round (mode "new") or name the current one (mode "name")
+    function roundDialog(mode) {
+      var b = board(), cur = b.cur, isNew = mode === "new", inN = everyone().filter(function (e) { return e.s.c; }).length;
+      var bd2 = node("div", "bd"), d = node("div", "sheet"); bd2.style.zIndex = "25"; bd2.appendChild(d);
+      var shut = function () { bd2.remove(); };
+      bd2.addEventListener("click", function (e) { if (e.target === bd2) shut(); });
+            d.appendChild(node("h3", null, isNew ? "เริ่มเช็กรอบใหม่" : "ตั้งชื่อรอบที่ " + cur.i));
+      d.appendChild(node("p", null, isNew ? (inN ? "ติ๊กของรอบที่ " + cur.i + " (" + inN + " คน) จะถูกล้าง ทุกคนกลับเป็น “ยังไม่ขึ้นรถ” · สรุปรอบนี้เก็บไว้ในประวัติ" : "ทุกคนจะเริ่มเป็น “ยังไม่ขึ้นรถ” · สรุปรอบที่ " + cur.i + " เก็บไว้ในประวัติ") : "เช่น เที่ยวไป เที่ยวกลับ หรือจุดที่แวะ · ทีมผู้จัดเห็นชื่อนี้ทุกเครื่อง"));
+      var inp = node("input", "nin"); inp.type = "text"; inp.maxLength = 24; inp.autocomplete = "off"; inp.placeholder = isNew ? "ชื่อรอบ (ไม่บังคับ)" : "ชื่อรอบ";
+      inp.value = isNew ? "" : cur.name || ""; inp.setAttribute("aria-label", "ชื่อรอบ"); d.appendChild(inp);
+      var qs = node("div", "vchips");
+      ROUND_NAMES.forEach(function (nm) {
+        var q = node("button", null, nm); q.type = "button";
+        q.addEventListener("click", function () { inp.value = nm; [].forEach.call(qs.children, function (x) { x.classList.toggle("on", x === q); }); });
+        qs.appendChild(q);
+      });
+      d.appendChild(qs);
+      if (isNew) d.appendChild(node("div", "rfree", "ชื่อรอบไม่บังคับ · เว้นว่างได้ จะขึ้นเป็น “รอบที่ " + (cur.i + 1) + "”"));
+      var acts = node("div", "acts"), no = node("button", "b-plain", "ย้อนกลับ"), go = node("button", "b-danger", isNew ? "เริ่มรอบที่ " + (cur.i + 1) : "บันทึกชื่อ");
+      go.style.background = "var(--mine)"; go.style.borderColor = "var(--mine)"; no.type = go.type = "button";
+      no.addEventListener("click", shut);
+      go.addEventListener("click", async function () {
+        go.disabled = true; st.pending++;
+        var body = isNew ? { t: x.id, resetBoard: true, name: inp.value } : { t: x.id, boardName: inp.value };
+        try {
+          var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body: JSON.stringify(body) });
+          var dd = await r.json().catch(function () { return {}; });
+          if (!r.ok) throw new Error(dd.error);
+          st.pending--; shut(); st.boardView = "cur";
+          toast(isNew ? "เริ่ม" + roundTitle(dd.board.cur) + " แล้ว" : "ตั้งชื่อรอบแล้ว");
+          fetchRoster(true);
+        } catch (e) { st.pending--; go.disabled = false; toast(e && e.message === "ended" ? "ทริปนี้จบแล้ว" : e && e.message === "plan_rounds" ? "แพ็กเกจ Free เช็กชื่อได้ 1 รอบ อัปเกรดหรือใช้ตั๋วรายทริปในหน้าแพ็กเกจ" : "ทำรายการไม่สำเร็จ ลองอีกครั้ง", true); }
+      });
+      inp.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.isComposing) go.click(); });
+      acts.appendChild(no); acts.appendChild(go); d.appendChild(acts);
+      document.body.appendChild(bd2);
+      setTimeout(function () { if (!isNew) inp.focus(); }, 50);
+    }
+    function drawBoard() {
+      if (st.ended) return drawHistory(true); // after the trip: a read-only summary of every round
+      if (st.boardView === "hist") return drawHistory(false);
+      var b = board(), all = everyone(), inN = all.filter(function (e) { return e.s.c; }).length, multi = st.trip.vans.length > 1;
+      var rh = node("div", "round"), rtop = node("div", "rtop"), rnum = node("span", "n", "รอบที่ " + b.cur.i), rt = node("span", "t");
+      rt.appendChild(node("b", null, b.cur.name || (b.cur.i === 1 ? "รอบแรก" : "เช็กรอบใหม่")));
+      rt.appendChild(document.createTextNode(b.cur.at ? "เริ่ม " + stamp(b.cur.at) + (b.cur.by ? " โดย " + b.cur.by : "") : "แตะชื่อเมื่อขึ้นรถแล้ว"));
+      var pen = node("button", "rpen"); pen.type = "button"; pen.innerHTML = PEN_SVG; pen.setAttribute("aria-label", b.cur.name ? "แก้ชื่อรอบ" : "ตั้งชื่อรอบ");
+      pen.addEventListener("click", function () { roundDialog("name"); });
+      rtop.appendChild(rnum); rtop.appendChild(rt); rtop.appendChild(pen); rh.appendChild(rtop);
+      var pg = node("div", "bprog"), pl = node("div", "pl"), right = node("span"); right.appendChild(node("b", null, String(inN))); right.appendChild(document.createTextNode(" / " + all.length + " ขึ้นรถแล้ว"));
+      pl.appendChild(node("span", null, multi ? "ทั้งทริป" : st.trip.departTime ? "ออก " + st.trip.departTime : "")); pl.appendChild(right); pg.appendChild(pl);
+      var bar = node("div", "bar"), bi = node("i"); bi.style.width = (all.length ? Math.round(inN / all.length * 100) : 0) + "%"; bar.appendChild(bi); pg.appendChild(bar); rh.appendChild(pg); sh.appendChild(rh);
       if (multi) {
         var row = node("div", "vchips");
         st.trip.vans.forEach(function (v) {
@@ -1428,7 +1602,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
           r.setAttribute("aria-label", "ที่นั่ง " + n + " " + s.name + (s.c ? " ขึ้นรถแล้ว" : " ยังไม่ขึ้นรถ"));
           var ck = node("div", "ckb"); if (s.c) ck.innerHTML = TICK;
           r.appendChild(ck); r.appendChild(node("div", "no", String(n)));
-          var nm = node("div", "nm2"); nm.appendChild(node("b", null, s.name)); if (!s.c) nm.appendChild(node("small", null, "ยังไม่ขึ้นรถ")); r.appendChild(nm);
+          var nm = node("div", "nm2"); nm.appendChild(node("b", null, s.name)); r.appendChild(nm);
           if (s.c) r.appendChild(node("span", "cktm", hhmm(s.c)));
           var go = function () { flag(st.van, n, "board", !s.c); };
           r.addEventListener("click", go);
