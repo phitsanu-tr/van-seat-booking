@@ -1822,7 +1822,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var url = "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var shortUrl = location.host + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var d = new Date(), pad = function (v) { return (v < 10 ? "0" : "") + v; };
-    var stamp = "อัปเดตเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    var stamp = "อัปเดตเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + String(d.getFullYear() + 543).slice(-2) + " · " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " น.";
     var withQr = useQr, FH = FHF;
     ctx.fillStyle = "#0b5f67"; ctx.fillRect(0, y, CW, FH); // teal band, full width, flush with the bottom edge
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
@@ -1834,18 +1834,21 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       tx0 += ql + 34;
     }
     var fw = CW - X - tx0, who = (trip.organizer || "").trim(), bt = y + (FH - (who ? 164 : 128)) / 2;
-    ctx.fillStyle = "#ffffff"; ctx.font = '600 41px Prompt, "Noto Sans Thai", sans-serif';
-    ctx.fillText(withQr ? "สแกนดูรายละเอียดและจองที่นั่ง" : "ดูรายละเอียดและจองที่นั่งที่", tx0, bt + 40);
-    ctx.fillStyle = "#bfe9ed"; ctx.font = '400 30px "Noto Sans Thai", sans-serif';
+    var FT = 41, FU = 30, FS = 28, FN = 28; // title, link, update time, created-by
+    var b1 = bt + 40 + 0.8 * (FT - 41), b2 = b1 + 0.5 * FT + 0.8 * FU, b3 = b2 + 0.6 * FU + 0.76 * FS, b4 = b3 + 1.38 * Math.max(FS, FN);
+    var last = who ? b4 : b3, shift = (last - (bt + (who ? 158 : 122))) / 2; b1 -= shift; b2 -= shift; b3 -= shift; b4 -= shift;
+    ctx.fillStyle = "#ffffff"; ctx.font = '600 ' + FT + 'px Prompt, "Noto Sans Thai", sans-serif';
+    ctx.fillText(withQr ? "สแกนดูรายละเอียดและจองที่นั่ง" : "ดูรายละเอียดและจองที่นั่งที่", tx0, b1);
+    ctx.fillStyle = "#bfe9ed"; ctx.font = '400 ' + FU + 'px "Noto Sans Thai", sans-serif';
     var su = shortUrl; while (su.length > 8 && ctx.measureText(su).width > fw) su = su.slice(0, -2) + "…";
-    ctx.fillText(su, tx0, bt + 84);
-    ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.font = '400 26px "Noto Sans Thai", sans-serif';
-    ctx.fillText(stamp, tx0, bt + 122);
+    ctx.fillText(su, tx0, b2);
+    ctx.fillStyle = "rgba(255,255,255,.72)"; ctx.font = '400 ' + FS + 'px "Noto Sans Thai", sans-serif';
+    ctx.fillText(stamp, tx0, b3);
     if (who) { // created by (organizer name): the last line, under the update time
-      var lbl = "สร้างโดย ", lw = ctx.measureText(lbl).width; ctx.fillText(lbl, tx0, bt + 158);
-      ctx.fillStyle = "#ffffff"; ctx.font = '600 26px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, who, fw - lw, 1)[0], tx0 + lw, bt + 158);
+      ctx.font = '400 ' + FN + 'px "Noto Sans Thai", sans-serif';
+      var lbl = "สร้างโดย ", lw = ctx.measureText(lbl).width; ctx.fillText(lbl, tx0, b4);
+      ctx.fillStyle = "#fde9a6"; ctx.font = '600 ' + FN + 'px "Noto Sans Thai", sans-serif'; ctx.fillText(wrapText(ctx, who, fw - lw, 1)[0], tx0 + lw, b4);
     }
-    
     posterExtra = extra; var total = y + FH; posterFixed = total - extra - PH;
     // ---- compose onto a light backdrop with rounded corners
     var OW = 1544, k = OW / CW; // same output width as the seat pass / admin pass cards (386 x 4)
