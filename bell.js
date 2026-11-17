@@ -214,3 +214,29 @@
   };
   window.VSBBell = B;
 })();
+
+/* Scroll lock for every popup (booking sheet, bottom sheets, date pickers, the bell list): while one is open the page behind it
+   must not scroll. `overflow:hidden` on the body is ignored by iOS / the LINE web view, so the body is pinned instead
+   (position:fixed at the current offset) and the offset is put back when the last popup closes. */
+(function () {
+  var SEL = ".bd,.vb-bd,.pk-back,.backdrop:not([hidden])", locked = false, y = 0, b = null;
+  function sync() {
+    b = b || document.body; if (!b) return;
+    var open = !!document.querySelector(SEL);
+    if (open && !locked) {
+      if (b.style.position === "fixed") return; // the booking page pins the body itself
+      locked = true; y = window.pageYOffset || document.documentElement.scrollTop || 0;
+      b.style.position = "fixed"; b.style.top = -y + "px"; b.style.left = "0"; b.style.right = "0"; b.style.width = "100%";
+    } else if (!open && locked) {
+      locked = false;
+      b.style.position = ""; b.style.top = ""; b.style.left = ""; b.style.right = ""; b.style.width = "";
+      try { window.scrollTo({ top: y, left: 0, behavior: "instant" }); } catch (e) { window.scrollTo(0, y); }
+    }
+  }
+  function start() {
+    sync();
+    new MutationObserver(sync).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden", "class"] });
+    window.addEventListener("pagehide", function () { if (locked) { locked = false; b.style.position = b.style.top = b.style.left = b.style.right = b.style.width = ""; } });
+  }
+  if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);
+})();

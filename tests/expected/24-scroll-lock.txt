@@ -1,0 +1,8 @@
+booking: scrolled true
+booking popup open: body pinned fixed page was scrolled true
+booking popup closed: body free true offset back true
+app sheet open: body pinned fixed
+app sheet removed: body free true
+trip share popup open: body pinned fixed
+trip share popup closed: body free true
+ERR []
