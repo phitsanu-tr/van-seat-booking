@@ -77,10 +77,10 @@
       txt(label, { size: "12px", color: SUB, flex: 0, wrap: false, gravity: "center" }),
       txt(value, { size: "14px", weight: "bold", color: TXT, align: "end", flex: 1, gravity: "center" })] };
   }
-  function infoBubble(t) { // card 1: shared from the trip details tab — everything about the trip, button opens the details
+  function infoBubble(t, plain) { // card 1: shared from the trip details tab — everything about the trip, button opens the details
     var head = { type: "box", layout: "vertical", alignItems: "flex-start", backgroundColor: "#e6f3f3", paddingAll: "12px", contents: [
       { type: "box", layout: "horizontal", spacing: "8px", alignItems: "center", width: "100%", contents: [ // brand, a hairline running right, then the trip code in a small pill
-        txt("VanTrip", { size: "12px", weight: "bold", color: TEAL, wrap: false, flex: 0, gravity: "center" })].concat(t.id ? [
+        txt("VanTrip", { size: "12px", weight: "bold", color: TEAL, wrap: false, flex: 0, gravity: "center" })].concat(t.id && !plain ? [
         { type: "box", layout: "vertical", flex: 1, height: "1px", backgroundColor: "#a9d3d6", gravity: "center", contents: [] },
         { type: "box", layout: "vertical", flex: 0, backgroundColor: "#ffffff", borderWidth: "1px", borderColor: "#a9d3d6", cornerRadius: "10px", paddingStart: "8px", paddingEnd: "8px", paddingTop: "1px", paddingBottom: "1px",
           contents: [txt(String(t.id), { size: "12px", weight: "bold", color: TEAL, wrap: false })] }] : []) },
@@ -136,8 +136,11 @@
       try {
         if (!liff.isInClient() || !liff.isLoggedIn() || !liff.isApiAvailable("shareTargetPicker")) return false;
       } catch (e) { return false; }
-      return liff.shareTargetPicker([{ type: "flex", altText: "🚐 " + (t.name || "จองที่นั่งรถตู้") + (kind === "info" ? " · รายละเอียดทริป" : " · เลือกที่นั่ง"), contents: kind === "info" ? infoBubble(t) : bubble(t) }])
-        .then(function () { return true; }, function () { return false; });
+      function pick(plain) { // plain = the header without the hairline + code pill (fallback if LINE rejects the richer card)
+        return liff.shareTargetPicker([{ type: "flex", altText: "🚐 " + (t.name || "จองที่นั่งรถตู้") + (kind === "info" ? " · รายละเอียดทริป" : " · เลือกที่นั่ง"), contents: kind === "info" ? infoBubble(t, plain) : bubble(t) }])
+          .then(function () { return true; }, function (e) { if (!plain && kind === "info") return pick(true); return false; });
+      }
+      return pick(false);
     }).catch(function () { return false; });
   }
   window.VSBShare = { send: send, liffUrl: liffUrl, tripText: tripText };
