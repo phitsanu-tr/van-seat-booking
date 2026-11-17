@@ -75,7 +75,7 @@
               contents: [{ type: "image", url: ORIGIN + "/swap-icon.png", size: "16px", aspectRatio: "1:1", aspectMode: "fit" }] },
         half("เดินทางกลับ", t.returnTime ? t.returnTime + " น." : "", shortY(t.endDate || t.startDate), true)] });
       if (t.meetPoint) {
-        if (hasTime) card.push({ type: "box", layout: "vertical", paddingStart: "12px", paddingEnd: "12px", contents: [{ type: "separator", color: "#dfe5e8" }] }); // inset hairline, not edge to edge
+        if (hasTime) card.push({ type: "box", layout: "vertical", paddingStart: "12px", paddingEnd: "12px", contents: [{ type: "separator", color: "#cfd7db" }] }); // inset hairline, not edge to edge
         card.push({ type: "box", layout: "vertical", paddingAll: "12px", contents: [
           txt("จุดนัดพบ", { size: "12px", color: SUB }),
           txt(t.meetPoint, { size: "14px", weight: "bold", color: TXT })] });
