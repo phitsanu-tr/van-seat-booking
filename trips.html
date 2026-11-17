@@ -690,18 +690,16 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 (function () {
   "use strict";
   // links: /trips/new = create · /trips/<trip> = edit (owner or helper, checked by the LINE account)
-  //        plain /trips is redirected to /mytrips by the server · old /trips/<trip>?card=guest&img=1 links go to the booking page
   var q = new URLSearchParams(location.search);
   var T = "";
   var pm = /^\/trips\/([a-z0-9]{3,16})\/?$/i.exec(location.pathname);
   if (q.has("li") || q.has("le")) { try { q.delete("li"); q.delete("le"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q.toString() : "") + location.hash); } catch (e) {} }
   if (pm && pm[1].toLowerCase() !== "new") T = pm[1].toLowerCase();
   function editPath(id) { return "/trips/" + id; }
-  if (T && q.get("card") === "guest") { location.replace("/" + T); return; } // the old SEAT PASS picture link: the booking page has the picture now
   var editing = !!T;
   var revAtLoad = 0; // the trip's save counter when the form was filled (another organizer saving meanwhile is refused, not overwritten)
   var closedAtLoad = false; // the trip's "closed" flag when the form was filled
-  var creating = q.get("new") === "1" || /^\/trips\/new\/?$/.test(location.pathname);
+  var creating = /^\/trips\/new\/?$/.test(location.pathname);
   var vansEl = document.getElementById("vans");
   var rows = []; // [{id, label}]
   var busy = false;

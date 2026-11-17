@@ -12,9 +12,6 @@ const ext=await p.evaluate(()=>{const a=document.getElementById('imgExt')||docum
 await p.goto(B+'/trips/'+ID);await p.waitForTimeout(1500);await p.click('#shareBtn');await p.waitForTimeout(500);
 log('sheet',await p.textContent('#mState'),'|',(await p.textContent('#shareUrl')).replace(ID,'<id>').replace(ID.toUpperCase(),'<ID>'),'| line',(await p.getAttribute('#lineBtn','href')).includes(encodeURIComponent('/'+ID)),'| book',await p.getAttribute('#openShare','href')===('/'+ID));
 await p.click('#copyBox');await p.waitForTimeout(300);log('copied',await p.locator('#copyShare.ok').count());
-// the old SEAT PASS picture link now opens the booking page
-const c2=await b.newContext({viewport:{width:390,height:844}});const q=await c2.newPage();q.on('pageerror',e=>errs.push('old link: '+e.message));
-await q.goto(B+'/trips/'+ID+'?card=guest&img=1');await q.waitForTimeout(1200);log('old picture link ->',new URL(q.url()).pathname.replace(/\/info$/,'')===('/'+ID)?'booking page':q.url());
 // delete from edit page (dialog in-page)
 await p.goto(B+'/trips/'+ID);await p.reload();await p.waitForTimeout(1500);await p.click('#delBtn');await p.waitForTimeout(400);
 const btns=await p.$$eval('button',bs=>bs.filter(x=>x.offsetParent&&/ลบทริป/.test(x.textContent)).map(x=>x.id||x.className));log('confirm btns',btns);

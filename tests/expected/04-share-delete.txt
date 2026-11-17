@@ -4,7 +4,6 @@ poster 1544x2745
 ext link http://localhost:8765/<id>?v=v1&img=1&mk=…&openExternalBrowser=1
 sheet ลิงก์และรหัสทริป | <ID>localhost:8765/<id> | line true | book true
 copied 1
-old picture link -> booking page
 confirm btns [ 'btn danger' ]
 toast after delete ลบทริปแล้ว | bottom true
 after delete url http://localhost:8765/mytrips#trips status 404

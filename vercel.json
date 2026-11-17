@@ -4,46 +4,6 @@
       "source": "/(DESIGN\\.md|UPDATE\\.md|README\\.md|dev\\.js|vercel\\.json|tests/.*|scripts/.*)",
       "destination": "/",
       "permanent": false
-    },
-    {
-      "source": "/terms.html",
-      "destination": "/terms",
-      "permanent": false
-    },
-    {
-      "source": "/index.html",
-      "destination": "/",
-      "permanent": false
-    },
-    {
-      "source": "/book.html",
-      "destination": "/",
-      "permanent": false
-    },
-    {
-      "source": "/trips.html",
-      "destination": "/mytrips",
-      "permanent": false
-    },
-    {
-      "source": "/owner.html",
-      "destination": "/owner",
-      "permanent": false
-    },
-    {
-      "source": "/privacy.html",
-      "destination": "/privacy",
-      "permanent": false
-    },
-    {
-      "source": "/plans.html",
-      "destination": "/plans",
-      "permanent": false
-    },
-    {
-      "source": "/mytrips.html",
-      "destination": "/mytrips",
-      "permanent": false
     }
   ],
   "rewrites": [

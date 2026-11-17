@@ -1,11 +1,9 @@
 home -> app /mytrips create link /trips/new
-/trips.html -> /mytrips
 edit button /trips/<id>
 edit page /trips/<id> title แก้ไขทริป name ทริปลิงก์
 cancel -> /mytrips#trips
 /trips/new title สร้างทริป
 cancel new -> /mytrips#trips
 not organizer: submit disabled true
-old seat pass link outside LINE -> booking page
 book page 200 unknown edit id 404
 ERR []
