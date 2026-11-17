@@ -54,21 +54,6 @@
       "source": "/mytrips.html",
       "destination": "/mytrips",
       "permanent": false
-    },
-    {
-      "source": "/trips",
-      "destination": "/mytrips",
-      "permanent": false
-    },
-    {
-      "source": "/mytrips/mytrips",
-      "destination": "/mytrips",
-      "permanent": false
-    },
-    {
-      "source": "/mytrips/:t([a-hj-km-np-z2-9]{6,8})",
-      "destination": "/:t",
-      "permanent": false
     }
   ],
   "rewrites": [

@@ -40,5 +40,5 @@ await P.click('.ab.more');await P.waitForTimeout(200);await P.click('.pmenu .dgr
 await Q.goto(B+'/mytrips?f='+Date.now()+'#seats');await Q.waitForTimeout(1500);await Q.click('.ab.more');await Q.click('.pmenu button:first-child');await Q.waitForTimeout(400);
 log('Q single: picker',await Q.$$eval('.spick',e=>e.length),'prefill',await Q.inputValue('.sheet .nin'));await Q.screenshot({path:S+'/r4.png'});
 // 6) no dark css left
-for(const u of ['/','/mytrips','/'+ID,'/trips','/privacy']){await Q.goto(B+u);await Q.waitForTimeout(500);log('dark rules',u,await Q.evaluate(()=>[...document.styleSheets].flatMap(s=>{try{return [...s.cssRules]}catch(e){return []}}).filter(r=>/dark/.test(r.cssText)).length));}
+for(const u of ['/','/mytrips','/'+ID,'/trips/new','/privacy']){await Q.goto(B+u);await Q.waitForTimeout(500);log('dark rules',u,await Q.evaluate(()=>[...document.styleSheets].flatMap(s=>{try{return [...s.cssRules]}catch(e){return []}}).filter(r=>/dark/.test(r.cssText)).length));}
 log('ERR',errs);await b.close();})();
