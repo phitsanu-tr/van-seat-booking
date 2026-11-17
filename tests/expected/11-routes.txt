@@ -1,4 +1,4 @@
-home -> app /home create link /trips/new
+signed in, landing stays / create link /trips/new
 edit button /trips/<id>
 edit page /trips/<id> title แก้ไขทริป name ทริปลิงก์
 cancel -> /trips
