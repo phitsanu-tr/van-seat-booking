@@ -7,12 +7,12 @@ log('anon create:',(await fetch(B+'/api/trip',{method:'POST',headers:{'content-t
 const cA=await ctx();const A=await pg(cA,'A');await A.goto(B+'/api/auth?start=1&as=Ann&r=%2F');await A.waitForTimeout(600);
 const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(20),meetPoint:'จุดนัดพบ',name:'ทริปทดสอบ',startDate:HLP.day(20),vans:[{label:'1'}]}})).json();const ID=tr.id;log('A create ok',!!ID);
 const VAN=(tr.trip&&tr.trip.vans[0].id)||'v1';const sc=await fetch(B+'/api/seats?t='+ID+'&v='+VAN,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({seat:2,name:'anon'})});log('anon book:',sc.status);
-const cN=await ctx();const N=await pg(cN,'N');await N.goto(B+'/'+ID);await N.waitForTimeout(1000);log('chip hidden for anon (LINE-first)',await N.locator('#acct').isHidden());
+const cN=await ctx();const N=await pg(cN,'N');await N.goto(B+'/'+ID+'/seats');await N.waitForTimeout(1000);log('chip hidden for anon (LINE-first)',await N.locator('#acct').isHidden());
 await N.click('.seat >> nth=1');await N.waitForTimeout(300);log('anon panel: lg',await N.locator('.lgbtn').count(),'input',await N.locator('#nameInput').count(),'note',await N.locator('.lgnote').count());await N.screenshot({path:S+'/7_forced.png'});
 // anon /trips/new -> redirected to login -> back logged in
-const cT=await ctx();const T=await pg(cT,'T');await T.goto(B+'/trips/new');await T.waitForTimeout(2000);
+const cT=await ctx();const T=await pg(cT,'T');await T.goto(B+'/new');await T.waitForTimeout(2000);
 log('trips/new (LINE) ->',T.url().replace(B,''),'retry screen',await T.locator('text=เข้าสู่ระบบไม่สำเร็จ').count(),await T.locator('text=ลองใหม่').count());
-const cP=await (async()=>{const c=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2});await HLP.fonts(c);return c})();const Pp=await pg(cP,'P');await Pp.goto(B+'/trips/new');await Pp.waitForTimeout(1500);
+const cP=await (async()=>{const c=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2});await HLP.fonts(c);return c})();const Pp=await pg(cP,'P');await Pp.goto(B+'/new');await Pp.waitForTimeout(1500);
 log('trips/new (browser) -> open-in-LINE screen',await Pp.locator('text=กรุณาเปิดใน LINE').count(),await Pp.locator('text=เปิดใน LINE').count());
 await T.goto(B+'/api/auth?start=1&as=ผู้ทดสอบ&r=%2Ftrips%2Fnew');await T.waitForTimeout(2000);log('after sign-in ->',new URL(T.url()).pathname,'submit',await T.textContent('#submit'));
 await T.goto(B+'/');await T.waitForTimeout(1500);log('index logged -> stays on',new URL(T.url()).pathname,'chip goes to',await T.getAttribute('#acct','href'),'class',await T.getAttribute('#acct','class'));

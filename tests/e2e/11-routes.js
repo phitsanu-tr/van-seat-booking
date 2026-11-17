@@ -9,8 +9,8 @@ await A.goto(B+'/');await A.waitForTimeout(1500);log('signed in, landing stays',
 await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);log('edit button',(await A.getAttribute('.mgb:has-text("แก้ไขทริป")','href')).replace(ID,'<id>'));
 await A.click('.mgb:has-text("แก้ไขทริป")');await A.waitForTimeout(1500);log('edit page',path(A.url()).replace(ID,'<id>'),'title',await A.textContent('#title'),'name',await A.inputValue('#name'));
 await A.click('#cancelBtn');await A.waitForTimeout(1000);log('cancel ->',path(A.url()));
-await A.goto(B+'/trips/new');await A.waitForTimeout(1000);log('/trips/new title',await A.textContent('#title'));
+await A.goto(B+'/new');await A.waitForTimeout(1000);log('/trips/new title',await A.textContent('#title'));
 await A.click('#cancelBtn');await A.waitForTimeout(1000);log('cancel new ->',path(A.url()));
-const Z=await user('Zed');await Z.goto(B+'/trips/'+ID);await Z.waitForTimeout(1500);log('not organizer: submit disabled',await Z.isDisabled('#submit'));
-log('book page',(await A.request.get(B+'/'+ID)).status(),'unknown edit id',(await A.request.get(B+'/trips/zzzzzzzzzzzzzzzzzz',{maxRedirects:0})).status());
+const Z=await user('Zed');await Z.goto(B+'/'+ID+'/edit');await Z.waitForTimeout(1500);log('not organizer: submit disabled',await Z.isDisabled('#submit'));
+log('book page',(await A.request.get(B+'/'+ID+'/seats')).status(),'unknown edit id',(await A.request.get(B+'/trips/zzzzzzzzzzzzzzzzzz',{maxRedirects:0})).status());
 log('ERR',errs);await b.close();})();

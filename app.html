@@ -487,7 +487,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 (function(){try{var q=new URLSearchParams(location.search),s=q.get("liff.state");
 if(!s&&location.hash.indexOf("liff.state=")>=0)s=decodeURIComponent(location.hash.split("liff.state=")[1].split("&")[0]);
 var m=s&&/^\/?([a-hj-km-np-z2-9]{6,8})(?:[\/?#].*)?$/.exec(s);
-if(m){window.__go=m[1];window.__goH=/^\/?[a-hj-km-np-z2-9]{6,8}\/info(?:[?#]|$)/.test(s)?"/info":"";document.documentElement.className+=" golnk";document.addEventListener("DOMContentLoaded",function(){var d=document.createElement("div");d.id="golnk";d.innerHTML='<b>Van<u>Trip</u></b><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>กำลังเปิดผังที่นั่ง…<a href="">โหลดนานไป? แตะที่นี่</a>';document.documentElement.appendChild(d)});}}catch(e){}})();
+if(m){window.__go=m[1];window.__goH=(/^\/?[a-hj-km-np-z2-9]{6,8}(\/(?:seats|list))(?:[?#]|$)/.exec(s)||[])[1]||"";document.documentElement.className+=" golnk";document.addEventListener("DOMContentLoaded",function(){var d=document.createElement("div");d.id="golnk";d.innerHTML='<b>Van<u>Trip</u></b><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>กำลังเปิดผังที่นั่ง…<a href="">โหลดนานไป? แตะที่นี่</a>';document.documentElement.appendChild(d)});}}catch(e){}})();
 </script>
 <style>html.golnk body{visibility:hidden}#golnk{position:fixed;inset:0;z-index:2147483646;background:#eef1f3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:40px;box-sizing:border-box;color:#5b6b70;font:600 16px/24px "Noto Sans Thai",system-ui,sans-serif}#golnk b{font:600 20px/24px "Prompt","Noto Sans Thai",system-ui,sans-serif;color:#0b5f67;margin-bottom:24px}#golnk div{display:grid;grid-template-columns:repeat(4,36px);gap:8px;margin-bottom:16px}#golnk u{text-decoration:none;color:#1b1f22}#golnk i{height:36px;background:#cdd7db;border-radius:8px;animation:golnk 1.2s ease-in-out infinite}#golnk a{position:absolute;bottom:56px;font:600 14px/20px "Noto Sans Thai",system-ui,sans-serif;color:#0b5f67;padding:8px 16px;border:1px solid #0b5f67;border-radius:20px;text-decoration:none;opacity:0;visibility:hidden;animation:golnka .3s 8s forwards}@keyframes golnk{50%{opacity:.5}}@keyframes golnka{to{opacity:1;visibility:visible}}</style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -526,7 +526,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 <style id="vt-tap">*{-webkit-tap-highlight-color:transparent}:focus:not(:focus-visible){outline:none}a:focus-visible,button:focus-visible,[role=button]:focus-visible,summary:focus-visible{outline:2px solid #0e7c86;outline-offset:2px}</style>
 </head>
 <body>
-<div class="top"><section class="abar"><span class="lg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 16.5V8.5A2.5 2.5 0 0 1 5.5 6h10.2c.7 0 1.3.3 1.8.8l3.2 3.6c.2.3.3.6.3.9v5.2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M6 9.5h3.5v2.5H6zM12 9.5h3.5v2.5H12z"/><circle cx="7.5" cy="17.5" r="1.8" fill="var(--mine)"/><circle cx="16.5" cy="17.5" r="1.8" fill="var(--mine)"/></svg></span><span class="nm"><b>VanTrip</b><span>สร้างทริป แชร์ลิงก์ เลือกที่นั่งรถตู้</span></span><a class="ab-new" id="abNew" href="/trips/new" aria-label="สร้างทริป" hidden><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>สร้างทริป</a></section><div><a href="/" style="font:700 16px/24px var(--font-display);color:var(--deep);text-decoration:none;padding:10px 0;margin:-10px 0">VanTrip</a><span class="ltl" id="ltl"><b id="ltT">ทริปที่จัด</b><small id="ltS"></small></span><a class="mkp" id="mkTrip" href="/trips/new" aria-label="สร้างทริป">＋ สร้างทริป</a><button class="mkr" id="mkRead" type="button">อ่านทั้งหมด</button><span class="bell-wrap" id="bellHost"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
+<div class="top"><section class="abar"><span class="lg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 16.5V8.5A2.5 2.5 0 0 1 5.5 6h10.2c.7 0 1.3.3 1.8.8l3.2 3.6c.2.3.3.6.3.9v5.2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M6 9.5h3.5v2.5H6zM12 9.5h3.5v2.5H12z"/><circle cx="7.5" cy="17.5" r="1.8" fill="var(--mine)"/><circle cx="16.5" cy="17.5" r="1.8" fill="var(--mine)"/></svg></span><span class="nm"><b>VanTrip</b><span>สร้างทริป แชร์ลิงก์ เลือกที่นั่งรถตู้</span></span><a class="ab-new" id="abNew" href="/new" aria-label="สร้างทริป" hidden><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>สร้างทริป</a></section><div><a href="/" style="font:700 16px/24px var(--font-display);color:var(--deep);text-decoration:none;padding:10px 0;margin:-10px 0">VanTrip</a><span class="ltl" id="ltl"><b id="ltT">ทริปที่จัด</b><small id="ltS"></small></span><a class="mkp" id="mkTrip" href="/new" aria-label="สร้างทริป">＋ สร้างทริป</a><button class="mkr" id="mkRead" type="button">อ่านทั้งหมด</button><span class="bell-wrap" id="bellHost"></span><button class="acct-pill" id="acctBtn2" type="button" aria-haspopup="dialog" hidden><span class="av" id="topAv"></span><span id="topName"></span></button></div></div>
 <main>
   <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">ทริปของฉัน</h1>
   <section class="login" id="loginView" hidden>
@@ -790,7 +790,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var er = node("div", "herr"); er.setAttribute("role", "alert"); er.hidden = true; sh.appendChild(er);
     function bad(t) { er.textContent = t; er.hidden = !t; if (t) inp.setAttribute("aria-invalid", "true"); else inp.removeAttribute("aria-invalid"); }
     inp.addEventListener("input", function () { bad(""); });
-    f.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.parse(inp.value); if (!id) { bad(inp.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); inp.focus(); return; } location.href = "/" + id; });
+    f.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.parse(inp.value); if (!id) { bad(inp.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); inp.focus(); return; } location.href = "/" + id + "/seats"; });
     document.body.appendChild(bd); setTimeout(function () { inp.focus(); }, 50);
   }
   function openManage(x) {
@@ -807,9 +807,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (right != null) { var r = node("span", "c"); if (right) r.appendChild(node("small", null, right)); r.appendChild(document.createTextNode("›")); b.appendChild(r); }
       g.appendChild(b); return b;
     }
-    item(g1, "pen", "แก้ไขทริป", "", "", "/trips/" + x.id);
+    item(g1, "pen", "แก้ไขทริป", "", "", "/" + x.id + "/edit");
     item(g1, "team", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป", "", x.role === "helper" ? "" : (x.helpers || 0) + "/2", function () { shut(); openTeam(x); });
-    item(g1, "dup", "สร้างทริปซ้ำ", "", "", "/trips/new?copy=" + encodeURIComponent(x.id));
+    item(g1, "dup", "สร้างทริปซ้ำ", "", "", "/new?copy=" + encodeURIComponent(x.id));
     var lk = item(g2, "share", x.closed ? "เปิดรับจอง" : "ปิดรับจอง", x.closed ? "op" : "dg lk", null, async function (btn) {
       if (!x.closed && btn.dataset.sure !== "1") { btn.dataset.sure = "1"; btn.querySelector("span").textContent = "ยืนยันปิด?"; setTimeout(function () { if (btn.isConnected) { btn.dataset.sure = ""; btn.querySelector("span").textContent = "ปิดรับจอง"; } }, 3500); return; }
       btn.disabled = true;
@@ -842,7 +842,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function noTrips() { // trips tab with nothing yet: the app's standard empty picture + one button (same look as the seats tab)
     var em = node("div", "vb-empty");
     em.innerHTML = (window.VSBBell ? VSBBell.emptyHtml("ยังไม่มีทริปที่จัด", "ทริปที่คุณสร้างจะอยู่ที่นี่<br>ดูรายชื่อและแชร์ลิงก์ได้") : "ยังไม่มีทริปที่จัด");
-    var go = node("a", "eb", "＋ สร้างทริปแรก"); go.href = "/trips/new"; em.appendChild(go);
+    var go = node("a", "eb", "＋ สร้างทริปแรก"); go.href = "/new"; em.appendChild(go);
     return em;
   }
   function wBanner() { // the green "จัดทริปรถตู้" banner with one big button (trips tab and home when there is nothing yet)
@@ -851,7 +851,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (m) big.innerHTML = '<div class="wpic">' + m[0] + '</div>';
     var h = node("h2"); h.appendChild(document.createTextNode("จัดทริปรถตู้")); h.appendChild(node("br")); h.appendChild(document.createTextNode("ง่ายในลิงก์เดียว"));
     big.appendChild(h); big.appendChild(node("p", null, "แชร์ลิงก์ ผู้ร่วมทริปเลือกที่นั่งเอง"));
-    var go = node("a", "wgo", "＋ สร้างทริปแรก"); go.href = "/trips/new"; big.appendChild(go);
+    var go = node("a", "wgo", "＋ สร้างทริปแรก"); go.href = "/new"; big.appendChild(go);
     return big;
   }
   var tripView = "up"; // organizer list: "up" = coming trips (finished ones folded away), "all" = coming + finished
@@ -902,7 +902,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       sh.insertAdjacentHTML("beforeend", MG.share); sh.appendChild(document.createTextNode(x.closed ? "แชร์ผัง" : "แชร์ลิงก์")); sh.setAttribute("aria-label", x.closed ? "แชร์ผังที่นั่ง" : "แชร์ลิงก์จอง");
       sh.addEventListener("click", function () { shareTrip(x); });
       acts.appendChild(ros); acts.appendChild(vmap); acts.appendChild(sh); c.appendChild(acts);
-      tapCard(c, "/" + x.id + "/info"); // tap the card: open the trip details (buttons keep their own action)
+      tapCard(c, "/" + x.id); // tap the card: open the trip details (buttons keep their own action)
       pane.appendChild(c);
     });
     if (done.length && view === "up") {
@@ -911,13 +911,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     } else if (done.length) {
       section(pane, "จบแล้ว", "ลบอัตโนมัติหลังเดินทาง 60 วัน");
       done.forEach(function (x) {
-        var c = node("div", "card dim"); tapCard(c, "/" + x.id + "/info");
+        var c = node("div", "card dim"); tapCard(c, "/" + x.id);
         var r1 = node("div", "row1"); r1.appendChild(node("div", "t", x.name)); r1.appendChild(node("span", "pill p-end", "จบแล้ว")); c.appendChild(r1);
         var m = node("div", "meta"); var s1 = node("span"); s1.appendChild(node("i", null, dateRange(x.startDate, x.endDate) || "ไม่ระบุวัน")); m.appendChild(s1);
         var s2 = node("span", null, "จอง "); s2.appendChild(node("i", null, x.booked + "/" + x.total)); m.appendChild(s2); c.appendChild(m);
         var df2 = node("div", "dfoot"), rs = node("button", "tmb", "รายชื่อและสรุปเช็กชื่อ"); rs.type = "button"; rs.style.color = "var(--mine)";
         rs.addEventListener("click", function (e) { e.stopPropagation(); openRoster(x); });
-        var cp2 = node("a", "cpy", "สร้างทริปซ้ำ"); cp2.href = "/trips/new?copy=" + encodeURIComponent(x.id); cp2.addEventListener("click", function (e) { e.stopPropagation(); });
+        var cp2 = node("a", "cpy", "สร้างทริปซ้ำ"); cp2.href = "/new?copy=" + encodeURIComponent(x.id); cp2.addEventListener("click", function (e) { e.stopPropagation(); });
         df2.appendChild(rs); df2.appendChild(cp2); c.appendChild(df2);
         pane.appendChild(c);
       });
@@ -957,7 +957,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   function ticket(x, past) {
     var c = node("div", "card tk" + (past ? " dim" : "")), l = node("div", "l");
-    tapCard(c, "/" + x.id + "/info" + (x.seats && x.seats[0] ? "?v=" + encodeURIComponent(x.seats[0].van) : ""));
+    tapCard(c, "/" + x.id + (x.seats && x.seats[0] ? "?v=" + encodeURIComponent(x.seats[0].van) : ""));
     var tg = past ? null : noteTag(x.id); if (tg) l.appendChild(tg);
     l.appendChild(node("div", "t", x.name));
     if (past) {
@@ -1666,7 +1666,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       catch (e) { toast("โหลดข้อมูลทีมไม่สำเร็จ", true); }
       draw();
     }
-    function inviteUrl(code) { return "https://liff.line.me/2012285472-FvtYKx00/home?join=" + code; }
+    function inviteUrl(code) { return "https://liff.line.me/2012285472-FvtYKx00/join/" + code; }
     function confirmBtn(btn, label, fn) {
       if (btn.dataset.sure !== "1") { var old = btn.textContent; btn.dataset.sure = "1"; btn.textContent = label; setTimeout(function () { if (btn.isConnected) { btn.dataset.sure = ""; btn.textContent = old; } }, 3500); return; }
       btn.disabled = true; fn();
@@ -1728,7 +1728,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     draw(); fetchTeam();
   }
-  // ---- joining a trip team from an invite link (/home?join=CODE) ----
+  // ---- joining a trip team from an invite link (/join/CODE) ----
   async function joinTeam(code) {
     try {
       var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ join: code }) });
@@ -1771,7 +1771,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       // one card, up to 3 nearest trips: name (1 line) · day · time, booked/total with a small bar, ›; tap → that trip's seat plan
       var lst=el("div","hl");
       trips.slice().sort(function(a,b){return String(a.startDate||"9").localeCompare(String(b.startDate||"9"))||String(a.departTime||"").localeCompare(String(b.departTime||""));}).slice(0,3).forEach(function(x){
-        var r=el("a","hrow");r.href="/"+x.id+"/info";
+        var r=el("a","hrow");r.href="/"+x.id;
         var tx=el("div","tx");tx.appendChild(el("b",null,x.name||"ทริปไม่มีชื่อ"));tx.appendChild(el("span",null,[dayLabel(x.startDate,false),tm(x.departTime)].filter(Boolean).join(" · ")));r.appendChild(tx);
         var ct=el("div","ct"),n=el("b",null,String(x.booked||0));n.appendChild(el("i",null,"/"+(x.total||0)));ct.appendChild(n);
         var b2=el("div","b2"),bi=el("i");bi.style.width=(x.total?Math.min(100,Math.round(x.booked/x.total*100)):0)+"%";b2.appendChild(bi);ct.appendChild(b2);r.appendChild(ct);
@@ -1786,7 +1786,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       });
       ml.appendChild(hs);
     } else {
-      var mk=el("a","tc","+ สร้างทริปใหม่");mk.href="/trips/new";mk.style.textAlign="center";mk.style.fontWeight="600";mk.style.color="var(--deep)";ml.appendChild(mk);
+      var mk=el("a","tc","+ สร้างทริปใหม่");mk.href="/new";mk.style.textAlign="center";mk.style.fontWeight="600";mk.style.color="var(--deep)";ml.appendChild(mk);
     }
     }
   function parse(v) {
@@ -1794,7 +1794,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (!v) return "";
     var m = /[?&]t=([a-z0-9]+)/.exec(v);                       // old style ...?t=code
     if (m) v = m[1];
-    else { v = v.split("#")[0].split("?")[0].replace(/\/+$/, ""); v = v.slice(v.lastIndexOf("/") + 1); }
+    else { var sg = v.split("#")[0].split("?")[0].split("/"); v = ""; for (var si = 0; si < sg.length; si++) if (/^[a-hj-km-np-z2-9]{6,8}$/.test(sg[si])) { v = sg[si]; break; } } // the code may be followed by /seats, /list or /edit
     return /^[a-hj-km-np-z2-9]{6,8}$/.test(v) ? v : "";
   }
     return { render: render, parse: parse };
@@ -1803,7 +1803,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var form = $("hCodeForm"), input = $("hCode"), err = $("hErr");
     var ERR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>';
     function showErr(t) { err.textContent = ""; if (t) { err.insertAdjacentHTML("beforeend", ERR_ICON); var sp = document.createElement("span"); sp.textContent = t; err.appendChild(sp); } err.hidden = !t; if (t) input.setAttribute("aria-invalid", "true"); else input.removeAttribute("aria-invalid"); }
-    form.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.parse(input.value); if (!id) { showErr(input.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); input.focus(); return; } location.href = "/" + id; });
+    form.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.parse(input.value); if (!id) { showErr(input.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); input.focus(); return; } location.href = "/" + id + "/seats"; });
     input.addEventListener("input", function () { showErr(""); });
   })();
   var wantAcct = false, loadedAt = 0;
@@ -1939,16 +1939,16 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var gb = node("div", "gone2"); gb.style.cssText = "min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 32px;max-width:460px;margin:0 auto;box-sizing:border-box";
       gb.innerHTML = (window.VSBBell ? VSBBell.emptyHtml("", "").replace(/<b><\/b>$/, "").replace('width="120" height="78"', 'width="144" height="94"') : "") + '<h1 style="font:600 20px/28px var(--font-display);margin:16px 0 4px;color:var(--ink)">เข้าสู่ระบบด้วย LINE</h1><p style="margin:0;font:400 14px/20px var(--font-body);color:var(--muted)">คุณลบข้อมูลไว้ก่อนหน้านี้<br>กดเข้าสู่ระบบเมื่อต้องการใช้งานอีกครั้ง</p>';
       var gbtn = node("button", "lg"); gbtn.type = "button"; gbtn.style.cssText = "margin-top:24px;border:0;cursor:pointer"; gbtn.appendChild(node("i", null, "LINE")); gbtn.appendChild(document.createTextNode("เข้าสู่ระบบด้วย LINE"));
-      gbtn.addEventListener("click", function () { try { localStorage.removeItem("vsb_gone"); sessionStorage.removeItem("vsb_liff"); } catch (e) {} location.replace(location.pathname + (JOIN ? "?join=" + JOIN : "")); });
+      gbtn.addEventListener("click", function () { try { localStorage.removeItem("vsb_gone"); sessionStorage.removeItem("vsb_liff"); } catch (e) {} location.replace(location.pathname); });
       gb.appendChild(gbtn); v.appendChild(gb); return;
     }
     var box = node("div"); box.style.cssText = "min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center";
     var t = node("b", null, inLine ? "เข้าสู่ระบบไม่สำเร็จ" : "กรุณาเปิดใน LINE"); t.style.cssText = "font:700 20px/28px var(--font-display);color:var(--ink)";
     var p = node("div", null, inLine ? (le === "cancel" ? "ยกเลิกการเข้าสู่ระบบแล้ว" : "ลองใหม่อีกครั้ง หากยังไม่ได้ ให้ปิดแล้วเปิดจากเมนูของแอปใหม่") : "แอปนี้ใช้งานผ่าน LINE ปุ่มด้านล่างจะเปิดใน LINE ให้"); p.style.cssText = "color:var(--muted);font:400 14px/20px var(--font-body)";
         var why = inLine && (window.__liffWhy || le) ? node("div", null, "รหัส: " + (window.__liffWhy || le)) : null; if (why) why.style.cssText = "font:400 12px/16px var(--font-body);color:var(--muted)";
-var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใน LINE"); btn.href = inLine ? "javascript:void(0)" : "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (JOIN ? "?join=" + JOIN : "");
+var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใน LINE"); btn.href = inLine ? "javascript:void(0)" : "https://liff.line.me/2012285472-FvtYKx00" + location.pathname;
     btn.style.cssText = "display:inline-block;height:48px;padding:0 24px;border-radius:12px;background:var(--deep);color:#fff;font:600 16px/44px var(--font-display);text-decoration:none";
-    if (inLine) btn.addEventListener("click", function () { try { sessionStorage.removeItem("vsb_liff"); } catch (e) {} location.replace(location.pathname + (JOIN ? "?join=" + JOIN : "")); });
+    if (inLine) btn.addEventListener("click", function () { try { sessionStorage.removeItem("vsb_liff"); } catch (e) {} location.replace(location.pathname); });
     box.appendChild(t); box.appendChild(p); box.appendChild(btn); if (why) box.appendChild(why); v.appendChild(box);
   }
   // account menu (tap the photo or name): privacy policy, sign out, delete my data (last, in red)
@@ -2027,9 +2027,9 @@ var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใ�
     if (gb) { gb.addEventListener("click", shut); setTimeout(shut, 1500); }
   }
 
-  var JOIN = (function () { var j = new URLSearchParams(location.search).get("join") || ""; return /^[a-z0-9]{10}$/.test(j) ? j : ""; })();
-  // ?for=new&r=/trips/new...: sent here from "สร้างทริป" while signed out; after LINE it goes back to r
-  var FOR_NEW = (function () { var q0 = new URLSearchParams(location.search); if (q0.get("for") !== "new") return ""; var r = q0.get("r") || "/trips/new"; return /^\/trips\/new(?:[?#][^\s]*)?$/.test(r) ? r : "/trips/new"; })();
+  var JOIN = (function () { var m = /^\/join\/([a-z0-9]{10})\/?$/.exec(location.pathname); return m ? m[1] : ""; })();
+  // ?for=new&r=/new...: sent here from "สร้างทริป" while signed out; after LINE it goes back to r
+  var FOR_NEW = (function () { var q0 = new URLSearchParams(location.search); if (q0.get("for") !== "new") return ""; var r = q0.get("r") || "/new"; return /^\/new(?:[?#][^\s]*)?$/.test(r) ? r : "/new"; })();
   (async function init() {
     var q = new URLSearchParams(location.search);
     if (q.has("li") || q.has("le")) { var q2 = new URLSearchParams(location.search); q2.delete("li"); q2.delete("le"); try { history.replaceState(null, "", location.pathname + (q2.toString() ? "?" + q2 : "")); } catch (e) {} }

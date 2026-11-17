@@ -8,11 +8,11 @@
   ],
   "rewrites": [
     {
-      "source": "/trips/new",
+      "source": "/new",
       "destination": "/trips.html"
     },
     {
-      "source": "/trips/:t([a-hj-km-np-z2-9]{6,8})",
+      "source": "/:t([a-hj-km-np-z2-9]{6,8})/edit",
       "destination": "/trips.html"
     },
     {
@@ -36,11 +36,15 @@
       "destination": "/terms.html"
     },
     {
+      "source": "/join/:j([a-z0-9]{10})",
+      "destination": "/app.html"
+    },
+    {
       "source": "/:t([a-hj-km-np-z2-9]{6,8})",
       "destination": "/book.html"
     },
     {
-      "source": "/:t([a-hj-km-np-z2-9]{6,8})/info",
+      "source": "/:t([a-hj-km-np-z2-9]{6,8})/:v(seats|list)",
       "destination": "/book.html"
     }
   ],
@@ -71,7 +75,7 @@
       ]
     },
     {
-      "source": "/:t([a-hj-km-np-z2-9]{6,8})/info",
+      "source": "/:t([a-hj-km-np-z2-9]{6,8})/:v(seats|list|edit)",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -89,7 +93,7 @@
       ]
     },
     {
-      "source": "/(trips/new|trips/[a-hj-km-np-z2-9]{6,8}|owner|home|trips|seats|notify|profile|plans)",
+      "source": "/(new|join/[a-z0-9]{10}|owner|home|trips|seats|notify|profile|plans)",
       "headers": [
         {
           "key": "X-Robots-Tag",

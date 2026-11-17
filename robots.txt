@@ -7,5 +7,6 @@ Disallow: /trips
 Disallow: /seats
 Disallow: /notify
 Disallow: /profile
-Disallow: /trips/
+Disallow: /new
+Disallow: /join/
 Disallow: /plans

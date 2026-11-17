@@ -19,10 +19,10 @@ log('bob me',JSON.stringify((await (await P.request.get(B+'/api/me')).json()).se
 // cancel Bob (now van1 seat4) via roster double tap
 await A.click('.sheet .vchips button >> nth=0');await A.waitForTimeout(200);await A.click('.rrow >> nth=0 >> text=ยกเลิก');await A.click('.rrow >> nth=0 >> text=ยืนยัน?');await A.waitForTimeout(900);log('after cancel',await ros());
 // passenger rename own seat in booking panel (Cat now van2 seat5)
-await C.goto(B+'/'+ID+'?v=v2');await C.waitForTimeout(1200);await C.evaluate(()=>[...document.querySelectorAll('.seat')].find(b=>b.getAttribute('aria-label').includes('ที่นั่ง 5')).click());await C.waitForTimeout(300);
+await C.goto(B+'/'+ID+'/seats?v=v2');await C.waitForTimeout(1200);await C.evaluate(()=>[...document.querySelectorAll('.seat')].find(b=>b.getAttribute('aria-label').includes('ที่นั่ง 5')).click());await C.waitForTimeout(300);
 await C.screenshot({path:S+'/17_own.png'});await C.click('#panel button.plain:has-text("แก้ชื่อ")');await C.waitForTimeout(200);await C.fill('#nameInput','แคทลียา');await C.click('#panel .primary');await C.waitForTimeout(1000);log('after self rename',await ros(),await C.textContent('#toast'));
 // Bob cannot rename Cat
 log('bob rename cat',(await P.request.fetch(B+'/api/seats?t='+ID+'&v=v2',{method:'PATCH',data:{seat:5,name:'แฮก'}})).status());
 // trips result sheet: no admin tab when signed in
-await A.goto(B+'/trips/'+ID);await A.waitForTimeout(1500);await A.click('#shareBtn');await A.waitForTimeout(500);log('share sheet',await A.textContent('#mState'),'|',await A.textContent('#mSub'),'| qr',await A.locator('#qr').count());await A.screenshot({path:S+'/18_share.png'});
+await A.goto(B+'/'+ID+'/edit');await A.waitForTimeout(1500);await A.click('#shareBtn');await A.waitForTimeout(500);log('share sheet',await A.textContent('#mState'),'|',await A.textContent('#mSub'),'| qr',await A.locator('#qr').count());await A.screenshot({path:S+'/18_share.png'});
 log('ERR',errs);await b.close();})();

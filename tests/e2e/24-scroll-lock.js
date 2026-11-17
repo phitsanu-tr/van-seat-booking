@@ -7,7 +7,7 @@ await p.goto(B+'/api/auth?start=1&as=Lock'+Date.now()+'&r=%2Fprivacy');await p.w
 const tr=await (await p.request.post(B+'/api/trip',{data:{name:'ล็อกเลื่อน',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'07:00',returnTime:'17:00',tripN:2,tripStart:HLP.day(20),meetPoint:'BTS หมอชิต',vans:[{label:'1'}]}})).json();
 const st=()=>p.evaluate(()=>({pos:document.body.style.position,top:document.body.style.top,y:Math.round(window.pageYOffset)}));
 // 1) booking page: seat popup
-await p.goto(B+'/'+tr.id+'?x='+Date.now());await p.waitForTimeout(1500);
+await p.goto(B+'/'+tr.id+'/seats?x='+Date.now());await p.waitForTimeout(1500);
 await p.evaluate(()=>window.scrollTo(0,150));await p.waitForTimeout(200);const y0=(await st()).y;log('booking: scrolled',y0>0);
 await p.click('button[aria-label^="ที่นั่ง 9"]');await p.waitForTimeout(500);
 let s=await st();const topO=parseInt(s.top);log('booking popup open: body pinned',s.pos,'page was scrolled',topO<0);
@@ -19,7 +19,7 @@ await p.goto(B+'/profile?x='+Date.now());await p.waitForTimeout(1800);
 await p.click('.acti.dg');await p.waitForTimeout(400);s=await st();log('app sheet open: body pinned',s.pos);
 await p.evaluate(()=>{const bd=document.querySelector('.bd');if(bd)bd.remove()});await p.waitForTimeout(200);s=await st();log('app sheet removed: body free',s.pos==='');
 // 3) edit-trip page: the share popup (the one that showed the page scrolling behind it)
-await p.goto(B+'/trips/'+tr.id+'?x='+Date.now());await p.waitForTimeout(2000);
+await p.goto(B+'/'+tr.id+'/edit?x='+Date.now());await p.waitForTimeout(2000);
 await p.evaluate(()=>window.scrollTo(0,120));await p.waitForTimeout(200);
 await p.click('#shareBtn');await p.waitForTimeout(500);s=await st();log('trip share popup open: body pinned',s.pos);
 await p.evaluate(()=>{document.getElementById('backdrop').hidden=true});await p.waitForTimeout(300);s=await st();log('trip share popup closed: body free',s.pos==='');

@@ -14,7 +14,7 @@ await hold('aaaaaaaaaaaaaaaa',7);
 log('held after phone 1 picks another seat',await held());
 // polling backoff with a fake clock
 const C=await ctx('poll');await C.clock.install();let n=0;C.on('request',r=>{if(r.url().includes('/api/seats?'))n++;});
-await C.goto(B+'/'+ID);await C.waitForTimeout(800);n=0;
+await C.goto(B+'/'+ID+'/seats');await C.waitForTimeout(800);n=0;
 await C.clock.runFor(60000);log('active 1 min polls',n);n=0;
 await C.clock.runFor(120000);n=0;await C.clock.runFor(240000);log('idle 3-7 min polls (expect ~8)',n);n=0;
 await C.clock.runFor(600000);n=0;await C.clock.runFor(300000);log('idle >10 min, 5 min polls (expect ~5)',n);n=0;

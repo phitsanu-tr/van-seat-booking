@@ -33,10 +33,10 @@ await book(P,1,'แพท');await book(Q,2,'ฉิน');
 const sw=await A.request.post(url,{data:{move:{fromVan:'v1',fromSeat:1,toVan:'v1',toSeat:2,swap:true}}});let s=await seats();
 log('swap',sw.status(),s['1']&&s['1'].name,s['2']&&s['2'].name);
 // 5) a trip form left open must not reopen bookings that a helper closed meanwhile
-await A.goto(B+'/trips/'+ID);await A.waitForTimeout(1500);
+await A.goto(B+'/'+ID+'/edit');await A.waitForTimeout(1500);
 await A.request.post(B+'/api/trip',{data:{t:ID,close:true}});
 await A.fill('#name','ทริปพร้อมกันแก้ชื่อ');await A.click('#submit');await A.waitForTimeout(1800);log('form errors',await A.$$eval('.fe',e=>e.map(x=>x.textContent)),'toast',await A.evaluate(()=>{const t=document.querySelector('#toast,.toast');return t?t.textContent:''}));
 const pub=await (await Q.request.get(url)).json();log('after saving a stale form: closed',pub.closed,'name',pub.trip.name);
 // 6) security headers on the pages
-const h=(await A.request.get(B+'/'+ID)).headers();log('headers',h['x-frame-options'],h['x-content-type-options'],h['content-security-policy']);
+const h=(await A.request.get(B+'/'+ID+'/seats')).headers();log('headers',h['x-frame-options'],h['x-content-type-options'],h['content-security-policy']);
 log('ERR',errs);await b.close();})();

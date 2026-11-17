@@ -448,7 +448,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 .facts .frow.stack { display: block; }
 .facts .frow.stack b { display: block; text-align: left; margin-top: 4px; }
 .facts .frow.stack b.chg { display: inline-block; }
-/* two views of one page: /<id>/info = trip details (from "ทริปของฉัน"), otherwise the seat map */
+/* three views of one page: /<id> = trip details, /<id>/seats = seat map, /<id>/list = names */
 body:not(.v-info) #tripFacts, body:not(.v-info) #infoAct { display: none !important; }
 body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: none !important; }
 .facts .fhead .ftitle { }
@@ -648,8 +648,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var W = 820, H = 1384;
 
   var params = new URLSearchParams(location.search);
-  var pathId = /^\/([a-hj-km-np-z2-9]{6,8})(?:\/info)?\/?$/.exec(location.pathname);
-  function basePath() { return location.pathname.replace(/\/info\/?$/, ""); } // the trip page without its /info (details) suffix
+  var pathId = /^\/([a-hj-km-np-z2-9]{6,8})(?:\/(?:seats|list))?\/?$/.exec(location.pathname);
+  function basePath() { return location.pathname.replace(/\/(?:seats|list)\/?$/, "").replace(/\/+$/, ""); } // /<id>: the trip page without its /seats or /list suffix
   var TRIP = (params.get("t") || (pathId && pathId[1]) || "").toLowerCase(); // no trip code -> the "trip not found" page
   var trip = null;           // trip details from the server
   var curVan = params.get("v") || "";
@@ -1096,20 +1096,15 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (input && hadFocus) input.focus();
   }
 
-  var view = "map";
-  try { view = sessionStorage.getItem("van-view") === "list" ? "list" : "map"; } catch (e) {}
-  function setView(v) {
-    view = v;
-    try { sessionStorage.setItem("van-view", v); } catch (e) {}
-    document.getElementById("sheetView").hidden = v !== "map";
-    document.getElementById("listView").hidden = v !== "list";
-    applyMode();
-  }
-  // /<id>/info = trip details, /<id> = seat map / list. Browser back moves between them (pushState), so back from the map goes to the details.
+  // the three views of a trip each have their own address: /<id> = details, /<id>/seats = seat map, /<id>/list = names
+  function pathView() { var m = /\/(seats|list)\/?$/.exec(location.pathname); return m ? m[1] : "info"; }
+  var view = pathView() === "list" ? "list" : "map";
+  // /<id> = trip details, /<id>/seats = seat map, /<id>/list = names. Going from the details to the map pushes (back returns to the details); map <-> names just replaces the address.
   var mineLine = "", mineLoaded = false, mineDone = false, wasInfo = false; // mineDone: the first answer to "which seats are mine" has arrived (the skeleton page stays up for it on the details page)
-  function infoMode() { return /\/info\/?$/.test(location.pathname); }
+  function infoMode() { return pathView() === "info"; }
   function applyMode() {
     var on = infoMode();
+    if (!on) { view = pathView() === "list" ? "list" : "map"; document.getElementById("sheetView").hidden = view !== "map"; document.getElementById("listView").hidden = view !== "list"; }
     document.body.classList.toggle("v-info", on);
     document.body.classList.toggle("v-list", !on && view === "list");
     document.getElementById("swInfo").setAttribute("aria-selected", on ? "true" : "false");
@@ -1133,28 +1128,17 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (loaded) skOff();
     }).catch(function () { mineLoaded = false; mineDone = true; if (trip) renderTrip(); if (loaded) skOff(); });
   }
-  function goView(info) { // info: the details page (/<id>/info), otherwise the seat map (/<id>)
-    try { history.pushState({ vsb: 1 }, "", basePath() + (info ? "/info" : "") + location.search); } catch (e) {}
-    applyMode(); window.scrollTo(0, 0);
+  function goView(name, push) { // name: "info" (/<id>), "seats" (/<id>/seats) or "list" (/<id>/list)
+    try { history[push ? "pushState" : "replaceState"]({ vsb: 1 }, "", basePath() + (name === "info" ? "" : "/" + name) + location.search); } catch (e) {}
+    applyMode(); if (push) window.scrollTo(0, 0);
   }
   window.addEventListener("popstate", applyMode);
-  document.getElementById("goSeats").addEventListener("click", function () { goView(false); setView("map"); });
+  document.getElementById("goSeats").addEventListener("click", function () { goView("seats", true); });
   document.getElementById("infoShare").addEventListener("click", function () { shareFriend("info"); });
-  // first time this person opens this trip (and has no seat, isn't the organizer, link carries no seat/van): details first, once
-  var entryDecided = false;
-  function decideEntry() {
-    if (entryDecided) return; entryDecided = true;
-    var seen = true;
-    try { var key = "vsb_seen_" + TRIP; seen = !!localStorage.getItem(key); localStorage.setItem(key, "1"); } catch (e) {}
-    if (seen || infoMode() || isOwner || params.get("v") || params.get("seat") || params.get("img") || params.get("mk")) return;
-    for (var n in seats) if (mine(Number(n))) return;
-    try { history.replaceState(history.state, "", basePath() + "/info" + location.search); } catch (e) {}
-    applyMode();
-  }
-  document.getElementById("swInfo").addEventListener("click", function () { if (!infoMode()) goView(true); });
-  document.getElementById("swMap").addEventListener("click", function () { if (infoMode()) goView(false); setView("map"); });
-  document.getElementById("swList").addEventListener("click", function () { if (infoMode()) goView(false); setView("list"); });
-  setView(view);
+  document.getElementById("swInfo").addEventListener("click", function () { if (!infoMode()) goView("info", true); });
+  document.getElementById("swMap").addEventListener("click", function () { if (pathView() !== "seats") goView("seats", infoMode()); });
+  document.getElementById("swList").addEventListener("click", function () { if (pathView() !== "list") goView("list", infoMode()); });
+  applyMode();
 
   var SHORT_M = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   function bookedAt(ts) { // "22 ต.ค. 69 · 10:41:09 น." (2-digit Buddhist-era year); "-" when unknown
@@ -1430,7 +1414,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (bellOn && ((loaded && lastTrip && JSON.stringify(trip) + ended + closed !== lastTrip) || (ibNow !== undefined && lastIb !== null && ibNow !== lastIb))) VSBBell.load(); // new notification (or the trip changed)
       if (ibNow !== undefined) lastIb = ibNow;
       lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip) + ended + closed;
-      seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff(); showNet(false); decideEntry();
+      seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff(); showNet(false);
       if (locked() && selected !== null) { selected = null; message = ""; confirming = false; renaming = false; force = true; } // closed while the dialog was open
       if (changed || force) renderAll();
       if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !locked()) openSeat(ws); }
@@ -1834,7 +1818,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     y += mh + SEC + posterSpare;
     // ---- footer
-    var url = "https://liff.line.me/2012285472-FvtYKx00" + basePath() + "/info" + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : ""); // the QR opens the trip details first (like the share card's details link); the details page has the button to the seat map
+    var url = "https://liff.line.me/2012285472-FvtYKx00" + basePath() + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : ""); // the QR opens the trip details first (like the share card's details link); the details page has the button to the seat map
     var shortUrl = location.host + basePath() + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var d = new Date(), pad = function (v) { return (v < 10 ? "0" : "") + v; };
     var stamp = "อัปเดตเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + String(d.getFullYear() + 543).slice(-2) + " · " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " น.";
@@ -1936,10 +1920,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (!pathId) qs.push("t=" + encodeURIComponent(TRIP));
     if (curVan) qs.push("v=" + encodeURIComponent(curVan));
     qs.push("img=1"); if (k) qs.push("mk=" + encodeURIComponent(k)); qs.push("openExternalBrowser=1");
-    lineUrl = location.origin + basePath() + "?" + qs.join("&");
+    lineUrl = location.origin + basePath() + "/seats?" + qs.join("&");
     return lineUrl;
   }
-  function inviteLink(kind) { return "https://liff.line.me/2012285472-FvtYKx00/" + TRIP + (kind === "info" ? "/info" : ""); }
+  function inviteLink(kind) { return "https://liff.line.me/2012285472-FvtYKx00/" + TRIP + (kind === "info" ? "" : "/seats"); }
   async function shareFriend(kind) {
     kind = kind === "info" ? "info" : ""; // the click handlers pass an event, only the details tab passes "info"
     var u = inviteLink(kind), L = [], T = trip || {};
@@ -1968,7 +1952,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     document.body.appendChild(a); a.click(); a.remove();
   });
   document.getElementById("imgCopy").addEventListener("click", function () {
-    var u = IMG_ONLY ? location.origin + basePath() + (curVan ? "?v=" + encodeURIComponent(curVan) : "") : location.origin + basePath() + location.search;
+    var u = IMG_ONLY ? location.origin + basePath() + "/seats" + (curVan ? "?v=" + encodeURIComponent(curVan) : "") : location.origin + basePath() + "/seats" + location.search;
     var btn = document.getElementById("imgCopy"), lbl = btn.querySelector("span");
     copyText(u, function () { // the answer shows inside the button itself (a toast would cover the buttons)
       btn.classList.add("done"); lbl.textContent = "คัดลอกแล้ว";

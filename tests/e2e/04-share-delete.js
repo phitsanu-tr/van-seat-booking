@@ -5,15 +5,15 @@ const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,devic
 await p.goto(B+'/api/auth?start=1&as=Ann&r=%2F');await p.waitForTimeout(400);
 const tr=await (await p.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(45),meetPoint:'จุดนัดพบ',name:'ทดสอบรูป',organizer:'ทัวร์',startDate:HLP.day(45),departTime:'08:00',vans:[{label:'1'}]}})).json();const ID=tr.id;log('token in response?','token' in tr);
 await p.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'แอน'}});
-await p.goto(B+'/'+ID);await p.waitForTimeout(1200);log('mine tint',await p.locator('.seat.mine').count());
+await p.goto(B+'/'+ID+'/seats');await p.waitForTimeout(1200);log('mine tint',await p.locator('.seat.mine').count());
 await p.click('#shareImg');await p.waitForTimeout(2500);log('poster',await p.evaluate(()=>{const i=document.querySelector('#imgBackdrop img');return i?i.naturalWidth+'x'+i.naturalHeight:'none'}));
 const ext=await p.evaluate(()=>{const a=document.getElementById('imgExt')||document.querySelector('#imgBackdrop a[href*="img=1"]');return a?a.href:''});log('ext link',ext.replace(/mk=\w+/,'mk=…'));
 // share sheet on the edit page: link, LINE and booking buttons; tapping the link box copies it
-await p.goto(B+'/trips/'+ID);await p.waitForTimeout(1500);await p.click('#shareBtn');await p.waitForTimeout(500);
+await p.goto(B+'/'+ID+'/edit');await p.waitForTimeout(1500);await p.click('#shareBtn');await p.waitForTimeout(500);
 log('sheet',await p.textContent('#mState'),'|',(await p.textContent('#shareUrl')).replace(ID,'<id>').replace(ID.toUpperCase(),'<ID>'),'| line',(await p.getAttribute('#lineBtn','href')).includes(encodeURIComponent('/'+ID)),'| book',await p.getAttribute('#openShare','href')===('/'+ID));
 await p.click('#copyBox');await p.waitForTimeout(300);log('copied',await p.locator('#copyShare.ok').count());
 // delete from edit page (dialog in-page)
-await p.goto(B+'/trips/'+ID);await p.reload();await p.waitForTimeout(1500);await p.click('#delBtn');await p.waitForTimeout(400);
+await p.goto(B+'/'+ID+'/edit');await p.reload();await p.waitForTimeout(1500);await p.click('#delBtn');await p.waitForTimeout(400);
 const btns=await p.$$eval('button',bs=>bs.filter(x=>x.offsetParent&&/ลบทริป/.test(x.textContent)).map(x=>x.id||x.className));log('confirm btns',btns);
 await p.evaluate(()=>{const x=[...document.querySelectorAll('button')].filter(x=>x.offsetParent&&/ลบทริป/.test(x.textContent)&&x.id!=='delBtn');x[x.length-1].click()});await p.waitForTimeout(1500);
 await p.waitForURL(/\/trips$/,{timeout:8000});await p.waitForTimeout(900);log('toast after delete',await p.evaluate(()=>{const t=document.getElementById('toast');return t&&!t.hidden?t.textContent.trim()+' | bottom '+(getComputedStyle(t).top==='auto'||innerHeight-t.getBoundingClientRect().bottom>0):'none'}));

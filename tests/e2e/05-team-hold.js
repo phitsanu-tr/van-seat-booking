@@ -12,14 +12,14 @@ await A.click('.sheet .b-amber');await A.waitForTimeout(700);const url=await A.t
 // B (not signed in) opens invite link -> login view -> sign in -> joined
 const local=url.replace(/^https:\/\/liff\.line\.me\/[^/]+/,B);const jc=(url.match(/join=(\w+)/)||[])[1];
 const Bp=await ctx('Bob');await Bp.goto(local);await Bp.waitForTimeout(1000);log('B (anon, LINE) retry screen',await Bp.locator('text=เข้าสู่ระบบไม่สำเร็จ').count());
-await Bp.goto(B+'/api/auth?start=1&as=Bob&r='+encodeURIComponent('/home?join='+jc));await Bp.waitForTimeout(1500);log('B toast',await Bp.textContent('#toast'),'url',Bp.url());
+await Bp.goto(B+'/api/auth?start=1&as=Bob&r='+encodeURIComponent('/join/'+jc));await Bp.waitForTimeout(1500);log('B toast',await Bp.textContent('#toast'),'url',Bp.url());
 await Bp.screenshot({path:S+'/t3.png'});log('B role line',await Bp.textContent('.rolep').catch(()=>'none'));
 // helper rights
 log('B cancel Cat seat',(await Bp.request.fetch(B+'/api/seats?t='+ID+'&v=v1',{method:'DELETE',data:{seat:4}})).status());
 log('B PUT trip',(await Bp.request.fetch(B+'/api/trip',{method:'PUT',data:{t:ID,name:'ทริปทีม (แก้โดยผู้ช่วย)',startDate:HLP.day(45),tripN:1,tripStart:HLP.day(45),meetPoint:'จุดนัดพบ',vans:[{id:'v1',label:'1'}]}})).status());
 log('B DELETE trip',(await Bp.request.fetch(B+'/api/trip?t='+ID,{method:'DELETE'})).status());
 log('B invite',(await Bp.request.post(B+'/api/trip',{data:{t:ID,invite:true}})).status());
-await Bp.goto(B+'/trips/'+ID);await Bp.reload();await Bp.waitForTimeout(1500);log('B edit page delete zone hidden',await Bp.evaluate(()=>document.getElementById('dz').hidden),'name',await Bp.inputValue('#name'));
+await Bp.goto(B+'/'+ID+'/edit');await Bp.reload();await Bp.waitForTimeout(1500);log('B edit page delete zone hidden',await Bp.evaluate(()=>document.getElementById('dz').hidden),'name',await Bp.inputValue('#name'));
 // fill helpers to max
 const code=url.split('join=')[1];
 {const p=await user('Dan');log('Dan reuse used link',(await p.request.post(B+'/api/trip',{data:{join:code}})).status());}
@@ -32,13 +32,13 @@ await A.click('.rrow >> nth=1 >> text=โอนให้');await A.click('.rrow 
 const team=await (await A.request.get(B+'/api/trip?t='+ID)).json();log('after transfer A role',team.team.role,'owner',team.team.ownerName,'helpers',team.team.helpers.map(h=>h.name).join(','));
 log('A delete now',(await A.request.fetch(B+'/api/trip?t='+ID,{method:'DELETE'})).status());
 // hold
-const P=await ctx('anon');await P.goto(B+'/'+ID);await P.waitForTimeout(1000);
+const P=await ctx('anon');await P.goto(B+'/'+ID+'/seats');await P.waitForTimeout(1000);
 const h=await P.evaluate(async(id)=>{const r=await fetch('/api/seats?t='+id+'&v=v1',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({t:id,v:'v1',hold:2})});return [r.status,await r.json()]},ID);log('hold',h[0],!!h[1].hold);
-const Q=await user('Que');await Q.goto(B+'/'+ID);await Q.waitForTimeout(1200);log('Q sees held',await Q.locator('.seat.held').count());await Q.screenshot({path:S+'/t5.png'});
+const Q=await user('Que');await Q.goto(B+'/'+ID+'/seats');await Q.waitForTimeout(1200);log('Q sees held',await Q.locator('.seat.held').count());await Q.screenshot({path:S+'/t5.png'});
 log('Q book held seat',(await Q.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:2,name:'คิว'}})).status());
 await Q.click('.seat.held');await Q.waitForTimeout(300);await Q.screenshot({path:S+'/t6.png'});
 // full UI hold flow: anon R taps seat 6 -> login button -> hold -> back -> book
-const R=await ctx('Ron');await R.goto(B+'/'+ID);await R.waitForTimeout(1000);
+const R=await ctx('Ron');await R.goto(B+'/'+ID+'/seats');await R.waitForTimeout(1000);
 await R.evaluate(()=>[...document.querySelectorAll('.seat')].find(b=>b.getAttribute('aria-label').startsWith('ที่นั่ง 6')).click());await R.waitForTimeout(600);
 log('R anon tap: login button',await R.locator('#panel .lgbtn, #backdrop .lgbtn').count(),'hold stored',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));
 await R.goto(B+'/api/auth?start=1&as=Ron&r='+encodeURIComponent('/'+ID+'?seat=6'));await R.waitForTimeout(1800);log('R back panel',await R.textContent('#mTitle').catch(()=>'none'),'hold stored',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));

@@ -15,7 +15,7 @@ await P.request.post(B+'/api/me',{data:{read:'all'}});log('P after read all',awa
 await put('08:00');log('P after new notify',await inbox(P),'(expect 1 unread of 2)');
 await P.request.post(B+'/api/me',{data:{read:{t:ID}}});log('P after read trip',await inbox(P));
 // 3) bell updates on an open booking page without reload
-await Q.goto(B+'/'+ID+'?v=v1');await Q.waitForTimeout(1500);
+await Q.goto(B+'/'+ID+'/seats?v=v1');await Q.waitForTimeout(1500);
 log('no bell on booking page',await Q.locator('.vb-bell').count()===0);
 await Q.request.post(B+'/api/me',{data:{read:'all'}});
 await Q.reload();await Q.waitForTimeout(1500);log('banner hidden after read+reload',await Q.isHidden('#chgBan'));await Q.mouse.move(100,300);
@@ -40,5 +40,5 @@ await P.click('.ab.more');await P.waitForTimeout(200);await P.click('.pmenu .dgr
 await Q.goto(B+'/seats?f='+Date.now());await Q.waitForTimeout(1500);await Q.click('.ab.more');await Q.click('.pmenu button:first-child');await Q.waitForTimeout(400);
 log('Q single: picker',await Q.$$eval('.spick',e=>e.length),'prefill',await Q.inputValue('.sheet .nin'));await Q.screenshot({path:S+'/r4.png'});
 // 6) no dark css left
-for(const u of ['/','/home','/'+ID,'/trips/new','/privacy']){await Q.goto(B+u);await Q.waitForTimeout(500);log('dark rules',u,await Q.evaluate(()=>[...document.styleSheets].flatMap(s=>{try{return [...s.cssRules]}catch(e){return []}}).filter(r=>/dark/.test(r.cssText)).length));}
+for(const u of ['/','/home','/'+ID+'/seats','/new','/privacy']){await Q.goto(B+u);await Q.waitForTimeout(500);log('dark rules',u,await Q.evaluate(()=>[...document.styleSheets].flatMap(s=>{try{return [...s.cssRules]}catch(e){return []}}).filter(r=>/dark/.test(r.cssText)).length));}
 log('ERR',errs);await b.close();})();

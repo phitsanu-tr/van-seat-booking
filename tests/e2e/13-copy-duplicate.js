@@ -40,7 +40,7 @@ const nt=mine.find(t=>t.id!==ID);const full=await (await A.request.get(B+'/api/t
 log('new trip',JSON.stringify({vans:full.trip.vans.map(v=>v.label+(v.plate?'/'+v.plate:'')),max:full.trip.maxPerPerson,booked:full.booked,dates:full.trip.startDate===HLP.day(40)}));
 const old=await (await A.request.get(B+'/api/trip?t='+ID+'&roster=1')).json();log('original untouched',old.trip.startDate===HLP.day(20),old.booked);
 // --- someone else's trip can't be copied
-await P.goto(B+'/trips/new?copy='+ID);await P.waitForTimeout(1800);log('stranger copy: name empty',await P.inputValue('#name')==='','toast',await P.evaluate(()=>(document.querySelector('.toast')||{}).textContent||''));
+await P.goto(B+'/new?copy='+ID);await P.waitForTimeout(1800);log('stranger copy: name empty',await P.inputValue('#name')==='','toast',await P.evaluate(()=>(document.querySelector('.toast')||{}).textContent||''));
 // --- finished trip card
 const done=await (await A.request.post(B+'/api/trip',{data:{tripN:2,tripStart:HLP.day(-5),meetPoint:'จุดนัดพบ',name:'ทริปที่แล้ว',startDate:HLP.day(-5),endDate:HLP.day(-4),departTime:'06:00',vans:[{label:'A'}]}})).json();
 await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);

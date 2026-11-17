@@ -689,23 +689,23 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 <script>
 (function () {
   "use strict";
-  // links: /trips/new = create · /trips/<trip> = edit (owner or helper, checked by the LINE account)
+  // links: /new = create · /<trip>/edit = edit (owner or helper, checked by the LINE account)
   var q = new URLSearchParams(location.search);
   var T = "";
-  var pm = /^\/trips\/([a-z0-9]{3,16})\/?$/i.exec(location.pathname);
+  var pm = /^\/([a-hj-km-np-z2-9]{6,8})\/edit\/?$/i.exec(location.pathname);
   if (q.has("li") || q.has("le")) { try { q.delete("li"); q.delete("le"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q.toString() : "") + location.hash); } catch (e) {} }
-  if (pm && pm[1].toLowerCase() !== "new") T = pm[1].toLowerCase();
-  function editPath(id) { return "/trips/" + id; }
+  if (pm) T = pm[1].toLowerCase();
+  function editPath(id) { return "/" + id + "/edit"; }
   var editing = !!T;
   var revAtLoad = 0; // the trip's save counter when the form was filled (another organizer saving meanwhile is refused, not overwritten)
   var closedAtLoad = false; // the trip's "closed" flag when the form was filled
-  var creating = /^\/trips\/new\/?$/.test(location.pathname);
+  var creating = /^\/new\/?$/.test(location.pathname);
   var vansEl = document.getElementById("vans");
   var rows = []; // [{id, label}]
   var busy = false;
   var CK = (function () { var a = "", c = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"; for (var i = 0; i < 20; i++) a += c[Math.floor(Math.random() * c.length)]; return a; })();
   var loadedCloseAt = ""; // the trip's closing time when the form opened (a past time is fine if it was not changed)
-  var COPY = /^[a-z0-9]{3,16}$/i.test(q.get("copy") || "") ? q.get("copy").toLowerCase() : ""; // /trips/new?copy=<trip>: start from an existing trip
+  var COPY = /^[a-z0-9]{3,16}$/i.test(q.get("copy") || "") ? q.get("copy").toLowerCase() : ""; // /new?copy=<trip>: start from an existing trip
 
   function $(id) { return document.getElementById(id); }
   // trip days: "เดย์ทริป" or "ค้างคืน" + number of days (nights follow: days − 1) + the first day; required, except on an old trip saved without them
@@ -987,7 +987,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     xb.addEventListener("click", dismiss);
     function btn(cls, label, fn) { var b = document.createElement("button"); b.type = "button"; b.className = "btn " + cls; b.textContent = label; b.style.width = "100%"; b.addEventListener("click", fn); act.appendChild(b); return b; }
-    var next = editing ? editPath(T) : "/trips/new";
+    var next = editing ? editPath(T) : "/new";
     if (PL.passes > 0 && !PL.plus) {
       btn("primary", "ใช้ตั๋วรายทริป 1 ใบ (มี " + PL.passes + " ใบ)", async function (e) {
         var b = e.currentTarget; b.disabled = true;
@@ -1033,9 +1033,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   });
   function showResult(id, created, name) {
     shown = { id: id }; goList = created === true || created === "saved";
-    var share = shareLink = link("/" + id);
-    urlBox($("shareUrl"), id, location.host + "/" + id);
-    $("openShare").href = "/" + id;
+    var share = shareLink = link("/" + id + "/seats");
+    urlBox($("shareUrl"), id, location.host + "/" + id + "/seats");
+    $("openShare").href = "/" + id + "/seats";
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์และรหัสทริป") + "</span>";
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
     $("mSub").textContent = created === "saved" ? "ใช้ลิงก์หรือรหัสเดิมได้เลย" : "แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง"; $("mSub2").hidden = true;
@@ -1056,7 +1056,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (!backToList || !shown) return;
     e.preventDefault();
     try { sessionStorage.setItem("vsb_back_list", "1"); history.replaceState(null, "", "/trips"); } catch (x) {}
-    location.href = "/" + shown.id;
+    location.href = "/" + shown.id + "/seats";
   });
   window.addEventListener("pageshow", function () { // came Back to this page (bfcache): go on to my trips
     var f = null; try { f = sessionStorage.getItem("vsb_back_list"); sessionStorage.removeItem("vsb_back_list"); } catch (x) {}
@@ -1219,7 +1219,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var map = { bad_name: "name", bad_date: "startDate", bad_time: "departTime", bad_meet: "meetPoint", bad_tripdays: "tds", bad_timepast: "departTime", bad_pastdate: "startDate", bad_far: "startDate", bad_daytrip: "endDate", bad_daydepart: "startDate", bad_daytime: "returnTime", bad_departgap: "startDate", bad_returngap: "endDate", bad_tripstart: "startDate", bad_tripend: "endDate", bad_close: "closeDate" };
         if (map[data.error]) { focusFirst(fieldErr($(map[data.error]), ERR[data.error])); }
         else if (data.error === "bad_vans") { var v0 = vansEl.querySelector("input.vn"); if (v0) { fieldErr(v0, ERR.bad_vans, v0.closest(".vf")); focusFirst(v0); } else toast(ERR.bad_vans); }
-        else if (data.error === "login_required") location.href = "/api/auth?start=1&r=" + encodeURIComponent("/trips/new");
+        else if (data.error === "login_required") location.href = "/api/auth?start=1&r=" + encodeURIComponent("/new");
         else if (data.error === "plan_trips") { PL.trips = data.limit; if (data.passes !== undefined) PL.passes = data.passes; planSheet("trips"); }
         else if (data.error === "plan_vans") planSheet("vans");
         else if (data.error === "plan_date") { PL.maxStart = data.max; if (data.passes !== undefined) PL.passes = data.passes; planSheet("date"); }
@@ -1425,7 +1425,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var who3 = await (await fetch("/api/auth?me=1", { cache: "no-store" })).json();
         if (!who3 || !who3.user) {
           var q3 = new URLSearchParams(location.search); q3.delete("le"); q3.delete("li");
-          location.replace("/home?for=new" + (q.has("le") ? "&le=" + encodeURIComponent(q.get("le")) : "") + "&r=" + encodeURIComponent("/trips/new" + (q3.toString() ? "?" + q3 : "")));
+          location.replace("/home?for=new" + (q.has("le") ? "&le=" + encodeURIComponent(q.get("le")) : "") + "&r=" + encodeURIComponent("/new" + (q3.toString() ? "?" + q3 : "")));
           return;
         }
       } catch (e) {}
@@ -1439,7 +1439,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var data = await res.json();
         if (!res.ok && res.status === 403) { // sign in first; signed in as someone else -> say so (no redirect loop)
           var who2 = null; try { who2 = (await (await fetch("/api/auth?me=1", { cache: "no-store" })).json()).user; } catch (e) {}
-          if (!who2) { location.replace("/api/auth?start=1&r=" + encodeURIComponent("/trips/" + T)); return; }
+          if (!who2) { location.replace("/api/auth?start=1&r=" + encodeURIComponent("/" + T + "/edit")); return; }
           toast("ทริปนี้อยู่ในบัญชี LINE อื่น เข้าสู่ระบบด้วยบัญชีที่สร้างทริป", true); $("submit").disabled = true; return;
         }
         if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
