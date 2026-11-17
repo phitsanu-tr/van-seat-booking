@@ -157,6 +157,7 @@ body.sk .skf { display: block; }
 .skpage { display: none; flex-direction: column; gap: 16px; }
 body.sk .skpage { display: flex; }
 body.sk main > :not(.skpage):not(.vfoot):not(#tripHdr) { display: none; }
+body.sk .vfoot { visibility: hidden; } /* the footer appears together with the page, not before it (keeps its space, so nothing jumps) */
 body.sk #tripHdr > :not(.hero) { display: none; }
 .skpage .skh { display: none; }
 .skpage .skf { display: block; margin-top: 0; }
