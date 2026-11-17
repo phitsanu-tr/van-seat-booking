@@ -124,7 +124,6 @@ header.trip { display: block; }
 #notice:empty { display: none; }
 .tip { margin: 4px 4px 0; background: color-mix(in srgb, var(--mine) 10%, var(--surface)); border-radius: 12px; padding: 8px 12px; display: flex; gap: 8px; align-items: center; font-size: 14px; line-height: 20px; }
 .tip b { font-weight: 600; color: var(--deep); }
-.list .tip { margin: 16px 16px 4px; }
 .tip svg { flex: none; width: 16px; height: 16px; color: var(--mine); }
 .fullbar { margin: 12px 8px 0; background: color-mix(in srgb, var(--sel) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--sel) 42%, var(--surface)); border-radius: 12px; padding: 12px 12px; display: flex; gap: 12px; align-items: center; justify-content: space-between; font-size: 14px; line-height: 20px; }
 .fullbar .ft { min-width: 0; }
@@ -370,16 +369,15 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .vsw button:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 .list h2 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .list h2 small { font-family: var(--font-body); font-size: 12px; font-weight: 400; color: var(--muted); line-height: 16px}
-.list li.bk { display: flex; align-items: center; gap: 12px; padding: 12px 28px; border-bottom: 0; }
+.list li.bk { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
 .list li.bk .sn { flex: none; width: 32px; height: 32px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font: 600 14px/20px var(--font-display); background: color-mix(in srgb, var(--ink) 7%, var(--surface)); font-variant-numeric: tabular-nums; }
 .list li.bk .w { flex: 1; min-width: 0; font-weight: 600; font-size: 16px; line-height: 24px}
 .list li.bk .w .at .nw { white-space: nowrap; }
 .list li.bk .w .at { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; line-height: 16px; color: var(--muted); white-space: normal; font-variant-numeric: tabular-nums; }
 .list li.bk .me { flex: none; font-size: 12px; font-weight: 600; color: var(--mine); background: color-mix(in srgb, var(--mine) 14%, transparent); border-radius: 1000px; padding: 2px 12px; line-height: 16px; white-space: nowrap}
-.list li.mine-row { background: color-mix(in srgb, var(--mine) 8%, var(--surface)); margin: 8px 16px 4px; padding: 8px 12px; border-radius: 12px; }
+.list li.mine-row { background: color-mix(in srgb, var(--mine) 8%, var(--surface)); }
 .list li.mine-row .sn { background: var(--mine); color: var(--mine-ink); }
-.list li.none, .list li.free { display: block; padding: 12px 28px; font-size: 14px; color: var(--muted); line-height: 20px}
-.list li.free { border-top: 1px solid var(--line); margin-top: 4px; }
+.list li.none, .list li.free { display: block; padding: 12px 16px; font-size: 14px; color: var(--muted); line-height: 20px}
 .list li.free b { color: var(--ink); font-weight: 600; margin-right: 8px; }
 .list h2 { font-family: var(--font-display); font-size: 16px; font-weight: 500; margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--line); line-height: 24px}
 .list ul { list-style: none; margin: 0; padding: 0; }
@@ -583,7 +581,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   </div>
 
   <section class="list" id="listView" hidden>
-    <div class="tip" id="listTip"></div>
+    <h2><span id="listTitle"></span><small id="listSub"></small></h2>
     <ul id="list"></ul>
   </section>
   </section>
@@ -1131,12 +1129,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     listEl.textContent = "";
     var booked = [], free = [];
     for (var n = 1; n <= TOTAL; n++) { if (seats[n]) booked.push(n); else free.push(n); }
-    var lt = document.getElementById("listTip"); lt.textContent = ""; lt.appendChild(icon(PEOPLE_ICON));
-    var lw = el("span");
-    if (!loaded) lw.textContent = "กำลังโหลด…";
-    else if (!booked.length) lw.textContent = "ยังไม่มีคนจอง · ว่างทั้งหมด " + TOTAL + " ที่นั่ง";
-    else { lw.appendChild(document.createTextNode("จองแล้ว ")); lw.appendChild(el("b", null, String(booked.length))); lw.appendChild(document.createTextNode(" คน" + (free.length ? " · เหลือ " + free.length + " ที่นั่ง" : " · เต็มแล้ว"))); }
-    lt.appendChild(lw);
+    document.getElementById("listTitle").textContent = booked.length ? "จองแล้ว " + booked.length + " คน" : "ยังไม่มีคนจอง";
+    document.getElementById("listSub").textContent = !loaded ? "" : free.length === 0 ? "เต็มแล้ว" : booked.length ? "เหลือ " + free.length + " ที่นั่ง" : "ว่างทั้งหมด " + TOTAL + " ที่นั่ง";
     booked.forEach(function (n) {
       var m = mine(n);
       var li = el("li", "bk" + (m ? " mine-row" : ""));
@@ -1263,7 +1257,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     renderAll(); refresh(true);
   }
 
-  var PEOPLE_ICON = "M9 4.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7M18 14.8c2 .7 3.5 2.3 3.5 5";
   var HAND_PATH = "M9 11V5a1.5 1.5 0 013 0v5m0-1a1.5 1.5 0 013 0v2m0-.5a1.5 1.5 0 013 0V15a6 6 0 01-6 6h-1a6 6 0 01-5-2.7L4 14a1.5 1.5 0 012.5-1.6L9 15";
   var ARROW_PATH = "M9 6l6 6-6 6";
   function icon(d) {
