@@ -8,7 +8,7 @@ back again {"hash":"#info","info":true,"tab":"swInfo","deck":false,"facts":true}
 second visit {"hash":"","info":false,"tab":"swMap","deck":true,"facts":false}
 roster button {"hash":"","info":false,"tab":"swList","deck":true,"facts":false} list shown true
 booked 200
-details with my seat ดูที่นั่งของฉัน จองแล้ว · ที่ 3
+details with my seat ดูที่นั่งของฉัน จองแล้ว 1 ที่นั่ง
 organizer first visit {"hash":"","info":false,"tab":"swMap","deck":true,"facts":false}
 link with ?v {"hash":"","info":false,"tab":"swMap","deck":true,"facts":false}
 holds a seat {"hash":"","info":false,"tab":"swMap","deck":true,"facts":false}

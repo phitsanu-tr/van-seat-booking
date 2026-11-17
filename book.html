@@ -1108,7 +1108,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     fetch("/api/me", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
       var t = ((d && d.seats) || []).filter(function (x) { return x.id === TRIP; })[0];
       var multi = trip && trip.vans && trip.vans.length > 1;
-      mineLine = t && t.seats && t.seats.length ? t.seats.map(function (x) { return (multi ? "คัน " + x.vanLabel + " " : "") + "ที่ " + x.seat; }).join(", ") : "";
+      var ms = (t && t.seats) || [], mv = [];
+      ms.forEach(function (x) { if (mv.indexOf(x.vanLabel) < 0) mv.push(x.vanLabel); });
+      // "จองแล้ว 3 ที่นั่ง" (+ "· คัน A" or "· 2 คัน" on a multi-van trip): a count never overflows the button, the map shows which seats
+      mineLine = ms.length ? "จองแล้ว " + ms.length + " ที่นั่ง" + (multi ? (mv.length > 1 ? " · " + mv.length + " คัน" : " · คัน " + mv[0]) : "") : "";
       if (trip) renderTrip();
     }).catch(function () { mineLoaded = false; });
   }
@@ -1269,7 +1272,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ]);
     // main button: wording follows the viewer's state (has a seat / seats left / full)
     var gs = document.getElementById("goSeats"), gl = "ดูผังที่นั่ง", gsub = "";
-    if (mineLine) { gl = "ดูที่นั่งของฉัน"; gsub = "จองแล้ว · " + mineLine; }
+    if (mineLine) { gl = "ดูที่นั่งของฉัน"; gsub = mineLine; }
     else if (trip.vans.length && rest > 0) { gl = "เลือกที่นั่ง"; gsub = "ว่าง " + rest + " จาก " + tot + " ที่นั่ง"; }
     gs.textContent = ""; gs.className = "ipri" + (gsub ? " two" : "");
     gs.appendChild(el("span", null, gl)); if (gsub) gs.appendChild(el("small", null, gsub));
