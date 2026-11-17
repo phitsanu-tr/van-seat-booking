@@ -403,7 +403,6 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 /* trip card: chips (span + vans), two time boxes (ขาไป / ขากลับ), meeting point; the organizer sits above the seat map */
 .facts .two { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: start; gap: 8px; background: #f6f8f9; border-radius: 12px; padding: 12px; }
 .facts .two .sw { width: 32px; height: 32px; margin: 0; align-self: center; color: var(--mine); }
-.facts .fhead + .meet { border-top: 0; padding-top: 0; }
 .facts .two:not(.one) .bx:last-child { text-align: right; }
 .facts .two.chg { background: #fdf0dd; }
 .facts .two.one { grid-template-columns: 1fr; }
@@ -1188,7 +1187,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var t = el("div"); t.appendChild(el("span", "mk", label)); t.appendChild(el("span", cls || "fv", value));
       row.appendChild(t); return row;
     }
-    if (trip.tripDays) { var yy = ""; var t0 = parseD(trip.tripStart); if (t0) yy = " " + String(new Date(t0.y - 543, t0.mo, t0.d + Math.max(0, (Number(trip.tripN) || 1) - 1)).getFullYear() + 543).slice(-2); factsEl.appendChild(infoRow("cal", "ระยะเวลา", trip.tripDays + yy)); }
     // two boxes: label, time big, day small. A box without a time shows the day big instead.
     function box(label, iso, tm, chgKey) {
       if (!iso && !tm) return null;
@@ -1208,6 +1206,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (back) two.appendChild(back);
       factsEl.appendChild(two);
     }
+    if (trip.tripDays) { var yy = ""; var t0 = parseD(trip.tripStart); if (t0) yy = " " + String(new Date(t0.y - 543, t0.mo, t0.d + Math.max(0, (Number(trip.tripN) || 1) - 1)).getFullYear() + 543).slice(-2); factsEl.appendChild(infoRow("cal", "ระยะเวลา", trip.tripDays + yy)); }
     if (trip.meetPoint) {
       var mp = el("div", "meet"); mp.setAttribute("role", "listitem"); mp.appendChild(svgIcon("pin"));
       var mt = el("div"); mt.appendChild(el("span", "mk", "จุดนัดพบ"));
