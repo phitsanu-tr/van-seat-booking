@@ -90,9 +90,9 @@
       gh("กำหนดการเดินทาง", !body.length).forEach(function (x) { body.push(x); });
       var card = []; // one grey box: the times, then (under a hairline) the meeting point
       if (hasTime) card.push({ type: "box", layout: "horizontal", paddingAll: "12px", contents: [
-        half("เดินทางไป", t.departTime, short(t.startDate), false, nightBefore),
+        half("เดินทางไป", t.departTime ? t.departTime + " น." : "", short(t.startDate), false, nightBefore),
         { type: "image", url: ORIGIN + "/swap-icon.png", size: "20px", aspectRatio: "1:1", aspectMode: "fit", flex: 0, gravity: "center", margin: "8px" },
-        half("เดินทางกลับ", t.returnTime, short(t.endDate || t.startDate), true)] });
+        half("เดินทางกลับ", t.returnTime ? t.returnTime + " น." : "", short(t.endDate || t.startDate), true)] });
       if (t.meetPoint) {
         if (hasTime) card.push({ type: "box", layout: "vertical", paddingStart: "12px", paddingEnd: "12px", contents: [{ type: "separator", color: "#dfe5e8" }] }); // inset hairline, not edge to edge
         card.push({ type: "box", layout: "vertical", paddingAll: "12px", contents: [
