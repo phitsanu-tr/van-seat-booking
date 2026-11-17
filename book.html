@@ -1593,6 +1593,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       return true;
     } catch (e) { return false; }
   }
+  function thaiScale(t) { var th = (t.match(/[\u0E00-\u0E7F]/g) || []).length, la = (t.match(/[A-Za-z]/g) || []).length; return th >= la ? 1.1 : 1; }
   function drawSeats(ctx, PX, PY, k, PW) {
     for (var n = 1; n <= TOTAL; n++) {
       var rc = RECT[n], s = seats[n], bx = PX + rc[0] * k, by = PY + rc[1] * k, bw = rc[2] * k, bh = rc[3] * k;
@@ -1605,7 +1606,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!s) { // free seat: number in the corner like a booked one, "ว่าง" centred
         var nz0 = Math.max(26 * k, 21);
         ctx.fillStyle = INK; ctx.font = '500 ' + nz0 + 'px Prompt, "Noto Sans Thai", sans-serif'; ctx.textAlign = "right"; ctx.fillText(String(n), bx + bw - 12 * k, by + 9 * k + 0.74 * nz0); ctx.textAlign = "center";
-        var vz = Math.max(40 * k, 32); ctx.fillStyle = "#8a959b"; ctx.font = '500 ' + vz + 'px "Noto Sans Thai", sans-serif'; // same size as a name, soft grey so it reads as empty
+        var vz = Math.max(40 * k, 32) * 1.1; ctx.fillStyle = "#8a959b"; ctx.font = '500 ' + vz + 'px "Noto Sans Thai", sans-serif'; // same size as a name, soft grey so it reads as empty
         fillC(ctx, "ว่าง", bx + bw / 2, by + bh / 2 + vz * 0.32);
         continue;
       }
@@ -1618,13 +1619,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var hide = !isOwner && !isMine; // a passenger's picture never shows other people's names
       var seatName = hide ? "จองแล้ว" : s.name;
       var maxW = bw - 16 * k, nameSize = 0, lines = [], words = seatName.split(/\s+/);
-      var tiers = [Math.max(40 * k, 32), Math.max(32 * k, 26), Math.max(26 * k, 22), Math.max(21 * k, 19)];
+      var sc = thaiScale(seatName); // Thai glyphs sit lower than Latin at the same size, so Thai names get a little more
+      var tiers = [Math.max(40 * k, 32) * sc, Math.max(32 * k, 26) * sc, Math.max(26 * k, 22) * sc, Math.max(21 * k, 19) * sc];
       for (var ti = 0; ti < tiers.length; ti++) {
         nameSize = tiers[ti];
         ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
         if (words.every(function (w) { return ctx.measureText(w).width <= maxW; }) && wrapText(ctx, seatName, maxW, 4).length <= (ti < 3 ? 2 : 3)) break;
       }
-      while (nameSize > 15) {
+      while (nameSize > 15 * sc) {
         ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
         if (words.every(function (w) { return ctx.measureText(w).width <= maxW; })) break;
         nameSize -= 0.5;
