@@ -401,19 +401,16 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 .deck { border-color: #e8ecef; }
 .facts .fhead { border-bottom-color: #e8ecef; padding-bottom: 12px; }
 /* trip card: chips (span + vans), two time boxes (ขาไป / ขากลับ), meeting point; the organizer sits above the seat map */
-.facts .fchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: -4px; }
-.facts .fchip { display: inline-flex; align-items: center; gap: 4px; border-radius: 100px; padding: 2px 12px; font-size: 12px; line-height: 20px; font-weight: 600; background: #eef2f4; color: #4a5560; }
-.facts .fchip.span { background: #e4f3f4; color: var(--deep); }
-.facts .fchip.seat { background: #e4f3f4; color: var(--deep); }
-.facts .fchip.full { background: #fdf0dc; color: #b86e00; }
-.facts .fchip svg { width: 13px; height: 13px; margin: 0; color: inherit; }
-.facts .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.facts .two { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: start; gap: 8px; background: #f6f8f9; border-radius: 12px; padding: 12px; }
+.facts .two .sw { width: 32px; height: 32px; margin: 0; align-self: center; color: var(--mine); }
+.facts .fhead + .meet { border-top: 0; padding-top: 0; }
+.facts .two:not(.one) .bx:last-child { text-align: right; }
+.facts .two.chg { background: #fdf0dd; }
 .facts .two.one { grid-template-columns: 1fr; }
-.facts .bx { display: block; background: #f6f8f9; border-radius: 12px; padding: 12px; min-width: 0; }
+.facts .bx { display: block; min-width: 0; }
 .facts .bx .bk { display: block; font-size: 12px; line-height: 16px; color: var(--muted); }
 .facts .bx .bt { display: block; font: 600 20px/28px var(--font-display); color: var(--ink); margin: 4px 0; overflow-wrap: anywhere; }
 .facts .bx .bd2 { display: block; font-size: 12px; line-height: 16px; color: #4a5560; }
-.facts .bx.chg { background: #fdf0dd; }
 .facts .bx.chg .bt, .facts .bx.chg .bd2 { color: #b86e00; }
 .facts .meet { display: flex; gap: 12px; align-items: flex-start; padding-top: 12px; border-top: 1px solid #e8ecef; }
 .facts .meet svg { margin-top: 2px; }
@@ -1171,7 +1168,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var IC = {
       van: '<path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/>',
       pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
-      usr: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3-6 7-6s7 2.4 7 6"/>'
+      usr: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3-6 7-6s7 2.4 7 6"/>',
+      cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+      swap: '<path d="M4 8h16M16 4l4 4-4 4M20 16H4M8 12l-4 4 4 4"/>'
     };
     function svgIcon(k, sz) {
       var ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg");
@@ -1183,11 +1182,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var fh = el("div", "fhead");
     fh.appendChild(el("div", "ftitle", trip.name));
     factsEl.appendChild(fh);
-    // chips: how many days (with dates) + how many vans
-    var chips = el("div", "fchips"); chips.setAttribute("role", "listitem");
-    if (trip.tripDays) { var yy = ""; var t0 = parseD(trip.tripStart); if (t0) yy = " " + String(new Date(t0.y - 543, t0.mo, t0.d + Math.max(0, (Number(trip.tripN) || 1) - 1)).getFullYear() + 543).slice(-2); chips.appendChild(el("span", "fchip span", trip.tripDays + yy)); }
-    if (trip.vans.length) { var vc = el("span", "fchip"); vc.appendChild(svgIcon("van")); vc.appendChild(document.createTextNode(trip.vans.length + " คัน")); chips.appendChild(vc); }
-    if (chips.childNodes.length) factsEl.appendChild(chips);
+    // duration row: how many days (with dates)
+    function infoRow(icon, label, value, cls) {
+      var row = el("div", "meet"); row.setAttribute("role", "listitem"); row.appendChild(svgIcon(icon));
+      var t = el("div"); t.appendChild(el("span", "mk", label)); t.appendChild(el("span", cls || "fv", value));
+      row.appendChild(t); return row;
+    }
+    if (trip.tripDays) { var yy = ""; var t0 = parseD(trip.tripStart); if (t0) yy = " " + String(new Date(t0.y - 543, t0.mo, t0.d + Math.max(0, (Number(trip.tripN) || 1) - 1)).getFullYear() + 543).slice(-2); factsEl.appendChild(infoRow("cal", "ระยะเวลา", trip.tripDays + yy)); }
     // two boxes: label, time big, day small. A box without a time shows the day big instead.
     function box(label, iso, tm, chgKey) {
       if (!iso && !tm) return null;
@@ -1198,11 +1199,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (chgKey === "time" && iso && trip.tripStart && iso < trip.tripStart) d.appendChild(el("span", "bd3", "ออกคืนก่อนวันเริ่มทริป"));
       return d;
     }
-    var go = box("ขาไป", trip.startDate, trip.departTime, "time");
-    var back = box("ขากลับ", trip.endDate || trip.startDate, trip.returnTime, "rtime");
+    var go = box("เดินทางไป", trip.startDate, trip.departTime, "time");
+    var back = box("เดินทางกลับ", trip.endDate || trip.startDate, trip.returnTime, "rtime");
     if (go || back) {
-      var two = el("div", "two" + (go && back ? "" : " one"));
+      var two = el("div", "two" + (go && back ? "" : " one") + (CHG.date || CHG.time || CHG.rtime ? " chg" : ""));
       if (go) two.appendChild(go);
+      if (go && back) { var sw = svgIcon("swap"); sw.setAttribute("class", "sw"); two.appendChild(sw); }
       if (back) two.appendChild(back);
       factsEl.appendChild(two);
     }
@@ -1212,20 +1214,15 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       mt.appendChild(el("span", CHG.meet ? "fv chg" : "fv", trip.meetPoint));
       mp.appendChild(mt); factsEl.appendChild(mp);
     }
-    if (trip.organizer) {
-      var og = el("div", "meet"); og.setAttribute("role", "listitem"); og.appendChild(svgIcon("usr"));
-      var ogt = el("div"); ogt.appendChild(el("span", "mk", "ผู้จัด")); ogt.appendChild(el("span", "fv", trip.organizer));
-      og.appendChild(ogt); factsEl.appendChild(og);
-    }
     var tot = trip.vans.length * TOTAL, booked = 0;
     trip.vans.forEach(function (v) { booked += counts[v.id] != null ? counts[v.id] : (v.id === curVan ? Object.keys(seats).length : 0); });
     var rest = tot - booked;
-    if (!mineLine) { // your own seat is not repeated here; only the seats-left status shows before you book
-      var sc = el("span", "fchip " + (rest <= 0 ? "full" : "seat"));
-      sc.textContent = booked === 0 ? "ว่างทั้งหมด " + tot + " ที่นั่ง" : rest <= 0 ? "เต็มแล้ว" : "เหลือ " + rest + " ที่นั่ง";
-      chips.appendChild(sc);
+    if (trip.vans.length) {
+      var vtxt = trip.vans.length + " คัน";
+      if (!mineLine) vtxt += " · " + (booked === 0 ? "ว่างทั้งหมด " + tot + " ที่นั่ง" : rest <= 0 ? "เต็มแล้ว" : "เหลือ " + rest + " ที่นั่ง"); // your own seat is not repeated here
+      factsEl.appendChild(infoRow("van", "รถตู้", vtxt));
     }
-    if (!chips.parentNode) factsEl.appendChild(chips);
+    if (trip.organizer) factsEl.appendChild(infoRow("usr", "ผู้จัด", trip.organizer));
     document.getElementById("infoAct").hidden = false; document.getElementById("infoShare").hidden = false;
     if (infoMode() && me && !mineLoaded) loadMine(); // signed in after the page opened on the details
     factsEl.hidden = false;
