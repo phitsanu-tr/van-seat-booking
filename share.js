@@ -107,8 +107,8 @@
       body.push({ type: "box", layout: "vertical", margin: "8px", backgroundColor: "#f6f8f9", cornerRadius: "12px", contents: card });
     }
     return { type: "bubble", size: "mega", header: head,
-      body: { type: "box", layout: "vertical", paddingAll: "12px", paddingBottom: "8px", contents: body },
-      footer: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "8px", contents: [{ type: "button", style: "primary", color: "#0b5f67", height: "sm",
+      body: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "4px", paddingBottom: "8px", contents: body },
+      footer: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "4px", contents: [{ type: "button", style: "primary", color: "#0b5f67", height: "sm",
         action: { type: "uri", label: "ดูรายละเอียดทริป", uri: liffUrl(t.id, "info") } }] } };
   }
   var ready = null;
