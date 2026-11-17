@@ -124,7 +124,6 @@ header.trip { display: block; }
 #notice:empty { display: none; }
 .tip { margin: 4px 4px 0; background: color-mix(in srgb, var(--mine) 10%, var(--surface)); border-radius: 12px; padding: 8px 12px; display: flex; gap: 8px; align-items: center; font-size: 14px; line-height: 20px; }
 .tip b { font-weight: 600; color: var(--deep); }
-.facts .tip { align-items: center; margin: 0 0 4px; }
 .list .tip { margin: 16px 16px 4px; }
 .tip svg { flex: none; width: 16px; height: 16px; color: var(--mine); }
 .fullbar { margin: 12px 8px 0; background: color-mix(in srgb, var(--sel) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--sel) 42%, var(--surface)); border-radius: 12px; padding: 12px 12px; display: flex; gap: 12px; align-items: center; justify-content: space-between; font-size: 14px; line-height: 20px; }
@@ -406,6 +405,9 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 .facts .fchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: -4px; }
 .facts .fchip { display: inline-flex; align-items: center; gap: 4px; border-radius: 100px; padding: 2px 12px; font-size: 12px; line-height: 20px; font-weight: 600; background: #eef2f4; color: #4a5560; }
 .facts .fchip.span { background: #e4f3f4; color: var(--deep); }
+.facts .fchip.seat { background: #e4f3f4; color: var(--deep); }
+.facts .fchip.mine { background: var(--mine); color: var(--mine-ink); }
+.facts .fchip.full { background: #fdf0dc; color: #b86e00; }
 .facts .fchip svg { width: 13px; height: 13px; margin: 0; color: inherit; }
 .facts .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .facts .two.one { grid-template-columns: 1fr; }
@@ -1224,13 +1226,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     var tot = trip.vans.length * TOTAL, booked = 0;
     trip.vans.forEach(function (v) { booked += counts[v.id] != null ? counts[v.id] : (v.id === curVan ? Object.keys(seats).length : 0); });
-    var rest = tot - booked, itip = el("div", "tip"), iw = el("span");
-    itip.appendChild(icon(SEATS_ICON));
-    if (mineLine) { iw.appendChild(document.createTextNode(mineLine.indexOf("ที่") === 0 ? "คุณจอง" : "คุณจอง ")); iw.appendChild(el("b", null, mineLine)); iw.appendChild(document.createTextNode(" แล้ว")); }
-    else if (booked === 0) iw.appendChild(document.createTextNode("ว่างทั้งหมด " + tot + " ที่นั่ง"));
-    else if (rest <= 0) iw.appendChild(el("b", null, "เต็มแล้ว"));
-    else { iw.appendChild(document.createTextNode("เหลือ ")); iw.appendChild(el("b", null, String(rest))); iw.appendChild(document.createTextNode(" ที่นั่ง จากทั้งหมด " + tot)); }
-    itip.appendChild(iw); factsEl.insertBefore(itip, factsEl.firstChild);
+    var rest = tot - booked, sc = el("span", "fchip " + (mineLine ? "mine" : rest <= 0 ? "full" : "seat"));
+    sc.textContent = mineLine ? "คุณจอง" + (mineLine.indexOf("ที่") === 0 ? "" : " ") + mineLine : booked === 0 ? "ว่างทั้งหมด " + tot + " ที่นั่ง" : rest <= 0 ? "เต็มแล้ว" : "เหลือ " + rest + " ที่นั่ง";
+    chips.appendChild(sc); if (!chips.parentNode) factsEl.appendChild(chips);
     document.getElementById("infoAct").hidden = false; document.getElementById("infoShare").hidden = false;
     if (infoMode() && me && !mineLoaded) loadMine(); // signed in after the page opened on the details
     factsEl.hidden = false;
@@ -1265,7 +1263,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     renderAll(); refresh(true);
   }
 
-  var SEATS_ICON = "M6 3h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2zM8 7h3v3H8zM13 7h3v3h-3zM8 14h3v3H8zM13 14h3v3h-3z";
   var PEOPLE_ICON = "M9 4.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7M18 14.8c2 .7 3.5 2.3 3.5 5";
   var HAND_PATH = "M9 11V5a1.5 1.5 0 013 0v5m0-1a1.5 1.5 0 013 0v2m0-.5a1.5 1.5 0 013 0V15a6 6 0 01-6 6h-1a6 6 0 01-5-2.7L4 14a1.5 1.5 0 012.5-1.6L9 15";
   var ARROW_PATH = "M9 6l6 6-6 6";
