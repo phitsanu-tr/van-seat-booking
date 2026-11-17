@@ -177,6 +177,12 @@ body.sk #tripHdr > :not(.hero) { display: none; }
 .invite .x { flex: none; width: 24px; height: 28px; margin-left: -8px; border: 0; background: transparent; color: var(--muted); font-size: 18px; line-height: 18px; cursor: pointer; }
 @media (max-width: 340px) { .invite .tx small { display: none; } }
 .shbtn:disabled { opacity: .6; cursor: default; }
+/* while the picture is being made: a spinner and one line, the small line steps aside */
+.shbtn.busy { flex-direction: row; gap: 8px; }
+.shbtn.busy small { display: none; }
+.shbtn.busy::before { content: ""; width: 12px; height: 12px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: shspin .7s linear infinite; flex: none; }
+@keyframes shspin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .shbtn.busy::before { animation-duration: 2s; } }
 /* press feedback: the button sinks a little and darkens while a finger is on it (details pair + seat-map pair) */
 .infoact .ibtns button, .shbtn { transition: transform .08s ease, filter .08s ease; -webkit-tap-highlight-color: transparent; }
 .infoact .ibtns button:active, .shbtn:active:not(:disabled) { transform: scale(.97); filter: brightness(.9); }
@@ -1782,7 +1788,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   async function openImg() {
     if (!trip || !loaded) return;
     var lbl = shareBtn.querySelector("span"), label = lbl.textContent;
-    shareBtn.disabled = true; lbl.textContent = "กำลังสร้างรูป...";
+    shareBtn.disabled = true; shareBtn.classList.add("busy"); lbl.textContent = "กำลังสร้างรูป";
     try {
       var qrOk = await loadQr();
       await loadFonts();
@@ -1806,7 +1812,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     } catch (e) {
       showToast("สร้างรูปไม่สำเร็จ ลองอีกครั้ง", "error");
     }
-    shareBtn.disabled = false; lbl.textContent = label;
+    shareBtn.disabled = false; shareBtn.classList.remove("busy"); lbl.textContent = label;
   }
   function copyText(u, done, fail) {
     function legacy() {
