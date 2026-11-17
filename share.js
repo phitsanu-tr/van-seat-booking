@@ -81,7 +81,7 @@
     if (t.organizer) g1.push(irow("ผู้จัด", t.organizer));
     if (tdp[0]) g1.push(irow("รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]));
     var ty = /^(\d{4})-/.exec(String(t.tripStart || t.startDate || "")); // add the Buddhist-era year only when the trip is not in the current year
-    if (tdp[1]) g1.push(irow("วันที่จัดทริป", tdp[1] + (ty && +ty[1] !== new Date().getFullYear() ? " พ.ศ. " + (+ty[1] + 543) : "")));
+    if (tdp[1]) g1.push(irow("วันที่จัดทริป", tdp[1] + (ty && +ty[1] !== new Date().getFullYear() ? " " + (+ty[1] + 543) : "")));
     if (n > 0) g1.push(irow("รถตู้", n + " คัน (" + (n * 10 - (t.staffSeat ? n : 0)) + " ที่นั่ง)"));
     if (Number(t.limit) > 0) g1.push(irow("จำกัดที่นั่งต่อคน", Number(t.limit) + " ที่นั่ง"));
     if (g1.length) { gh("รายละเอียดทริป", true).forEach(function (x) { body.push(x); }); g1.forEach(function (r) { body.push(r); }); }
