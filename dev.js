@@ -96,7 +96,7 @@ function route(pathname, query) {
   if (pathname === "/privacy") return "/privacy.html";
   if (pathname === "/terms") return "/terms.html";
   if (pathname === "/plans") return "/plans.html";
-  if (/^\/[a-hj-km-np-z2-9]{6,8}$/.test(pathname)) return "/book.html";
+  if (/^\/[a-hj-km-np-z2-9]{6,8}(\/info)?$/.test(pathname)) return "/book.html";
   return pathname;
 }
 

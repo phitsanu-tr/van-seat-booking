@@ -448,7 +448,7 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 .facts .frow.stack { display: block; }
 .facts .frow.stack b { display: block; text-align: left; margin-top: 4px; }
 .facts .frow.stack b.chg { display: inline-block; }
-/* two views of one page: #info = trip details (from "ทริปของฉัน"), otherwise the seat map */
+/* two views of one page: /<id>/info = trip details (from "ทริปของฉัน"), otherwise the seat map */
 body:not(.v-info) #tripFacts, body:not(.v-info) #infoAct { display: none !important; }
 body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: none !important; }
 .facts .fhead .ftitle { }
@@ -489,9 +489,6 @@ html.sgn .hbar .brand,body.signed .hbar .brand{display:none}
 html.sgn .hero,body.signed .hero{padding-top:4px}
 html.sgn .hero h1,body.signed .hero h1{font:700 26px/32px var(--font-display)} /* same title size as the bottom-menu pages */
 </style>
-<script>/* a share card's "ดูรายละเอียดทริป" link carries ?info=1 (also inside liff.state): open the details view, whatever LINE did with the query */
-try{var _q=new URLSearchParams(location.search),_s=_q.get("liff.state")||"";if(!location.hash&&(/(^|&)info=1(&|$)/.test(location.search.slice(1))||/[?&]info=1\b/.test(_s)))history.replaceState(history.state,"",location.pathname+location.search+"#info")}catch(e){}
-</script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 (function(){
@@ -651,7 +648,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var W = 820, H = 1384;
 
   var params = new URLSearchParams(location.search);
-  var pathId = /^\/([a-hj-km-np-z2-9]{6,8})\/?$/.exec(location.pathname);
+  var pathId = /^\/([a-hj-km-np-z2-9]{6,8})(?:\/info)?\/?$/.exec(location.pathname);
+  function basePath() { return location.pathname.replace(/\/info\/?$/, ""); } // the trip page without its /info (details) suffix
   var TRIP = (params.get("t") || (pathId && pathId[1]) || "").toLowerCase(); // no trip code -> the "trip not found" page
   var trip = null;           // trip details from the server
   var curVan = params.get("v") || "";
@@ -1103,9 +1101,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     document.getElementById("listView").hidden = v !== "list";
     applyMode();
   }
-  // #info = trip details, no hash = seat map / list. Browser back moves between them (pushState), so back from the map goes to the details.
+  // /<id>/info = trip details, /<id> = seat map / list. Browser back moves between them (pushState), so back from the map goes to the details.
   var mineLine = "", mineLoaded = false, mineDone = false, wasInfo = false; // mineDone: the first answer to "which seats are mine" has arrived (the skeleton page stays up for it on the details page)
-  function infoMode() { return location.hash === "#info"; }
+  function infoMode() { return /\/info\/?$/.test(location.pathname); }
   function applyMode() {
     var on = infoMode();
     document.body.classList.toggle("v-info", on);
@@ -1131,13 +1129,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (loaded) skOff();
     }).catch(function () { mineLoaded = false; mineDone = true; if (trip) renderTrip(); if (loaded) skOff(); });
   }
-  function goView(hash) {
-    try { history.pushState({ vsb: 1 }, "", location.pathname + location.search + hash); } catch (e) { location.hash = hash; }
+  function goView(info) { // info: the details page (/<id>/info), otherwise the seat map (/<id>)
+    try { history.pushState({ vsb: 1 }, "", basePath() + (info ? "/info" : "") + location.search); } catch (e) {}
     applyMode(); window.scrollTo(0, 0);
   }
   window.addEventListener("popstate", applyMode);
-  window.addEventListener("hashchange", applyMode);
-  document.getElementById("goSeats").addEventListener("click", function () { goView(""); setView("map"); });
+  document.getElementById("goSeats").addEventListener("click", function () { goView(false); setView("map"); });
   document.getElementById("infoShare").addEventListener("click", function () { shareFriend("info"); });
   // first time this person opens this trip (and has no seat, isn't the organizer, link carries no seat/van): details first, once
   var entryDecided = false;
@@ -1145,14 +1142,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (entryDecided) return; entryDecided = true;
     var seen = true;
     try { var key = "vsb_seen_" + TRIP; seen = !!localStorage.getItem(key); localStorage.setItem(key, "1"); } catch (e) {}
-    if (seen || location.hash || isOwner || params.get("v") || params.get("seat") || params.get("img") || params.get("mk")) return;
+    if (seen || infoMode() || isOwner || params.get("v") || params.get("seat") || params.get("img") || params.get("mk")) return;
     for (var n in seats) if (mine(Number(n))) return;
-    try { history.replaceState(history.state, "", location.pathname + location.search + "#info"); } catch (e) {}
+    try { history.replaceState(history.state, "", basePath() + "/info" + location.search); } catch (e) {}
     applyMode();
   }
-  document.getElementById("swInfo").addEventListener("click", function () { if (!infoMode()) goView("#info"); });
-  document.getElementById("swMap").addEventListener("click", function () { if (infoMode()) goView(""); setView("map"); });
-  document.getElementById("swList").addEventListener("click", function () { if (infoMode()) goView(""); setView("list"); });
+  document.getElementById("swInfo").addEventListener("click", function () { if (!infoMode()) goView(true); });
+  document.getElementById("swMap").addEventListener("click", function () { if (infoMode()) goView(false); setView("map"); });
+  document.getElementById("swList").addEventListener("click", function () { if (infoMode()) goView(false); setView("list"); });
   setView(view);
 
   var SHORT_M = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
@@ -1831,8 +1828,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     y += mh + SEC + posterSpare;
     // ---- footer
-    var url = "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) + "&info=1" : "?info=1"); // the QR opens the trip details first (like the share card's details link); the details page has the button to the seat map
-    var shortUrl = location.host + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
+    var url = "https://liff.line.me/2012285472-FvtYKx00" + basePath() + "/info" + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : ""); // the QR opens the trip details first (like the share card's details link); the details page has the button to the seat map
+    var shortUrl = location.host + basePath() + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var d = new Date(), pad = function (v) { return (v < 10 ? "0" : "") + v; };
     var stamp = "อัปเดตเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + String(d.getFullYear() + 543).slice(-2) + " · " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " น.";
     var withQr = useQr, FH = FHF;
@@ -1931,10 +1928,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (!pathId) qs.push("t=" + encodeURIComponent(TRIP));
     if (curVan) qs.push("v=" + encodeURIComponent(curVan));
     qs.push("img=1"); if (k) qs.push("mk=" + encodeURIComponent(k)); qs.push("openExternalBrowser=1");
-    lineUrl = location.origin + location.pathname + "?" + qs.join("&");
+    lineUrl = location.origin + basePath() + "?" + qs.join("&");
     return lineUrl;
   }
-  function inviteLink(kind) { return "https://liff.line.me/2012285472-FvtYKx00/" + TRIP + (kind === "info" ? "?info=1" : ""); }
+  function inviteLink(kind) { return "https://liff.line.me/2012285472-FvtYKx00/" + TRIP + (kind === "info" ? "/info" : ""); }
   async function shareFriend(kind) {
     kind = kind === "info" ? "info" : ""; // the click handlers pass an event, only the details tab passes "info"
     var u = inviteLink(kind), L = [], T = trip || {};
@@ -1963,7 +1960,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     document.body.appendChild(a); a.click(); a.remove();
   });
   document.getElementById("imgCopy").addEventListener("click", function () {
-    var u = IMG_ONLY ? location.origin + location.pathname + (curVan ? "?v=" + encodeURIComponent(curVan) : "") : location.href.split("#")[0];
+    var u = IMG_ONLY ? location.origin + basePath() + (curVan ? "?v=" + encodeURIComponent(curVan) : "") : location.origin + basePath() + location.search;
     var btn = document.getElementById("imgCopy"), lbl = btn.querySelector("span");
     copyText(u, function () { // the answer shows inside the button itself (a toast would cover the buttons)
       btn.classList.add("done"); lbl.textContent = "คัดลอกแล้ว";

@@ -103,6 +103,10 @@
     {
       "source": "/:t([a-hj-km-np-z2-9]{6,8})",
       "destination": "/book.html"
+    },
+    {
+      "source": "/:t([a-hj-km-np-z2-9]{6,8})/info",
+      "destination": "/book.html"
     }
   ],
   "headers": [
@@ -128,6 +132,15 @@
         {
           "key": "Permissions-Policy",
           "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        }
+      ]
+    },
+    {
+      "source": "/:t([a-hj-km-np-z2-9]{6,8})/info",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
         }
       ]
     },

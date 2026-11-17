@@ -487,7 +487,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 (function(){try{var q=new URLSearchParams(location.search),s=q.get("liff.state");
 if(!s&&location.hash.indexOf("liff.state=")>=0)s=decodeURIComponent(location.hash.split("liff.state=")[1].split("&")[0]);
 var m=s&&/^\/?(?:mytrips\/)?([a-hj-km-np-z2-9]{6,8})(?:[\/?#].*)?$/.exec(s);
-if(m){window.__go=m[1];window.__goH=/[?&]info=1\b/.test(s)?"#info":"";document.documentElement.className+=" golnk";document.addEventListener("DOMContentLoaded",function(){var d=document.createElement("div");d.id="golnk";d.innerHTML='<b>Van<u>Trip</u></b><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>กำลังเปิดผังที่นั่ง…<a href="">โหลดนานไป? แตะที่นี่</a>';document.documentElement.appendChild(d)});}}catch(e){}})();
+if(m){window.__go=m[1];window.__goH=/^\/?(?:mytrips\/)?[a-hj-km-np-z2-9]{6,8}\/info(?:[?#]|$)/.test(s)?"/info":"";document.documentElement.className+=" golnk";document.addEventListener("DOMContentLoaded",function(){var d=document.createElement("div");d.id="golnk";d.innerHTML='<b>Van<u>Trip</u></b><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>กำลังเปิดผังที่นั่ง…<a href="">โหลดนานไป? แตะที่นี่</a>';document.documentElement.appendChild(d)});}}catch(e){}})();
 </script>
 <style>html.golnk body{visibility:hidden}#golnk{position:fixed;inset:0;z-index:2147483646;background:#eef1f3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:40px;box-sizing:border-box;color:#5b6b70;font:600 16px/24px "Noto Sans Thai",system-ui,sans-serif}#golnk b{font:600 20px/24px "Prompt","Noto Sans Thai",system-ui,sans-serif;color:#0b5f67;margin-bottom:24px}#golnk div{display:grid;grid-template-columns:repeat(4,36px);gap:8px;margin-bottom:16px}#golnk u{text-decoration:none;color:#1b1f22}#golnk i{height:36px;background:#cdd7db;border-radius:8px;animation:golnk 1.2s ease-in-out infinite}#golnk a{position:absolute;bottom:56px;font:600 14px/20px "Noto Sans Thai",system-ui,sans-serif;color:#0b5f67;padding:8px 16px;border:1px solid #0b5f67;border-radius:20px;text-decoration:none;opacity:0;visibility:hidden;animation:golnka .3s 8s forwards}@keyframes golnk{50%{opacity:.5}}@keyframes golnka{to{opacity:1;visibility:visible}}</style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -902,7 +902,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       sh.insertAdjacentHTML("beforeend", MG.share); sh.appendChild(document.createTextNode(x.closed ? "แชร์ผัง" : "แชร์ลิงก์")); sh.setAttribute("aria-label", x.closed ? "แชร์ผังที่นั่ง" : "แชร์ลิงก์จอง");
       sh.addEventListener("click", function () { shareTrip(x); });
       acts.appendChild(ros); acts.appendChild(vmap); acts.appendChild(sh); c.appendChild(acts);
-      tapCard(c, "/" + x.id + "#info"); // tap the card: open the trip details (buttons keep their own action)
+      tapCard(c, "/" + x.id + "/info"); // tap the card: open the trip details (buttons keep their own action)
       pane.appendChild(c);
     });
     if (done.length && view === "up") {
@@ -911,7 +911,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     } else if (done.length) {
       section(pane, "จบแล้ว", "ลบอัตโนมัติหลังเดินทาง 60 วัน");
       done.forEach(function (x) {
-        var c = node("div", "card dim"); tapCard(c, "/" + x.id + "#info");
+        var c = node("div", "card dim"); tapCard(c, "/" + x.id + "/info");
         var r1 = node("div", "row1"); r1.appendChild(node("div", "t", x.name)); r1.appendChild(node("span", "pill p-end", "จบแล้ว")); c.appendChild(r1);
         var m = node("div", "meta"); var s1 = node("span"); s1.appendChild(node("i", null, dateRange(x.startDate, x.endDate) || "ไม่ระบุวัน")); m.appendChild(s1);
         var s2 = node("span", null, "จอง "); s2.appendChild(node("i", null, x.booked + "/" + x.total)); m.appendChild(s2); c.appendChild(m);
@@ -957,7 +957,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   function ticket(x, past) {
     var c = node("div", "card tk" + (past ? " dim" : "")), l = node("div", "l");
-    tapCard(c, "/" + x.id + (x.seats && x.seats[0] ? "?v=" + encodeURIComponent(x.seats[0].van) : "") + "#info");
+    tapCard(c, "/" + x.id + "/info" + (x.seats && x.seats[0] ? "?v=" + encodeURIComponent(x.seats[0].van) : ""));
     var tg = past ? null : noteTag(x.id); if (tg) l.appendChild(tg);
     l.appendChild(node("div", "t", x.name));
     if (past) {
@@ -1774,7 +1774,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       // one card, up to 3 nearest trips: name (1 line) · day · time, booked/total with a small bar, ›; tap → that trip's seat plan
       var lst=el("div","hl");
       trips.slice().sort(function(a,b){return String(a.startDate||"9").localeCompare(String(b.startDate||"9"))||String(a.departTime||"").localeCompare(String(b.departTime||""));}).slice(0,3).forEach(function(x){
-        var r=el("a","hrow");r.href="/"+x.id+"#info";
+        var r=el("a","hrow");r.href="/"+x.id+"/info";
         var tx=el("div","tx");tx.appendChild(el("b",null,x.name||"ทริปไม่มีชื่อ"));tx.appendChild(el("span",null,[dayLabel(x.startDate,false),tm(x.departTime)].filter(Boolean).join(" · ")));r.appendChild(tx);
         var ct=el("div","ct"),n=el("b",null,String(x.booked||0));n.appendChild(el("i",null,"/"+(x.total||0)));ct.appendChild(n);
         var b2=el("div","b2"),bi=el("i");bi.style.width=(x.total?Math.min(100,Math.round(x.booked/x.total*100)):0)+"%";b2.appendChild(bi);ct.appendChild(b2);r.appendChild(ct);

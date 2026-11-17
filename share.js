@@ -12,7 +12,7 @@
     if (n === 1) return "เดย์ทริป · " + d1;
     return n + " วัน " + (n - 1) + " คืน · " + (a.getUTCMonth() === b.getUTCMonth() ? a.getUTCDate() + " – " + d2 : d1 + " – " + d2);
   }
-  function liffUrl(id, kind) { return "https://liff.line.me/" + LIFF_ID + "/" + id + (kind === "info" ? "?info=1" : ""); } // ?info=1: open the trip details tab instead of the seat map
+  function liffUrl(id, kind) { return "https://liff.line.me/" + LIFF_ID + "/" + id + (kind === "info" ? "/info" : ""); } // /info: the trip details tab instead of the seat map
   function shortY(iso) { // short() plus the Buddhist-era year when the date is not in the current year
     var m = /^(\d{4})-/.exec(String(iso || "")), d = short(iso);
     return d && m && +m[1] !== new Date().getFullYear() ? d + " " + String((+m[1] + 543) % 100).padStart(2, "0") : d;
