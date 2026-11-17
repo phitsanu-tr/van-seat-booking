@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/(DESIGN\\.md|UPDATE\\.md|README\\.md|dev\\.js|vercel\\.json|tests/.*|scripts/.*)",
+      "destination": "/",
+      "permanent": false
+    },
+    {
       "source": "/terms.html",
       "destination": "/terms",
       "permanent": false
@@ -18,21 +23,6 @@
     {
       "source": "/trips.html",
       "destination": "/mytrips",
-      "permanent": false
-    },
-    {
-      "source": "/vercel.json",
-      "destination": "/",
-      "permanent": false
-    },
-    {
-      "source": "/dev.js",
-      "destination": "/",
-      "permanent": false
-    },
-    {
-      "source": "/README.md",
-      "destination": "/",
       "permanent": false
     },
     {
