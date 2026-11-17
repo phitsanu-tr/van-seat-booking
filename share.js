@@ -13,6 +13,10 @@
     return n + " วัน " + (n - 1) + " คืน · " + (a.getUTCMonth() === b.getUTCMonth() ? a.getUTCDate() + "–" + d2 : d1 + "–" + d2);
   }
   function liffUrl(id, kind) { return "https://liff.line.me/" + LIFF_ID + "/" + id + (kind === "info" ? "?info=1" : ""); } // ?info=1: open the trip details tab instead of the seat map
+  function shortY(iso) { // short() plus the Buddhist-era year when the date is not in the current year
+    var m = /^(\d{4})-/.exec(String(iso || "")), d = short(iso);
+    return d && m && +m[1] !== new Date().getFullYear() ? d + " " + (+m[1] + 543) : d;
+  }
   function short(iso) { // "ศ. 15 ม.ค." — no year, so it fits the narrow half of the card
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || "")); if (!m) return "";
     return DOW[new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay()] + " " + (+m[3]) + " " + MON[+m[2] - 1];
@@ -91,9 +95,9 @@
       gh("กำหนดการเดินทาง", !body.length).forEach(function (x) { body.push(x); });
       var card = []; // one grey box: the times, then (under a hairline) the meeting point
       if (hasTime) card.push({ type: "box", layout: "horizontal", paddingAll: "12px", contents: [
-        half("เดินทางไป", t.departTime ? t.departTime + " น." : "", short(t.startDate), false, nightBefore),
+        half("เดินทางไป", t.departTime ? t.departTime + " น." : "", shortY(t.startDate), false, nightBefore),
         { type: "image", url: ORIGIN + "/swap-icon.png", size: "20px", aspectRatio: "1:1", aspectMode: "fit", flex: 0, gravity: "center", margin: "8px" },
-        half("เดินทางกลับ", t.returnTime ? t.returnTime + " น." : "", short(t.endDate || t.startDate), true)] });
+        half("เดินทางกลับ", t.returnTime ? t.returnTime + " น." : "", shortY(t.endDate || t.startDate), true)] });
       if (t.meetPoint) {
         if (hasTime) card.push({ type: "box", layout: "vertical", paddingStart: "12px", paddingEnd: "12px", contents: [{ type: "separator", color: "#dfe5e8" }] }); // inset hairline, not edge to edge
         card.push({ type: "box", layout: "vertical", paddingAll: "12px", contents: [
