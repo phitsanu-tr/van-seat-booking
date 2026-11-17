@@ -19,12 +19,12 @@
   }
   var LINE_C = "#dbe7e8", TXT = "#1b1f22", SUB = "#5d6b73", TEAL = "#0e7c86";
   function txt(text, o) { var x = { type: "text", text: text, wrap: true }; for (var k in o) x[k] = o[k]; return x; }
-  function half(label, time, date, end) { // one side of the schedule box: label, big time, small date
+  function half(label, time, date, end, warn) { // one side of the schedule box: label, big time, small date (warn: orange, a night-before departure)
     var al = end ? "end" : "start";
     return { type: "box", layout: "vertical", flex: 1, contents: [
       txt(label, { size: "12px", color: SUB, align: al }),
       txt(time ? String(time) : "–", { size: "20px", weight: "bold", color: TXT, align: al }),
-      txt(date || " ", { size: "12px", color: "#4a555c", align: al })] };
+      txt(date || " ", warn ? { size: "12px", color: "#b45309", weight: "bold", align: al } : { size: "12px", color: "#4a555c", align: al })] };
   }
   function line(label, value, o) { // table row: grey label left, bold value right, thin rule above (except the first)
     return { type: "box", layout: "horizontal", paddingTop: "8px", paddingBottom: "8px", spacing: "12px", contents: [
@@ -75,9 +75,8 @@
   }
   function infoBubble(t) { // card 1: shared from the trip details tab — everything about the trip, button opens the details
     var head = { type: "box", layout: "vertical", alignItems: "flex-start", backgroundColor: "#e6f3f3", paddingAll: "12px", contents: [
-      { type: "box", layout: "vertical", flex: 0, backgroundColor: "#ffffff", cornerRadius: "20px", paddingTop: "4px", paddingBottom: "4px", paddingStart: "12px", paddingEnd: "12px",
-        contents: [txt("VanTrip · ข้อมูลทริป", { size: "12px", weight: "bold", color: TEAL, wrap: false })] },
-      txt(t.name || "ทริปรถตู้", { weight: "bold", size: "20px", color: TXT, margin: "8px" })] };
+      txt("VanTrip", { size: "12px", weight: "bold", color: TEAL, wrap: false }),
+      txt(t.name || "ทริปรถตู้", { weight: "bold", size: "20px", color: TXT, margin: "4px" })] };
     var tdp = String(t.tripDays || "").split(" · "), n = Number(t.vans) || 0, body = [], g1 = [];
     if (t.organizer) g1.push(irow("ผู้จัด", t.organizer));
     if (tdp[0]) g1.push(irow("รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]));
@@ -86,11 +85,12 @@
     if (Number(t.limit) > 0) g1.push(irow("จำกัดที่นั่งต่อคน", Number(t.limit) + " ที่นั่ง"));
     if (g1.length) { gh("รายละเอียดทริป", true).forEach(function (x) { body.push(x); }); g1.forEach(function (r) { body.push(r); }); }
     var hasTime = t.startDate || t.departTime || t.endDate || t.returnTime;
+    var nightBefore = !!(hasTime && t.tripStart && t.startDate && t.departTime && t.startDate < t.tripStart); // leaves the evening before the trip's first day (same rule as the details tab)
     if (hasTime || t.meetPoint) {
       gh("กำหนดการเดินทาง", !body.length).forEach(function (x) { body.push(x); });
       var card = []; // one grey box: the times, then (under a hairline) the meeting point
       if (hasTime) card.push({ type: "box", layout: "horizontal", paddingAll: "12px", contents: [
-        half("เดินทางไป", t.departTime, short(t.startDate), false),
+        half("เดินทางไป", t.departTime, short(t.startDate), false, nightBefore),
         { type: "image", url: ORIGIN + "/swap-icon.png", size: "20px", aspectRatio: "1:1", aspectMode: "fit", flex: 0, gravity: "center", margin: "8px" },
         half("เดินทางกลับ", t.returnTime, short(t.endDate || t.startDate), true)] });
       if (t.meetPoint) {
@@ -100,10 +100,6 @@
           txt(t.meetPoint, { size: "14px", weight: "bold", color: TXT })] });
       }
       body.push({ type: "box", layout: "vertical", margin: "8px", backgroundColor: "#f6f8f9", cornerRadius: "12px", contents: card });
-      if (hasTime && t.tripStart && t.startDate && t.departTime && t.startDate < t.tripStart) // leaves the evening before the trip's first day (same rule as the details tab)
-        body.push({ type: "box", layout: "horizontal", margin: "8px", backgroundColor: "#fdf0dd", cornerRadius: "12px", paddingAll: "8px", paddingStart: "12px", paddingEnd: "12px", spacing: "8px", contents: [
-          txt("🌙", { size: "14px", flex: 0, wrap: false, gravity: "center" }),
-          txt("ออกเดินทางคืนก่อนวันเริ่มทริป", { size: "14px", color: "#8a5300", flex: 1, gravity: "center" })] });
     }
     return { type: "bubble", size: "mega", header: head,
       body: { type: "box", layout: "vertical", paddingAll: "12px", paddingBottom: "8px", contents: body },
