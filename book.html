@@ -883,6 +883,38 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var renaming = false; // the dialog shows the "edit name" form for the visitor's own seat
   function closeModal() { selected = null; message = ""; confirming = false; renaming = false; renderAll(); }
   function openSeat(n) { selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll(); }
+  function attachNameField(input, onEnter) { // the name box with its live "n/16" counter and the character notes, shared by booking a seat and editing a name
+      var wrap = el("div", "nmwrap");
+      var cnt = el("span", "nmcnt"); cnt.setAttribute("aria-hidden", "true");
+      var noteBox = el("div", "msg nmmsg"); noteBox.setAttribute("role", "status");
+      var composing = false;
+      var showCount = function () {
+        var len = input.value.length;
+        cnt.textContent = len ? len + "/" + NAME_MAX : "";
+        cnt.className = "nmcnt" + (len >= NAME_MAX ? " full" : "");
+      };
+      var note = function (kind, text) { noteInto(noteBox, kind, text); input.classList.toggle("bad", kind === "err" && !!text); };
+      var sanitize = function () {
+        var raw = input.value;
+        var sel = input.selectionStart == null ? raw.length : input.selectionStart;
+        var c = cleanName(raw);
+        if (c.text !== raw) {
+          var caret = Math.min(cleanName(raw.slice(0, sel)).text.length, c.text.length);
+          input.value = c.text;
+          try { input.setSelectionRange(caret, caret); } catch (e) {}
+        }
+        if (c.removed) note("err", c.markRemoved && !/[\u0E01-\u0E2E]/.test(raw) ? "สระ/วรรณยุกต์ต้องตามหลังพยัญชนะ" : "ใช้ได้เฉพาะภาษาไทยและอังกฤษ");
+        else if (c.truncated) note("info", "ครบ " + NAME_MAX + " ตัวอักษรแล้ว");
+        else note("", "");
+        showCount();
+      };
+      input.addEventListener("compositionstart", function () { composing = true; });
+      input.addEventListener("compositionend", function () { composing = false; sanitize(); });
+      input.addEventListener("input", function () { if (!composing) sanitize(); });
+      input.addEventListener("keydown", function (e) { if (e.key === "Enter" && !composing) onEnter(); });
+      wrap.appendChild(input); wrap.appendChild(cnt);
+      return { wrap: wrap, noteBox: noteBox, note: note, showCount: showCount };
+  }
   async function renameSeat(n, rawName) {
     var name = cleanName(rawName).text;
     if (!name) { message = "ใส่ชื่อก่อน"; renderPanel(); return; }
@@ -981,9 +1013,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var rin = el("input");
       rin.type = "text"; rin.id = "nameInput"; rin.value = typedName || s.name;
       rin.autocomplete = "off"; rin.autocapitalize = "off"; rin.spellcheck = false; rin.setAttribute("aria-label", "ชื่อบนผัง");
-      rin.addEventListener("input", function () { var c = cleanName(rin.value).text; if (c !== rin.value) rin.value = c; });
-      rin.addEventListener("keydown", function (e) { if (e.key === "Enter") renameSeat(n, rin.value); });
-      var rw = el("div", "nmwrap"); rw.appendChild(rin); panelEl.appendChild(rw);
+      var nf2 = attachNameField(rin, function () { renameSeat(n, rin.value); });
+      panelEl.appendChild(nf2.wrap); panelEl.appendChild(nf2.noteBox); nf2.showCount();
       if (message) panelEl.appendChild(el("div", "msg", message));
       actions.appendChild(plainBtn("ย้อนกลับ", function () { renaming = false; message = ""; renderPanel(); }));
       var sv = el("button", "primary", "บันทึกชื่อ"); sv.type = "button";
@@ -1047,35 +1078,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       input.autocomplete = "off"; input.autocapitalize = "off"; input.spellcheck = false;
       input.setAttribute("autocorrect", "off");
       input.setAttribute("aria-label", "ชื่อผู้จอง");
-      var wrap = el("div", "nmwrap");
-      var cnt = el("span", "nmcnt"); cnt.setAttribute("aria-hidden", "true");
-      noteBox = el("div", "msg nmmsg"); noteBox.setAttribute("role", "status");
-      var composing = false;
-      var showCount = function () {
-        var len = input.value.length;
-        cnt.textContent = len ? len + "/" + NAME_MAX : "";
-        cnt.className = "nmcnt" + (len >= NAME_MAX ? " full" : "");
-      };
-      var note = function (kind, text) { noteInto(noteBox, kind, text); input.classList.toggle("bad", kind === "err" && !!text); };
-      var sanitize = function () {
-        var raw = input.value;
-        var sel = input.selectionStart == null ? raw.length : input.selectionStart;
-        var c = cleanName(raw);
-        if (c.text !== raw) {
-          var caret = Math.min(cleanName(raw.slice(0, sel)).text.length, c.text.length);
-          input.value = c.text;
-          try { input.setSelectionRange(caret, caret); } catch (e) {}
-        }
-        if (c.removed) note("err", c.markRemoved && !/[\u0E01-\u0E2E]/.test(raw) ? "สระ/วรรณยุกต์ต้องตามหลังพยัญชนะ" : "ใช้ได้เฉพาะภาษาไทยและอังกฤษ");
-        else if (c.truncated) note("info", "ครบ " + NAME_MAX + " ตัวอักษรแล้ว");
-        else note("", "");
-        showCount();
-      };
-      input.addEventListener("compositionstart", function () { composing = true; });
-      input.addEventListener("compositionend", function () { composing = false; sanitize(); });
-      input.addEventListener("input", function () { if (!composing) sanitize(); });
-      input.addEventListener("keydown", function (e) { if (e.key === "Enter" && !composing) book(n, input.value); });
-      wrap.appendChild(input); wrap.appendChild(cnt);
+      var nf = attachNameField(input, function () { book(n, input.value); }), wrap = nf.wrap, note = nf.note, showCount = nf.showCount;
+      noteBox = nf.noteBox;
       panelEl.appendChild(wrap);
       panelEl.appendChild(noteBox);
       if (seatLimit > 0 && !isOwner) panelEl.appendChild(el("div", "lgnote", "จองได้ไม่เกิน " + seatLimit + " ที่นั่งต่อคน (รวมทุกคัน)"));
