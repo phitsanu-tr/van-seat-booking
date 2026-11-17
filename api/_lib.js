@@ -79,7 +79,7 @@ async function loadTrip(t) {
   return null;
 }
 
-// "2 วัน 1 คืน · 15–16 ม.ค." / "เดย์ทริป · 15 ม.ค." from the trip's day count and first day (same wording on every screen and in the share card)
+// "2 วัน 1 คืน · 15 – 16 ม.ค." / "เดย์ทริป · 15 ม.ค." from the trip's day count and first day (same wording on every screen and in the share card)
 const TH_MON_S = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 function tripDaysText(n, start) {
   n = Number(n); const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(start || ""));
@@ -87,7 +87,7 @@ function tripDaysText(n, start) {
   const a = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])), b = new Date(a.getTime() + (n - 1) * 86400000);
   const d1 = a.getUTCDate() + " " + TH_MON_S[a.getUTCMonth()], d2 = b.getUTCDate() + " " + TH_MON_S[b.getUTCMonth()];
   if (n === 1) return "เดย์ทริป · " + d1;
-  const range = a.getUTCMonth() === b.getUTCMonth() ? a.getUTCDate() + "–" + d2 : d1 + "–" + d2;
+  const range = a.getUTCMonth() === b.getUTCMonth() ? a.getUTCDate() + " – " + d2 : d1 + " – " + d2;
   return n + " วัน " + (n - 1) + " คืน · " + range;
 }
 function publicTrip(trip) {

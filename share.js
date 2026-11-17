@@ -10,7 +10,7 @@
     var a = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])), b = new Date(a.getTime() + (n - 1) * 86400000);
     var d1 = a.getUTCDate() + " " + MON[a.getUTCMonth()], d2 = b.getUTCDate() + " " + MON[b.getUTCMonth()];
     if (n === 1) return "เดย์ทริป · " + d1;
-    return n + " วัน " + (n - 1) + " คืน · " + (a.getUTCMonth() === b.getUTCMonth() ? a.getUTCDate() + "–" + d2 : d1 + "–" + d2);
+    return n + " วัน " + (n - 1) + " คืน · " + (a.getUTCMonth() === b.getUTCMonth() ? a.getUTCDate() + " – " + d2 : d1 + " – " + d2);
   }
   function liffUrl(id, kind) { return "https://liff.line.me/" + LIFF_ID + "/" + id + (kind === "info" ? "?info=1" : ""); } // ?info=1: open the trip details tab instead of the seat map
   function shortY(iso) { // short() plus the Buddhist-era year when the date is not in the current year
