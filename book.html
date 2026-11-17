@@ -123,6 +123,9 @@ header.trip { display: block; }
 .deck.isended .seat.seat:not(.taken):not(.mine):hover::after { background: var(--bfree); }
 #notice:empty { display: none; }
 .tip { margin: 4px 4px 0; background: color-mix(in srgb, var(--mine) 10%, var(--surface)); border-radius: 12px; padding: 8px 12px; display: flex; gap: 8px; align-items: center; font-size: 14px; line-height: 20px; }
+.tip b { font-weight: 600; color: var(--deep); }
+.facts .tip { align-items: center; margin: 0 0 4px; }
+.list .tip { margin: 16px 16px 4px; }
 .tip svg { flex: none; width: 16px; height: 16px; color: var(--mine); }
 .fullbar { margin: 12px 8px 0; background: color-mix(in srgb, var(--sel) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--sel) 42%, var(--surface)); border-radius: 12px; padding: 12px 12px; display: flex; gap: 12px; align-items: center; justify-content: space-between; font-size: 14px; line-height: 20px; }
 .fullbar .ft { min-width: 0; }
@@ -423,13 +426,6 @@ body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: non
 .facts .orgl b { font-weight: 600; overflow-wrap: anywhere; }
 .facts .fhead .ftitle { }
 .infoact { display: grid; gap: 16px; margin: 16px 0 0; }
-.infoact .icard { padding: 16px; background: var(--surface); border: 1px solid #e8ecef; border-radius: 16px; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); display: grid; gap: 12px; }
-.infoact .ibar { height: 10px; border-radius: 10px; background: #eef2f4; overflow: hidden; }
-.infoact .ibar i { display: block; height: 100%; background: var(--mine); border-radius: 10px; }
-.infoact .irow { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.infoact .irow b { font: 600 16px/24px var(--font-display); color: var(--deep); }
-.infoact .irow span { font-size: 12px; color: var(--muted); }
-.infoact .imine { background: #e4f3f4; color: var(--deep); border-radius: 12px; padding: 4px 12px; font-size: 14px; line-height: 20px; }
 .infoact .ibtns { display: grid; gap: 8px; }
 .infoact .ibtns button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border-radius: 16px; font: 600 16px/24px var(--font-display); cursor: pointer; }
 .infoact .ibtns .ipri { background: var(--mine); color: #fff; border: 0; }
@@ -519,7 +515,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <div class="chgban" id="chgBan" hidden></div>
     <div class="facts" id="tripFacts" role="list" aria-label="ข้อมูลทริป" hidden></div>
     <div class="infoact" id="infoAct" hidden>
-      <div class="icard" id="infoProg"></div>
       <div class="ibtns"><button type="button" class="ipri" id="goSeats">ดูผังที่นั่ง</button></div>
     </div>
     <div class="invite" id="invite" hidden><span class="ok"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><span class="tx"><b id="invT">จองที่นั่งแล้ว</b><small>ชวนผู้ร่วมทริปมาจองด้วยกัน</small></span><button type="button" class="go" id="invGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>แชร์ใน LINE</button><button type="button" class="x" id="invX" aria-label="ปิด">×</button></div>
@@ -584,7 +579,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   </div>
 
   <section class="list" id="listView" hidden>
-    <h2><span id="listTitle">จองแล้ว</span><small id="listSub"></small></h2>
+    <div class="tip" id="listTip"></div>
     <ul id="list"></ul>
   </section>
   </section>
@@ -1132,8 +1127,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     listEl.textContent = "";
     var booked = [], free = [];
     for (var n = 1; n <= TOTAL; n++) { if (seats[n]) booked.push(n); else free.push(n); }
-    document.getElementById("listTitle").textContent = booked.length ? "จองแล้ว " + booked.length + " คน" : "ยังไม่มีคนจอง";
-    document.getElementById("listSub").textContent = !loaded ? "" : free.length === 0 ? "เต็มแล้ว" : booked.length ? "เหลือ " + free.length + " ที่นั่ง" : "ว่างทั้งหมด " + TOTAL + " ที่นั่ง";
+    var lt = document.getElementById("listTip"); lt.textContent = ""; lt.appendChild(icon(PEOPLE_ICON));
+    var lw = el("span");
+    if (!loaded) lw.textContent = "กำลังโหลด…";
+    else if (!booked.length) lw.textContent = "ยังไม่มีคนจอง · ว่างทั้งหมด " + TOTAL + " ที่นั่ง";
+    else { lw.appendChild(document.createTextNode("จองแล้ว ")); lw.appendChild(el("b", null, String(booked.length))); lw.appendChild(document.createTextNode(" คน" + (free.length ? " · เหลือ " + free.length + " ที่นั่ง" : " · เต็มแล้ว"))); }
+    lt.appendChild(lw);
     booked.forEach(function (n) {
       var m = mine(n);
       var li = el("li", "bk" + (m ? " mine-row" : ""));
@@ -1223,10 +1222,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     var tot = trip.vans.length * TOTAL, booked = 0;
     trip.vans.forEach(function (v) { booked += counts[v.id] != null ? counts[v.id] : (v.id === curVan ? Object.keys(seats).length : 0); });
-    var ip = document.getElementById("infoProg"); ip.textContent = "";
-    if (booked > 0) { var bar = el("div", "ibar"), fill = el("i"); fill.style.width = (tot ? Math.min(100, Math.round(booked / tot * 100)) : 0) + "%"; bar.appendChild(fill); ip.appendChild(bar); }
-    var irow = el("div", "irow"); irow.appendChild(el("b", null, booked === 0 ? "ว่างทั้งหมด " + tot + " ที่นั่ง" : tot - booked > 0 ? "เหลือ " + (tot - booked) + " ที่นั่ง" : "เต็มแล้ว")); if (booked > 0) irow.appendChild(el("span", null, "จองแล้ว " + booked + " / " + tot)); ip.appendChild(irow);
-    if (mineLine) { var im = el("div", "imine"); im.appendChild(document.createTextNode("ที่นั่งของคุณ · ")); im.appendChild(el("b", null, mineLine)); ip.appendChild(im); }
+    var rest = tot - booked, itip = el("div", "tip"), iw = el("span");
+    itip.appendChild(icon(SEATS_ICON));
+    if (mineLine) { iw.appendChild(document.createTextNode(mineLine.indexOf("ที่") === 0 ? "คุณจอง" : "คุณจอง ")); iw.appendChild(el("b", null, mineLine)); iw.appendChild(document.createTextNode(" แล้ว")); }
+    else if (booked === 0) iw.appendChild(document.createTextNode("ว่างทั้งหมด " + tot + " ที่นั่ง"));
+    else if (rest <= 0) iw.appendChild(el("b", null, "เต็มแล้ว"));
+    else { iw.appendChild(document.createTextNode("เหลือ ")); iw.appendChild(el("b", null, String(rest))); iw.appendChild(document.createTextNode(" ที่นั่ง จากทั้งหมด " + tot)); }
+    itip.appendChild(iw); factsEl.insertBefore(itip, factsEl.firstChild);
     document.getElementById("infoAct").hidden = false; document.getElementById("infoShare").hidden = false;
     if (infoMode() && me && !mineLoaded) loadMine(); // signed in after the page opened on the details
     factsEl.hidden = false;
@@ -1261,6 +1263,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     renderAll(); refresh(true);
   }
 
+  var SEATS_ICON = "M6 3h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2zM8 7h3v3H8zM13 7h3v3h-3zM8 14h3v3H8zM13 14h3v3h-3z";
+  var PEOPLE_ICON = "M9 4.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7M18 14.8c2 .7 3.5 2.3 3.5 5";
   var HAND_PATH = "M9 11V5a1.5 1.5 0 013 0v5m0-1a1.5 1.5 0 013 0v2m0-.5a1.5 1.5 0 013 0V15a6 6 0 01-6 6h-1a6 6 0 01-5-2.7L4 14a1.5 1.5 0 012.5-1.6L9 15";
   var ARROW_PATH = "M9 6l6 6-6 6";
   function icon(d) {
