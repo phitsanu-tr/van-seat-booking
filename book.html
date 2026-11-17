@@ -1633,7 +1633,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   // "Seat pass" picture: dark-teal header like the admin pass. With a seat booked on this device it leads with
   // "my seat"; the date/time/meeting facts sit under the header and a QR code sits at the bottom.
-  var FIT = true, posterFixed = 0, posterSpare = 0, posterExtra = 0, KEEP = 56; // posterSpare: spare 9:16 height shared out as section spacing, so the map panel keeps only KEEP of it
+  var FIT = true, posterFixed = 0, posterSpare = 0, posterExtra = 0, KEEP = 0; // posterSpare: spare 9:16 height shared out as section spacing, so the map panel keeps only KEEP of it
   function drawPoster(useQr) { // 9:16 output: size the van map so the whole card fits (side panel needs room, so 250-480 wide)
     var c0 = drawPoster0(useQr, 380);
     var tgt = 1008 * 16 / 9, pw = Math.max(250, Math.min(480, (tgt - posterFixed) / (H / W)));
@@ -1662,8 +1662,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.fillStyle = TEAL; ctx.fillText(codeT, X + IW - pw2 + 22, 32 + 36);
     ctx.fillStyle = INK; ctx.font = '600 44px ' + PF;
     titleLines.forEach(function (ln, i) { ctx.fillText(ln, X, 32 + 52 + 16 + i * 58 + 42); });
+    var SEC = 24, HGAP = 16; // spacing standard: SEC between sections, HGAP from a section heading to its card (spare 9:16 height is added to SEC)
     var y = HH;
-    function heading(t) { ctx.fillStyle = "#0b5f67"; ctx.font = '600 32px ' + PF; ctx.fillText(t, X, y + 32); y += 32 + 16; }
+    function heading(t) { ctx.fillStyle = "#0b5f67"; ctx.font = '600 32px ' + PF; ctx.fillText(t, X, y + 32); y += 32 + HGAP; }
     function sep() { ctx.fillStyle = DIV; ctx.fillRect(X, y, IW, 2); y += 2; }
     // ---- trip details rows
     var t0 = parseD(trip.tripStart), yy = "";
@@ -1671,7 +1672,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var tdp = (trip.tripDays || "").split(" · "), rows = [];
     if (trip.tripDays) { rows.push(["รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]]); if (tdp[1]) rows.push(["วันที่จัดทริป", tdp[1] + yy]); }
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน · " + (trip.vans.length > 1 ? "คันละ " : "") + TOTAL + " ที่นั่ง"]);
-    y += 26 + posterSpare;
+    y += SEC + posterSpare;
     // ---- travel schedule box
     var goD = (trip.startDate || trip.departTime) ? dayS(trip.startDate) : "", goT = trip.departTime || "";
     var bkD = (trip.endDate || trip.returnTime) ? dayS(trip.endDate || trip.startDate) : "", bkT = trip.returnTime || "";
@@ -1721,9 +1722,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       y += bh;
     }
     // ---- map card: van on the left, who booked what on the right
-    y += 24 + posterSpare; heading("ผังที่นั่งและรายละเอียด");
+    y += SEC + posterSpare; heading("ผังที่นั่งและรายละเอียด");
     var MX = 36, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k, IP = 28;
-    var mh = IP + PH + IP, FHF = useQr ? 148 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + 24 + posterSpare + FHF + 36)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
+    var mh = IP + PH + IP, FHF = useQr ? 148 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + SEC + posterSpare + FHF + 36)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
     mh += extra;
     ctx.fillStyle = "#ffffff"; rrect(ctx, MX, y, MW, mh, 45); ctx.fill(); ctx.strokeStyle = DIV; ctx.lineWidth = 2; rrect(ctx, MX, y, MW, mh, 45); ctx.stroke();
     var cnt = Object.keys(seats).length;
@@ -1791,7 +1792,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       pLines.forEach(function (ln, i) { fillC(ctx, ln, sx + sw / 2, sgy + nh + 14 + 28 + i * 38); });
       ctx.textAlign = "left";
     }
-    y += mh + 24 + posterSpare;
+    y += mh + SEC + posterSpare;
     // ---- footer
     var url = "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
     var shortUrl = location.host + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
