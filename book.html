@@ -1744,10 +1744,32 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       while (fz > 22 && ctx.measureText(val).width > sw - lw3) { fz -= 1; ctx.font = '600 ' + fz + 'px ' + NF; }
       ctx.textAlign = "right"; ctx.fillText(wrapText(ctx, val, sw - lw3, 1)[0], sx + sw, ry3 + RH / 2 + 10); ctx.textAlign = "left";
     });
-    // ---- booking group
+    // ---- van group (name chip + plate), then the booking group
     var gy = dy + drows.length * RH + GAP / 2;
     ctx.fillStyle = DIV; ctx.fillRect(sx, gy, sw, 2); // thin divider between groups
     gy += GAP / 2;
+    if (cur) {
+      ctx.fillStyle = "#6b767c"; ctx.font = '400 24px ' + NF; ctx.fillText("รถตู้", sx, gy + 22);
+      gy += 32;
+      ctx.fillStyle = TEAL; rrect(ctx, sx, gy, sw, 62, 18); ctx.fill();
+      ctx.fillStyle = "#ffffff"; ctx.font = '700 40px ' + PF; ctx.textAlign = "center"; fillC(ctx, vname, sx + sw / 2, gy + 45); ctx.textAlign = "left";
+      gy += 62;
+      if (pLines.length) {
+        gy += 18;
+        ctx.fillStyle = "#6b767c"; ctx.font = '400 24px ' + NF; ctx.fillText("ทะเบียน", sx, gy + 22);
+        gy += 32;
+        var phh = 38 * pLines.length + 24;
+        ctx.fillStyle = "#ffffff"; rrect(ctx, sx, gy, sw, phh, 14); ctx.fill();
+        ctx.strokeStyle = INK; ctx.lineWidth = 3; rrect(ctx, sx, gy, sw, phh, 14); ctx.stroke();
+        ctx.fillStyle = INK; ctx.font = '700 28px ' + PF; ctx.textAlign = "center";
+        pLines.forEach(function (ln, i) { fillC(ctx, ln, sx + sw / 2, gy + 12 + 28 + i * 38 - 2); });
+        ctx.textAlign = "left";
+        gy += phh;
+      }
+      gy += GAP / 2;
+      ctx.fillStyle = DIV; ctx.fillRect(sx, gy, sw, 2);
+      gy += GAP / 2;
+    }
     ctx.fillStyle = "#0b5f67"; ctx.font = '600 28px ' + PF; ctx.fillText("การจอง", sx, gy + 28);
     gy += 40;
     ctx.fillStyle = TEAL; ctx.font = '600 96px ' + PF; ctx.fillText(String(cnt), sx, gy + 86);
@@ -1758,26 +1780,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.fillStyle = "#e3e8ea"; rrect(ctx, sx, by2, sw, 14, 7); ctx.fill();
     if (cnt > 0) { ctx.fillStyle = TEAL; rrect(ctx, sx, by2, Math.max(14, sw * Math.min(1, cnt / TOTAL)), 14, 7); ctx.fill(); }
     ctx.fillStyle = "#6b767c"; ctx.font = '400 28px ' + NF; ctx.fillText(cnt >= TOTAL ? "เต็มแล้ว" : "ว่าง " + (TOTAL - cnt) + " ที่นั่ง", sx, by2 + 14 + 38);
-    if (cur) { // van group: labelled name chip, then the labelled plate box
-      var sgy = by2 + 14 + 38 + 24;
-      ctx.fillStyle = DIV; ctx.fillRect(sx, sgy, sw, 2);
-      sgy += 26;
-      ctx.fillStyle = "#6b767c"; ctx.font = '400 24px ' + NF; ctx.fillText("รถตู้", sx, sgy + 22);
-      sgy += 32;
-      ctx.fillStyle = TEAL; rrect(ctx, sx, sgy, sw, 62, 18); ctx.fill();
-      ctx.fillStyle = "#ffffff"; ctx.font = '700 40px ' + PF; ctx.textAlign = "center"; fillC(ctx, vname, sx + sw / 2, sgy + 45); ctx.textAlign = "left";
-      if (pLines.length) {
-        sgy += 62 + 18;
-        ctx.fillStyle = "#6b767c"; ctx.font = '400 24px ' + NF; ctx.fillText("ทะเบียน", sx, sgy + 22);
-        sgy += 32;
-        var phh = 38 * pLines.length + 24;
-        ctx.fillStyle = "#ffffff"; rrect(ctx, sx, sgy, sw, phh, 14); ctx.fill();
-        ctx.strokeStyle = INK; ctx.lineWidth = 3; rrect(ctx, sx, sgy, sw, phh, 14); ctx.stroke();
-        ctx.fillStyle = INK; ctx.font = '700 28px ' + PF; ctx.textAlign = "center";
-        pLines.forEach(function (ln, i) { fillC(ctx, ln, sx + sw / 2, sgy + 12 + 28 + i * 38 - 2); });
-        ctx.textAlign = "left";
-      }
-    }
     y += mh + 24;
     // ---- footer
     var url = "https://liff.line.me/2012285472-FvtYKx00" + location.pathname + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
