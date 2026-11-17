@@ -36,10 +36,10 @@
       txt(value, { size: "14px", weight: "bold", color: (o && o.color) || TXT, align: "end", flex: 1, gravity: "center" })] };
   }
   function limitText(n) { return n === 0 ? "ไม่จำกัด" : n === 1 ? "1 ที่นั่ง" : "ไม่เกิน " + n + " ที่นั่ง"; }
-  function gh(title, first) { // group heading; every group but the first starts with a thin rule (a separator: a bordered box would draw all four sides)
+  function gh(title, first) { // group heading; no rule between groups, a 20px gap separates them
     var h = txt(title, { size: "14px", weight: "bold", color: "#0b5f67", wrap: false });
-    if (!first) h.margin = "4px"; // Thai text carries extra space above its glyphs, so a small margin already looks like ~16 under the rule
-    return first ? [h] : [{ type: "separator", color: "#dbe1e4", margin: "12px" }, h];
+    if (!first) h.margin = "20px";
+    return [h];
   }
   function irow(label, value) { // label left (grey), value right (bold); same wording as the trip details tab
     return { type: "box", layout: "horizontal", margin: "8px", spacing: "12px", contents: [
