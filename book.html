@@ -1809,7 +1809,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var nh = 62, ph = pLines.length ? 26 + 38 * pLines.length : 0, sh = nh + ph;
       ctx.save(); rrect(ctx, sx, sgy, sw, sh, 20); ctx.clip();
       ctx.fillStyle = "#0b5f67"; ctx.fillRect(sx, sgy, sw, nh);
-      ctx.fillStyle = "#ffffff"; ctx.fillRect(sx, sgy + nh, sw, ph);
+      ctx.fillStyle = "#fde9a6"; ctx.fillRect(sx, sgy + nh, sw, ph); // plate strip in the pastel yellow of the TRIP wordmark
       ctx.restore();
       ctx.strokeStyle = "#0b5f67"; ctx.lineWidth = 3; rrect(ctx, sx, sgy, sw, sh, 20); ctx.stroke();
       ctx.fillStyle = "#ffffff"; ctx.font = '700 44px ' + PF; ctx.textAlign = "center"; fillC(ctx, vname, sx + sw / 2, sgy + 46);
