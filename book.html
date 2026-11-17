@@ -400,6 +400,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .list h2 small.lsub.full { color: #6b767c; background: #eef1f3; }
 .list h2 small.lsub:empty { display: none; }
 .list li.bk + li.free { border-top: 0; }
+.list li.bk:last-child { margin-bottom: 16px; } /* full list: the last row keeps the same gap to the card edge as the sides */
 .list li.bk:has(+ li.free) { border-bottom: 0; }
 .list li.mine-row + li.free { margin-top: 0; }
 .list li.free { display: block; padding: 10px 16px 14px; }
