@@ -12,7 +12,7 @@
     if (n === 1) return "เดย์ทริป · " + d1;
     return n + " วัน " + (n - 1) + " คืน · " + (a.getUTCMonth() === b.getUTCMonth() ? a.getUTCDate() + "–" + d2 : d1 + "–" + d2);
   }
-  function liffUrl(id) { return "https://liff.line.me/" + LIFF_ID + "/" + id; }
+  function liffUrl(id, kind) { return "https://liff.line.me/" + LIFF_ID + "/" + id + (kind === "info" ? "?info=1" : ""); } // ?info=1: open the trip details tab instead of the seat map
   function short(iso) { // "ศ. 15 ม.ค." — no year, so it fits the narrow half of the card
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || "")); if (!m) return "";
     return DOW[new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay()] + " " + (+m[3]) + " " + MON[+m[2] - 1];
@@ -63,6 +63,44 @@
       footer: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "8px", contents: [{ type: "button", style: "primary", color: "#0b5f67", height: "sm",
         action: { type: "uri", label: t.closed ? "ดูผังที่นั่ง" : "เลือกที่นั่ง", uri: liffUrl(t.id) } }] } };
   }
+  function gh(title, first) { // group heading, with a thin rule above every group but the first
+    var h = txt(title, { size: "14px", weight: "bold", color: "#0b5f67", wrap: false });
+    if (first) return { type: "box", layout: "vertical", contents: [h] };
+    return { type: "box", layout: "vertical", margin: "12px", paddingTop: "12px", borderWidth: "1px", borderColor: "#e8eced", contents: [h] };
+  }
+  function irow(label, value) { // label left (grey), value right (bold); same wording as the trip details tab
+    return { type: "box", layout: "horizontal", margin: "8px", spacing: "12px", contents: [
+      txt(label, { size: "12px", color: SUB, flex: 0, wrap: false, gravity: "center" }),
+      txt(value, { size: "14px", weight: "bold", color: TXT, align: "end", flex: 1, gravity: "center" })] };
+  }
+  function infoBubble(t) { // card 1: shared from the trip details tab — everything about the trip, button opens the details
+    var head = { type: "box", layout: "vertical", alignItems: "flex-start", backgroundColor: "#e6f3f3", paddingAll: "12px", contents: [
+      { type: "box", layout: "vertical", flex: 0, backgroundColor: "#ffffff", cornerRadius: "20px", paddingTop: "4px", paddingBottom: "4px", paddingStart: "12px", paddingEnd: "12px",
+        contents: [txt("VanTrip · ข้อมูลทริป", { size: "12px", weight: "bold", color: TEAL, wrap: false })] },
+      txt(t.name || "ทริปรถตู้", { weight: "bold", size: "20px", color: TXT, margin: "8px" })] };
+    var tdp = String(t.tripDays || "").split(" · "), n = Number(t.vans) || 0, body = [], g1 = [];
+    if (t.organizer) g1.push(irow("ผู้จัด", t.organizer));
+    if (tdp[0]) g1.push(irow("รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]));
+    if (tdp[1]) g1.push(irow("วันที่จัดทริป", tdp[1]));
+    if (g1.length) { body.push(gh("รายละเอียดทริป", true)); g1.forEach(function (r) { body.push(r); }); }
+    var hasTime = t.startDate || t.departTime || t.endDate || t.returnTime;
+    if (hasTime) {
+      body.push(gh("กำหนดการเดินทาง", !body.length));
+      body.push({ type: "box", layout: "horizontal", margin: "8px", backgroundColor: "#f6f8f9", cornerRadius: "12px", paddingAll: "12px", contents: [
+        half("เดินทางไป", t.departTime, short(t.startDate), false),
+        { type: "image", url: ORIGIN + "/swap-icon.png", size: "20px", aspectRatio: "1:1", aspectMode: "fit", flex: 0, gravity: "center", margin: "8px" },
+        half("เดินทางกลับ", t.returnTime, short(t.endDate || t.startDate), true)] });
+    }
+    var g3 = [];
+    if (t.meetPoint) g3.push(irow("จุดนัดพบ", t.meetPoint));
+    if (n > 0) g3.push(irow("รถตู้", n + " คัน (" + (n * 10 - (t.staffSeat ? n : 0)) + " ที่นั่ง)"));
+    if (Number(t.limit) > 0) g3.push(irow("จำกัดที่นั่งต่อคน", Number(t.limit) + " ที่นั่ง"));
+    if (g3.length) { body.push(gh("จุดนัดพบและรถตู้", !body.length)); g3.forEach(function (r) { body.push(r); }); }
+    return { type: "bubble", size: "mega", header: head,
+      body: { type: "box", layout: "vertical", paddingAll: "12px", paddingBottom: "8px", contents: body },
+      footer: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "8px", contents: [{ type: "button", style: "primary", color: "#0b5f67", height: "sm",
+        action: { type: "uri", label: "ดูรายละเอียดทริป", uri: liffUrl(t.id, "info") } }] } };
+  }
   var ready = null;
   function ensure() { // the page may or may not have loaded/initialised the LIFF SDK already
     if (ready) return ready;
@@ -78,13 +116,13 @@
     });
     return ready;
   }
-  function send(t) { // t: {id, name, organizer, startDate, endDate, departTime, returnTime, meetPoint, vans (count), staffSeat, limit (0 = none), closed}
+  function send(t, kind) { // t: {id, name, organizer, startDate, endDate, departTime, returnTime, meetPoint, vans (count), staffSeat, limit (0 = none), closed}
     return ensure().then(function (ok) {
       if (!ok || !t || !t.id) return false;
       try {
         if (!liff.isInClient() || !liff.isLoggedIn() || !liff.isApiAvailable("shareTargetPicker")) return false;
       } catch (e) { return false; }
-      return liff.shareTargetPicker([{ type: "flex", altText: "🚐 " + (t.name || "จองที่นั่งรถตู้") + " · เลือกที่นั่ง", contents: bubble(t) }])
+      return liff.shareTargetPicker([{ type: "flex", altText: "🚐 " + (t.name || "จองที่นั่งรถตู้") + (kind === "info" ? " · รายละเอียดทริป" : " · เลือกที่นั่ง"), contents: kind === "info" ? infoBubble(t) : bubble(t) }])
         .then(function () { return true; }, function () { return false; });
     }).catch(function () { return false; });
   }

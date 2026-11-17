@@ -1103,7 +1103,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   window.addEventListener("popstate", applyMode);
   window.addEventListener("hashchange", applyMode);
   document.getElementById("goSeats").addEventListener("click", function () { goView(""); setView("map"); });
-  document.getElementById("infoShare").addEventListener("click", function () { shareFriend(); });
+  document.getElementById("infoShare").addEventListener("click", function () { shareFriend("info"); });
   // first time this person opens this trip (and has no seat, isn't the organizer, link carries no seat/van): details first, once
   var entryDecided = false;
   function decideEntry() {
@@ -1821,15 +1821,16 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     lineUrl = location.origin + location.pathname + "?" + qs.join("&");
     return lineUrl;
   }
-  function inviteLink() { return "https://liff.line.me/2012285472-FvtYKx00/" + TRIP; }
-  async function shareFriend() {
-    var u = inviteLink(), L = [], T = trip || {};
-    if (await VSBShare.send({ id: TRIP, name: T.name, organizer: T.organizer, tripDays: T.tripDays, vans: (T.vans || []).length, staffSeat: !!T.staffSeat, limit: seatLimit, startDate: T.startDate, endDate: T.endDate, departTime: T.departTime, returnTime: T.returnTime, meetPoint: T.meetPoint, closed: closed || ended })) return; // a card in the chat; otherwise the text link below
+  function inviteLink(kind) { return "https://liff.line.me/2012285472-FvtYKx00/" + TRIP + (kind === "info" ? "?info=1" : ""); }
+  async function shareFriend(kind) {
+    kind = kind === "info" ? "info" : ""; // the click handlers pass an event, only the details tab passes "info"
+    var u = inviteLink(kind), L = [], T = trip || {};
+    if (await VSBShare.send({ id: TRIP, name: T.name, organizer: T.organizer, tripDays: T.tripDays, vans: (T.vans || []).length, staffSeat: !!T.staffSeat, limit: seatLimit, startDate: T.startDate, endDate: T.endDate, departTime: T.departTime, returnTime: T.returnTime, meetPoint: T.meetPoint, closed: closed || ended }, kind)) return; // a card in the chat; otherwise the text link below
     L.push("🚐 " + (T.name || "จองที่นั่งรถตู้"), "");
     if (T.startDate || T.departTime) L.push("📅 เดินทางไป " + leg(T.startDate, T.departTime));
     if (T.endDate || T.returnTime) L.push("🔁 เดินทางกลับ " + leg(T.endDate || T.startDate, T.returnTime));
     if (T.meetPoint) L.push("📍 " + T.meetPoint);
-    L.push("", closed || ended ? "ดูผังที่นั่ง 👇" : "จองที่นั่งได้ที่นี่ 👇"); // closed: the link only shows the seat map
+    L.push("", kind === "info" ? "ดูรายละเอียดทริป 👇" : closed || ended ? "ดูผังที่นั่ง 👇" : "จองที่นั่งได้ที่นี่ 👇"); // closed: the link only shows the seat map
     var lead = L.join("\n");
     if (!IN_LINE && navigator.share) { try { await navigator.share({ title: lead, text: lead, url: u }); } catch (e) {} return; }
     if (IN_LINE || /Android|iPhone|iPad/i.test(UA)) { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(lead + "\n" + u); return; }
