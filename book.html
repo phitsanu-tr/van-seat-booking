@@ -1738,7 +1738,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var dy = sy + HD;
     drows.forEach(function (r, i) {
       var ry3 = dy + i * RH, lbl = r[0] === "จำกัดที่นั่งต่อคน" ? "จำกัดต่อคน" : r[0];
-      if (i > 0) { ctx.fillStyle = DIV; ctx.fillRect(sx, ry3, sw, 2); }
       ctx.fillStyle = "#6b767c"; ctx.font = '400 26px ' + NF; ctx.textAlign = "left"; ctx.fillText(lbl, sx, ry3 + RH / 2 + 10);
       var lw3 = ctx.measureText(lbl).width + 16, fz = 30, val = r[1];
       ctx.fillStyle = INK; ctx.font = '600 ' + fz + 'px ' + NF;
