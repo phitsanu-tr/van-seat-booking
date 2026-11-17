@@ -190,6 +190,7 @@ body.sk #tripHdr > :not(.hero) { display: none; }
 .imgm .imgh { display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; font-size: 14px; line-height: 20px}
 .imgm .imgbtn { font: inherit; font-weight: 600; font-size: 16px; height: 48px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 12px; cursor: pointer; min-width: 0; }
 .imgm .imgbtn svg { flex: none; width: 20px; height: 20px; }
+.imgm .imgbtn.done { background: #dff1f2; border-color: #dff1f2; color: var(--mine); }
 .imgm .imgbtn.primary { flex: none; width: 100%; background: var(--mine); border-color: var(--mine); color: var(--mine-ink); font-size: 16px; line-height: 24px}
 .imgm .imgbtn.primary svg { width: 22px; height: 22px; }
 .imgm .imgbtn.primary[hidden] { display: none; }
@@ -1858,7 +1859,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   });
   document.getElementById("imgCopy").addEventListener("click", function () {
     var u = IMG_ONLY ? location.origin + location.pathname + (curVan ? "?v=" + encodeURIComponent(curVan) : "") : location.href.split("#")[0];
-    copyText(u, function () { showToast("คัดลอกลิงก์แล้ว"); }, function () { showToast("คัดลอกไม่สำเร็จ ลองใหม่อีกครั้ง", "error"); });
+    var btn = document.getElementById("imgCopy"), lbl = btn.querySelector("span");
+    copyText(u, function () { // the answer shows inside the button itself (a toast would cover the buttons)
+      btn.classList.add("done"); lbl.textContent = "คัดลอกแล้ว";
+      clearTimeout(btn._t); btn._t = setTimeout(function () { btn.classList.remove("done"); lbl.textContent = "คัดลอกลิงก์"; }, 1800);
+    }, function () { showToast("คัดลอกไม่สำเร็จ ลองใหม่อีกครั้ง", "error"); });
   });
   document.getElementById("imgShare").addEventListener("click", async function () {
     if (!imgFile) return;
