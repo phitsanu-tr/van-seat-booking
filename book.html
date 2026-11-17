@@ -1668,7 +1668,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (t0) yy = " " + String(new Date(t0.y - 543, t0.mo, t0.d + Math.max(0, (Number(trip.tripN) || 1) - 1)).getFullYear() + 543).slice(-2);
     var tdp = (trip.tripDays || "").split(" · "), rows = [];
     if (trip.tripDays) { rows.push(["รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]]); if (tdp[1]) rows.push(["วันที่จัดทริป", tdp[1] + yy]); }
-    if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน"]);
+    if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน · " + (trip.vans.length > 1 ? "คันละ " : "") + TOTAL + " ที่นั่ง"]);
     y += 26;
     // ---- travel schedule box
     var goD = (trip.startDate || trip.departTime) ? dayS(trip.startDate) : "", goT = trip.departTime || "";
