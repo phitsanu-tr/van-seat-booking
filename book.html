@@ -450,8 +450,6 @@ body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: non
 .infoact .ibtns .ipri { padding: 4px 8px; }
 .infoact .ibtns .ipri small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .infoact .ibtns .ipri small { font: 400 12px/16px var(--font-body); opacity: .9; }
-.infoact .ibtns .ipri.sk { background: color-mix(in srgb, var(--ink) 9%, var(--surface)); border-radius: 16px; }
-.infoact .ibtns .ipri.sk span, .infoact .ibtns .ipri.sk small { color: transparent; }
 .infoact .ibtns .isec { background: #e4f3f4; color: #0b5f67; border: 0; }
 .infoact .ibtns svg { width: 16px; height: 16px; }
 #tripHdr > .vsw { margin-top: 16px; }
@@ -701,10 +699,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (trip && JSON.stringify(CHG) !== was) renderTrip();
   }
   var loaded = false, loadError = "";
-  function skOff() { document.body.classList.remove("sk"); }
+  // the page appears all at once: on the details page a signed-in person also waits for "which seats are mine" (the 8 s timer overrides)
+  function skOff(force) { if (!force && infoMode() && me && !mineDone) return; document.body.classList.remove("sk"); }
   function showNet(on) { document.body.classList.toggle("ne", !!on); } // "can't connect" box: shown only while the trip has never loaded
-  setTimeout(function () { skOff(); if (!loaded) showNet(true); }, 8000);
-  document.getElementById("neRetry").addEventListener("click", function () { showNet(false); document.body.classList.add("sk"); setTimeout(function () { skOff(); if (!loaded) showNet(true); }, 8000); refresh(true); });
+  setTimeout(function () { skOff(true); if (!loaded) showNet(true); }, 8000);
+  document.getElementById("neRetry").addEventListener("click", function () { showNet(false); document.body.classList.add("sk"); setTimeout(function () { skOff(true); if (!loaded) showNet(true); }, 8000); refresh(true); });
   var selected = null, message = "", shown = false, confirming = false, lastSnapshot = "", wasFree = false; // wasFree: the seat was free when this dialog opened
   var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false, closed = false;
   // locked: nothing to tap. A finished trip is locked for everyone; a closed one only for passengers (organizers still manage seats).
@@ -1092,7 +1091,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     applyMode();
   }
   // #info = trip details, no hash = seat map / list. Browser back moves between them (pushState), so back from the map goes to the details.
-  var mineLine = "", mineLoaded = false, mineDone = false, wasInfo = false; // mineDone: the first answer to "which seats are mine" has arrived (until then the main button is a skeleton)
+  var mineLine = "", mineLoaded = false, mineDone = false, wasInfo = false; // mineDone: the first answer to "which seats are mine" has arrived (the skeleton page stays up for it on the details page)
   function infoMode() { return location.hash === "#info"; }
   function applyMode() {
     var on = infoMode();
@@ -1116,7 +1115,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       mineLine = ms.length ? "จองแล้ว " + ms.length + " ที่นั่ง" + (multi ? (mv.length > 1 ? " · " + mv.length + " คัน" : " · คัน " + mv[0]) : "") : "";
       mineDone = true;
       if (trip) renderTrip();
-    }).catch(function () { mineLoaded = false; mineDone = true; if (trip) renderTrip(); });
+      if (loaded) skOff();
+    }).catch(function () { mineLoaded = false; mineDone = true; if (trip) renderTrip(); if (loaded) skOff(); });
   }
   function goView(hash) {
     try { history.pushState({ vsb: 1 }, "", location.pathname + location.search + hash); } catch (e) { location.hash = hash; }
@@ -1278,13 +1278,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (mineLine) { gl = "ดูที่นั่งของฉัน"; gsub = mineLine; }
     else if (trip.vans.length && rest > 0) { gl = "เลือกที่นั่ง"; gsub = "ว่าง " + rest + " จาก " + tot + " ที่นั่ง"; }
     gs.textContent = ""; gs.className = "ipri" + (gsub ? " two" : "");
-    if (me && !mineDone) { // signed in, still asking which seat is mine: a skeleton instead of wording that would flip a moment later
-      gs.className = "ipri two sk"; gs.disabled = true; gs.setAttribute("aria-busy", "true");
-      gs.appendChild(el("span", null, "ดูผังที่นั่ง")); gs.appendChild(el("small", null, "กำลังโหลด…"));
-    } else {
-      gs.disabled = false; gs.removeAttribute("aria-busy");
-      gs.appendChild(el("span", null, gl)); if (gsub) gs.appendChild(el("small", null, gsub));
-    }
+    gs.appendChild(el("span", null, gl)); if (gsub) gs.appendChild(el("small", null, gsub));
     document.getElementById("infoAct").hidden = false; document.getElementById("infoShare").hidden = false;
     if (infoMode() && me && !mineLoaded) loadMine(); // signed in after the page opened on the details
     factsEl.hidden = false;
@@ -1395,7 +1389,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (pending > 0 || asked !== curVan) return;
       if (!r.ok) {
         loadError = errorText(r, "โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า");
-        skOff();
+        skOff(true);
         if (r.status === 404 && r.data && r.data.error === "no_trip") { document.body.classList.add("nf"); document.title = "VanTrip"; return; }
         if (!loaded) { if (r.status >= 500 || r.status === 0) showNet(true); renderAll(); }
         return;
@@ -1428,7 +1422,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !locked()) openSeat(ws); }
     } catch (e) {
       loadError = "เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่";
-      if (!loaded) { skOff(); showNet(true); renderAll(); }
+      if (!loaded) { skOff(true); showNet(true); renderAll(); }
     }
   }
 
