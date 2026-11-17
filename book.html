@@ -177,6 +177,10 @@ body.sk #tripHdr > :not(.hero) { display: none; }
 .invite .x { flex: none; width: 24px; height: 28px; margin-left: -8px; border: 0; background: transparent; color: var(--muted); font-size: 18px; line-height: 18px; cursor: pointer; }
 @media (max-width: 340px) { .invite .tx small { display: none; } }
 .shbtn:disabled { opacity: .6; cursor: default; }
+/* press feedback: the button sinks a little and darkens while a finger is on it (details pair + seat-map pair) */
+.infoact .ibtns button, .shbtn { transition: transform .08s ease, filter .08s ease; -webkit-tap-highlight-color: transparent; }
+.infoact .ibtns button:active, .shbtn:active:not(:disabled) { transform: scale(.97); filter: brightness(.9); }
+@media (prefers-reduced-motion: reduce) { .infoact .ibtns button, .shbtn { transition: none; } }
 .imgm { max-height: 96vh; overflow-y: auto; gap: 12px; }
 .imgm .imghd { display: flex; align-items: center; gap: 12px; height: 24px; }
 .imgm .imgt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
