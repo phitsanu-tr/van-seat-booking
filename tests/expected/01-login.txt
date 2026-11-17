@@ -6,6 +6,6 @@ anon panel: lg 1 input 0 note 0
 trips/new (LINE) -> /home?for=new&r=%2Ftrips%2Fnew retry screen 1 2
 trips/new (browser) -> open-in-LINE screen 1 3
 after sign-in -> /trips/new submit ถัดไป
-index logged -> /home title สวัสดี ผู้ทดสอบ
+index logged -> stays on / chip goes to /home class acct in
 index chip anon hidden false
 ERR []

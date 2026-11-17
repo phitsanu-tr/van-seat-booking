@@ -15,6 +15,6 @@ log('trips/new (LINE) ->',T.url().replace(B,''),'retry screen',await T.locator('
 const cP=await (async()=>{const c=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2});await HLP.fonts(c);return c})();const Pp=await pg(cP,'P');await Pp.goto(B+'/trips/new');await Pp.waitForTimeout(1500);
 log('trips/new (browser) -> open-in-LINE screen',await Pp.locator('text=กรุณาเปิดใน LINE').count(),await Pp.locator('text=เปิดใน LINE').count());
 await T.goto(B+'/api/auth?start=1&as=ผู้ทดสอบ&r=%2Ftrips%2Fnew');await T.waitForTimeout(2000);log('after sign-in ->',new URL(T.url()).pathname,'submit',await T.textContent('#submit'));
-await T.goto(B+'/');await T.waitForTimeout(1500);log('index logged ->',new URL(T.url()).pathname,'title',await T.textContent('#ltl'));
+await T.goto(B+'/');await T.waitForTimeout(1500);log('index logged -> stays on',new URL(T.url()).pathname,'chip goes to',await T.getAttribute('#acct','href'),'class',await T.getAttribute('#acct','class'));
 const cH=await ctx();const H=await pg(cH,'H');await H.goto(B+'/');await H.waitForTimeout(800);log('index chip anon hidden',await H.locator('#acct').isHidden());await H.screenshot({path:S+'/8_home.png'});
 log('ERR',errs);await b.close();})();
