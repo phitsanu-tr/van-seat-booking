@@ -424,9 +424,6 @@ button.danger { font: inherit; font-weight: 600; border-radius: 16px; padding: 1
 /* two views of one page: #info = trip details (from "ทริปของฉัน"), otherwise the seat map */
 body:not(.v-info) #tripFacts, body:not(.v-info) #infoAct { display: none !important; }
 body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: none !important; }
-.facts .orgl { display: flex; align-items: center; gap: 8px; font-size: 12px; line-height: 16px; color: var(--mine); margin-bottom: 4px; }
-.facts .orgl svg { width: 14px; height: 14px; margin: 0; }
-.facts .orgl b { font-weight: 600; overflow-wrap: anywhere; }
 .facts .fhead .ftitle { }
 .infoact { display: grid; gap: 16px; margin: 16px 0 0; }
 .infoact .ibtns { display: grid; gap: 8px; }
@@ -1185,9 +1182,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     factsEl.textContent = "";
     var fh = el("div", "fhead");
-    if (trip.organizer) {
-      var ol = el("div", "orgl"), osv = svgIcon("usr"); ol.appendChild(osv); var ot = el("span"); ot.appendChild(document.createTextNode("จัดโดย ")); ot.appendChild(el("b", null, trip.organizer)); ol.appendChild(ot); fh.appendChild(ol);
-    }
     fh.appendChild(el("div", "ftitle", trip.name));
     factsEl.appendChild(fh);
     // chips: how many days (with dates) + how many vans
@@ -1218,6 +1212,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var mt = el("div"); mt.appendChild(el("span", "mk", "จุดนัดพบ"));
       mt.appendChild(el("span", CHG.meet ? "fv chg" : "fv", trip.meetPoint));
       mp.appendChild(mt); factsEl.appendChild(mp);
+    }
+    if (trip.organizer) {
+      var og = el("div", "meet"); og.setAttribute("role", "listitem"); og.appendChild(svgIcon("usr"));
+      var ogt = el("div"); ogt.appendChild(el("span", "mk", "ผู้จัด")); ogt.appendChild(el("span", "fv", trip.organizer));
+      og.appendChild(ogt); factsEl.appendChild(og);
     }
     var tot = trip.vans.length * TOTAL, booked = 0;
     trip.vans.forEach(function (v) { booked += counts[v.id] != null ? counts[v.id] : (v.id === curVan ? Object.keys(seats).length : 0); });
