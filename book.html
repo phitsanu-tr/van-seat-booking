@@ -425,13 +425,13 @@ body.v-info #deck, body.v-info #tripMini, body.v-info .hero .org, body.v-list .h
 .facts .orgl svg { width: 14px; height: 14px; margin: 0; }
 .facts .orgl b { font-weight: 600; overflow-wrap: anywhere; }
 .facts .fhead .ftitle { }
-.tmini { display: flex; align-items: center; gap: 12px; margin: 12px 0 0; padding: 12px; background: var(--surface); border: 1px solid #e8ecef; border-radius: 16px; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
+.tmini { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; margin: 12px 0 0; padding: 12px 16px; text-align: left; background: var(--surface); border: 1px solid #e3e6ea; border-radius: 16px; box-shadow: 0 2px 8px rgba(20,40,50,.04); color: inherit; font: inherit; cursor: pointer; }
+.tmini .tic { flex: none; width: 32px; height: 32px; border-radius: 50%; background: #e4f3f4; color: #0b5f67; display: flex; align-items: center; justify-content: center; }
+.tmini .tic svg { width: 18px; height: 18px; }
 .tmini .tx { flex: 1; min-width: 0; }
-.tmini .tx b { display: block; font: 600 14px/20px var(--font-display); overflow-wrap: anywhere; }
-.tmini .tx span { display: block; font-size: 12px; line-height: 16px; color: var(--muted); overflow-wrap: anywhere; }
-.tmini .tinfo { flex: none; display: inline-flex; align-items: center; border: 1.5px solid var(--mine); background: none; color: var(--mine); border-radius: 100px; padding: 6px 12px; font: 600 12px/16px var(--font-body); cursor: pointer; }
-.tmini .tinfo { position: relative; } .tmini .tinfo::after { content: ""; position: absolute; inset: -8px -4px; }
-.tmini .tinfo svg { width: 14px; height: 14px; margin-left: 2px; }
+.tmini .tx b { display: block; font: 600 16px/24px var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tmini .tx span { display: block; font-size: 12px; line-height: 16px; color: #0b5f67; font-weight: 600; margin-top: 2px; }
+.tmini .tch { flex: none; width: 20px; height: 20px; color: var(--muted); }
 .infoact { display: grid; gap: 16px; margin: 16px 0 0; }
 .infoact .icard { padding: 16px; background: var(--surface); border: 1px solid #e8ecef; border-radius: 16px; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); display: grid; gap: 12px; }
 .infoact .ibar { height: 10px; border-radius: 10px; background: #eef2f4; overflow: hidden; }
@@ -526,7 +526,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       <div class="icard" id="infoProg"></div>
       <div class="ibtns"><button type="button" class="ipri" id="goSeats">ดูผังที่นั่ง</button><button type="button" class="isec" id="goRoster">ดูรายชื่อ</button></div>
     </div>
-    <div class="tmini" id="tripMini" hidden><div class="tx"><b id="miniT"></b><span id="miniS"></span></div><button type="button" class="tinfo" id="miniInfo">ข้อมูลทริป<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
+    <div id="tripMini" hidden><button type="button" class="tmini" id="miniInfo"><span class="tic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg></span><span class="tx"><b id="miniT"></b><span id="miniS">แตะเพื่อดูข้อมูลทริป</span></span><svg class="tch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
     <div class="invite" id="invite" hidden><span class="ok"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><span class="tx"><b id="invT">จองที่นั่งแล้ว</b><small>ชวนผู้ร่วมทริปมาจองด้วยกัน</small></span><button type="button" class="go" id="invGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>แชร์ใน LINE</button><button type="button" class="x" id="invX" aria-label="ปิด">×</button></div>
   </header>
 
@@ -1234,7 +1234,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var tot = trip.vans.length * TOTAL, booked = 0;
     trip.vans.forEach(function (v) { booked += counts[v.id] != null ? counts[v.id] : (v.id === curVan ? Object.keys(seats).length : 0); });
     document.getElementById("miniT").textContent = trip.name;
-    document.getElementById("miniS").textContent = [leg(trip.startDate, trip.departTime), trip.organizer].filter(Boolean).join(" · ");
     document.getElementById("tripMini").hidden = false;
     var ip = document.getElementById("infoProg"); ip.textContent = "";
     if (booked > 0) { var bar = el("div", "ibar"), fill = el("i"); fill.style.width = (tot ? Math.min(100, Math.round(booked / tot * 100)) : 0) + "%"; bar.appendChild(fill); ip.appendChild(bar); }
