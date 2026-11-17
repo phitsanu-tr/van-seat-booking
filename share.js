@@ -24,7 +24,7 @@
     return { type: "box", layout: "vertical", flex: 1, contents: [
       txt(label, { size: "12px", color: SUB, align: al }),
       txt(time ? String(time) : "–", { size: "20px", weight: "bold", color: TXT, align: al }),
-      txt(date || " ", warn ? { size: "12px", color: "#b45309", weight: "bold", align: al } : { size: "12px", color: "#4a555c", align: al })] };
+      txt(date || " ", warn ? { size: "12px", color: "#b45309", align: al } : { size: "12px", color: "#4a555c", align: al })] };
   }
   function line(label, value, o) { // table row: grey label left, bold value right, thin rule above (except the first)
     return { type: "box", layout: "horizontal", paddingTop: "8px", paddingBottom: "8px", spacing: "12px", contents: [
