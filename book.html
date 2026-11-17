@@ -1642,7 +1642,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var KS = 1544 / CW; // draw at the final 1544px resolution (no upscaling blur), in the same layout units
     var tc = document.createElement("canvas"); tc.width = Math.round(CW * KS); tc.height = Math.round(3600 * KS);
     var ctx = tc.getContext("2d"); ctx.scale(KS, KS);
-    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, CW, 3600);
+    ctx.fillStyle = "#f3f7f8"; ctx.fillRect(0, 0, CW, 3600);
     var PF = 'Prompt, "Noto Sans Thai", sans-serif', NF = '"Noto Sans Thai", sans-serif', DIV = "#dfe5e8", ORANGE = "#c2570c";
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
     // ---- header (same look as the shared Flex card: mint band, VanTrip + trip-code pill, title)
@@ -1663,7 +1663,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var t0 = parseD(trip.tripStart), yy = "";
     if (t0) yy = " " + String(new Date(t0.y - 543, t0.mo, t0.d + Math.max(0, (Number(trip.tripN) || 1) - 1)).getFullYear() + 543).slice(-2);
     var tdp = (trip.tripDays || "").split(" · "), rows = [];
-    if (trip.organizer) rows.push(["ผู้จัด", trip.organizer]);
     if (trip.tripDays) { rows.push(["รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]]); if (tdp[1]) rows.push(["วันที่จัดทริป", tdp[1] + yy]); }
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน · " + (trip.vans.length * TOTAL) + " ที่นั่ง"]);
     if (seatLimit > 0) rows.push(["จำกัดที่นั่งต่อคน", seatLimit + " ที่นั่ง"]);
@@ -1711,22 +1710,24 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       y += bh;
     }
     // ---- map card: van on the left, who booked what on the right
-    y += 30;
+    y += 30; heading("ผังที่นั่งและรายละเอียด");
     var MX = 36, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k, IP = 28;
-    var mh = IP + PH + IP, FHF = useQr ? 220 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + 24 + FHF)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
+    var mh = IP + PH + IP, FHF = useQr ? 220 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + 24 + FHF + 36)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
     mh += extra;
-    ctx.fillStyle = "#f3f6f7"; rrect(ctx, MX, y, MW, mh, 45); ctx.fill();
+    ctx.fillStyle = "#ffffff"; rrect(ctx, MX, y, MW, mh, 45); ctx.fill(); ctx.strokeStyle = DIV; ctx.lineWidth = 2; rrect(ctx, MX, y, MW, mh, 45); ctx.stroke();
     var cnt = Object.keys(seats).length;
     var PX = MX + IP, PY = y + IP + extra / 2;
     drawPlan(ctx, PX, PY, k);
     drawSeats(ctx, PX, PY, k, PW);
     var sx = PX + PW + 40, sw = MX + MW - IP - sx, sy = PY, sb = PY + PH; // side panel: count + trip details
     ctx.textAlign = "left";
+    var plateRow = (cur && cur.plate) ? ["ทะเบียน", cur.plate] : null;
+    var drows = rows.slice(); if (plateRow) drows.push(plateRow);
+    var RH = 86, blockH = 44 + 44 + 20 + drows.length * RH; if (blockH > PH) { RH = Math.max(60, (PH - 108) / drows.length); blockH = 108 + drows.length * RH; }
+    sy = PY + Math.max(0, (PH - blockH) / 2); // centre the block against the van
     ctx.fillStyle = TEAL; ctx.font = '600 104px ' + PF; ctx.fillText(String(cnt), sx, sy + 92);
     ctx.fillStyle = "#6b767c"; ctx.font = '400 28px ' + NF; ctx.fillText("จองแล้ว จาก " + TOTAL + " ที่นั่ง", sx, sy + 92 + 44);
-    var dy = sy + 92 + 44 + 20, plateRow = (cur && cur.plate) ? ["ทะเบียน", cur.plate] : null;
-    var drows = rows.slice(); if (plateRow) drows.push(plateRow);
-    var RH = 86; if (dy + drows.length * RH > sb) RH = Math.max(60, (sb - dy) / drows.length);
+    var dy = sy + 92 + 44 + 20;
     drows.forEach(function (r, i) {
       var ry3 = dy + i * RH;
       ctx.fillStyle = DIV; ctx.fillRect(sx, ry3, sw, 2);
@@ -1746,7 +1747,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var d = new Date(), pad = function (v) { return (v < 10 ? "0" : "") + v; };
     var stamp = "อัปเดตเมื่อ " + d.getDate() + " " + THMON[d.getMonth()] + " " + (d.getFullYear() + 543) + " · " + pad(d.getHours()) + ":" + pad(d.getMinutes());
     var withQr = useQr, FH = FHF;
-    ctx.fillStyle = "#0b5f67"; ctx.fillRect(0, y, CW, FH); // teal band, full width
+    ctx.fillStyle = "#0b5f67"; rrect(ctx, 36, y, CW - 72, FH, 36); ctx.fill(); // rounded teal bar
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
     var ql = 172, tx0 = X;
     if (withQr) {
@@ -1763,7 +1764,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.fillText(su, tx0, bt + 84);
     ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.font = '400 26px "Noto Sans Thai", sans-serif';
     ctx.fillText(stamp, tx0, bt + 122);
-    var total = y + FH; posterFixed = total - extra - PH;
+    var total = y + FH + 36; posterFixed = total - extra - PH;
     // ---- compose onto a light backdrop with rounded corners
     var OW = 1544, k = OW / CW; // same output width as the seat pass / admin pass cards (386 x 4)
     var out = document.createElement("canvas"); out.width = OW; out.height = Math.max(Math.round(total * k), Math.round(OW * 16 / 9));
