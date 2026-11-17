@@ -1656,7 +1656,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var KS = 1544 / CW; // draw at the final 1544px resolution (no upscaling blur), in the same layout units
     var tc = document.createElement("canvas"); tc.width = Math.round(CW * KS); tc.height = Math.round(3600 * KS);
     var ctx = tc.getContext("2d"); ctx.scale(KS, KS);
-    ctx.fillStyle = "#f3f7f8"; ctx.fillRect(0, 0, CW, 3600);
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, CW, 3600);
     var PF = 'Prompt, "Noto Sans Thai", sans-serif', NF = '"Noto Sans Thai", sans-serif', DIV = "#dfe5e8", ORANGE = "#c2570c";
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
     // ---- header (same look as the shared Flex card: mint band, VanTrip + trip-code pill, title)
@@ -1855,7 +1855,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var out = document.createElement("canvas"); out.width = OW; out.height = Math.max(Math.round(total * k), Math.round(OW * 16 / 9));
     var oc = out.getContext("2d");
     oc.save(); rrect(oc, 0, 0, OW, out.height, 0); oc.clip(); // square corners: nothing transparent at the corners
-    oc.fillStyle = "#eef1f3"; oc.fillRect(0, 0, OW, out.height);
+    oc.fillStyle = "#ffffff"; oc.fillRect(0, 0, OW, out.height);
     oc.drawImage(tc, 0, 0, OW, Math.round(total * k), 0, 0, OW, Math.round(total * k));
     oc.restore();
     return out;
