@@ -39,7 +39,7 @@
   function gh(title, first) { // group heading; every group but the first starts with a thin rule (a separator: a bordered box would draw all four sides)
     var h = txt(title, { size: "14px", weight: "bold", color: "#0b5f67", wrap: false });
     if (!first) h.margin = "4px"; // Thai text carries extra space above its glyphs, so a small margin already looks like ~16 under the rule
-    return first ? [h] : [{ type: "separator", color: "#d5dce0", margin: "12px" }, h];
+    return first ? [h] : [{ type: "separator", color: "#dbe1e4", margin: "12px" }, h];
   }
   function irow(label, value) { // label left (grey), value right (bold); same wording as the trip details tab
     return { type: "box", layout: "horizontal", margin: "8px", spacing: "12px", contents: [
@@ -75,7 +75,7 @@
               contents: [{ type: "image", url: ORIGIN + "/swap-icon.png", size: "16px", aspectRatio: "1:1", aspectMode: "fit" }] },
         half("เดินทางกลับ", t.returnTime ? t.returnTime + " น." : "", shortY(t.endDate || t.startDate), true)] });
       if (t.meetPoint) {
-        if (hasTime) card.push({ type: "box", layout: "vertical", paddingStart: "12px", paddingEnd: "12px", contents: [{ type: "box", layout: "vertical", height: "1px", backgroundColor: "#cfd7db", contents: [{ type: "filler" }] }] }); // inset hairline (a 1px box: a separator here did not draw in the simulator), not edge to edge
+        if (hasTime) card.push({ type: "box", layout: "vertical", paddingStart: "12px", paddingEnd: "12px", contents: [{ type: "box", layout: "vertical", height: "1px", backgroundColor: "#dbe1e4", contents: [{ type: "filler" }] }] }); // inset hairline (a 1px box: a separator here did not draw in the simulator), not edge to edge
         card.push({ type: "box", layout: "vertical", paddingAll: "12px", contents: [
           txt("จุดนัดพบ", { size: "12px", color: SUB }),
           txt(t.meetPoint, { size: "14px", weight: "bold", color: TXT })] });
