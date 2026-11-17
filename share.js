@@ -69,7 +69,7 @@
   }
   function gh(title, first) { // group heading; every group but the first starts with a thin rule (a separator: a bordered box would draw all four sides)
     var h = txt(title, { size: "14px", weight: "bold", color: "#0b5f67", wrap: false });
-    if (!first) h.margin = "12px";
+    if (!first) h.margin = "4px"; // Thai text carries extra space above its glyphs, so a small margin already looks like ~16 under the rule
     return first ? [h] : [{ type: "separator", color: "#e8eced", margin: "12px" }, h];
   }
   function irow(label, value) { // label left (grey), value right (bold); same wording as the trip details tab
