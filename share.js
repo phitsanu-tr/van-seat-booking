@@ -82,24 +82,29 @@
     if (t.organizer) g1.push(irow("ผู้จัด", t.organizer));
     if (tdp[0]) g1.push(irow("รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]));
     if (tdp[1]) g1.push(irow("วันที่จัดทริป", tdp[1]));
+    if (n > 0) g1.push(irow("รถตู้", n + " คัน (" + (n * 10 - (t.staffSeat ? n : 0)) + " ที่นั่ง)"));
+    if (Number(t.limit) > 0) g1.push(irow("จำกัดที่นั่งต่อคน", Number(t.limit) + " ที่นั่ง"));
     if (g1.length) { gh("รายละเอียดทริป", true).forEach(function (x) { body.push(x); }); g1.forEach(function (r) { body.push(r); }); }
     var hasTime = t.startDate || t.departTime || t.endDate || t.returnTime;
-    if (hasTime) {
+    if (hasTime || t.meetPoint) {
       gh("กำหนดการเดินทาง", !body.length).forEach(function (x) { body.push(x); });
-      body.push({ type: "box", layout: "horizontal", margin: "8px", backgroundColor: "#f6f8f9", cornerRadius: "12px", paddingAll: "12px", contents: [
+      var card = []; // one grey box: the times, then (under a hairline) the meeting point
+      if (hasTime) card.push({ type: "box", layout: "horizontal", paddingAll: "12px", contents: [
         half("เดินทางไป", t.departTime, short(t.startDate), false),
         { type: "image", url: ORIGIN + "/swap-icon.png", size: "20px", aspectRatio: "1:1", aspectMode: "fit", flex: 0, gravity: "center", margin: "8px" },
         half("เดินทางกลับ", t.returnTime, short(t.endDate || t.startDate), true)] });
-      if (t.tripStart && t.startDate && t.departTime && t.startDate < t.tripStart) // leaves the evening before the trip's first day (same rule as the details tab)
+      if (t.meetPoint) {
+        if (hasTime) card.push({ type: "separator", color: "#e3e8ea" });
+        card.push({ type: "box", layout: "vertical", paddingAll: "12px", contents: [
+          txt("จุดนัดพบ", { size: "12px", color: SUB }),
+          txt(t.meetPoint, { size: "14px", weight: "bold", color: TXT })] });
+      }
+      body.push({ type: "box", layout: "vertical", margin: "8px", backgroundColor: "#f6f8f9", cornerRadius: "12px", contents: card });
+      if (hasTime && t.tripStart && t.startDate && t.departTime && t.startDate < t.tripStart) // leaves the evening before the trip's first day (same rule as the details tab)
         body.push({ type: "box", layout: "horizontal", margin: "8px", backgroundColor: "#fdf0dd", cornerRadius: "12px", paddingAll: "8px", paddingStart: "12px", paddingEnd: "12px", spacing: "8px", contents: [
           txt("🌙", { size: "14px", flex: 0, wrap: false, gravity: "center" }),
           txt("ออกเดินทางคืนก่อนวันเริ่มทริป", { size: "14px", color: "#8a5300", flex: 1, gravity: "center" })] });
     }
-    var g3 = [];
-    if (t.meetPoint) g3.push(irow("จุดนัดพบ", t.meetPoint));
-    if (n > 0) g3.push(irow("รถตู้", n + " คัน (" + (n * 10 - (t.staffSeat ? n : 0)) + " ที่นั่ง)"));
-    if (Number(t.limit) > 0) g3.push(irow("จำกัดที่นั่งต่อคน", Number(t.limit) + " ที่นั่ง"));
-    if (g3.length) { gh("จุดนัดพบและรถตู้", !body.length).forEach(function (x) { body.push(x); }); g3.forEach(function (r) { body.push(r); }); }
     return { type: "bubble", size: "mega", header: head,
       body: { type: "box", layout: "vertical", paddingAll: "12px", paddingBottom: "8px", contents: body },
       footer: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "8px", contents: [{ type: "button", style: "primary", color: "#0b5f67", height: "sm",
