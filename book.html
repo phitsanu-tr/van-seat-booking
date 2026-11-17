@@ -1630,9 +1630,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   // "Seat pass" picture: dark-teal header like the admin pass. With a seat booked on this device it leads with
   // "my seat"; the date/time/meeting facts sit under the header and a QR code sits at the bottom.
   var posterFixed = 0;
-  function drawPoster(useQr) { // 9:16 output: size the van map so the whole card fits (side panel needs room, so 250-480 wide)
+  function drawPoster(useQr) { // 9:16 output: size the van map so the whole card fits (side panel needs room, so 250-520 wide)
     var c0 = drawPoster0(useQr, 380);
-    var tgt = 1008 * 16 / 9, pw = Math.max(250, Math.min(480, (tgt - posterFixed) / (H / W)));
+    var tgt = 1008 * 16 / 9, pw = Math.max(250, Math.min(520, (tgt - posterFixed) / (H / W)));
     return Math.abs(pw - 380) > 1 ? drawPoster0(useQr, pw) : c0;
   }
   function drawPoster0(useQr, pwOv) {
@@ -1646,18 +1646,18 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var PF = 'Prompt, "Noto Sans Thai", sans-serif', NF = '"Noto Sans Thai", sans-serif', DIV = "#dfe5e8", ORANGE = "#c2570c";
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
     // ---- header (same look as the shared Flex card: mint band, VanTrip + trip-code pill, title)
-    ctx.font = '600 52px ' + PF; var titleLines = wrapText(ctx, trip.name || "", IW, 2);
-    var HH = 44 + 52 + 22 + titleLines.length * 70 + 30;
+    ctx.font = '600 44px ' + PF; var titleLines = wrapText(ctx, trip.name || "", IW, 2);
+    var HH = 32 + 52 + 16 + titleLines.length * 58 + 22;
     ctx.fillStyle = "#e3f2f3"; ctx.fillRect(0, 0, CW, HH);
-    ctx.fillStyle = TEAL; ctx.font = '600 34px ' + PF; ctx.fillText("VanTrip", X, 44 + 36);
+    ctx.fillStyle = TEAL; ctx.font = '600 34px ' + PF; ctx.fillText("VanTrip", X, 32 + 36);
     ctx.font = '600 28px ' + PF; var codeT = TRIP.toLowerCase(), pw2 = ctx.measureText(codeT).width + 44;
-    ctx.fillStyle = "#ffffff"; rrect(ctx, X + IW - pw2, 44, pw2, 52, 26); ctx.fill();
-    ctx.strokeStyle = "#8fcdd3"; ctx.lineWidth = 2; rrect(ctx, X + IW - pw2, 44, pw2, 52, 26); ctx.stroke();
-    ctx.fillStyle = TEAL; ctx.fillText(codeT, X + IW - pw2 + 22, 44 + 36);
-    ctx.fillStyle = INK; ctx.font = '600 52px ' + PF;
-    titleLines.forEach(function (ln, i) { ctx.fillText(ln, X, 44 + 52 + 22 + i * 70 + 50); });
+    ctx.fillStyle = "#ffffff"; rrect(ctx, X + IW - pw2, 32, pw2, 52, 26); ctx.fill();
+    ctx.strokeStyle = "#8fcdd3"; ctx.lineWidth = 2; rrect(ctx, X + IW - pw2, 32, pw2, 52, 26); ctx.stroke();
+    ctx.fillStyle = TEAL; ctx.fillText(codeT, X + IW - pw2 + 22, 32 + 36);
+    ctx.fillStyle = INK; ctx.font = '600 44px ' + PF;
+    titleLines.forEach(function (ln, i) { ctx.fillText(ln, X, 32 + 52 + 16 + i * 58 + 42); });
     var y = HH;
-    function heading(t) { ctx.fillStyle = "#0b5f67"; ctx.font = '600 36px ' + PF; ctx.fillText(t, X, y + 36); y += 36 + 20; }
+    function heading(t) { ctx.fillStyle = "#0b5f67"; ctx.font = '600 32px ' + PF; ctx.fillText(t, X, y + 32); y += 32 + 16; }
     function sep() { ctx.fillStyle = DIV; ctx.fillRect(X, y, IW, 2); y += 2; }
     // ---- trip details rows
     var t0 = parseD(trip.tripStart), yy = "";
@@ -1666,7 +1666,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (trip.tripDays) { rows.push(["รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]]); if (tdp[1]) rows.push(["วันที่จัดทริป", tdp[1] + yy]); }
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน · " + (trip.vans.length * TOTAL) + " ที่นั่ง"]);
     if (seatLimit > 0) rows.push(["จำกัดที่นั่งต่อคน", seatLimit + " ที่นั่ง"]);
-    y += 34;
+    y += 26;
     // ---- travel schedule box
     var goD = (trip.startDate || trip.departTime) ? dayS(trip.startDate) : "", goT = trip.departTime || "";
     var bkD = (trip.endDate || trip.returnTime) ? dayS(trip.endDate || trip.startDate) : "", bkT = trip.returnTime || "";
@@ -1674,11 +1674,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var night = !!(hasGo && goT && trip.tripStart && trip.startDate && trip.startDate < trip.tripStart);
     if (hasGo || hasBk || trip.meetPoint) {
       heading("กำหนดการเดินทาง");
-      var bx = X, bw = IW, by = y, pad = 30, bh = pad;
-      ctx.font = '600 34px ' + NF; var mLines = trip.meetPoint ? wrapText(ctx, trip.meetPoint, bw - 2 * pad, 2) : [];
-      if (hasGo || hasBk) bh += 26 + 62 + 42 + 22;
+      var bx = X, bw = IW, by = y, pad = 26, bh = pad;
+      ctx.font = '600 32px ' + NF; var mLines = trip.meetPoint ? wrapText(ctx, trip.meetPoint, bw - 2 * pad, 2) : [];
+      var meetLbl = 0, meetInline = false;
+      if (trip.meetPoint) { ctx.font = '400 24px ' + NF; meetLbl = ctx.measureText("จุดนัดพบ").width + 18; ctx.font = '600 32px ' + NF; meetInline = ctx.measureText(trip.meetPoint).width <= bw - 2 * pad - meetLbl; }
+      if (hasGo || hasBk) bh += 24 + 52 + 38 + 16;
       if (hasGo || hasBk) { if (trip.meetPoint) bh += 14; }
-      if (trip.meetPoint) bh += 18 + 26 + 14 + 44 * mLines.length - 6;
+      if (trip.meetPoint) bh += meetInline ? 18 + 34 : 18 + 24 + 12 + 40 * mLines.length - 6;
       bh += pad - 6;
       ctx.fillStyle = "#ffffff"; rrect(ctx, bx, by, bw, bh, 30); ctx.fill();
       ctx.strokeStyle = DIV; ctx.lineWidth = 2; rrect(ctx, bx, by, bw, bh, 30); ctx.stroke();
@@ -1686,31 +1688,35 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (hasGo || hasBk) {
         function half(lbl, d, t, right, col) {
           ctx.textAlign = right ? "right" : "left"; var hx = right ? bx + bw - pad : bx + pad;
-          ctx.fillStyle = "#6b767c"; ctx.font = '400 26px ' + NF; ctx.fillText(lbl, hx, cy + 26);
-          ctx.fillStyle = INK; ctx.font = '600 56px ' + PF; ctx.fillText(t ? t + " น." : "", hx, cy + 26 + 62);
-          ctx.fillStyle = col; ctx.font = '400 28px ' + NF; ctx.fillText(d, hx, cy + 26 + 62 + 42); ctx.textAlign = "left";
+          ctx.fillStyle = "#6b767c"; ctx.font = '400 24px ' + NF; ctx.fillText(lbl, hx, cy + 24);
+          ctx.fillStyle = INK; ctx.font = '600 48px ' + PF; ctx.fillText(t ? t + " น." : "", hx, cy + 24 + 52);
+          ctx.fillStyle = col; ctx.font = '400 26px ' + NF; ctx.fillText(d, hx, cy + 24 + 52 + 38); ctx.textAlign = "left";
         }
         if (hasGo) half("เดินทางไป", goD, goT, false, night ? ORANGE : "#6b767c");
         if (hasBk) half("เดินทางกลับ", bkD, bkT, hasGo, "#6b767c");
         if (hasGo && hasBk) { // round ⇄ badge
-          var cx2 = bx + bw / 2, cy2 = cy + 26 + 38;
+          var cx2 = bx + bw / 2, cy2 = cy + 24 + 32;
           ctx.beginPath(); ctx.arc(cx2, cy2, 28, 0, Math.PI * 2); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.strokeStyle = "#cfd8dc"; ctx.lineWidth = 2; ctx.stroke();
           ctx.strokeStyle = TEAL; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineJoin = "round";
           ctx.beginPath(); ctx.moveTo(cx2 - 13, cy2 - 7); ctx.lineTo(cx2 + 13, cy2 - 7); ctx.moveTo(cx2 + 7, cy2 - 13); ctx.lineTo(cx2 + 13, cy2 - 7); ctx.lineTo(cx2 + 7, cy2 - 1);
           ctx.moveTo(cx2 + 13, cy2 + 8); ctx.lineTo(cx2 - 13, cy2 + 8); ctx.moveTo(cx2 - 7, cy2 + 2); ctx.lineTo(cx2 - 13, cy2 + 8); ctx.lineTo(cx2 - 7, cy2 + 14); ctx.stroke();
         }
-        cy += 26 + 62 + 42 + 22;
+        cy += 24 + 52 + 38 + 16;
       }
       if (trip.meetPoint) {
         if (hasGo || hasBk) { ctx.fillStyle = DIV; ctx.fillRect(bx + pad, cy + 4, bw - 2 * pad, 2); cy += 14; }
-        ctx.fillStyle = "#6b767c"; ctx.font = '400 26px ' + NF; ctx.fillText("จุดนัดพบ", bx + pad, cy + 18 + 26);
-        ctx.fillStyle = INK; ctx.font = '600 34px ' + NF;
-        mLines.forEach(function (ln, i) { ctx.fillText(ln, bx + pad, cy + 18 + 26 + 14 + 34 + i * 44 - 4); });
+        ctx.fillStyle = "#6b767c"; ctx.font = '400 24px ' + NF;
+        if (meetInline) {
+          ctx.fillText("จุดนัดพบ", bx + pad, cy + 18 + 26); ctx.fillStyle = INK; ctx.font = '600 32px ' + NF; ctx.fillText(trip.meetPoint, bx + pad + meetLbl, cy + 18 + 27);
+        } else {
+          ctx.fillText("จุดนัดพบ", bx + pad, cy + 18 + 24); ctx.fillStyle = INK; ctx.font = '600 32px ' + NF;
+          mLines.forEach(function (ln, i) { ctx.fillText(ln, bx + pad, cy + 18 + 24 + 12 + 32 + i * 40 - 4); });
+        }
       }
       y += bh;
     }
     // ---- map card: van on the left, who booked what on the right
-    y += 30; heading("ผังที่นั่งและรายละเอียด");
+    y += 24; heading("ผังที่นั่งและรายละเอียด");
     var MX = 36, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k, IP = 28;
     var mh = IP + PH + IP, FHF = useQr ? 148 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + 24 + FHF + 36)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
     mh += extra;
