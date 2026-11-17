@@ -1715,7 +1715,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
           ctx.fillStyle = INK; ctx.font = '600 48px ' + PF; ctx.fillText(t ? t + " น." : "", hx, cy + 24 + 52);
           ctx.fillStyle = col; ctx.font = '400 26px ' + NF; ctx.fillText(d, hx, cy + 24 + 52 + 38); ctx.textAlign = "left";
         }
-        if (hasGo) half("เดินทางไป", goD, goT, false, night ? ORANGE : "#6b767c");
+        if (hasGo) half("เดินทางไป", goD, goT, false, "#6b767c");
         if (hasBk) half("เดินทางกลับ", bkD, bkT, hasGo, "#6b767c");
         if (hasGo && hasBk) { // round ⇄ badge
           var cx2 = bx + bw / 2, cy2 = cy + 24 + 32;
