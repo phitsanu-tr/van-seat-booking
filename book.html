@@ -431,8 +431,6 @@ body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: non
 .infoact .ibtns button { min-width: 0; }
 .infoact .ibtns .isec.two { flex-direction: column; gap: 0; padding: 4px 8px; }
 .infoact .ibtns .isec small { font: 400 12px/16px var(--font-body); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.infoact .ibtns .sl { display: flex; align-items: center; gap: 8px; }
-.infoact .ibtns .sl svg { width: 20px; height: 20px; }
 .infoact .ibtns button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border-radius: 16px; font: 600 16px/24px var(--font-display); cursor: pointer; }
 .infoact .ibtns .ipri { background: var(--mine); color: #fff; border: 0; }
 .infoact .ibtns .ipri.two { flex-direction: column; gap: 0; padding: 4px 8px; }
@@ -523,7 +521,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <div class="chgban" id="chgBan" hidden></div>
     <div class="facts" id="tripFacts" role="list" aria-label="ข้อมูลทริป" hidden></div>
     <div class="infoact" id="infoAct" hidden>
-      <div class="ibtns"><button type="button" class="ipri" id="goSeats">ดูผังที่นั่ง</button><button type="button" class="isec two" id="infoShare" aria-label="แชร์ทริปนี้"><span class="sl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg>แชร์ทริป</span><small>ส่งลิงก์ให้เพื่อน</small></button></div>
+      <div class="ibtns"><button type="button" class="ipri" id="goSeats">ดูผังที่นั่ง</button><button type="button" class="isec two" id="infoShare" aria-label="แชร์ทริปนี้"><span>แชร์ทริป</span><small>ส่งลิงก์ให้เพื่อน</small></button></div>
     </div>
     <div class="invite" id="invite" hidden><span class="ok"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span><span class="tx"><b id="invT">จองที่นั่งแล้ว</b><small>ชวนผู้ร่วมทริปมาจองด้วยกัน</small></span><button type="button" class="go" id="invGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>แชร์ใน LINE</button><button type="button" class="x" id="invX" aria-label="ปิด">×</button></div>
   </header>
