@@ -1642,7 +1642,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     return c1;
   }
   function drawPoster0(useQr, pwOv) {
-    var OUT = 1080, PADO = 36, CW = OUT - 2 * PADO, X = 56, IW = CW - 2 * X;
+    var OUT = 1080, PADO = 36, CW = OUT - 2 * PADO, X = 41, IW = CW - 2 * X;
     var cur = trip.vans.filter(function (x) { return x.id === curVan; })[0] || trip.vans[0];
     var multi = trip.vans.length > 1;
     var KS = 1544 / CW; // draw at the final 1544px resolution (no upscaling blur), in the same layout units
@@ -1723,7 +1723,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     // ---- map card: van on the left, who booked what on the right
     y += SEC + posterSpare; heading("ผังที่นั่งและรายละเอียด");
-    var MX = 56, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k, IP = 28;
+    var MX = X, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k, IP = 28;
     var mh = IP + PH + IP, FHF = useQr ? 220 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + SEC + posterSpare + FHF)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
     mh += extra;
     ctx.fillStyle = "#ffffff"; rrect(ctx, MX, y, MW, mh, 45); ctx.fill(); ctx.strokeStyle = DIV; ctx.lineWidth = 2; rrect(ctx, MX, y, MW, mh, 45); ctx.stroke();
