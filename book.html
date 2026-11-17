@@ -371,8 +371,8 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .list li.bk { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
 .list li.bk .sn { flex: none; width: 32px; height: 32px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font: 600 14px/20px var(--font-display); background: color-mix(in srgb, var(--ink) 7%, var(--surface)); font-variant-numeric: tabular-nums; }
 .list li.bk .w { flex: 1; min-width: 0; font-weight: 600; font-size: 16px; line-height: 24px}
-.list li.bk .w .at { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; line-height: 16px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.list li.bk .me { flex: none; font-size: 12px; font-weight: 600; color: var(--mine); background: color-mix(in srgb, var(--mine) 14%, transparent); border-radius: 1000px; padding: 2px 12px; line-height: 16px}
+.list li.bk .w .at { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; line-height: 16px; color: var(--muted); white-space: normal; font-variant-numeric: tabular-nums; }
+.list li.bk .me { flex: none; font-size: 12px; font-weight: 600; color: var(--mine); background: color-mix(in srgb, var(--mine) 14%, transparent); border-radius: 1000px; padding: 2px 12px; line-height: 16px; white-space: nowrap}
 .list li.mine-row { background: color-mix(in srgb, var(--mine) 8%, var(--surface)); }
 .list li.mine-row .sn { background: var(--mine); color: var(--mine-ink); }
 .list li.none, .list li.free { display: block; padding: 12px 16px; font-size: 14px; color: var(--muted); line-height: 20px}
@@ -584,7 +584,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   </div>
 
   <section class="list" id="listView" hidden>
-    <h2>ใครจองแล้วบ้าง<small id="listSub"></small></h2>
+    <h2><span id="listTitle">จองแล้ว</span><small id="listSub"></small></h2>
     <ul id="list"></ul>
   </section>
   </section>
@@ -1121,18 +1121,19 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   setView(view);
 
   var SHORT_M = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-  function bookedAt(ts) { // "22 ต.ค. 10:41" (Buddhist-era year always shown); "-" when unknown
+  function bookedAt(ts) { // "22 ต.ค. 69 · 10:41" (2-digit Buddhist-era year); "-" when unknown
     var t = Number(ts), d = t > 0 ? new Date(t) : null;
     if (!d || isNaN(d.getTime())) return "-";
     var hh = ("0" + d.getHours()).slice(-2), mm = ("0" + d.getMinutes()).slice(-2);
-    var yr = " " + (d.getFullYear() + 543);
-    return d.getDate() + " " + SHORT_M[d.getMonth()] + yr + " " + hh + ":" + mm;
+    var yr = " " + String(d.getFullYear() + 543).slice(-2);
+    return (d.getDate() + " " + SHORT_M[d.getMonth()] + yr + " · " + hh + ":" + mm).replace(/ /g, "\u00a0"); // no-break: wraps as a whole, never mid-date
   }
   function renderList() {
     listEl.textContent = "";
     var booked = [], free = [];
     for (var n = 1; n <= TOTAL; n++) { if (seats[n]) booked.push(n); else free.push(n); }
-    document.getElementById("listSub").textContent = loaded ? booked.length + " / " + TOTAL + " ที่นั่ง" : "";
+    document.getElementById("listTitle").textContent = booked.length ? "จองแล้ว " + booked.length + " คน" : "ยังไม่มีคนจอง";
+    document.getElementById("listSub").textContent = !loaded ? "" : free.length === 0 ? "เต็มแล้ว" : booked.length ? "เหลือ " + free.length + " ที่นั่ง" : "ว่างทั้งหมด " + TOTAL + " ที่นั่ง";
     booked.forEach(function (n) {
       var m = mine(n);
       var li = el("li", "bk" + (m ? " mine-row" : ""));
