@@ -390,11 +390,20 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .list li.bk .w .at { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; line-height: 16px; color: var(--muted); white-space: normal; font-variant-numeric: tabular-nums; }
 .list li.bk .me { flex: none; font-size: 12px; font-weight: 600; color: var(--mine); background: color-mix(in srgb, var(--mine) 14%, transparent); border-radius: 1000px; padding: 2px 12px; line-height: 16px; white-space: nowrap}
 .list li.mine-row { background: color-mix(in srgb, var(--mine) 8%, var(--surface)); margin: 4px 16px; padding: 8px 12px; border-radius: 12px; border-bottom: 0; }
-.list li.mine-row + li.free { border-top: 1px solid var(--line); margin-top: 4px; }
+
 .list li.mine-row .sn { background: var(--mine); color: var(--mine-ink); }
 .list li.none, .list li.free { display: block; padding: 12px 28px; font-size: 14px; color: var(--muted); line-height: 20px}
-.list li.free b { color: var(--ink); font-weight: 600; margin-right: 8px; }
-.list h2 { font-family: var(--font-display); font-size: 16px; font-weight: 500; margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--line); line-height: 24px}
+.list li.free b { color: var(--ink); font-weight: 600; margin-right: 0; }
+.list h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0; padding: 14px 16px 8px; line-height: 28px}
+.list h2 small.lsub { font: 600 12px/16px var(--font-body); border-radius: 1000px; padding: 4px 10px; color: #0b5f67; background: #e3f2f3; }
+.list h2 small.lsub.low { color: #c2570c; background: #fff1e0; }
+.list h2 small.lsub.full { color: #6b767c; background: #eef1f3; }
+.list h2 small.lsub:empty { display: none; }
+.list li.bk + li.free { border-top: 0; }
+.list li.bk:has(+ li.free) { border-bottom: 0; }
+.list li.mine-row + li.free { margin-top: 0; }
+.list li.free { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 28px 14px; }
+.list li.free .fn { min-width: 26px; height: 26px; padding: 0 4px; box-sizing: border-box; border-radius: 9px; border: 1.5px dashed color-mix(in srgb, var(--mine) 45%, transparent); display: inline-flex; align-items: center; justify-content: center; font: 600 13px/18px var(--font-display); color: var(--mine); font-variant-numeric: tabular-nums; }
 .list ul { list-style: none; margin: 0; padding: 0; }
 .list li { display: grid; grid-template-columns: 64px minmax(0, 1fr); padding: 8px 16px; border-bottom: 1px solid var(--line); gap: 8px; }
 .list li:last-child { border-bottom: 0; }
@@ -1144,19 +1153,20 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   setView(view);
 
   var SHORT_M = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-  function bookedAt(ts) { // "22 ต.ค. 69 · 10:41" (2-digit Buddhist-era year); "-" when unknown
+  function bookedAt(ts) { // "22 ต.ค. 69 · 10:41:09 น." (2-digit Buddhist-era year); "-" when unknown
     var t = Number(ts), d = t > 0 ? new Date(t) : null;
     if (!d || isNaN(d.getTime())) return "-";
-    var hh = ("0" + d.getHours()).slice(-2), mm = ("0" + d.getMinutes()).slice(-2);
+    var hh = ("0" + d.getHours()).slice(-2), mm = ("0" + d.getMinutes()).slice(-2), ss = ("0" + d.getSeconds()).slice(-2);
     var yr = " " + String(d.getFullYear() + 543).slice(-2);
-    return (d.getDate() + " " + SHORT_M[d.getMonth()] + yr + " · " + hh + ":" + mm).replace(/ /g, "\u00a0"); // no-break: wraps as a whole, never mid-date
+    return (d.getDate() + " " + SHORT_M[d.getMonth()] + yr + " · " + hh + ":" + mm + ":" + ss + " น.").replace(/ /g, "\u00a0"); // no-break: wraps as a whole, never mid-date
   }
   function renderList() {
     listEl.textContent = "";
     var booked = [], free = [];
     for (var n = 1; n <= TOTAL; n++) { if (seats[n]) booked.push(n); else free.push(n); }
     document.getElementById("listTitle").textContent = booked.length ? "จองแล้ว " + booked.length + " คน" : "ยังไม่มีคนจอง";
-    document.getElementById("listSub").textContent = !loaded ? "" : free.length === 0 ? "เต็มแล้ว" : booked.length ? "เหลือ " + free.length + " ที่นั่ง" : "ว่างทั้งหมด " + TOTAL + " ที่นั่ง";
+    var lsub = document.getElementById("listSub"); lsub.className = "lsub" + (loaded && free.length === 0 ? " full" : loaded && booked.length && free.length <= 3 ? " low" : "");
+    lsub.textContent = !loaded ? "" : free.length === 0 ? "เต็มแล้ว" : booked.length ? "เหลือ " + free.length + " ที่นั่ง" : "ว่างทั้งหมด " + TOTAL + " ที่นั่ง";
     booked.forEach(function (n) {
       var m = mine(n);
       var li = el("li", "bk" + (m ? " mine-row" : ""));
@@ -1169,7 +1179,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     });
     if (loaded && !booked.length) listEl.appendChild(el("li", "none", "ยังไม่มีใครจอง แตะที่ว่างในผังเพื่อจองเลย"));
     if (loaded && booked.length && free.length) {
-      var fl = el("li", "free"); fl.appendChild(el("b", null, "ที่นั่งว่าง")); fl.appendChild(document.createTextNode(free.join(" · "))); listEl.appendChild(fl);
+      var fl = el("li", "free"); fl.appendChild(el("b", null, "ที่นั่งว่าง")); free.forEach(function (n) { fl.appendChild(el("span", "fn", String(n))); }); listEl.appendChild(fl);
     }
     if (loaded && !free.length) listEl.appendChild(el("li", "none", "เต็มแล้ว"));
     countEl.textContent = "";
