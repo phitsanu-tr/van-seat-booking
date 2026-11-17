@@ -16,15 +16,15 @@ copied text:
 รวม 3/20 ที่นั่ง
 
 จองที่นั่งได้ที่นี่ 👇
-https://liff.line.me/2012285472-FvtYKx00/<id>
-closed trip last lines ["ปิดรับจองแล้ว · ดูผังที่นั่ง 👇","https://liff.line.me/2012285472-FvtYKx00/<id>"]
+https://liff.line.me/2012285472-FvtYKx00/wc7c8qbk/seats
+closed trip last lines ["ปิดรับจองแล้ว · ดูผังที่นั่ง 👇","https://liff.line.me/2012285472-FvtYKx00/wc7c8qbk/seats"]
 manage sheet [ 'แก้ไขทริป›', 'ผู้ช่วยจัดทริป0/2›', 'สร้างทริปซ้ำ›', 'ปิดรับจอง' ]
 x closes 0
 no copy or seat map in manage 0
 first tap ยืนยันปิด?
 closed true card share แชร์ผัง
 reopened false
-duplicate link /trips/new?copy=<id>
+duplicate link /new?copy=<id>
 form {"name":"เขาใหญ่ชิล ๆ","org":"ทัวร์ตัวตึง","start":"","end":"","time":"07:00","meet":"BTS หมอชิต","max":"2","close":"","vans":["1","กข 1234","2"]} lead 
 submit without dates -> [ 'ระบุวันแรกของทริป' ]
 trips with that name 2 new id differs true

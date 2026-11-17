@@ -4,7 +4,7 @@ P after new notify 1/2 (expect 1 unread of 2)
 P after read trip 0/2
 no bell on booking page true
 banner hidden after read+reload true
-Q banner after rename (no reload) true within ~{1..15}s
+Q banner after rename (no reload) true within ~7s
 ticket buttons [ 'ดูผังที่นั่ง', '⋯' ]
 menu items [ 'แก้ชื่อบนผัง', 'ยกเลิกที่นั่ง' ]
 picker [ 'รถ 1 · ที่นั่ง 3แพท', 'รถ 2 · ที่นั่ง 5แพทสอง' ] input disabled true
@@ -19,7 +19,7 @@ cancel sheet opens true
 Q single: picker 0 prefill ฉินนี่
 dark rules / 0
 dark rules /home 0
-dark rules /<id> 0
-dark rules /trips/new 0
+dark rules /x895gw4c/seats 0
+dark rules /new 0
 dark rules /privacy 0
 ERR []

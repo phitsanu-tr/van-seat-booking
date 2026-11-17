@@ -8,9 +8,9 @@ const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.
 await C.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:4,name:'แคท'}});
 // A creates invite in UI
 await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);await A.click('.mgb:has-text("ผู้ช่วยจัดทริป")');await A.waitForTimeout(700);await A.screenshot({path:S+'/t1.png'});
-await A.click('.sheet .b-amber');await A.waitForTimeout(700);const url=await A.textContent('.ilink code');log('invite url',url.replace(/join=\w+/,'join=…'));await A.screenshot({path:S+'/t2.png'});
+await A.click('.sheet .b-amber');await A.waitForTimeout(700);const url=await A.textContent('.ilink code');log('invite url',url.replace(/join\/\w+/,"join/…"));await A.screenshot({path:S+'/t2.png'});
 // B (not signed in) opens invite link -> login view -> sign in -> joined
-const local=url.replace(/^https:\/\/liff\.line\.me\/[^/]+/,B);const jc=(url.match(/join=(\w+)/)||[])[1];
+const local=url.replace(/^https:\/\/liff\.line\.me\/[^/]+/,B);const jc=(url.match(/join\/(\w+)/)||[])[1];
 const Bp=await ctx('Bob');await Bp.goto(local);await Bp.waitForTimeout(1000);log('B (anon, LINE) retry screen',await Bp.locator('text=เข้าสู่ระบบไม่สำเร็จ').count());
 await Bp.goto(B+'/api/auth?start=1&as=Bob&r='+encodeURIComponent('/join/'+jc));await Bp.waitForTimeout(1500);log('B toast',await Bp.textContent('#toast'),'url',Bp.url());
 await Bp.screenshot({path:S+'/t3.png'});log('B role line',await Bp.textContent('.rolep').catch(()=>'none'));
@@ -21,7 +21,7 @@ log('B DELETE trip',(await Bp.request.fetch(B+'/api/trip?t='+ID,{method:'DELETE'
 log('B invite',(await Bp.request.post(B+'/api/trip',{data:{t:ID,invite:true}})).status());
 await Bp.goto(B+'/'+ID+'/edit');await Bp.reload();await Bp.waitForTimeout(1500);log('B edit page delete zone hidden',await Bp.evaluate(()=>document.getElementById('dz').hidden),'name',await Bp.inputValue('#name'));
 // fill helpers to max
-const code=url.split('join=')[1];
+const code=url.split("/join/")[1];
 {const p=await user('Dan');log('Dan reuse used link',(await p.request.post(B+'/api/trip',{data:{join:code}})).status());}
 const fresh=async()=>(await (await A.request.post(B+'/api/trip',{data:{t:ID,invite:true}})).json()).invite.code;
 for(const n of ['Dan']){const p=await user(n);log(n,'join fresh',(await p.request.post(B+'/api/trip',{data:{join:await fresh()}})).status());}
@@ -41,7 +41,7 @@ await Q.click('.seat.held');await Q.waitForTimeout(300);await Q.screenshot({path
 const R=await ctx('Ron');await R.goto(B+'/'+ID+'/seats');await R.waitForTimeout(1000);
 await R.evaluate(()=>[...document.querySelectorAll('.seat')].find(b=>b.getAttribute('aria-label').startsWith('ที่นั่ง 6')).click());await R.waitForTimeout(600);
 log('R anon tap: login button',await R.locator('#panel .lgbtn, #backdrop .lgbtn').count(),'hold stored',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));
-await R.goto(B+'/api/auth?start=1&as=Ron&r='+encodeURIComponent('/'+ID+'?seat=6'));await R.waitForTimeout(1800);log('R back panel',await R.textContent('#mTitle').catch(()=>'none'),'hold stored',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));
+await R.goto(B+'/api/auth?start=1&as=Ron&r='+encodeURIComponent('/'+ID+'/seats?seat=6'));await R.waitForTimeout(1800);log('R back panel',await R.textContent('#mTitle').catch(()=>'none'),'hold stored',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));
 await R.fill('#nameInput','รอน');await R.click('#panel .primary');await R.waitForTimeout(1000);log('R booked',await R.textContent('#toast'),'hold cleared',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));
 // owner console
 const O=await ctx('owner');await O.goto(B+'/owner#test-owner-key-1234567');await O.waitForTimeout(1500);log('stats',await O.textContent('#sAcc'),await O.textContent('#sOwners'),await O.textContent('#sHelpers'));

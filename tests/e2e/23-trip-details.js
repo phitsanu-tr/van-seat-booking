@@ -1,4 +1,4 @@
-// Trip details page (/<id>/info): first visit, back/forward, the info/map/roster tabs and main button, owner/returning/seat-holder skip, "my trips" card tap
+// Trip details page (bare /<id>); seat map is /<id>/seats: first visit, back/forward, the info/map/roster tabs and main button, owner/returning/seat-holder skip, "my trips" card tap
 const HLP=require('../helpers');const {chromium}=require(HLP.PW);const B=HLP.BASE;const K={'x-owner-key':'test-owner-key-1234567'};
 const log=(...a)=>console.log(...a);const errs=[];
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
@@ -9,7 +9,7 @@ await O.request.post(B+'/api/owner',{headers:K,data:{grant:{t:t.id,tester:true}}
 const ID=t.id;
 const st=async p=>({suffix:await p.evaluate(()=>location.pathname.replace(/^\/[a-z0-9]{6,8}/,'')),info:await p.evaluate(()=>document.body.classList.contains('v-info')),tab:await p.$eval('#viewSw [aria-selected=true]',e=>e.id),deck:await p.isVisible('#deck'),facts:await p.isVisible('#tripFacts')});
 const P=await user('Pat');
-await P.goto(B+'/'+ID+'/seats');await P.waitForTimeout(1500);
+await P.goto(B+'/'+ID+'');await P.waitForTimeout(1500);
 log('first visit',JSON.stringify(await st(P)));
 log('details text',(await P.innerText('#tripFacts')).replace(/\s+/g,' ').trim().includes('ผู้จัด ทัวร์ตัวตึง'),(await P.textContent('#tripFacts')).includes('19:00'),(await P.textContent('#tripFacts')).includes('14:00'),(await P.textContent('#tripFacts')).includes('ลานจอดรถ BTS หมอชิต'));
 log('progress',(await P.innerText('#goSeats')).replace(/\s+/g,' ').trim());
@@ -17,12 +17,12 @@ await P.click('#goSeats');await P.waitForTimeout(400);log('after go seats',JSON.
 await P.click('#swInfo');await P.waitForTimeout(300);log('info tab',JSON.stringify(await st(P)));
 await P.goBack();await P.waitForTimeout(300);log('back',JSON.stringify(await st(P)));
 await P.goBack();await P.waitForTimeout(300);log('back again',JSON.stringify(await st(P)));
-await P.goto(B+'/'+ID+'/seats');await P.waitForTimeout(1200);log('second visit',JSON.stringify(await st(P)));
+await P.goto(B+'/'+ID+'');await P.waitForTimeout(1200);log('second visit',JSON.stringify(await st(P)));
 await P.click('#swList');await P.waitForTimeout(400);log('roster button',JSON.stringify(await st(P)),'list shown',await P.isVisible('#listView'));
 // book a seat from the map, then the details page shows it
 await P.click('#swMap');await P.waitForTimeout(200);
 const r=await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'แพท'}});log('booked',r.status());
-await P.evaluate(id=>history.replaceState(null,'','/'+id+'/info'),ID);await P.reload();await P.waitForTimeout(1800);log('details with my seat',(await P.innerText('#goSeats')).replace(/\s+/g,' ').trim());
+await P.evaluate(id=>history.replaceState(null,'','/'+id),ID);await P.reload();await P.waitForTimeout(1800);log('details with my seat',(await P.innerText('#goSeats')).replace(/\s+/g,' ').trim());
 // organizer, first visit: straight to the map
 await O.goto(B+'/'+ID+'/seats');await O.waitForTimeout(1500);log('organizer first visit',JSON.stringify(await st(O)));
 // a new person whose link carries ?v=: straight to the map

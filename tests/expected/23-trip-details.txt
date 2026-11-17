@@ -1,17 +1,17 @@
-first visit {"suffix":"/info","info":true,"tab":"swInfo","deck":false,"facts":true}
+first visit {"suffix":"","info":true,"tab":"swInfo","deck":false,"facts":true}
 details text true true true true
 progress เลือกที่นั่ง ว่าง 10 จาก 10 ที่นั่ง
-after go seats {"suffix":"","info":false,"tab":"swMap","deck":true,"facts":false}
-info tab {"suffix":"/info","info":true,"tab":"swInfo","deck":false,"facts":true}
-back {"suffix":"","info":false,"tab":"swMap","deck":true,"facts":false}
-back again {"suffix":"/info","info":true,"tab":"swInfo","deck":false,"facts":true}
-second visit {"suffix":"","info":false,"tab":"swMap","deck":true,"facts":false}
-roster button {"suffix":"","info":false,"tab":"swList","deck":true,"facts":false} list shown true
+after go seats {"suffix":"/seats","info":false,"tab":"swMap","deck":true,"facts":false}
+info tab {"suffix":"","info":true,"tab":"swInfo","deck":false,"facts":true}
+back {"suffix":"/seats","info":false,"tab":"swMap","deck":true,"facts":false}
+back again {"suffix":"","info":true,"tab":"swInfo","deck":false,"facts":true}
+second visit {"suffix":"","info":true,"tab":"swInfo","deck":false,"facts":true}
+roster button {"suffix":"/list","info":false,"tab":"swList","deck":true,"facts":false} list shown true
 booked 200
 details with my seat ดูที่นั่งของฉัน จองแล้ว 1 ที่นั่ง
-organizer first visit {"suffix":"","info":false,"tab":"swMap","deck":true,"facts":false}
-link with ?v {"suffix":"","info":false,"tab":"swMap","deck":true,"facts":false}
-holds a seat {"suffix":"","info":false,"tab":"swMap","deck":true,"facts":false}
+organizer first visit {"suffix":"/seats","info":false,"tab":"swMap","deck":true,"facts":false}
+link with ?v {"suffix":"/seats","info":false,"tab":"swMap","deck":true,"facts":false}
+holds a seat {"suffix":"/seats","info":false,"tab":"swMap","deck":true,"facts":false}
 cards [ 'card tk tap' ]
-after card tap /<id>/info {"suffix":"/info","info":true,"tab":"swInfo","deck":false,"facts":true}
+after card tap /<id> {"suffix":"","info":true,"tab":"swInfo","deck":false,"facts":true}
 ERR []

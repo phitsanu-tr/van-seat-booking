@@ -5,11 +5,11 @@ const errs=[];const log=(...a)=>console.log(...a);const path=u=>{const x=new URL
 async function user(n,ua){const c=await b.newContext({viewport:{width:390,height:844},userAgent:ua||LINE});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann');
 const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(20),meetPoint:'จุดนัดพบ',name:'ทริปลิงก์',startDate:HLP.day(20),departTime:'07:00',vans:[{label:'1'}]}})).json();const ID=tr.id;
-await A.goto(B+'/');await A.waitForTimeout(1500);log('signed in, landing stays',path(A.url()),'create link',await A.getAttribute('a.tc[href="/trips/new"], a[href="/trips/new"]','href'));
+await A.goto(B+'/');await A.waitForTimeout(1500);log('signed in, landing stays',path(A.url()),'create link',await A.getAttribute('a.tc[href="/new"], a[href="/new"]','href'));
 await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);log('edit button',(await A.getAttribute('.mgb:has-text("แก้ไขทริป")','href')).replace(ID,'<id>'));
 await A.click('.mgb:has-text("แก้ไขทริป")');await A.waitForTimeout(1500);log('edit page',path(A.url()).replace(ID,'<id>'),'title',await A.textContent('#title'),'name',await A.inputValue('#name'));
 await A.click('#cancelBtn');await A.waitForTimeout(1000);log('cancel ->',path(A.url()));
-await A.goto(B+'/new');await A.waitForTimeout(1000);log('/trips/new title',await A.textContent('#title'));
+await A.goto(B+'/new');await A.waitForTimeout(1000);log('/new title',await A.textContent('#title'));
 await A.click('#cancelBtn');await A.waitForTimeout(1000);log('cancel new ->',path(A.url()));
 const Z=await user('Zed');await Z.goto(B+'/'+ID+'/edit');await Z.waitForTimeout(1500);log('not organizer: submit disabled',await Z.isDisabled('#submit'));
 log('book page',(await A.request.get(B+'/'+ID+'/seats')).status(),'unknown edit id',(await A.request.get(B+'/trips/zzzzzzzzzzzzzzzzzz',{maxRedirects:0})).status());

@@ -18,7 +18,7 @@
 - Production: https://van-seat-booking.vercel.app
 - โครงสร้าง: หน้า HTML ธรรมดา + Vercel serverless API (`api/trip.js`, `api/seats.js`, `api/me.js`, `api/pay.js`, `api/owner.js`, `api/_lib.js`, `api/_plans.js`) + Upstash Redis
 - เข้าสู่ระบบ: LINE Login + LIFF `2012285472-FvtYKx00`
-- หน้า: `/` หน้าแรก · `/trips/new` สร้างทริป · `/trips/<id>` แก้ไข · `/<รหัสทริป>` จองที่นั่ง · `/home` `/trips` `/seats` `/notify` `/profile` แอปหลัก 5 แท็บ · `/plans` · `/privacy` · `/terms` · `/owner` (ตรวจคำขอคืนเงิน)
+- หน้า: `/` หน้าแรก · `/new` สร้างทริป · `/<id>/edit` แก้ไข · `/<รหัสทริป>` จองที่นั่ง · `/home` `/trips` `/seats` `/notify` `/profile` แอปหลัก 5 แท็บ · `/plans` · `/privacy` · `/terms` · `/owner` (ตรวจคำขอคืนเงิน)
 - รันในเครื่อง: `node dev.js` (พอร์ต 8765) · `PLANS_ON=0 node dev.js` ปิดข้อจำกัดแพ็กเกจ · ล็อกอินทดสอบ `/api/auth?start=1&as=<ชื่อ>`
 
 ## 3. กติกาการทำงาน
