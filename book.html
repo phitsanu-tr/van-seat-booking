@@ -437,7 +437,8 @@ body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: non
 #tripHdr .hero { min-height: 52px; }
 .hero .hshare svg { width: 20px; height: 20px; }
 body.v-info .hero .hshare:not([hidden]) { display: flex; }
-.facts .bx .bd3 { display: block; font-size: 12px; line-height: 16px; color: #b86e00; }
+.facts .nnote { display: flex; align-items: center; gap: 8px; margin-top: -4px; padding: 8px 12px; background: #fdf0dd; color: #8a5300; font-size: 14px; line-height: 20px; }
+.facts .nnote svg { width: 16px; height: 16px; flex: none; }
 .vb-bell { border-color: #e8ecef!important; }
 .deck .tabs { gap: 12px; }
 .tab { border-color: #e8ecef!important; }
@@ -1175,7 +1176,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       pin: '<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
       usr: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3-6 7-6s7 2.4 7 6"/>',
       cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
-      swap: '<path d="M4 8h16M16 4l4 4-4 4M20 16H4M8 12l-4 4 4 4"/>'
+      swap: '<path d="M4 8h16M16 4l4 4-4 4M20 16H4M8 12l-4 4 4 4"/>',
+      moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'
     };
     function svgIcon(k, sz) {
       var ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg");
@@ -1208,7 +1210,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       d.appendChild(el("span", "bk", label));
       d.appendChild(el("span", "bt", tm || dayS(iso)));
       if (tm && iso) d.appendChild(el("span", "bd2", dayS(iso)));
-      if (chgKey === "time" && iso && trip.tripStart && iso < trip.tripStart) d.appendChild(el("span", "bd3", "ออกคืนก่อนวันเริ่มทริป"));
       return d;
     }
     var go = box("เดินทางไป", trip.startDate, trip.departTime, "time");
@@ -1221,6 +1222,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (go) two.appendChild(go);
       if (go && back) { var sw = svgIcon("swap"); sw.setAttribute("class", "sw"); two.appendChild(sw); }
       if (back) two.appendChild(back);
+    }
+    var nightNote = null; // shown only when departing the evening before the trip's first day
+    if (go && trip.startDate && trip.departTime && trip.tripStart && trip.startDate < trip.tripStart) {
+      nightNote = el("div", "two nnote"); nightNote.appendChild(svgIcon("moon")); nightNote.appendChild(el("span", null, "ออกเดินทางคืนก่อนวันเริ่มทริป"));
     }
     var fmtRow = null, dateRow = null;
     if (trip.tripDays) {
@@ -1236,7 +1241,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       trip.organizer ? frow("ผู้จัด", trip.organizer) : null,
       fmtRow, dateRow
     ]);
-    fgroup("กำหนดการเดินทาง", [two]);
+    fgroup("กำหนดการเดินทาง", [two, nightNote]);
     fgroup("จุดนัดพบและรถตู้", [
       trip.meetPoint ? frow("จุดนัดพบ", trip.meetPoint, CHG.meet) : null,
       trip.vans.length ? frow("รถตู้", trip.vans.length + " คัน (" + tot + " ที่นั่ง)") : null,
