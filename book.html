@@ -1662,7 +1662,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.fillStyle = TEAL; ctx.fillText(codeT, X + IW - pw2 + 22, 32 + 36);
     ctx.fillStyle = INK; ctx.font = '600 44px ' + PF;
     titleLines.forEach(function (ln, i) { ctx.fillText(ln, X, 32 + 52 + 16 + i * 58 + 42); });
-    var SEC = 24, HGAP = 16; // spacing standard: SEC between sections, HGAP from a section heading to its card (spare 9:16 height is added to SEC)
+    var SEC = 24, HGAP = 22; // spacing standard: SEC between sections, HGAP from a section heading to its card (spare 9:16 height is added to SEC)
     var y = HH;
     function heading(t) { ctx.fillStyle = "#0b5f67"; ctx.font = '600 32px ' + PF; ctx.fillText(t, X, y + 32); y += 32 + HGAP; }
     function sep() { ctx.fillStyle = DIV; ctx.fillRect(X, y, IW, 2); y += 2; }
