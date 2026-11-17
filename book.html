@@ -375,10 +375,10 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .msg.nmmsg.info { color: var(--muted); }
 
 .list { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-.vsw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 0; border-radius: 0; background: none; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
-.vsw button { font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 14px; line-height: 20px; min-height: 44px; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; border-radius: 0; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 4px; white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.vsw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; margin: 8px 0 4px; border-radius: 14px; background: color-mix(in srgb, var(--ink) 6%, var(--surface)); } /* segmented switch */
+.vsw button { font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 14px; line-height: 20px; min-height: 40px; border: 0; border-radius: 11px; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 4px; white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .vsw button svg { width: 16px; height: 16px; flex: none; }
-.vsw button[aria-selected="true"] { background: none; color: var(--mine); box-shadow: none; border-bottom-color: var(--mine); }
+.vsw button[aria-selected="true"] { background: var(--surface); color: var(--mine); box-shadow: 0 1px 4px rgba(0, 0, 0, .12); }
 .vsw button:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 .list h2 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .list h2 small { font-family: var(--font-body); font-size: 12px; font-weight: 400; color: var(--muted); line-height: 16px}
@@ -542,7 +542,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <div class="vsw" id="viewSw" role="tablist" aria-label="เลือกมุมมอง">
     <button type="button" role="tab" id="swInfo" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>ข้อมูลทริป</button>
     <button type="button" role="tab" id="swMap" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h3v3H8zM13 7h3v3h-3zM8 14h3v3H8zM13 14h3v3h-3z"/></svg>ผังที่นั่ง</button>
-    <button type="button" role="tab" id="swList" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>ผู้ร่วมทริป</button>
+    <button type="button" role="tab" id="swList" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>รายชื่อ</button>
   </div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
     <div class="ended" id="closedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span><b>ปิดรับจองแล้ว</b> จองหรือยกเลิกเองไม่ได้ ถ้าต้องการเปลี่ยนที่นั่ง ติดต่อผู้จัดทริป</span></div>
