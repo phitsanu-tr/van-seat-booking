@@ -1598,12 +1598,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       ctx.font = '500 ' + nz + 'px Prompt, "Noto Sans Thai", sans-serif';
       ctx.textAlign = "right"; ctx.fillText(String(n), bx + bw - 12 * k, by + 9 * k + 0.74 * nz);
       ctx.textAlign = "center";
-      var maxW = bw - 16 * k, nameSize = 0, lines = [], words = s.name.split(/\s+/);
+      var hide = !isOwner && !isMine; // a passenger's picture never shows other people's names
+      var seatName = hide ? "จองแล้ว" : s.name;
+      var maxW = bw - 16 * k, nameSize = 0, lines = [], words = seatName.split(/\s+/);
       var tiers = [Math.max(40 * k, 32), Math.max(32 * k, 26), Math.max(26 * k, 22), Math.max(21 * k, 19)];
       for (var ti = 0; ti < tiers.length; ti++) {
         nameSize = tiers[ti];
         ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
-        if (words.every(function (w) { return ctx.measureText(w).width <= maxW; }) && wrapText(ctx, s.name, maxW, 4).length <= (ti < 3 ? 2 : 3)) break;
+        if (words.every(function (w) { return ctx.measureText(w).width <= maxW; }) && wrapText(ctx, seatName, maxW, 4).length <= (ti < 3 ? 2 : 3)) break;
       }
       while (nameSize > 15) {
         ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
@@ -1611,10 +1613,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         nameSize -= 0.5;
       }
       ctx.font = '500 ' + nameSize + 'px "Noto Sans Thai", sans-serif';
-      lines = wrapText(ctx, s.name, maxW, 3);
+      lines = wrapText(ctx, seatName, maxW, 3);
       for (var li = 0; li < lines.length - 1; li++) if (/[(\[]$/.test(lines[li])) { lines[li + 1] = lines[li].slice(-1) + lines[li + 1]; lines[li] = lines[li].slice(0, -1); } // keep an opening bracket with its word
       var step = nameSize * 1.25, first = by + bh / 2 - (lines.length - 1) * step / 2 + nameSize * 0.32;
+      if (hide) ctx.fillStyle = "#5f6b73";
       lines.forEach(function (ln, i) { fillC(ctx, ln, bx + bw / 2, first + i * step); });
+      if (!isOwner && isMine) { ctx.strokeStyle = "#c2570c"; ctx.lineWidth = Math.max(6 * k, 4); rrect(ctx, bx - 3 * k, by - 3 * k, bw + 6 * k, bh + 6 * k, 14 * k); ctx.stroke(); }
     }
     var dx = PX + 517 * k, dy = PY + 186 * k, dw = 190 * k, dh = 200 * k;
     rrect(ctx, dx, dy, dw, dh, 12 * k); ctx.fillStyle = "#fdeff1"; ctx.fill();
@@ -1772,6 +1776,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       ctx.fillStyle = INK; ctx.font = '700 28px ' + PF;
       pLines.forEach(function (ln, i) { fillC(ctx, ln, sx + sw / 2, sgy + nh + 14 + 28 + i * 38); });
       ctx.textAlign = "left";
+    }
+    var myN = Object.keys(seats).filter(function (n) { return mine(+n); });
+    if (!isOwner && myN.length) { // "your seat" tag for a passenger's picture
+      var ty = (cur ? sgy + sh : by2 + 14) + 26, tl = "ที่นั่ง " + myN.join(", ") + (myN.length === 1 ? " · " + seats[myN[0]].name : "");
+      ctx.font = '700 32px ' + NF; var tln = wrapText(ctx, tl, sw - 56, 2), th = 56 + 40 * tln.length;
+      ctx.fillStyle = "#fff1e0"; rrect(ctx, sx, ty, sw, th, 24); ctx.fill(); ctx.strokeStyle = ORANGE; ctx.lineWidth = 3; rrect(ctx, sx, ty, sw, th, 24); ctx.stroke();
+      ctx.fillStyle = ORANGE; ctx.font = '600 26px ' + NF; ctx.fillText("ที่นั่งของคุณ", sx + 28, ty + 40);
+      ctx.fillStyle = INK; ctx.font = '700 32px ' + NF; tln.forEach(function (ln, i) { ctx.fillText(ln, sx + 28, ty + 40 + 14 + 36 + i * 40 - 4); });
     }
     y += mh + 24;
     // ---- footer
