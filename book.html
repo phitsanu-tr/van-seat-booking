@@ -1779,7 +1779,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var c0 = drawPoster0(useQr, 380);
     var tgt = 1008 * 16 / 9, pw = Math.max(250, Math.min(480, (tgt - posterFixed) / (H / W)));
     posterSpare = 0; var c1 = Math.abs(pw - 380) > 1 ? drawPoster0(useQr, pw) : c0;
-    if (posterExtra > KEEP + 1) { posterSpare = (posterExtra - KEEP) / 2; var c2 = drawPoster0(useQr, pw); posterSpare = 0; return c2; }
     return c1;
   }
   function drawPoster0(useQr, pwOv) {
@@ -1812,9 +1811,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.fillStyle = "rgba(255,255,255,.22)"; ctx.fillRect(X, 30 + 36 + 22, IW, 2);
     ctx.fillStyle = "#ffffff"; ctx.font = '600 44px ' + PF;
     titleLines.forEach(function (ln, i) { ctx.fillText(ln, X, 30 + 36 + 22 + 2 + 24 + i * 58 + 42 + tOff); });
-    var SEC = 24, HGAP = 22; // spacing standard: SEC between sections, HGAP from a section heading to its card (spare 9:16 height is added to SEC)
+    var SEC = 24, HGAP = 22; // HGAP: from a section heading's ink to its card · gaps between sections = X (spare 9:16 height goes inside the map card)
     var y = HH;
-    function heading(t) { ctx.fillStyle = "#0b5f67"; ctx.font = '600 32px ' + PF; ctx.fillText(t, X, y + 32); y += 32 + HGAP; }
+    function heading(t) { // placed by the ink of the words (Thai marks above vary), so the gap above and below looks the same everywhere
+      ctx.fillStyle = "#0b5f67"; ctx.font = '600 32px ' + PF;
+      var m = ctx.measureText(t), a = m.actualBoundingBoxAscent || 26, d = m.actualBoundingBoxDescent || 8;
+      ctx.fillText(t, X, y + a); y += a + d + HGAP;
+    }
     function sep() { ctx.fillStyle = DIV; ctx.fillRect(X, y, IW, 2); y += 2; }
     // ---- trip details rows
     var t0 = parseD(trip.tripStart), yy = "";
@@ -1822,7 +1825,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var tdp = (trip.tripDays || "").split(" · "), rows = [];
     if (trip.tripDays) { rows.push(["รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]]); if (tdp[1]) rows.push(["วันที่จัดทริป", tdp[1] + yy]); }
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน · " + (trip.vans.length > 1 ? "คันละ " : "") + TOTAL + " ที่นั่ง"]);
-    y += SEC + posterSpare;
+    y += X; // every gap in the picture is X: sides, above each heading, under the map card
     // ---- travel schedule box
     var goD = (trip.startDate || trip.departTime) ? dayS(trip.startDate) : "", goT = trip.departTime || "";
     var bkD = (trip.endDate || trip.returnTime) ? dayS(trip.endDate || trip.startDate) : "", bkT = trip.returnTime || "";
@@ -1871,7 +1874,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       y += bh;
     }
     // ---- map card: van on the left, who booked what on the right
-    y += SEC + posterSpare; heading("ผังที่นั่งและรายละเอียด");
+    y += X; heading("ผังที่นั่งและรายละเอียด");
     var MX = X, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k, IP = 28;
     var mh = IP + PH + IP, FHF = useQr ? 220 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + X + FHF)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
     mh += extra;
