@@ -1843,19 +1843,18 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var cy = by + pad;
       if (hasGo || hasBk) {
         function half(lbl, d, t, right, col) {
-          ctx.textAlign = right ? "right" : "left"; var hx = right ? bx + bw - pad : bx + pad;
+          ctx.textAlign = right ? "right" : "left"; var hx = right ? bx + bw - 40 : bx + 40; // go/return sit a little further in from the box edge
           ctx.fillStyle = "#6b767c"; ctx.font = '400 24px ' + NF; ctx.fillText(lbl, hx, cy + 24);
           ctx.fillStyle = INK; ctx.font = '600 48px ' + PF; ctx.fillText(t ? t + " น." : "", hx, cy + 24 + 52);
           ctx.fillStyle = col; ctx.font = '400 26px ' + NF; ctx.fillText(d, hx, cy + 24 + 52 + 38); ctx.textAlign = "left";
         }
         if (hasGo) half("เดินทางไป", goD, goT, false, "#6b767c");
         if (hasBk) half("เดินทางกลับ", bkD, bkT, hasGo, "#6b767c");
-        if (hasGo && hasBk) { // round ⇄ badge
-          var cx2 = bx + bw / 2, cy2 = cy + 24 + 32;
-          ctx.beginPath(); ctx.arc(cx2, cy2, 28, 0, Math.PI * 2); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.strokeStyle = "#cfd8dc"; ctx.lineWidth = 2; ctx.stroke();
-          ctx.strokeStyle = TEAL; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineJoin = "round";
-          ctx.beginPath(); ctx.moveTo(cx2 - 13, cy2 - 7); ctx.lineTo(cx2 + 13, cy2 - 7); ctx.moveTo(cx2 + 7, cy2 - 13); ctx.lineTo(cx2 + 13, cy2 - 7); ctx.lineTo(cx2 + 7, cy2 - 1);
-          ctx.moveTo(cx2 + 13, cy2 + 8); ctx.lineTo(cx2 - 13, cy2 + 8); ctx.moveTo(cx2 - 7, cy2 + 2); ctx.lineTo(cx2 - 13, cy2 + 8); ctx.lineTo(cx2 - 7, cy2 + 14); ctx.stroke();
+        if (hasGo && hasBk) { // long two-way arrow, same as the card on the booking page (no circle)
+          var cx2 = bx + bw / 2, cy2 = cy + 24 + 32, L2 = 60;
+          ctx.strokeStyle = TEAL; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.beginPath();
+          ctx.moveTo(cx2 - L2, cy2 - 7); ctx.lineTo(cx2 + L2, cy2 - 7); ctx.moveTo(cx2 + L2 - 9, cy2 - 15); ctx.lineTo(cx2 + L2, cy2 - 7); ctx.lineTo(cx2 + L2 - 9, cy2 + 1);
+          ctx.moveTo(cx2 + L2, cy2 + 9); ctx.lineTo(cx2 - L2, cy2 + 9); ctx.moveTo(cx2 - L2 + 9, cy2 + 1); ctx.lineTo(cx2 - L2, cy2 + 9); ctx.lineTo(cx2 - L2 + 9, cy2 + 17); ctx.stroke();
         }
         cy += 24 + 52 + 38 + 16;
       }
