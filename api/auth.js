@@ -119,7 +119,8 @@ module.exports = async function handler(req, res) {
     }
     if (q.me !== undefined) {
       const u = await L.currentUser(req);
-      return L.json(res, 200, { user: L.publicUser(u), login: DEV || !!env("LINE_CHANNEL_ID") });
+      const u2 = L.publicUser(u), need = !!u2 && /^(1|true|on)$/i.test(env("REQUIRE_OA_FRIEND")); // the "add the official account as a friend" gate: off unless REQUIRE_OA_FRIEND is set
+      return L.json(res, 200, { user: u2, login: DEV || !!env("LINE_CHANNEL_ID"), friend: need ? { need: true, url: env("OA_ADD_URL") || "https://line.me/R/ti/p/@976dllrx" } : undefined });
     }
 
     if (q.start !== undefined) {
@@ -135,7 +136,7 @@ module.exports = async function handler(req, res) {
       const nonce = L.newId(16);
       const st = Buffer.from(JSON.stringify({ s: state, n: nonce, r: back })).toString("base64url");
       const url = AUTHORIZE + "?response_type=code&client_id=" + encodeURIComponent(id) + "&redirect_uri=" + encodeURIComponent(redirectUri(req)) +
-        "&state=" + state + "&scope=" + encodeURIComponent("openid profile") + "&nonce=" + nonce;
+        "&state=" + state + "&scope=" + encodeURIComponent("openid profile") + "&nonce=" + nonce + (/^(1|true|on)$/i.test(env("REQUIRE_OA_FRIEND")) ? "&bot_prompt=normal" : ""); // ask to add the linked official account at sign-in
       return go(res, url, [L.cookieStr(req, "vsb_st", st, 600)]);
     }
 

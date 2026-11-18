@@ -1,0 +1,8 @@
+server says need true url https://line.me/R/ti/p/@976dllrx
+not friend: gate shown true
+page scroll locked hidden
+still not friend: gate stays + warning true true
+now friend: gate gone true scroll free true
+check errors: not blocked true
+friend already: no gate true
+ERR []

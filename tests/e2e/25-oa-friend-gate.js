@@ -1,0 +1,24 @@
+const HLP=require('../helpers');const {chromium}=require(HLP.PW);const B=HLP.BASE;
+const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Line/14.0';const errs=[];const log=(...a)=>console.log(...a);
+// Passengers must have the official account as a friend: not a friend -> a screen that blocks the page; added -> it goes away; check errors never block.
+(async()=>{const b=await chromium.launch(HLP.launchOpts);
+const c=await b.newContext({viewport:{width:390,height:760},userAgent:LINE,deviceScaleFactor:1,hasTouch:true});await HLP.fonts(c);
+await c.route('**/static.line-scdn.net/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
+await c.addInitScript(()=>{window.__fr=sessionStorage.getItem('fr')||'false';window.liff={init:()=>Promise.resolve(),isInClient:()=>true,isLoggedIn:()=>true,ready:Promise.resolve(),login(){},getFriendship:()=>window.__fr==='err'?Promise.reject(new Error('x')):Promise.resolve({friendFlag:window.__fr==='true'})}});
+const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
+await p.goto(B+'/api/auth?start=1&as=Friend'+Date.now()+'&r=%2Fprivacy');await p.waitForTimeout(300);
+const me=await (await p.request.get(B+'/api/auth?me=1')).json();log('server says need',me.friend&&me.friend.need,'url',me.friend&&me.friend.url);
+const tr=await (await p.request.post(B+'/api/trip',{data:{name:'เพื่อน OA',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'07:00',returnTime:'17:00',tripN:2,tripStart:HLP.day(20),meetPoint:'BTS หมอชิต',vans:[{label:'1'}]}})).json();
+const gate=()=>p.evaluate(()=>{const g=document.querySelector('.vf-gate');return !!g});
+await p.goto(B+'/'+tr.id+'/seats?x='+Date.now());await p.waitForTimeout(1800);
+log('not friend: gate shown',await gate());
+log('page scroll locked',await p.evaluate(()=>document.documentElement.style.overflow));
+await p.click('.vf-o');await p.waitForTimeout(500);
+log('still not friend: gate stays + warning',await gate(),await p.evaluate(()=>!document.querySelector('.vf-warn').hidden));
+await p.evaluate(()=>{window.__fr='true'});await p.click('.vf-o');await p.waitForTimeout(500);
+log('now friend: gate gone',!(await gate()),'scroll free',await p.evaluate(()=>document.documentElement.style.overflow===''));
+await p.evaluate(()=>{sessionStorage.setItem('fr','err')});await p.goto(B+'/'+tr.id+'/seats?x='+Date.now());await p.waitForTimeout(1800);
+log('check errors: not blocked',!(await gate()));
+await p.evaluate(()=>{sessionStorage.setItem('fr','true')});await p.goto(B+'/'+tr.id+'/seats?x='+Date.now());await p.waitForTimeout(1800);
+log('friend already: no gate',!(await gate()));
+log('ERR',errs);await b.close()})().catch(e=>{console.log('ERR',e.message);process.exit(1)});

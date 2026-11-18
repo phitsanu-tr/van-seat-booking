@@ -49,6 +49,7 @@ from a to b (used for counts that depend on timing).
 | 09-roster-scroll | a long passenger list scrolls inside the sheet on a short phone screen |
 | 10-checkin | check-in ticks: organizer-only, hidden from passengers, follow moves, live refresh; paid ticks rejected |
 | 24-scroll-lock | page behind a popup is pinned (booking sheet, app bottom sheet) and the scroll position comes back on close |
+| 25-oa-friend-gate | with REQUIRE_OA_FRIEND on: not a friend of the official account → blocking screen (+ warning if still not), friend → gone, check error → never blocks |
 | 11-routes | signed-in visitors stay on /, link scheme: /home /trips /seats /notify /profile, /new, /<id>/edit, old /trips#<id>-o, old seat-pass link goes to the booking page |
 | 12-close-booking | close/reopen bookings, automatic closing time, what passengers and organizers can still do |
 | 13-copy-duplicate | copy the passenger list as text, duplicate a trip (upcoming and finished) |
