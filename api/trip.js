@@ -453,6 +453,7 @@ module.exports = async function handler(req, res) {
       (trip.helpers || []).forEach((h) => cmds.push(["SREM", L.myTripsKey(h.u), t]));
       if (trip.invite && trip.invite.c) cmds.push(["DEL", "inv:" + trip.invite.c]);
       trip.vans.forEach((v) => cmds.push(["DEL", L.seatsKey(t, v.id)]));
+      cmds.push(["DEL", "queue:" + t]);
       await L.pipeline(cmds);
       await L.audit({ e: "trip_delete", u: user.id, t, tn: trip.name, refunded: refunded ? 1 : 0, capped: capped ? 1 : 0, age_h: Math.round((Date.now() - (trip.createdAt || 0)) / 3600000) });
       await L.notify([].concat(...Object.values(bookers), L.teamIds(trip)), { k: "trip_deleted", t, tn: trip.name, by: "owner" }, user.id);

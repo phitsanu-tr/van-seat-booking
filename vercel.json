@@ -44,6 +44,10 @@
       "destination": "/book.html"
     },
     {
+      "source": "/:t([a-hj-km-np-z2-9]{6,8})/queue",
+      "destination": "/queue.html"
+    },
+    {
       "source": "/:t([a-hj-km-np-z2-9]{6,8})/:v(seats|list)",
       "destination": "/book.html"
     }
@@ -75,7 +79,7 @@
       ]
     },
     {
-      "source": "/:t([a-hj-km-np-z2-9]{6,8})/:v(seats|list|edit)",
+      "source": "/:t([a-hj-km-np-z2-9]{6,8})/:v(seats|list|edit|queue)",
       "headers": [
         {
           "key": "X-Robots-Tag",

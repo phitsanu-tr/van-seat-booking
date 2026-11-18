@@ -96,6 +96,7 @@ function route(pathname, query) {
   if (pathname === "/privacy") return "/privacy.html";
   if (pathname === "/terms") return "/terms.html";
   if (pathname === "/plans") return "/plans.html";
+  if (/^\/[a-hj-km-np-z2-9]{6,8}\/queue$/.test(pathname)) return "/queue.html";
   if (/^\/[a-hj-km-np-z2-9]{6,8}(\/(seats|list))?$/.test(pathname)) return "/book.html";
   return pathname;
 }
@@ -104,7 +105,7 @@ function startApp() {
   const app = http.createServer((req, res) => {
     const u = new URL(req.url, "http://localhost");
     if (/^\/(DESIGN\.md|UPDATE\.md|README\.md|dev\.js|vercel\.json|tests\/.*|scripts\/.*)$/.test(u.pathname)) { res.writeHead(302, { Location: "/" }); return res.end(); }
-    if (u.pathname === "/api/trip" || u.pathname === "/api/roster" || u.pathname === "/api/seats" || u.pathname === "/api/owner" || u.pathname === "/api/mark" || u.pathname === "/api/auth" || u.pathname === "/api/me" || u.pathname === "/api/pay") {
+    if (u.pathname === "/api/trip" || u.pathname === "/api/roster" || u.pathname === "/api/seats" || u.pathname === "/api/owner" || u.pathname === "/api/mark" || u.pathname === "/api/auth" || u.pathname === "/api/me" || u.pathname === "/api/pay" || u.pathname === "/api/queue") {
       let raw = ""; req.on("data", (c) => (raw += c));
       req.on("end", async () => {
         req.query = Object.fromEntries(u.searchParams);

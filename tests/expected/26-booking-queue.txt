@@ -1,0 +1,22 @@
+add rows 200 2
+passenger cannot add 403 not_owner
+on true turn none yet true
+seats says queue on true
+A claims 200 mine true
+B cannot take A row 400 row_taken
+B claims own 200
+A before approval blocked 403 not_your_turn
+approved A: turn is A true
+B not his turn 403 not_your_turn
+B hold blocked 403 not_your_turn
+A books 200
+limit reached: A done true turn none until B approved true
+approved B: turn is B true
+A again blocked 403 not_your_turn
+B books 200
+organizer always may 200
+queue off: seat_limit not queue error true
+passenger page shows list 2 rows
+organizer page has controls true
+booking page shows queue bar true
+ERR []

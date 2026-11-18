@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>คิวจองที่นั่ง · VanTrip</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
+<style>
+:root{color-scheme:light;--bg:#eef1f3;--surface:#fff;--ink:#1b1f22;--muted:#5f6b73;--line:#c9d2d8;--mine:#0e7c86;--mine-ink:#fff;--tint:#e4f2f3;--ok:#0b8457;--okbg:#e3f4ec;--warn:#8a5a00;--warnbg:#fff4dc;--red:#b3261e;--font-display:"Prompt","Noto Sans Thai",system-ui,sans-serif;--font-body:"Noto Sans Thai",system-ui,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--font-body);padding:0 max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:560px;margin:0 auto}
+.top{display:flex;align-items:center;gap:8px;padding:14px 0 6px}
+.top a{color:var(--mine);text-decoration:none;font-weight:600;display:inline-flex;align-items:center;min-height:44px}
+h1{font:700 24px/30px var(--font-display);margin:2px 0 4px;text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 14px;font-size:14px}
+.card{background:var(--surface);border-radius:16px;padding:14px;margin:0 0 12px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.card h2{font:600 15px/22px var(--font-display);margin:0 0 8px}
+.note{font-size:13px;color:var(--muted);margin:6px 0 0}
+.row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #eef1f3;min-width:0}
+.row:first-of-type{border-top:0}
+.no{flex:0 0 28px;height:28px;border-radius:50%;background:var(--tint);color:var(--mine);font:600 13px/28px var(--font-display);text-align:center}
+.nm{flex:1;min-width:0}.nm b{display:block;font-weight:600;overflow-wrap:anywhere}.nm small{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12.5px;margin-top:2px}
+.nm small img{width:18px;height:18px;border-radius:50%;object-fit:cover}
+.row.me{background:linear-gradient(90deg,var(--tint),transparent);margin:0 -14px;padding-left:14px;padding-right:14px}
+.row.done .nm b{color:var(--muted);text-decoration:line-through}
+.chip{flex:none;font-size:12px;font-weight:600;border-radius:999px;padding:3px 10px;background:#eef1f3;color:var(--muted)}
+.chip.turn{background:var(--okbg);color:var(--ok)}.chip.wait{background:var(--warnbg);color:var(--warn)}.chip.done{background:#eef1f3;color:var(--muted)}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+button,.btn{white-space:nowrap;font:600 14px/1 var(--font-body);border:0;border-radius:10px;padding:0 14px;min-height:40px;background:var(--mine);color:var(--mine-ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+button.o,.btn.o{background:transparent;color:var(--mine);border:1.5px solid var(--mine)}
+button.s{min-height:34px;padding:0 10px;font-size:13px}
+button.r{background:transparent;color:var(--red);border:1.5px solid #e7b9b6}
+button:disabled{opacity:.5}
+.big{width:100%;min-height:48px;font-size:16px}
+.turnbox{background:var(--okbg);color:#0a5c3c}.turnbox h2{color:#0a5c3c}
+.waitbox{background:var(--warnbg);color:var(--warn)}
+textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius:12px;padding:10px;font:15px/1.5 var(--font-body);resize:vertical;background:#fff;color:var(--ink)}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.err{color:var(--red);font-size:13px;margin-top:6px}
+.empty{color:var(--muted);text-align:center;padding:16px 0}
+</style>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+(function(){
+  var LIFF_ID = "2012285472-FvtYKx00";
+  window.__liffReady = new Promise(function(resolve){
+    var dg=function(c){try{navigator.sendBeacon("/api/auth",new Blob([JSON.stringify({diag:c})],{type:"application/json"}));}catch(e){}};
+    if (!window.liff) { resolve(false); return; }
+    liff.init({ liffId: LIFF_ID }).then(function(){
+      if (!liff.isInClient()) {
+        // opened from a chat link in LINE's plain in-app browser: hand over to the LIFF link once (never loops)
+        try { if (/\bLine\//i.test(navigator.userAgent) && !sessionStorage.getItem("vsb_hand")) { sessionStorage.setItem("vsb_hand", "1"); location.replace("https://liff.line.me/" + LIFF_ID + location.pathname + location.search); return; } } catch (e) {}
+        resolve(false); return;
+      }
+      document.documentElement.classList.add("in-line"); var vb = document.querySelector(".vb-bar"); if (vb) vb.style.display = "none"; // inside LINE: its own header already has the back button
+      if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
+      // session cookie is HttpOnly, so ask the server whether we are signed in
+      fetch("/api/auth?me=1", { cache: "no-store" }).then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(me){
+        if (me && me.user) { try { sessionStorage.removeItem("vsb_liff"); localStorage.removeItem("vsb_gone"); } catch (e) {} try { var rt = liff.getIDToken(); if (rt && !sessionStorage.getItem("vsb_rf")) { sessionStorage.setItem("vsb_rf", "1"); fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ liff_token: rt, refresh: true }) }).then(function(r){ return r.json(); }).then(function(d){ if (d && d.changed) { try { localStorage.removeItem("vsb_me"); localStorage.removeItem("vsb_tb"); } catch (e) {} location.reload(); } }).catch(function(){}); } } catch (e) {}  /*LINE photo / name changed? the server takes the latest each time the app opens in LINE*/ resolve(true); return; }
+        try { if (localStorage.getItem("vsb_gone")) { resolve(false); return; } } catch (e) {} // deleted my data on this device: no automatic sign-in until the person taps the button
+        var tried = ""; try { tried = sessionStorage.getItem("vsb_liff"); } catch (e) {}
+        var token = liff.getIDToken();
+        if (tried || !token) { dg(tried ? "retry_blocked" : "no_token"); resolve(false); return; } // one try per tab: never loop
+        try { sessionStorage.setItem("vsb_liff", "1"); } catch (e) {}
+        fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ liff_token: token, r: location.pathname + location.search + location.hash }) })
+          .then(function(r){ return r.json(); })
+          .then(function(d){ if (d && d.ok) location.replace(d.r || "/"); else { dg("login_" + ((d && d.error) || "fail")); resolve(false); } })
+          .catch(function(){ dg("login_net"); resolve(false); });
+      });
+    }).catch(function(){ dg("init_fail"); resolve(false); });
+  });
+})();
+</script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a id="back" href="/">‹ กลับ</a></div>
+  <h1>คิวจองที่นั่ง</h1>
+  <div id="main"><div class="empty">กำลังโหลด…</div></div>
+</div>
+<script>
+(function () {
+  var T = (location.pathname.match(/^\/([a-z0-9]+)\/queue/) || [])[1] || "";
+  var main = document.getElementById("main"), D = null, busy = false;
+  document.getElementById("back").href = "/" + T + "/seats";
+  function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; }
+  function btn(txt, cls, fn) { var b = el("button", cls || "", txt); b.type = "button"; b.addEventListener("click", function () { if (busy) return; busy = true; fn().then(function () { busy = false; }, function () { busy = false; }); }); return b; }
+  var MSG = { login_required: "ต้องเข้าสู่ระบบก่อน", already_claimed: "คุณยืนยันชื่อไปแล้ว", row_taken: "ชื่อนี้มีคนกดยืนยันแล้ว", queue_full: "คิวเต็ม (สูงสุด 80 ชื่อ)", bad_name: "ชื่อไม่ถูกต้อง", not_your_turn: "ยังไม่ถึงคิวของคุณ", busy: "ลองอีกครั้ง", ended: "ทริปจบแล้ว", not_owner: "เฉพาะผู้จัดทริป" };
+  function call(a, extra) {
+    return fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ t: T, a: a }, extra || {})) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (o) { if (o.ok && o.j && o.j.items) { D = o.j; draw(); } else { flash((MSG[o.j && o.j.error]) || "ทำไม่สำเร็จ"); } })
+      .catch(function () { flash("เชื่อมต่อไม่ได้"); });
+  }
+  var errBox = null;
+  function flash(t) { if (errBox) { errBox.textContent = t; errBox.hidden = false; setTimeout(function () { if (errBox) errBox.hidden = true; }, 4000); } }
+  function load() {
+    return fetch("/api/queue?t=" + encodeURIComponent(T), { cache: "no-store" }).then(function (r) {
+      if (r.status === 404) { return r.json().then(function (j) { D = { off: j && j.error }; draw(); }); }
+      return r.json().then(function (j) { D = j; draw(); });
+    }).catch(function () {});
+  }
+  function draw() {
+    if (busy && D) return;
+    main.textContent = "";
+    if (!D) return;
+    if (D.off) { var c0 = el("div", "card"); c0.appendChild(el("p", "empty", D.off === "no_trip" ? "ไม่พบทริปนี้" : "ยังไม่เปิดใช้คิวจอง")); main.appendChild(c0); return; }
+    var org = !!D.role, signedIn = !!D.me;
+    errBox = el("div", "err"); errBox.hidden = true; errBox.setAttribute("role", "alert");
+    var idx = 0;
+    if (org) {
+      var cs = el("div", "card"), sw = el("div", "sw");
+      var l = el("div"); l.appendChild(el("h2", null, "เปิดคิวจองตามลำดับ"));
+      l.appendChild(el("p", "note", D.on ? "เปิดอยู่: มีเฉพาะคนที่ถึงคิวที่จองที่นั่งได้ (ผู้จัดจองได้เสมอ)" : "ปิดอยู่: ทุกคนจองได้ตามปกติ"));
+      sw.appendChild(l); sw.appendChild(btn(D.on ? "ปิดคิว" : "เปิดคิว", D.on ? "o" : "", function () { return call("on", { value: !D.on }); }));
+      cs.appendChild(sw); main.appendChild(cs);
+      var ca = el("div", "card"); ca.appendChild(el("h2", null, "เพิ่มรายชื่อ (เรียงตามลำดับที่ชำระเงิน)"));
+      var ta = el("textarea"); ta.placeholder = "พิมพ์ชื่อบรรทัดละ 1 คน"; ta.setAttribute("aria-label", "รายชื่อ"); ca.appendChild(ta);
+      var ab = el("div", "acts"); ab.appendChild(btn("เพิ่มท้ายคิว", "", function () { var names = ta.value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean); if (!names.length) return Promise.resolve(); return call("add", { names: names }); })); ca.appendChild(ab);
+      main.appendChild(ca);
+    } else if (!D.on) {
+      var c1 = el("div", "card"); c1.appendChild(el("h2", null, "ทริปนี้ยังไม่เปิดคิว")); c1.appendChild(el("p", "note", "จองที่นั่งได้ตามปกติ")); var go = el("a", "btn", "ไปเลือกที่นั่ง"); go.href = "/" + T + "/seats"; go.style.marginTop = "10px"; c1.appendChild(go); main.appendChild(c1);
+    } else if (!signedIn) {
+      var c2 = el("div", "card"); c2.appendChild(el("h2", null, "เข้าสู่ระบบด้วย LINE ก่อน")); var li = el("a", "btn big", "เข้าสู่ระบบด้วย LINE"); li.href = "/api/auth?start=1&r=" + encodeURIComponent(location.pathname); li.style.marginTop = "6px"; c2.appendChild(li); main.appendChild(c2);
+    }
+    var mineRow = D.items.filter(function (i) { return i.m; })[0];
+    if (!org && D.on && signedIn) {
+      if (D.turn && mineRow && D.turn === mineRow.id) {
+        var tb = el("div", "card turnbox"); tb.appendChild(el("h2", null, "ถึงคิวของคุณแล้ว"));
+        tb.appendChild(el("p", "note", "เลือกที่นั่งให้เรียบร้อย แล้วกด “เสร็จแล้ว” เพื่อเรียกคนถัดไป"));
+        var tg = el("a", "btn big", "ไปเลือกที่นั่ง"); tg.href = "/" + T + "/seats"; tg.style.marginTop = "10px"; tb.appendChild(tg);
+        var fb = btn("เสร็จแล้ว", "o big", function () { return call("finish"); }); fb.style.marginTop = "8px"; tb.appendChild(fb); main.appendChild(tb);
+      } else if (mineRow && !mineRow.done) {
+        var wb = el("div", "card waitbox"); wb.appendChild(el("h2", null, mineRow.ok ? "รอถึงคิวของคุณ" : "รอผู้จัดอนุมัติชื่อของคุณ"));
+        var ahead = D.items.slice(0, D.items.indexOf(mineRow)).filter(function (i) { return !i.done; }).length;
+        wb.appendChild(el("p", "note", mineRow.ok ? "อีก " + ahead + " คนก่อนหน้าคุณ เราจะแจ้งเตือนเมื่อถึงคิว" : "ผู้จัดตรวจแล้วจะแจ้งเตือนคุณ"));
+        main.appendChild(wb);
+      } else if (!mineRow) {
+        var hb = el("div", "card"); hb.appendChild(el("h2", null, "หาชื่อของคุณในรายการ แล้วกด “ฉันคือคนนี้”")); hb.appendChild(el("p", "note", "ผู้จัดจะตรวจก่อนว่าเป็นคุณจริง")); main.appendChild(hb);
+      }
+    }
+    var cl = el("div", "card"); cl.appendChild(el("h2", null, "ลำดับคิว (" + D.items.length + ")"));
+    if (!D.items.length) cl.appendChild(el("div", "empty", org ? "ยังไม่มีรายชื่อ เพิ่มจากด้านบน" : "ยังไม่มีรายชื่อ"));
+    D.items.forEach(function (it, i) {
+      var isTurn = D.turn === it.id, r = el("div", "row" + (it.m ? " me" : "") + (it.done ? " done" : ""));
+      r.appendChild(el("div", "no", String(i + 1)));
+      var nm = el("div", "nm"); nm.appendChild(el("b", null, it.name + (it.m ? " (คุณ)" : "")));
+      if (org && it.ln) { var sm = el("small"); if (it.lp) { var im = el("img"); im.src = it.lp; im.alt = ""; sm.appendChild(im); } sm.appendChild(el("span", null, "LINE: " + it.ln)); nm.appendChild(sm); }
+      var acts = el("div", "acts");
+      if (org) {
+        if (i > 0) acts.appendChild(btn("▲", "o s", function () { return call("up", { id: it.id }); }));
+        if (i < D.items.length - 1) acts.appendChild(btn("▼", "o s", function () { return call("down", { id: it.id }); }));
+        if (it.bound && !it.ok) acts.appendChild(btn("อนุมัติ", "s", function () { return call("ok", { id: it.id, value: true }); }));
+        if (it.bound) acts.appendChild(btn("ปลดชื่อ", "o s", function () { return call("unbind", { id: it.id }); }));
+        acts.appendChild(btn(it.done ? "คืนคิว" : "ข้าม/จบคิว", "o s", function () { return call("done", { id: it.id, value: !it.done }); }));
+        acts.appendChild(btn("ลบ", "r s", function () { return call("remove", { id: it.id }); }));
+      } else if (signedIn && D.on) {
+        if (!it.bound && !mineRow && !it.done) acts.appendChild(btn("ฉันคือคนนี้", "s", function () { return call("claim", { id: it.id }); }));
+        if (it.m && !it.done) acts.appendChild(btn("ยกเลิกการยืนยัน", "o s", function () { return call("unclaim"); }));
+      }
+      if (acts.childNodes.length) nm.appendChild(acts);
+      r.appendChild(nm);
+      var ch = it.done ? el("span", "chip done", "เสร็จแล้ว") : isTurn ? el("span", "chip turn", "ถึงคิว") : it.bound && !it.ok ? el("span", "chip wait", "รออนุมัติ") : el("span", "chip", "รอ");
+      r.appendChild(ch); cl.appendChild(r);
+    });
+    cl.appendChild(errBox);
+    main.appendChild(cl);
+  }
+  function boot() { load(); setInterval(function () { if (!document.hidden && !busy) load(); }, 8000); document.addEventListener("visibilitychange", function () { if (!document.hidden) load(); }); }
+  var rd = window.__liffReady || Promise.resolve();
+  rd.then(boot, boot);
+})();
+</script>
+<script src="/friend.js"></script>
+</body>
+</html>

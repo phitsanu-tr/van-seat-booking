@@ -5,6 +5,7 @@
 // others see it as "being booked"; the booking that carries the hold id gets it. One hold per browser (hc) per trip;
 // the network only limits how many holds can be made (many phones share one IP on mobile networks).
 const L = require("./_lib");
+const Q = require("./_queue");
 const HOLD_SEC = 5 * 60;
 const MAX_HOLDS_IP = 5; // live holds one network may keep on one trip, whatever "browser codes" (hc) it sends: stops one person holding every seat
 const holdKey = (t, v, s) => "hold:" + t + ":" + v + ":" + s;
@@ -48,7 +49,8 @@ module.exports = async function handler(req, res) {
       const counts = {};
       trip.vans.forEach((x, i) => { counts[x.id] = Number(out[i + 2]) || 0; });
       const held = []; (out[1] || []).forEach((h, i) => { if (h && !seats[i + 1]) held.push(i + 1); }); // free seats someone is signing in to book
-      return L.json(res, 200, { trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip), closed });
+      let qon = false; if (Q.flagOn()) { try { qon = !!(await Q.read(t)).q.on; } catch (e) { /* the page still works */ } } // booking queue switched on for this trip
+      return L.json(res, 200, { qon: qon || undefined, trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip), closed });
     }
 
     if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
@@ -61,6 +63,7 @@ module.exports = async function handler(req, res) {
       const seat = L.parseSeat(body.hold);
       if (seat === null) return L.json(res, 400, { error: "bad_seat" });
       if (closed) return L.json(res, 403, { error: "closed" });
+      { const qg = await Q.gate(trip, user, isOwner); if (qg) return L.json(res, 403, qg); } // booking queue: only the person whose turn it is
       const hc = /^[a-z0-9]{16}$/.test(String(body.hc || "")) ? String(body.hc) : "";
       if (await L.rateLimited(req, null, "hold:" + t, hc ? 40 : 10, 600)) return L.json(res, 429, { error: "too_many" }); // per network
       if (hc && await L.rateLimited(req, { id: "hc:" + hc }, "hold:" + t, 10, 600)) return L.json(res, 429, { error: "too_many" }); // per browser
@@ -274,6 +277,7 @@ module.exports = async function handler(req, res) {
       if (name !== rawName || !L.hasBaseLetter(name)) return L.json(res, 400, { error: "name_chars" });
       if (L.reservedName(name, isOwner)) return L.json(res, 400, { error: "name_reserved" });
       if (closed && !isOwner) return L.json(res, 403, { error: "closed" });
+      { const qg = await Q.gate(trip, user, isOwner); if (qg) return L.json(res, 403, qg); }
       const limit = L.maxPerPerson(trip);
       if (user && !isOwner && limit > 0) { // count this account's seats in every van of the trip
         const all = await L.pipeline(trip.vans.map((x) => ["HGETALL", L.seatsKey(t, x.id)]));
@@ -301,6 +305,12 @@ module.exports = async function handler(req, res) {
       if (live) { try { await L.redis(["EXPIREAT", key, String(exp)]); } catch (e) { /* best effort */ } } // a new van hash has no TTL yet
       L.bump("seat_book");
       await L.logEvent(t, { e: "book", v: van.id, s: seat, n: name, u: user.id, at }, live ? exp : undefined);
+      if (!isOwner && Q.flagOn()) { // booking queue: the turn ends by itself once the person holds as many seats as one person may
+        try {
+          const mine = (await L.redis(["SMEMBERS", L.mySeatsKey(user.id)])) || [];
+          await Q.afterBook(trip, user, mine.filter((x) => String(x).indexOf(t + "|") === 0).length);
+        } catch (e) { /* the seat is booked; the queue can be moved on by hand */ }
+      }
       return L.json(res, 200, { ok: true, at });
     }
 

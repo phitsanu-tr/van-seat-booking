@@ -542,6 +542,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <button type="button" role="tab" id="swList" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>รายชื่อ</button>
   </div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
+    <div class="ended" id="queueBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span><b>จองตามลำดับคิว</b> จองได้เมื่อถึงคิวของคุณ <a href="#" id="queueLink">ดูคิวของฉัน</a></span></div>
     <div class="ended" id="closedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span><b>ปิดรับจองแล้ว</b> จองหรือยกเลิกเองไม่ได้ ถ้าต้องการเปลี่ยนที่นั่ง ติดต่อผู้จัดทริป</span></div>
     <div class="chgban" id="chgBan" hidden></div>
     <div class="facts" id="tripFacts" role="list" aria-label="ข้อมูลทริป" hidden></div>
@@ -716,7 +717,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   setTimeout(function () { skOff(true); if (!loaded) showNet(true); }, 8000);
   document.getElementById("neRetry").addEventListener("click", function () { showNet(false); document.body.classList.add("sk"); setTimeout(function () { skOff(true); if (!loaded) showNet(true); }, 8000); refresh(true); });
   var selected = null, message = "", shown = false, confirming = false, lastSnapshot = "", wasFree = false; // wasFree: the seat was free when this dialog opened
-  var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false, closed = false;
+  var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false, closed = false, qon = false;
   // locked: nothing to tap. A finished trip is locked for everyone; a closed one only for passengers (organizers still manage seats).
   function locked() { return ended || (closed && !isOwner); }
   var MON_S = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
@@ -807,6 +808,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (code === "name_chars") return "ใช้ได้เฉพาะภาษาไทยและอังกฤษ";
     if (code === "name_reserved") return "ใช้ชื่อนี้ไม่ได้ ลองชื่ออื่น";
     if (code === "ended") return "ทริปนี้สิ้นสุดแล้ว ปิดรับจอง";
+    if (code === "not_your_turn") return "ยังไม่ถึงคิวของคุณ ดูลำดับคิวได้ที่แถบด้านบน";
     if (code === "closed") return "ปิดรับจองแล้ว ติดต่อผู้จัดทริปถ้าต้องการเปลี่ยน";
     if (code === "login_required") return "เข้าสู่ระบบด้วย LINE ก่อน";
     if (code === "not_yours") return "ยกเลิกได้เฉพาะคนที่จอง หรือคนจัดทริป";
@@ -1325,6 +1327,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var box = document.getElementById("notice");
     document.getElementById("endedBar").hidden = !ended;
     document.getElementById("closedBar").hidden = !(loaded && closed && !ended && !isOwner);
+    document.getElementById("queueBar").hidden = !(loaded && qon && !closed && !ended && !isOwner);
+    document.getElementById("queueLink").href = "/" + TRIP + "/queue";
     document.getElementById("deck").classList.toggle("isended", locked());
     box.textContent = "";
     if (locked() || !loaded || !trip) return;
@@ -1399,7 +1403,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       counts = (r.data && r.data.counts) || counts;
       var hw = JSON.stringify(held); held = {}; ((r.data && r.data.held) || []).forEach(function (k) { held[k] = 1; });
       if (JSON.stringify(held) !== hw) force = true;
-      ended = !!(r.data && r.data.ended); closed = !!(r.data && r.data.closed);
+      ended = !!(r.data && r.data.ended); closed = !!(r.data && r.data.closed); qon = !!(r.data && r.data.qon);
       var meWas = JSON.stringify(me); me = (r.data && r.data.me) || null; isOwner = !!(r.data && r.data.owner); seatLimit = Number(r.data && r.data.limit) || 0;
       if (JSON.stringify(me) !== meWas || !loaded) renderAcct();
       var next = {};

@@ -97,6 +97,8 @@
       case "trip_deleted": return { title: "ทริปถูกยกเลิก", body: tn + " · ผู้จัดลบทริปนี้แล้ว", tone: "red", icon: "trash" };
       case "van_removed": return { title: "คันรถที่คุณจองถูกลบ", body: tn + " · คัน " + esc(it.vl) + " · ที่นั่งของคุณถูกยกเลิก", tone: "red", icon: "trash" };
       case "seat_moved": return { title: "ที่นั่งของคุณถูกย้าย", body: tn + " · คัน " + esc(it.fvl) + " ที่ " + it.fs + " → <em>คัน " + esc(it.tvl) + " ที่ " + it.ts + "</em>", tone: "teal", icon: "move" };
+      case "queue_turn": return { title: "ถึงคิวจองที่นั่งของคุณแล้ว", body: tn + " · เปิดทริปแล้วเลือกที่นั่งได้เลย", tone: "green", icon: "bell" };
+      case "queue_claim": return { title: "มีคนกด “ฉันคือคนนี้”", body: tn + " · " + esc(it.n) + " · รออนุมัติ", tone: "amber", icon: "shield" };
       case "seat_cancelled": return { title: "ผู้จัดยกเลิกที่นั่งของคุณ", body: tn + " · คัน " + esc(it.vl) + " ที่ " + it.s, tone: "red", icon: "trash" };
       case "seat_renamed": return { title: "ชื่อบนผังถูกแก้", body: tn + " · " + esc(it.o) + " → <em>" + esc(it.n) + "</em>", tone: "grey", icon: "pen" };
       case "became_owner": return { title: "คุณเป็นเจ้าของทริปแล้ว", body: tn + (it.n ? " · " + esc(it.n) + " โอนทริปให้คุณ" : ""), tone: "green", icon: "shield" };

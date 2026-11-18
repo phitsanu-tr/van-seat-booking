@@ -125,7 +125,7 @@ function expireAtFor(trip) {
   return Math.floor((endOfDay + RETENTION_DAYS * 86400 * 1000) / 1000);
 }
 function tripKeys(trip) {
-  return [tripKey(trip.id), logKey(trip.id)].concat((trip.vans || []).map((v) => seatsKey(trip.id, v.id)));
+  return [tripKey(trip.id), logKey(trip.id), "queue:" + trip.id].concat((trip.vans || []).map((v) => seatsKey(trip.id, v.id)));
 }
 // Commands that (re)apply the expiry to every key of a trip. Dates cleared -> PERSIST. Never expires data immediately unless force=true.
 function expiryCommands(trip, minSec) {
