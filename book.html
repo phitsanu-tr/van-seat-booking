@@ -1997,6 +1997,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     oc.fillStyle = "#ffffff"; oc.fillRect(0, 0, OW, out.height);
     oc.drawImage(tc, 0, 0, OW, Math.round(total * k), 0, 0, OW, Math.round(total * k));
     oc.restore();
+    // thin teal sides between the header and footer bands, so the picture keeps its edge on a white background
+    oc.fillStyle = "#0b5f67"; oc.fillRect(0, Math.round(HH * k), 4, Math.round((total - FH - HH) * k)); oc.fillRect(OW - 4, Math.round(HH * k), 4, Math.round((total - FH - HH) * k));
     return out;
   }
   function closeImg() {
