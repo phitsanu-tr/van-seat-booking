@@ -78,7 +78,7 @@ h1{font:700 26px/32px var(--font-display)}
 .ic{flex:none;width:34px;height:34px;border-radius:50%;background:var(--tint);color:var(--mine);display:grid;place-items:center}.ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .wrap{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 .obar{position:fixed;z-index:15;left:max(0px,calc((100% - 460px) / 2));right:max(0px,calc((100% - 460px) / 2));bottom:0;margin:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;background:#fff;border-top:1px solid #e8ecef;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
-.obar .b.p{flex:none}.obar .b{background:#eef1f3}.obar .b.p{background:var(--mine)}
+body.org .wrap{padding-top:calc(24px + env(safe-area-inset-top,0px))}.obar.one{grid-template-columns:minmax(0,1fr)}.obar a.b{display:grid;place-items:center;text-decoration:none;border-radius:12px;min-height:48px}.strip button.ol{background:#fff;color:var(--red);border:1.5px solid #f0c9c6}.strip button.wide{width:100%;margin:6px 0 8px}.obar .b.p{flex:none}.obar .b{background:#eef1f3}.obar .b.p{background:var(--mine)}
 .err{color:var(--red);font-size:13px;margin-top:6px}
 .empty{color:var(--muted);text-align:center;padding:16px 0}
 </style>
@@ -185,8 +185,9 @@ h1{font:700 26px/32px var(--font-display)}
     sb.setAttribute("role", "status");
     if (!D.on) { msg = ["ปิดคิวอยู่", " ทุกคนจองได้ตามปกติ"]; act = btn("เปิดคิว", "s", function () { return call("on", { value: true }); }); }
     else if (w.length) { msg = ["รออนุมัติ " + w.length + " คน", t ? " · ถึงคิว: " + t.name : ""]; act = btn("อนุมัติ", "s", function () { return call("okall"); }); }
-    else if (t) { msg = ["ถึงคิว: " + t.name, " กำลังเลือกที่นั่ง"]; act = btn("เรียกคนถัดไป", "s", function () { return call("done", { id: t.id, value: true }); }); }
+    else if (t) { msg = ["ถึงคิว: " + t.name, " กำลังเลือกที่นั่ง"]; }
     else { msg = ["ยังไม่มีคนถึงคิว", ""]; }
+    if (D.on && !w.length) { act = btn("ปิดคิว", "s ol", function () { return call("on", { value: false }); }); }
     var sx = el("button", "sx"); sx.type = "button"; sx.setAttribute("aria-expanded", stripOpen ? "true" : "false");
     sx.appendChild(el("span", "dot")); var sm = el("span", "sm"); sm.appendChild(el("b", null, msg[0])); sm.appendChild(document.createTextNode(msg[1])); sx.appendChild(sm); sx.appendChild(el("span", "car", stripOpen ? "⌃" : "⌄"));
     sx.addEventListener("click", function () { stripOpen = !stripOpen; draw(); });
@@ -195,6 +196,7 @@ h1{font:700 26px/32px var(--font-display)}
       var sxp = el("div", "stripx"); sxp.appendChild(el("div", "lbl", "คิวถัดไป"));
       var nx = D.items.map(function (it, i) { return { it: it, i: i }; }).filter(function (x) { return !x.it.done; }).slice(0, 4);
       if (!nx.length) sxp.appendChild(el("div", "empty", "จบคิวครบแล้ว")); nx.forEach(function (x) { sxp.appendChild(rowEl(x.it, x.i, false)); });
+      if (D.on && w.length) { sxp.appendChild(btn("ปิดคิว", "s ol wide", function () { return call("on", { value: false }); })); }
       strip.appendChild(sxp);
     }
     main.appendChild(strip);
@@ -219,9 +221,7 @@ h1{font:700 26px/32px var(--font-display)}
       D.items.forEach(function (it, i) { cl2.appendChild(rowEl(it, i, true)); });
       var al = el("button", "addlink", "＋ เพิ่มรายชื่อ"); al.type = "button"; al.addEventListener("click", function () { sheet = "add"; draw(); }); cl2.appendChild(al);
       cl2.appendChild(errBox); main.appendChild(cl2);
-      var bar = el("div", "obar");
-      bar.appendChild(btn(D.on ? "ปิดคิว" : "เปิดคิว", "b", function () { return call("on", { value: !D.on }); }));
-      var nb = btn("เรียกคนถัดไป", "b p", function () { return call("done", { id: t.id, value: true }); }); if (!t) nb.disabled = true; bar.appendChild(nb);
+      var bar = el("div", "obar one"); var bk = el("a", "b", "ย้อนกลับ"); bk.href = "/" + T + "/seats"; bar.appendChild(bk);
       main.appendChild(bar);
     }
     if (sheet === "add") {
@@ -243,6 +243,7 @@ h1{font:700 26px/32px var(--font-display)}
     if (!D) return;
     if (D.off) { var c0 = el("div", "card"); c0.appendChild(el("p", "empty", D.off === "no_trip" ? "ไม่พบทริปนี้" : "ยังไม่เปิดใช้คิวจอง")); main.appendChild(c0); return; }
     var org = !!D.role, signedIn = !!D.me;
+    var topEl = document.querySelector(".top"); if (topEl) topEl.style.display = org ? "none" : ""; document.body.classList.toggle("org", org);
     errBox = el("div", "err"); errBox.hidden = true; errBox.setAttribute("role", "alert");
     var idx = 0;
     if (org) { drawOrg(); return; }
