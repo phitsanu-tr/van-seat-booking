@@ -1779,7 +1779,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var c0 = drawPoster0(useQr, 380);
     var tgt = 1008 * 16 / 9, pw = Math.max(250, Math.min(480, (tgt - posterFixed) / (H / W)));
     posterSpare = 0; var c1 = Math.abs(pw - 380) > 1 ? drawPoster0(useQr, pw) : c0;
-    if (posterExtra > KEEP + 1) { posterSpare = (posterExtra - KEEP) / 3; var c2 = drawPoster0(useQr, pw); posterSpare = 0; return c2; }
+    if (posterExtra > KEEP + 1) { posterSpare = (posterExtra - KEEP) / 2; var c2 = drawPoster0(useQr, pw); posterSpare = 0; return c2; }
     return c1;
   }
   function drawPoster0(useQr, pwOv) {
@@ -1873,7 +1873,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     // ---- map card: van on the left, who booked what on the right
     y += SEC + posterSpare; heading("ผังที่นั่งและรายละเอียด");
     var MX = X, MW = CW - 2 * MX, PW = pwOv, k = PW / W, PH = H * k, IP = 28;
-    var mh = IP + PH + IP, FHF = useQr ? 220 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + SEC + posterSpare + FHF)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
+    var mh = IP + PH + IP, FHF = useQr ? 220 : 150, extra = Math.max(0, 1008 * 16 / 9 - (y + mh + X + FHF)); // 9:16 page: the map panel takes any spare height so the footer sits at the bottom
     mh += extra;
     ctx.fillStyle = "#ffffff"; rrect(ctx, MX, y, MW, mh, 45); ctx.fill(); ctx.strokeStyle = DIV; ctx.lineWidth = 2; rrect(ctx, MX, y, MW, mh, 45); ctx.stroke();
     var cnt = Object.keys(seats).length;
@@ -1949,7 +1949,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       pLines.forEach(function (ln, i) { fillC(ctx, ln, sx + sw / 2, sgy + nh + 14 + 28 + i * 38); });
       ctx.textAlign = "left";
     }
-    y += mh + SEC + posterSpare;
+    y += mh + X; // same gap under the map card as at its left and right
     // ---- footer
     var url = "https://liff.line.me/2012285472-FvtYKx00" + basePath() + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : ""); // the QR opens the trip details first (like the share card's details link); the details page has the button to the seat map
     var shortUrl = location.host + basePath() + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
