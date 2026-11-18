@@ -1,6 +1,7 @@
 // Vercel serverless function: /api/queue — the booking queue of one trip (see _queue.js). Needs env PAYMENT_QUEUE=1.
 //   GET  ?t=code                      -> { on, items, turn, mine, role }   (LINE name/photo of a claimed row: organizers only)
 //   POST {t, a: "on", value}          organizer: turn the queue on / off
+//        {t, a: "auto", value}        organizer: true = "this is me" is approved at once (no organizer check)
 //        {t, a: "add", names: [..]}   organizer: add passengers at the end (one name per entry)
 //        {t, a: "remove" | "up" | "down" | "unbind", id}   organizer
 //        {t, a: "ok", id, value}      organizer: approve / withdraw approval of the account that claimed this row
@@ -26,7 +27,7 @@ module.exports = async function handler(req, res) {
     const view = (q) => {
       const h = Q.turnOf(q), mine = user ? q.items.find((i) => i.u === user.id) : null;
       return {
-        on: !!q.on, role: role || undefined, turn: h ? h.id : null, mine: mine ? mine.id : null, me: L.publicUser(user), ended: L.tripEnded(trip),
+        on: !!q.on, auto: !!q.auto, role: role || undefined, turn: h ? h.id : null, mine: mine ? mine.id : null, me: L.publicUser(user), ended: L.tripEnded(trip),
         items: q.items.map((i) => Object.assign({ id: i.id, name: i.name }, i.done ? { done: 1 } : {}, i.u ? { bound: 1 } : {}, i.ok ? { ok: 1 } : {},
           user && i.u === user.id ? { m: 1 } : {}, org && i.u && i.ln ? { ln: String(i.ln), lp: String(i.lp || "") } : {})),
       };
@@ -42,12 +43,13 @@ module.exports = async function handler(req, res) {
     if (L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
     if (await L.rateLimited(req, user, "queue:" + t, 120, 600)) return L.json(res, 429, { error: "too_many" });
     const a = String(body.a || ""), id = String(body.id || "");
-    const orgActs = ["on", "add", "remove", "up", "down", "unbind", "ok", "done"];
+    const orgActs = ["on", "auto", "add", "remove", "up", "down", "unbind", "ok", "done"];
     if (orgActs.includes(a) && !org) return L.json(res, 403, { error: "not_owner" });
     const row = (q) => q.items.find((i) => i.id === id);
     let fn = null;
 
-    if (a === "on") fn = (q) => { const v = body.value === true; if (q.on === v) return false; q.on = v; };
+    if (a === "auto") fn = (q) => { const v = body.value === true; if (!!q.auto === v) return false; if (v) q.auto = 1; else delete q.auto; }; // true: "this is me" counts at once, no approval
+    else if (a === "on") fn = (q) => { const v = body.value === true; if (q.on === v) return false; q.on = v; };
     else if (a === "add") {
       const names = (Array.isArray(body.names) ? body.names : [body.name]).map((x) => L.cleanName(String(x == null ? "" : x).replace(/\s+/g, " ").trim()).text).filter((x) => x && L.hasBaseLetter(x) && !L.reservedName(x, true)).slice(0, Q.MAX_ITEMS);
       if (!names.length) return L.json(res, 400, { error: "bad_name" });
@@ -66,7 +68,7 @@ module.exports = async function handler(req, res) {
       if (q.items.some((i) => i.u === user.id)) return { error: "already_claimed" };
       const r = row(q); if (!r) return { error: "no_row" };
       if (r.u) return { error: "row_taken" };
-      r.u = user.id; r.ln = user.name || ""; r.lp = user.pic || ""; delete r.ok; // the organizer approves it next
+      r.u = user.id; r.ln = user.name || ""; r.lp = user.pic || ""; if (q.auto) r.ok = 1; else delete r.ok; // otherwise the organizer approves it next
     };
     else if (a === "unclaim") fn = (q) => { const r = q.items.find((i) => i.u === user.id); if (!r || r.done) return false; delete r.u; delete r.ln; delete r.lp; delete r.ok; };
     else if (a === "finish") fn = (q) => { const h = Q.turnOf(q); if (!h || h.u !== user.id) return { error: "not_your_turn" }; h.done = 1; };
@@ -74,7 +76,7 @@ module.exports = async function handler(req, res) {
 
     const out = await Q.update(trip, fn);
     if (out.error) return L.json(res, out.error === "busy" ? 409 : out.error === "not_your_turn" ? 403 : 400, { error: out.error });
-    if (a === "claim" && out.changed) { // tell the organizer team that someone is waiting for approval
+    if (a === "claim" && out.changed && !out.q.auto) { // tell the organizer team that someone is waiting for approval
       const r = out.q.items.find((i) => i.u === user.id);
       await L.notify(L.teamIds(trip), { k: "queue_claim", t, tn: trip.name, n: r ? r.name : "" }, user.id);
     }

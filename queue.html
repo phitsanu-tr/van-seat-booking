@@ -39,6 +39,14 @@ button:disabled{opacity:.5}
 .waitbox{background:var(--warnbg);color:var(--warn)}
 textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius:12px;padding:10px;font:15px/1.5 var(--font-body);resize:vertical;background:#fff;color:var(--ink)}
 .sw{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.seg{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;background:transparent;color:var(--ink);border:1.5px solid #d6dde1;border-radius:12px;padding:10px 12px;min-height:0;font-weight:400}
+.opt.on{border-color:var(--mine);background:var(--tint)}
+.opt .rd{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid #aab5bb;margin-top:2px;position:relative}
+.opt.on .rd{border-color:var(--mine)}.opt.on .rd:after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--mine)}
+.opt b{display:block;font-weight:600;line-height:1.5}.opt small{display:block;color:var(--muted);font-size:12.5px;line-height:18px}
+.tag{font-style:normal;font-size:11px;font-weight:600;background:var(--okbg);color:var(--ok);border-radius:999px;padding:1px 8px;margin-left:6px}
+.warn{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:8px 10px;font-size:12.5px;margin-top:8px}
 .err{color:var(--red);font-size:13px;margin-top:6px}
 .empty{color:var(--muted);text-align:center;padding:16px 0}
 </style>
@@ -118,6 +126,14 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
       l.appendChild(el("p", "note", D.on ? "เปิดอยู่: มีเฉพาะคนที่ถึงคิวที่จองที่นั่งได้ (ผู้จัดจองได้เสมอ)" : "ปิดอยู่: ทุกคนจองได้ตามปกติ"));
       sw.appendChild(l); sw.appendChild(btn(D.on ? "ปิดคิว" : "เปิดคิว", D.on ? "o" : "", function () { return call("on", { value: !D.on }); }));
       cs.appendChild(sw); main.appendChild(cs);
+      var cv = el("div", "card"); cv.appendChild(el("h2", null, "ยืนยันชื่อผู้โดยสาร"));
+      function opt(on, title, sub, val) { var o = el("button", "opt" + (on ? " on" : "")); o.type = "button"; o.setAttribute("role", "radio"); o.setAttribute("aria-checked", on ? "true" : "false"); o.appendChild(el("i", "rd")); var w = el("span"); var b = el("b", null, title); if (val === false) b.appendChild(el("em", "tag", "แนะนำ")); w.appendChild(b); w.appendChild(el("small", null, sub)); o.appendChild(w); o.addEventListener("click", function () { if (busy || on) return; busy = true; call("auto", { value: val }).then(function () { busy = false; }, function () { busy = false; }); }); return o; }
+      var sg = el("div", "seg"); sg.setAttribute("role", "radiogroup"); sg.setAttribute("aria-label", "ยืนยันชื่อผู้โดยสาร");
+      sg.appendChild(opt(!D.auto, "ผู้จัดอนุมัติเอง", "กด “ฉันคือคนนี้” แล้วรอผู้จัดตรวจชื่อและรูป LINE ก่อนจึงจะใช้สิทธิ์ได้ ปลอดภัยสุด", false));
+      sg.appendChild(opt(!!D.auto, "อนุมัติอัตโนมัติ", "กดแล้วใช้ได้ทันที ไม่ต้องรอ เหมาะกับกลุ่มคนสนิท", true));
+      cv.appendChild(sg);
+      if (D.auto) cv.appendChild(el("div", "warn", "ใครกดชื่อไหนก่อนก็ได้ชื่อนั้นทันที ผู้จัดยังเห็นชื่อและรูป LINE และกด “ปลดชื่อ” ได้ตลอด"));
+      main.appendChild(cv);
       var ca = el("div", "card"); ca.appendChild(el("h2", null, "เพิ่มรายชื่อ (เรียงตามลำดับที่ชำระเงิน)"));
       var ta = el("textarea"); ta.value = draft; ta.addEventListener("input", function () { draft = ta.value; }); ta.placeholder = "พิมพ์ชื่อบรรทัดละ 1 คน"; ta.setAttribute("aria-label", "รายชื่อ"); ca.appendChild(ta);
       var ab = el("div", "acts"); ab.appendChild(btn("เพิ่มท้ายคิว", "", function () { var names = ta.value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean); if (!names.length) return Promise.resolve(); draft = ""; return call("add", { names: names }); })); ca.appendChild(ab);
