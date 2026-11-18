@@ -19,4 +19,5 @@ queue off: seat_limit not queue error true
 passenger page shows list 2 rows
 organizer page has controls true
 booking page shows queue bar true
+manage sheet has the queue entry true
 ERR []

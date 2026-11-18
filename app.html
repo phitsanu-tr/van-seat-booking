@@ -773,6 +773,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var MG = {
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>',
     dots: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>',
+    queue: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>',
     seats: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h3v3H8zM13 7h3v3h-3zM8 14h3v3H8zM13 14h3v3h-3z"/></svg>',
     pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10-10-4-4L4 16v4zM13.5 6.5l4 4"/></svg>',
     team: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>',
@@ -811,6 +812,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     item(g1, "pen", "แก้ไขทริป", "", "", "/" + x.id + "/edit");
     item(g1, "team", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป", "", x.role === "helper" ? "" : (x.helpers || 0) + "/2", function () { shut(); openTeam(x); });
+    if (x.qf) item(g1, "queue", "คิวจองตามลำดับ", "", "", "/" + x.id + "/queue");
     item(g1, "dup", "สร้างทริปซ้ำ", "", "", "/new?copy=" + encodeURIComponent(x.id));
     var lk = item(g2, "share", x.closed ? "เปิดรับจอง" : "ปิดรับจอง", x.closed ? "op" : "dg lk", null, async function (btn) {
       if (!x.closed && btn.dataset.sure !== "1") { btn.dataset.sure = "1"; btn.querySelector("span").textContent = "ยืนยันปิด?"; setTimeout(function () { if (btn.isConnected) { btn.dataset.sure = ""; btn.querySelector("span").textContent = "ปิดรับจอง"; } }, 3500); return; }

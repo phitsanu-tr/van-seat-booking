@@ -14,7 +14,7 @@ function summary(trip, perVan) {
   return {
     id: trip.id, name: trip.name, organizer: trip.organizer || "", startDate: trip.startDate || "", endDate: trip.endDate || "",
     departTime: trip.departTime || "", returnTime: trip.returnTime || "", meetPoint: trip.meetPoint || "", tripDays: L.tripDaysText(trip.tripN, trip.tripStart), tripStart: trip.tripStart || "", vans: trip.vans.length, booked, total: trip.vans.length * L.TOTAL_SEATS,
-    ended: L.tripEnded(trip), closed: L.bookingClosed(trip), closeAt: trip.closeAt || "", staffSeat: !!trip.staffSeat, limit: L.maxPerPerson(trip),
+    ended: L.tripEnded(trip), closed: L.bookingClosed(trip), closeAt: trip.closeAt || "", qf: /^(1|true|on)$/i.test(String(process.env.PAYMENT_QUEUE || "")) || undefined, staffSeat: !!trip.staffSeat, limit: L.maxPerPerson(trip),
   };
 }
 

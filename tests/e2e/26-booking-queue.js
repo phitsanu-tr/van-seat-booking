@@ -34,4 +34,7 @@ await O.screenshot({path:HLP.OUT+'/26-org.png'});await A.screenshot({path:HLP.OU
 log('organizer page has controls',(await O.locator('button:has-text("ลบ")').count())>0);
 await C.goto(B+'/'+t+'/seats');await C.waitForTimeout(1800);
 log('booking page shows queue bar',await C.evaluate(()=>!document.getElementById('queueBar').hidden));
+await O.goto(B+'/trips?f='+Date.now());await O.waitForTimeout(1500);await O.click('.mgo');await O.waitForTimeout(400);
+log('manage sheet has the queue entry',await O.evaluate(t=>{const a=[...document.querySelectorAll('.sheet a.acti')].find(x=>x.textContent.includes('คิวจองตามลำดับ'));return a?a.getAttribute('href')===('/'+t+'/queue'):false},t));
+await O.screenshot({path:HLP.OUT+'/26-manage.png'});
 log('ERR',errs);await b.close()})().catch(e=>{console.log('ERR',e.message);process.exit(1)});
