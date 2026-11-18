@@ -1,0 +1,12 @@
+queue_turn => "🚐 ถึงคิวจองที่นั่งของคุณแล้ว\nทริปเขาใหญ่\nเลือกที่นั่งได้เลย\n👇\nhttps://liff.line.me/2012285472-FvtYKx00/<id>/seats"
+trip_changed => "🚐 ทริปมีการเปลี่ยนแปลง\nทริปเขาใหญ่\nดูรายละเอียดที่ลิงก์นี้\n👇\nhttps://liff.line.me/2012285472-FvtYKx00/<id>/seats"
+trip_deleted => "🚐 ทริปถูกยกเลิกโดยผู้จัด\nทริปเขาใหญ่"
+seat_moved => "🚐 ที่นั่งของคุณถูกย้าย\nทริปเขาใหญ่\nคัน 1 ที่ 3 → คัน 2 ที่ 5\n👇\nhttps://liff.line.me/2012285472-FvtYKx00/<id>/seats"
+seat_cancelled => "🚐 ผู้จัดยกเลิกที่นั่งของคุณ\nทริปเขาใหญ่ · คัน 1 ที่ 4"
+van_removed => "🚐 คันรถที่คุณจองถูกลบ\nทริปเขาใหญ่ · คัน 2 ที่นั่งของคุณถูกยกเลิก\n👇\nhttps://liff.line.me/2012285472-FvtYKx00/<id>/seats"
+seat_renamed => null
+plan_paid => null
+no token: nothing sent true
+token: one multicast true to real id only 1 auth Bearer tok text hello
+no real id: nothing sent true
+ERR []

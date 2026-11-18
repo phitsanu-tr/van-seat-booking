@@ -346,7 +346,23 @@ async function notify(uids, item, exceptUid) {
         ["INCR", inboxVerKey(u)], ["EXPIRE", inboxVerKey(u), String(INBOX_DAYS * 86400)]);
     });
     await pipeline(cmds);
+    const text = lineText(item);
+    if (text) await linePush(list, text); // the same notice also goes to the person's LINE chat (only when LINE_BOT_TOKEN is set)
   } catch (e) { /* best effort: never breaks the action that caused it */ }
+}
+// Notices that also go out as a LINE message (each one counts toward the official account's monthly message quota, so only what matters).
+const LIFF_ID = "2012285472-FvtYKx00";
+function lineText(it) {
+  const tn = String(it.tn || "ทริป"), link = it.t ? "\n👇\nhttps://liff.line.me/" + LIFF_ID + "/" + it.t + "/seats" : "";
+  switch (it.k) {
+    case "queue_turn": return "🚐 ถึงคิวจองที่นั่งของคุณแล้ว\n" + tn + "\nเลือกที่นั่งได้เลย" + link;
+    case "trip_changed": return "🚐 ทริปมีการเปลี่ยนแปลง\n" + tn + "\nดูรายละเอียดที่ลิงก์นี้" + link;
+    case "trip_deleted": return "🚐 ทริปถูกยกเลิกโดยผู้จัด\n" + tn;
+    case "seat_moved": return "🚐 ที่นั่งของคุณถูกย้าย\n" + tn + "\nคัน " + it.fvl + " ที่ " + it.fs + " → คัน " + it.tvl + " ที่ " + it.ts + link;
+    case "seat_cancelled": return "🚐 ผู้จัดยกเลิกที่นั่งของคุณ\n" + tn + " · คัน " + it.vl + " ที่ " + it.s;
+    case "van_removed": return "🚐 คันรถที่คุณจองถูกลบ\n" + tn + " · คัน " + it.vl + " ที่นั่งของคุณถูกยกเลิก" + link;
+    default: return null;
+  }
 }
 // Optional LINE push (Messaging API). Does nothing unless LINE_BOT_TOKEN is set (channel access token of the official account that
 // the users added as a friend; LINE user ids are shared inside one provider). Real LINE ids only; best effort, never throws.
@@ -355,7 +371,7 @@ async function linePush(uids, text) {
     const token = pickEnv("LINE_BOT_TOKEN");
     const to = Array.from(new Set((uids || []).filter((u) => /^U[0-9a-f]{32}$/.test(u)))).slice(0, 500);
     if (!token || !to.length) return;
-    await fetch("https://api.line.me/v2/bot/message/multicast", {
+    await fetch(pickEnv("LINE_PUSH_URL") || "https://api.line.me/v2/bot/message/multicast", { // LINE_PUSH_URL: tests only
       method: "POST",
       headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
       body: JSON.stringify({ to, messages: [{ type: "text", text: String(text).slice(0, 900) }] }),
@@ -382,6 +398,7 @@ const DEFAULT_MAX_PER_PERSON = 4;
 function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); return Number.isInteger(n) && n >= 0 && n <= 50 ? n : DEFAULT_MAX_PER_PERSON; }
 
 module.exports = {
+  lineText, linePush,
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, tooBig, json,
   audit, ledger, errLog, seal, open, statDay, bump, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripDaysText, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
   SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, crossSite, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, linePush, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,

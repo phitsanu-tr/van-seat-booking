@@ -33,7 +33,6 @@ async function update(trip, fn) {
       if (exp && exp > Math.floor(Date.now() / 1000)) { try { await L.redis(["EXPIREAT", qKey(trip.id), String(exp)]); } catch (e) { /* best effort */ } }
       if (turnUid) {
         await L.notify([turnUid], { k: "queue_turn", t: trip.id, tn: trip.name });
-        await L.linePush([turnUid], "ถึงคิวจองที่นั่งของคุณแล้ว: " + (trip.name || "ทริป") + "\nเปิดลิงก์ทริปแล้วเลือกที่นั่งได้เลย");
       }
       return { q, ok: true, changed: true };
     }

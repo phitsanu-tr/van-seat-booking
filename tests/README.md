@@ -49,6 +49,7 @@ from a to b (used for counts that depend on timing).
 | 09-roster-scroll | a long passenger list scrolls inside the sheet on a short phone screen |
 | 10-checkin | check-in ticks: organizer-only, hidden from passengers, follow moves, live refresh; paid ticks rejected |
 | 24-scroll-lock | page behind a popup is pinned (booking sheet, app bottom sheet) and the scroll position comes back on close |
+| 27-line-push | LINE message text per notice kind, multicast only with a token and a real LINE user id |
 | 26-booking-queue | with PAYMENT_QUEUE on: organizer builds the queue, claim + approve, only the person whose turn it is can hold/book, limit/finish calls the next, organizer always may, queue bar on the booking page |
 | 25-oa-friend-gate | with REQUIRE_OA_FRIEND on: not a friend of the official account → blocking screen (+ warning if still not), friend → gone, check error → never blocks |
 | 11-routes | signed-in visitors stay on /, link scheme: /home /trips /seats /notify /profile, /new, /<id>/edit, old /trips#<id>-o, old seat-pass link goes to the booking page |
