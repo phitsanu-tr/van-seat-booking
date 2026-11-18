@@ -1806,7 +1806,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.textAlign = "left"; ctx.fillStyle = "#bfe9ed";
     if (false) { ctx.font = '600 34px ' + PF; ctx.fillStyle = "#ffffff"; ctx.fillText("VanTrip", X, 30 + 30); ctx.font = '400 26px ' + NF; ctx.fillStyle = "#bfe9ed";
       var lt = "SEAT PASS  " + codeT; ctx.textAlign = "right"; ctx.fillText(lt.split("").join(String.fromCharCode(8202)), X + IW, 30 + 29); ctx.textAlign = "left"; }
-    else { ctx.font = '700 42px ' + PF; ctx.fillStyle = "#ffffff"; var w1 = ctx.measureText("VAN ").width; ctx.fillText("VAN", X, 30 + 32); // bigger wordmark grows upward: same baseline, divider and title stay put ctx.fillStyle = "#fde9a6"; ctx.fillText("TRIP", X + w1, 30 + 32); ctx.fillStyle = "#ffffff"; ctx.fillStyle = "#bfe9ed"; ctx.font = '400 28px ' + NF;
+    // wordmark 42 (was 34): grows upward from the same baseline, so the divider and title stay put
+    else { ctx.font = '700 42px ' + PF; ctx.fillStyle = "#ffffff"; var w1 = ctx.measureText("VAN ").width; ctx.fillText("VAN", X, 30 + 32); ctx.fillStyle = "#fde9a6"; ctx.fillText("TRIP", X + w1, 30 + 32); ctx.fillStyle = "#ffffff"; ctx.fillStyle = "#bfe9ed"; ctx.font = '400 28px ' + NF;
       ctx.textAlign = "right"; ctx.fillStyle = "#bfe9ed"; ctx.font = '400 28px ' + NF; ctx.fillText(codeT.split("").join(String.fromCharCode(8202)), X + IW, 30 + 29); ctx.textAlign = "left"; }
     ctx.fillStyle = "rgba(255,255,255,.22)"; ctx.fillRect(X, 30 + 36 + 22, IW, 2);
     ctx.fillStyle = "#ffffff"; ctx.font = '600 44px ' + PF;
