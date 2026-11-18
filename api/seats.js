@@ -43,7 +43,8 @@ module.exports = async function handler(req, res) {
           const v = JSON.parse(flat[i + 1]);
           // m = booked by the signed-in visitor, a = booked by someone signed in (only they or the organizer can cancel it)
           if (v && v.name) seats[n] = Object.assign({ name: String(v.name), at: v.at }, v.u ? { a: 1 } : {}, v.u && user && v.u === user.id ? { m: 1 } : {},
-            isOwner && v.u && v.ln ? { ln: String(v.ln), lp: String(v.lp || "") } : {}); // the organizer team sees the booker's LINE name and photo
+            isOwner && v.u && v.ln ? { ln: String(v.ln), lp: String(v.lp || "") } : {}, // the organizer team sees the booker's LINE name and photo
+            v.cr && (isOwner || (user && v.u === user.id)) ? { cr: { r: String(v.cr.r || ""), at: Number(v.cr.at) || 0 } } : {}); // a cancel request waiting for the organizer
         } catch (e) { /* skip a damaged entry */ }
       }
       const counts = {};
@@ -79,6 +80,31 @@ module.exports = async function handler(req, res) {
       try { await L.pipeline([["SADD", ipSet, hk], ["EXPIRE", ipSet, String(HOLD_SEC * 2)]]); } catch (e) { /* best effort */ }
       await L.redis(["SET", mineKey, hk, "EX", String(HOLD_SEC)]);
       return L.json(res, 200, { hold: id, exp: Date.now() + HOLD_SEC * 1000 });
+    }
+
+    if (req.method === "POST" && body.creq !== undefined) {
+      // cancel requests (booking queue on: a passenger can't cancel a booked seat, they ask the organizer team instead).
+      // ask / withdraw: the booker; deny: the organizer team (approving = the organizer's own DELETE of the seat).
+      if (!user) return L.json(res, 401, { error: "login_required" });
+      const seat = L.parseSeat(body.seat);
+      if (seat === null) return L.json(res, 400, { error: "bad_seat" });
+      const a = String(body.creq), reason = String(body.r || "").replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, 60);
+      if (!["ask", "withdraw", "deny"].includes(a)) return L.json(res, 400, { error: "bad_action" });
+      if (a === "deny" && !isOwner) return L.json(res, 403, { error: "not_owner" });
+      let rec = null, had = null;
+      for (let tries = 0; ; tries++) {
+        const raw = await L.redis(["HGET", key, String(seat)]);
+        rec = null; try { rec = JSON.parse(raw); } catch (e) { rec = null; }
+        if (!rec) return L.json(res, 404, { error: "no_seat" });
+        if (a !== "deny" && rec.u !== user.id) return L.json(res, 403, { error: "not_yours" });
+        had = rec.cr || null;
+        if (a === "ask") { if (rec.cr) break; rec.cr = { r: reason, at: Date.now() }; } else { if (!rec.cr) break; delete rec.cr; }
+        if (await L.hcas([{ key, field: seat, expect: raw, value: JSON.stringify(rec) }])) break;
+        if (tries >= 3) return L.json(res, 409, { error: "busy" });
+      }
+      if (a === "ask" && !had) await L.notify(L.teamIds(trip), { k: "cancel_req", t, tn: trip.name, v: van.id, vl: van.label, s: seat, n: String(rec.name || ""), why: reason }, user.id);
+      if (a === "deny" && had && rec.u) await L.notify([rec.u], { k: "creq_no", t, tn: trip.name, vl: van.label, s: seat, by: role });
+      return L.json(res, 200, { ok: true, cr: rec.cr || null });
     }
 
     if (req.method === "PATCH" && body.note !== undefined) {
@@ -329,13 +355,14 @@ module.exports = async function handler(req, res) {
         // Only the person who booked the seat, or the trip's organizer, can cancel it.
         if (!((prev.u && user.id === prev.u) || isOwner)) return L.json(res, 403, { error: "not_yours" });
         if (closed && !isOwner) return L.json(res, 403, { error: "closed" }); // after closing, only the organizer changes the list
+        if (!isOwner && Q.flagOn()) { try { if ((await Q.read(t)).q.on) return L.json(res, 403, { error: "ask_organizer" }); } catch (e) { /* queue unreadable: fall back to the usual rule */ } }
         if (await L.hcas([{ key, field: seat, expect: raw, value: "" }])) { removed = 1; break; }
         if (tries >= 3) return L.json(res, 409, { error: "busy" });
       }
       if (Number(removed) === 1) {
         L.bump("seat_cancel");
         if (prev.u) { try { await L.redis(["SREM", L.mySeatsKey(prev.u), t + "|" + van.id + "|" + seat]); } catch (e) { /* best effort */ } }
-        if (prev.u && prev.u !== user.id) await L.notify([prev.u], { k: "seat_cancelled", t, tn: trip.name, vl: van.label, s: seat, by: role });
+        if (prev.u && prev.u !== user.id) await L.notify([prev.u], { k: prev.cr ? "creq_ok" : "seat_cancelled", t, tn: trip.name, vl: van.label, s: seat, by: role });
         await L.logEvent(t, { e: "cancel", v: van.id, s: seat, n: String(prev.name || ""), u: user.id, ou: prev.u, by: isOwner && user.id !== prev.u ? role : undefined, at: Date.now() });
         if (prev.st === 1 && trip.staffSeat) { // the last team seat 1 cancelled: the trip's switch turns itself off
           try {

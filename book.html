@@ -283,6 +283,14 @@ body.sk #tripHdr > :not(.hero) { display: none; }
 .seat.taken .no { color: var(--ink); }
 .seat.mine { background: var(--mine); color: var(--mine-ink); cursor: pointer; }
 .seat.mine .no { color: var(--mine-ink); }
+.seat.creq, .seat.mine.creq { background: #fff4dc; color: #8a5a00; box-shadow: inset 0 0 0 2px #e6b84d; }
+.seat.creq .no { color: #8a5a00; }
+.crbox { flex: none; border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 20px; background: #fff4dc; color: #8a5a00; }
+.crbox b { display: block; font-size: 15px; }
+.qnote { flex: none; border-radius: 12px; padding: 10px 12px; font-size: 13px; line-height: 19px; background: var(--bg); color: var(--muted, #5f6b73); }
+.crchips { display: flex; flex-wrap: wrap; gap: 8px; }
+.crchips button { border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 99px; padding: 0 14px; min-height: 40px; font: 500 14px var(--font-body); cursor: pointer; }
+.crchips button[aria-pressed=true] { border-color: var(--mine); background: color-mix(in srgb, var(--mine) 12%, var(--surface)); color: var(--mine); font-weight: 600; }
 .seat.sel { outline: 3px solid var(--sel); outline-offset: -2px; }
 .seat:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--sel); outline-offset: 1px; }
 .driver {
@@ -737,7 +745,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       tx.appendChild(document.createTextNode(qs.ok ? " อีก " + qs.ahead + " คนก่อนหน้า · เราจะแจ้งเตือนเมื่อถึงคิว " : " · "));
       tx.appendChild(link);
     } else if (s === "done") {
-      tx.appendChild(el("b", null, "คุณใช้สิทธิ์จองแล้ว")); tx.appendChild(document.createTextNode(" · ยกเลิกที่นั่งของตัวเองได้ · ")); tx.appendChild(link);
+      tx.appendChild(el("b", null, "คุณใช้สิทธิ์จองแล้ว")); tx.appendChild(document.createTextNode(" · ขอยกเลิกได้ที่ที่นั่งของคุณ · ")); tx.appendChild(link);
     } else {
       tx.appendChild(el("b", null, "จองตามลำดับคิว")); tx.appendChild(document.createTextNode(" ยังไม่ได้ยืนยันชื่อ · ")); var l2 = el("a", null, "กด “ฉันคือคนนี้”"); l2.href = "/" + TRIP + "/queue"; tx.appendChild(l2);
     }
@@ -793,7 +801,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         body.appendChild(qCss(el("div", null, "เมื่ออนุมัติแล้วคุณจะเข้าคิวและได้รับแจ้งเตือน"), "background:var(--tint,#e4f2f3);color:#0b5f67;border-radius:16px;padding:14px 16px;font-size:14px"));
         body.appendChild(btnA("ดูสถานะ", "/" + TRIP + "/queue"));
       } else if (s === "done") {
-        body.appendChild(head("คุณใช้สิทธิ์จองแล้ว", "ยกเลิกที่นั่งของตัวเองได้"));
+        body.appendChild(head("คุณใช้สิทธิ์จองแล้ว", "ต้องการยกเลิก แตะที่นั่งของคุณแล้วกดขอยกเลิก"));
         body.appendChild(btnA("เข้าใจแล้ว", null, close));
       } else {
         body.appendChild(head("ยังไม่ได้เข้าคิว", "ต้องเข้าคิวก่อนจึงจะจองได้"));
@@ -888,6 +896,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function errorText(r, fallback) {
     var code = r && r.data && r.data.error;
     if (code === "taken") return "ที่นั่งนี้ถูกจองไปแล้ว เลือกที่นั่งอื่น";
+    if (code === "ask_organizer") return "ทริปนี้จองตามคิว ยกเลิกเองไม่ได้ ส่งคำขอให้ผู้จัดแทน";
     if (code === "held") return "มีคนกำลังจองที่นั่งนี้อยู่ เลือกที่นั่งอื่น หรือรอสักครู่";
     if (code === "bad_name") return "ใส่ชื่อก่อนจอง";
     if (code === "name_chars") return "ใช้ได้เฉพาะภาษาไทยและอังกฤษ";
@@ -920,6 +929,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
           b.classList.add("taken");
           if (mine(n)) b.classList.add("mine");
           if (s.pending) b.classList.add("pending");
+          if (s.cr) { b.classList.add("creq"); b.setAttribute("data-cr", "รอยกเลิก"); }
           b.appendChild(el("span", "who", s.name));
           b.setAttribute("aria-label", "ที่นั่ง " + n + " จองโดย " + s.name);
         } else if (heldByOther(n)) {
@@ -930,7 +940,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
           b.setAttribute("aria-label", "ที่นั่ง " + n + " ว่าง");
         }
         if (selected === n) { b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
-        b.addEventListener("click", function () { if (locked()) return; if (!seats[n] && qBlocked()) { openQueueSheet(n); return; } selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll(); });
+        b.addEventListener("click", function () { if (locked()) return; if (!seats[n] && qBlocked()) { openQueueSheet(n); return; } selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; asking = false; renderAll(); });
         overlayEl.appendChild(frame(b, RECT[n]));
       })(n);
     }
@@ -968,8 +978,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
   }
   var renaming = false; // the dialog shows the "edit name" form for the visitor's own seat
-  function closeModal() { selected = null; message = ""; confirming = false; renaming = false; renderAll(); }
-  function openSeat(n) { selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll(); }
+  var asking = false, askWhy = ""; // booking queue: the "ask the organizer to cancel" step
+  function closeModal() { selected = null; message = ""; confirming = false; renaming = false; asking = false; renderAll(); }
+  function openSeat(n) { selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; asking = false; renderAll(); }
   function attachNameField(input, onEnter) { // the name box with its live "n/12" counter and the character notes, shared by booking a seat and editing a name
       var wrap = el("div", "nmwrap");
       var cnt = el("span", "nmcnt"); cnt.setAttribute("aria-hidden", "true");
@@ -1085,6 +1096,17 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 
     if (!loaded) {
       panelEl.appendChild(el("p", null, loadError || "กำลังโหลดข้อมูลการจอง..."));
+    } else if (s && asking && mine(n)) { // booking queue: ask the organizer to cancel this seat
+      panelEl.appendChild(el("div", "qnote", "เหตุผล (ผู้จัดจะเห็น ไม่บังคับ)"));
+      var chips = el("div", "crchips");
+      ["ไปไม่ได้แล้ว", "จองผิดที่", "อยากเปลี่ยนที่นั่ง", "อื่น ๆ"].forEach(function (w) { var cb = el("button", null, w); cb.type = "button"; cb.setAttribute("aria-pressed", askWhy === w ? "true" : "false"); cb.addEventListener("click", function () { askWhy = askWhy === w ? "" : w; renderPanel(); }); chips.appendChild(cb); });
+      panelEl.appendChild(chips);
+      panelEl.appendChild(el("div", "qnote", "ที่นั่งยังเป็นของคุณจนกว่าผู้จัดจะอนุมัติ"));
+      if (message) panelEl.appendChild(el("div", "msg", message));
+      actions.appendChild(plainBtn("ย้อนกลับ", function () { asking = false; message = ""; renderPanel(); }));
+      var send = el("button", "danger", "ส่งคำขอ"); send.type = "button";
+      send.addEventListener("click", function () { creq(n, "ask", askWhy); });
+      actions.appendChild(send);
     } else if (s && confirming) {
       var ask = el("div", "minfo one");
       ask.appendChild(document.createTextNode("ยกเลิกการจองของ "));
@@ -1137,11 +1159,19 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!me) { // signed out: managing a seat needs the account first
         panelEl.appendChild(retryBox());
         } else if (!s.a || mine(n) || isOwner) { // a seat booked with an account: only its owner or the trip's organizer may cancel it
-        if (me && ((mine(n) && s.a) || isOwner)) actions.appendChild(plainBtn("แก้ชื่อ", function () { renaming = true; message = ""; renderPanel(); }));
-        var cancel = el("button", "ghost", !mine(n) && s.a && isOwner ? "ยกเลิกให้ (คนจัดทริป)" : "ยกเลิกการจอง");
-        cancel.type = "button";
-        cancel.addEventListener("click", function () { confirming = true; message = ""; renderPanel(); });
-        actions.appendChild(cancel);
+        var qLock = qon && mine(n) && !isOwner; // booking queue: a booked seat is cancelled by the organizer, on request
+        if (s.cr) { var crb = el("div", "crbox"); crb.appendChild(el("b", null, isOwner && !mine(n) ? "ผู้จองขอยกเลิกที่นั่งนี้" : "รอผู้จัดยกเลิกให้")); crb.appendChild(document.createTextNode((s.cr.at ? "ส่งคำขอ " + fmtAt(s.cr.at) : "") + (s.cr.r ? " · " + s.cr.r : ""))); panelEl.appendChild(crb); }
+        else if (qLock) panelEl.appendChild(el("div", "qnote", "ทริปนี้จองตามคิว จองแล้วยกเลิกเองไม่ได้ ส่งคำขอให้ผู้จัดได้"));
+        if (me && ((mine(n) && s.a) || isOwner) && !(s.cr && !isOwner)) actions.appendChild(plainBtn("แก้ชื่อ", function () { renaming = true; message = ""; renderPanel(); }));
+        if (qLock && s.cr) { actions.appendChild(plainBtn("ถอนคำขอ (เก็บที่นั่งไว้)", function () { creq(n, "withdraw"); })); }
+        else if (qLock) { var askB = el("button", "ghost", "ขอยกเลิกที่นั่ง"); askB.type = "button"; askB.addEventListener("click", function () { asking = true; askWhy = ""; message = ""; renderPanel(); }); actions.appendChild(askB); }
+        else {
+          if (s.cr && isOwner) actions.appendChild(plainBtn("ไม่อนุมัติ", function () { creq(n, "deny"); }));
+          var cancel = el("button", "ghost", s.cr && isOwner ? "อนุมัติยกเลิก" : !mine(n) && s.a && isOwner ? "ยกเลิกให้ (คนจัดทริป)" : "ยกเลิกการจอง");
+          cancel.type = "button";
+          cancel.addEventListener("click", function () { confirming = true; message = ""; renderPanel(); });
+          actions.appendChild(cancel);
+        }
       } else {
         var lk = el("div", "lock");
         lk.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10.5h10a2 2 0 012 2V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-5.5a2 2 0 012-2zM8.5 10.5V8a3.5 3.5 0 017 0v2.5"/></svg>';
@@ -1548,6 +1578,20 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     pending--; renderAll(); refresh(false);
   }
 
+  async function creq(n, a, why) {
+    var prev = seats[n]; if (!prev) return;
+    pending++;
+    try {
+      var r = await api("POST", { seat: n, creq: a, r: why || "" });
+      if (r.ok) {
+        if (seats[n]) { if (r.data && r.data.cr) seats[n].cr = r.data.cr; else delete seats[n].cr; }
+        asking = false; message = "";
+        showToast(a === "ask" ? "ส่งคำขอยกเลิกแล้ว รอผู้จัดตอบ" : a === "withdraw" ? "ถอนคำขอแล้ว ที่นั่งยังเป็นของคุณ" : "ไม่อนุมัติแล้ว แจ้งผู้จองแล้ว");
+        if (a !== "ask") closeModal();
+      } else { message = errorText(r, "ส่งไม่สำเร็จ ลองอีกครั้ง"); }
+    } catch (e) { message = "ส่งไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง"; }
+    pending--; renderAll(); refresh(false);
+  }
   async function cancelSeat(n) {
     var prev = seats[n];
     delete seats[n];

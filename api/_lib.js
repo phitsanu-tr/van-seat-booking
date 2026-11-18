@@ -360,6 +360,9 @@ function lineText(it) {
     case "trip_deleted": return "🚐 ทริปถูกยกเลิกโดยผู้จัด\n" + tn;
     case "seat_moved": return "🚐 ที่นั่งของคุณถูกย้าย\n" + tn + "\nคัน " + it.fvl + " ที่ " + it.fs + " → คัน " + it.tvl + " ที่ " + it.ts + link;
     case "seat_cancelled": return "🚐 ผู้จัดยกเลิกที่นั่งของคุณ\n" + tn + " · คัน " + it.vl + " ที่ " + it.s;
+    case "cancel_req": return "🚐 มีคำขอยกเลิกที่นั่ง\n" + tn + "\n" + String(it.n || "") + " · คัน " + it.vl + " ที่ " + it.s + (it.why ? "\nเหตุผล: " + it.why : "") + "\nอนุมัติได้ที่แจ้งเตือนในแอป" + link;
+    case "creq_ok": return "🚐 ยกเลิกที่นั่งของคุณแล้ว\n" + tn + " · คัน " + it.vl + " ที่ " + it.s + "\nผู้จัดอนุมัติคำขอของคุณ";
+    case "creq_no": return "🚐 คำขอยกเลิกไม่ได้รับอนุมัติ\n" + tn + " · คัน " + it.vl + " ที่ " + it.s + " ยังเป็นของคุณ\nติดต่อผู้จัดถ้ามีคำถาม" + link;
     case "van_removed": return "🚐 คันรถที่คุณจองถูกลบ\n" + tn + " · คัน " + it.vl + " ที่นั่งของคุณถูกยกเลิก" + link;
     default: return null;
   }

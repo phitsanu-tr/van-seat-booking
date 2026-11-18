@@ -10,7 +10,7 @@
   "use strict";
   var MON = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   var CSS = [
-    ".vb-bell{position:relative;flex:none;width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid #c9d2d8;display:inline-grid;place-items:center;color:#1b1f22;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}",
+    ".vb-cra{display:flex;gap:8px;padding:0 12px 12px 60px;margin-top:-4px}.vb-cra button{flex:1;min-height:40px;border:0;border-radius:10px;font:600 14px var(--font-body,system-ui);cursor:pointer}.vb-crn{background:#eef1f3;color:#1b1f22}.vb-cry{background:#0e7c86;color:#fff}.vb-cra button:disabled{opacity:.5}.vb-crd{font-size:13px;font-weight:600;color:#0b8457}.vb-bell{position:relative;flex:none;width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid #c9d2d8;display:inline-grid;place-items:center;color:#1b1f22;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}",
     ".vb-bar{display:flex;align-items:center;gap:8px;width:100%;max-width:560px;margin:0 auto;padding:0;box-sizing:border-box;height:0;min-height:0;position:relative}",
     ".vb-bar a.vb-brand{flex:1;min-width:0;padding:10px 0;margin:-10px 0;font:700 16px/24px 'Noto Sans Thai',system-ui,sans-serif;color:#0b5f67;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
     ".vb-bar .vb-brand{display:none}",
@@ -100,6 +100,9 @@
       case "queue_turn": return { title: "ถึงคิวจองที่นั่งของคุณแล้ว", body: tn + " · เปิดทริปแล้วเลือกที่นั่งได้เลย", tone: "green", icon: "bell" };
       case "queue_claim": return { title: "มีคนกด “ฉันคือคนนี้”", body: tn + " · " + esc(it.n) + " · รออนุมัติ", tone: "amber", icon: "shield" };
       case "seat_cancelled": return { title: "ผู้จัดยกเลิกที่นั่งของคุณ", body: tn + " · คัน " + esc(it.vl) + " ที่ " + it.s, tone: "red", icon: "trash" };
+      case "cancel_req": return { title: esc(it.n) + " ขอยกเลิกที่นั่ง " + it.s, body: tn + " · คัน " + esc(it.vl) + (it.why ? "<br>เหตุผล: " + esc(it.why) : ""), tone: "amber", icon: "trash" };
+      case "creq_ok": return { title: "ยกเลิกที่นั่งของคุณแล้ว", body: tn + " · คัน " + esc(it.vl) + " ที่ " + it.s + " · ผู้จัดอนุมัติคำขอ", tone: "teal", icon: "trash" };
+      case "creq_no": return { title: "คำขอยกเลิกไม่ได้รับอนุมัติ", body: tn + " · คัน " + esc(it.vl) + " ที่ " + it.s + " ยังเป็นของคุณ", tone: "grey", icon: "trash" };
       case "seat_renamed": return { title: "ชื่อบนผังถูกแก้", body: tn + " · " + esc(it.o) + " → <em>" + esc(it.n) + "</em>", tone: "grey", icon: "pen" };
       case "became_owner": return { title: "คุณเป็นเจ้าของทริปแล้ว", body: tn + (it.n ? " · " + esc(it.n) + " โอนทริปให้คุณ" : ""), tone: "green", icon: "shield" };
       case "removed_team": return { title: "คุณถูกนำออกจากทีมผู้จัด", body: tn, tone: "grey", icon: "shield" };
@@ -164,6 +167,24 @@
     B.unread = B.items.filter(function (x) { return !x.r; }).length; paint(); emit();
     return fetch("/api/me", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ read: sel }) }).catch(function () {});
   };
+  // a cancel request: approve (the organizer cancels the seat) or deny, right in the notice
+  function creqDone(id, v) { try { if (v) localStorage.setItem("vb-cr-" + id, v); return localStorage.getItem("vb-cr-" + id) || ""; } catch (e) { return v || ""; } }
+  function creqActs(it) {
+    var row = document.createElement("div"); row.className = "vb-cra";
+    function paintDone(v) { row.textContent = ""; var d = document.createElement("div"); d.className = "vb-crd"; d.textContent = v === "ok" ? "✓ อนุมัติแล้ว · ที่นั่ง " + it.s + " ว่างแล้ว" : v === "no" ? "ไม่อนุมัติแล้ว · ที่นั่งยังเป็นของผู้จอง" : v; row.appendChild(d); }
+    var was = creqDone(it.id); if (was) { paintDone(was); return row; }
+    function act(kind) {
+      var body = { t: it.t, v: it.v, seat: it.s }; if (kind === "no") body.creq = "deny";
+      row.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
+      fetch("/api/seats", { method: kind === "ok" ? "DELETE" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (o) { if (o.ok || (o.j && o.j.error === "no_seat")) { creqDone(it.id, kind); paintDone(kind); B.read({ id: it.id }); } else { paintDone("ทำไม่สำเร็จ ลองอีกครั้ง"); setTimeout(function () { row.replaceWith(creqActs(it)); }, 1800); } })
+        .catch(function () { paintDone("เชื่อมต่อไม่ได้"); setTimeout(function () { row.replaceWith(creqActs(it)); }, 1800); });
+    }
+    var no = document.createElement("button"); no.type = "button"; no.className = "vb-crn"; no.textContent = "ไม่อนุมัติ"; no.addEventListener("click", function () { act("no"); });
+    var ok = document.createElement("button"); ok.type = "button"; ok.className = "vb-cry"; ok.textContent = "อนุมัติยกเลิก"; ok.addEventListener("click", function () { act("ok"); });
+    row.appendChild(no); row.appendChild(ok); return row;
+  }
   // the grouped list of notifications ("ใหม่" / "ก่อนหน้านี้"); stay() runs after a tap that doesn't leave the page
   function fillItems(box, stay) {
     var groups = [["ใหม่", B.items.filter(function (x) { return !x.r; })], ["ก่อนหน้านี้", B.items.filter(function (x) { return x.r; })]];
@@ -179,6 +200,7 @@
           else if (it.t && !(it.k in linkable) && location.pathname !== "/" + it.t) location.href = "/" + it.t; else { stay(); }
         });
         box.appendChild(b);
+        if (it.k === "cancel_req") box.appendChild(creqActs(it));
       });
     });
   }
