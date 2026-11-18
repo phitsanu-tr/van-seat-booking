@@ -14,7 +14,7 @@ npx playwright install chromium # the browser, ~150 MB, once per machine
 ## Run
 
 ```sh
-node tests/run.js            # all 27 tests (about 6 minutes)
+node tests/run.js            # all 28 tests (about 6 minutes)
 node tests/run.js 05 08      # only files starting with 05 or 08
 ```
 
@@ -50,6 +50,7 @@ from a to b (used for counts that depend on timing).
 | 10-checkin | check-in ticks: organizer-only, hidden from passengers, follow moves, live refresh; paid ticks rejected |
 | 24-scroll-lock | page behind a popup is pinned (booking sheet, app bottom sheet) and the scroll position comes back on close |
 | 27-line-push | LINE message text per notice kind, multicast only with a token and a real LINE user id |
+| 28-poster-layout | share picture stays 9:16 and keeps one gap everywhere (sides, above each heading by the ink of the words, under the map card) for a short and a long trip |
 | 26-booking-queue | with PAYMENT_QUEUE on: organizer builds the queue, claim + approve, only the person whose turn it is can hold/book, limit/finish calls the next, organizer always may; passenger page shows only their own status (no other names); organizer page has the on/off switch and row menus; queue bar on the booking page |
 | 25-oa-friend-gate | with REQUIRE_OA_FRIEND on: not a friend of the official account → blocking screen (+ warning if still not), friend → gone, check error → never blocks |
 | 11-routes | signed-in visitors stay on /, link scheme: /home /trips /seats /notify /profile, /new, /<id>/edit, old /trips#<id>-o, old seat-pass link goes to the booking page |

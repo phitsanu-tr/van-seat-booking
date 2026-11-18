@@ -1812,11 +1812,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.fillStyle = "#ffffff"; ctx.font = '600 44px ' + PF;
     titleLines.forEach(function (ln, i) { ctx.fillText(ln, X, 30 + 36 + 22 + 2 + 24 + i * 58 + 42 + tOff); });
     var SEC = 24, HGAP = 22; // HGAP: from a section heading's ink to its card · gaps between sections = X (spare 9:16 height goes inside the map card)
-    var y = HH;
+    var y = HH, lay = { side: X, hgap: HGAP, head: HH, h: [] }; // lay: where things landed, for tests/e2e/28 (gaps must stay equal)
     function heading(t) { // placed by the ink of the words (Thai marks above vary), so the gap above and below looks the same everywhere
       ctx.fillStyle = "#0b5f67"; ctx.font = '600 32px ' + PF;
       var m = ctx.measureText(t), a = m.actualBoundingBoxAscent || 26, d = m.actualBoundingBoxDescent || 8;
-      ctx.fillText(t, X, y + a); y += a + d + HGAP;
+      ctx.fillText(t, X, y + a); lay.h.push({ inkTop: y, inkBottom: y + a + d }); y += a + d + HGAP;
     }
     function sep() { ctx.fillStyle = DIV; ctx.fillRect(X, y, IW, 2); y += 2; }
     // ---- trip details rows
@@ -1871,7 +1871,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
           mLines.forEach(function (ln, i) { ctx.fillText(ln, bx + ix, cy + 18 + 24 + 12 + 32 + i * 40 - 4); });
         }
       }
-      y += bh;
+      lay.c1 = [by, by + bh]; y += bh;
     }
     // ---- map card: van on the left, who booked what on the right
     y += X; heading("ผังที่นั่งและรายละเอียด");
@@ -1952,7 +1952,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       pLines.forEach(function (ln, i) { fillC(ctx, ln, sx + sw / 2, sgy + nh + 14 + 28 + i * 38); });
       ctx.textAlign = "left";
     }
-    y += mh + X; // same gap under the map card as at its left and right
+    lay.c2 = [y, y + mh]; y += mh + X; // same gap under the map card as at its left and right
     // ---- footer
     var url = "https://liff.line.me/2012285472-FvtYKx00" + basePath() + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : ""); // the QR opens the trip details first (like the share card's details link); the details page has the button to the seat map
     var shortUrl = location.host + basePath() + (multi && cur ? "?v=" + encodeURIComponent(cur.id) : "");
@@ -1991,7 +1991,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.font = '700 34px Prompt, "Noto Sans Thai", sans-serif'; ctx.textAlign = "left";
     var wTrip = ctx.measureText("TRIP").width, wVan = ctx.measureText("VAN ").width, wx = CW - X - wTrip - wVan, wy = who ? b4 : b3;
     ctx.fillStyle = "#ffffff"; ctx.fillText("VAN", wx, wy); ctx.fillStyle = "#fde9a6"; ctx.fillText("TRIP", wx + wVan, wy);
-    posterExtra = extra; var total = y + FH; posterFixed = total - extra - PH;
+    lay.foot = y; window.__posterLayout = lay; posterExtra = extra; var total = y + FH; posterFixed = total - extra - PH;
     // ---- compose onto a light backdrop with rounded corners
     var OW = 1544, k = OW / CW; // same output width as the seat pass / admin pass cards (386 x 4)
     var out = document.createElement("canvas"); out.width = OW; out.height = Math.max(Math.round(total * k), Math.round(OW * 16 / 9));
