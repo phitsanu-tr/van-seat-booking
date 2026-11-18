@@ -63,7 +63,11 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
 .obar{position:sticky;bottom:0;margin-top:auto;display:flex;gap:10px;background:var(--bg);padding:10px 0 calc(14px + env(safe-area-inset-bottom,0px))}
 .obar .b,.obar2 .b{flex:1;min-height:48px;font:600 15px var(--font-display);background:#e3e8eb;color:var(--ink)}.obar .b.p,.obar2 .b.p{background:var(--mine);color:var(--mine-ink);flex:1.3}
 .dim{position:fixed;inset:0;background:rgba(10,24,28,.45);z-index:20}
-.sheet{position:fixed;left:20px;right:20px;top:max(72px,12vh);z-index:21;max-width:420px;margin:0 auto;background:#fff;border-radius:20px;padding:18px;box-shadow:0 20px 50px -10px rgba(0,0,0,.4)}.sheet textarea{min-height:150px}.sct{font-size:12px;font-weight:700;color:var(--mine);margin-top:8px;min-height:16px}
+.sheet{position:fixed;left:16px;right:16px;top:max(72px,12vh);z-index:21;max-width:428px;margin:0 auto;background:#fff;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:16px;box-shadow:0 20px 50px -10px rgba(0,0,0,.4)}
+.sheet .sh{margin:0}.sheet .sh b{font:600 20px/28px var(--font-display)}.sheet .note{margin:0;font-size:14px;line-height:20px;color:var(--muted)}
+.sheet textarea{min-height:160px;font-size:16px;line-height:1.5;padding:12px;border:1px solid var(--line);border-radius:12px;resize:none}.sheet textarea:focus{outline:none;border-color:var(--mine)}
+.sheet .obar2{margin:0}.sheet .obar2 .b,.sheet .obar2 .b.p{flex:1}.sheet .obar2 .b{min-height:48px;font:600 16px/24px var(--font-body);border-radius:12px}
+.sct{font-size:14px;line-height:20px;font-weight:600;color:var(--mine);margin:-8px 0 0;min-height:20px}
 .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.sh b{font:600 17px var(--font-display)}.sh button{background:none;color:var(--muted);font-size:18px;min-width:44px;min-height:44px;padding:0}
 .obar2{display:flex;gap:10px;margin-top:12px}
 .addlink{width:100%;background:none;color:var(--mine);border-radius:0;border-top:1px solid #eef1f3;min-height:46px;margin-top:4px}
@@ -224,7 +228,7 @@ h1{font:700 26px/32px var(--font-display)}
       var dim = el("div", "dim"); dim.addEventListener("click", function () { sheet = ""; draw(); }); main.appendChild(dim);
       var sh = el("div", "sheet"); sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "เพิ่มรายชื่อ");
       var shh = el("div", "sh"); shh.appendChild(el("b", null, "เพิ่มรายชื่อ")); var x = el("button", null, "✕"); x.type = "button"; x.setAttribute("aria-label", "ปิด"); x.addEventListener("click", function () { sheet = ""; draw(); }); shh.appendChild(x); sh.appendChild(shh);
-      sh.appendChild(el("p", "note", "เรียงตามลำดับที่ชำระเงิน บรรทัดละ 1 คน (วางจากแชทได้)"));
+      sh.appendChild(el("p", "note", "บรรทัดละ 1 คน เรียงตามลำดับที่ชำระเงิน"));
       var ta = el("textarea"); ta.value = draft; ta.placeholder = "พิมพ์ชื่อบรรทัดละ 1 คน"; ta.setAttribute("aria-label", "รายชื่อ"); sh.appendChild(ta); var ct = el("div", "sct"); sh.appendChild(ct);
       var cnt = function () { return draft.split("\n").map(function (s2) { return s2.trim(); }).filter(Boolean).length; };
       var sb2 = el("div", "obar2"); var cn = el("button", "b", "ยกเลิก"); cn.type = "button"; cn.addEventListener("click", function () { sheet = ""; draw(); }); sb2.appendChild(cn);
