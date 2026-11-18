@@ -29,7 +29,7 @@ module.exports = async function handler(req, res) {
       const h = Q.turnOf(q), mine = user ? q.items.find((i) => i.u === user.id) : null;
       return {
         on: !!q.on, auto: !!q.auto, cap, role: role || undefined, turn: h ? h.id : null, mine: mine ? mine.id : null, me: L.publicUser(user), ended: L.tripEnded(trip),
-        items: q.items.map((i) => Object.assign({ id: i.id, name: i.name }, i.done ? { done: 1 } : {}, i.u ? { bound: 1 } : {}, i.ok ? { ok: 1 } : {},
+        items: q.items.map((i) => Object.assign({ id: i.id, name: org || (user && !mine) || (mine && i === mine) ? i.name : "" }, // a passenger sees the names only while finding their own; signed out or already in the queue: only their own i.done ? { done: 1 } : {}, i.u ? { bound: 1 } : {}, i.ok ? { ok: 1 } : {},
           user && i.u === user.id ? { m: 1 } : {}, org && i.u && i.ln ? { ln: String(i.ln), lp: String(i.lp || "") } : {})),
       };
     };
