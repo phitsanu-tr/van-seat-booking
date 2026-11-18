@@ -30,7 +30,7 @@ await q(O,'on',{value:true});
 await A.goto(B+'/'+t+'/queue');await A.waitForTimeout(1500);
 log('passenger page shows list',(await A.locator('.row').count()),'rows');
 await O.goto(B+'/'+t+'/queue');await O.waitForTimeout(1500);await O.click('.stripw .sx');await O.waitForTimeout(300);
-await O.screenshot({path:HLP.OUT+'/26-org.png',fullPage:true});await A.screenshot({path:HLP.OUT+'/26-pax.png'});
+await O.setViewportSize({width:390,height:800});await O.waitForTimeout(200);await O.screenshot({path:HLP.OUT+'/26-org.png'});await A.screenshot({path:HLP.OUT+'/26-pax.png'});
 log('organizer page has controls',(await O.locator('.dots').count())>0);
 await C.goto(B+'/'+t+'/seats');await C.waitForTimeout(1800);
 log('booking page shows queue bar',await C.evaluate(()=>!document.getElementById('queueBar').hidden));
