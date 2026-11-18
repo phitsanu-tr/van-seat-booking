@@ -136,7 +136,7 @@ module.exports = async function handler(req, res) {
       const nonce = L.newId(16);
       const st = Buffer.from(JSON.stringify({ s: state, n: nonce, r: back })).toString("base64url");
       const url = AUTHORIZE + "?response_type=code&client_id=" + encodeURIComponent(id) + "&redirect_uri=" + encodeURIComponent(redirectUri(req)) +
-        "&state=" + state + "&scope=" + encodeURIComponent("openid profile") + "&nonce=" + nonce + (/^(1|true|on)$/i.test(env("REQUIRE_OA_FRIEND")) ? "&bot_prompt=normal" : ""); // ask to add the linked official account at sign-in
+        "&state=" + state + "&scope=" + encodeURIComponent("openid profile") + "&nonce=" + nonce + (/^(1|true|on)$/i.test(env("REQUIRE_OA_FRIEND")) ? "&bot_prompt=aggressive" : ""); // ask to add the linked official account at sign-in
       return go(res, url, [L.cookieStr(req, "vsb_st", st, 600)]);
     }
 
