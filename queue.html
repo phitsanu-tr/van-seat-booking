@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>คิวจองที่นั่ง · VanTrip</title>
+<style>html{touch-action:manipulation}html,body{overscroll-behavior:none}</style>
+<script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
 <style>
 :root{color-scheme:light;--bg:#eef1f3;--surface:#fff;--ink:#1b1f22;--muted:#5f6b73;--line:#c9d2d8;--mine:#0e7c86;--mine-ink:#fff;--tint:#e4f2f3;--ok:#0b8457;--okbg:#e3f4ec;--warn:#8a5a00;--warnbg:#fff4dc;--red:#b3261e;--font-display:"Prompt","Noto Sans Thai",system-ui,sans-serif;--font-body:"Noto Sans Thai",system-ui,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
