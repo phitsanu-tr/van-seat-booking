@@ -10,7 +10,7 @@
 <style>
 :root{color-scheme:light;--bg:#eef1f3;--surface:#fff;--ink:#1b1f22;--muted:#5f6b73;--line:#c9d2d8;--mine:#0e7c86;--mine-ink:#fff;--tint:#e4f2f3;--ok:#0b8457;--okbg:#e3f4ec;--warn:#8a5a00;--warnbg:#fff4dc;--red:#b3261e;--font-display:"Prompt","Noto Sans Thai",system-ui,sans-serif;--font-body:"Noto Sans Thai",system-ui,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}[hidden]{display:none!important}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--font-body);padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+body{margin:0;background:#fff;color:var(--ink);font:15px/1.5 var(--font-body);padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
 .wrap{max-width:460px;margin:0 auto;min-height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column} /* 460px: the same column width as the app pages */
 #main{flex:1;display:flex;flex-direction:column}
 .top{display:flex;align-items:center;gap:8px;padding:14px 0 6px}
@@ -67,6 +67,14 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
 .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.sh b{font:600 17px var(--font-display)}.sh button{background:none;color:var(--muted);font-size:18px;min-width:44px;min-height:44px;padding:0}
 .obar2{display:flex;gap:10px;margin-top:12px}
 .addlink{width:100%;background:none;color:var(--mine);border-radius:0;border-top:1px solid #eef1f3;min-height:46px;margin-top:4px}
+/* same look as the create-trip page: white page, outlined cards with a soft shadow, round icon headers, white bottom bar with a hairline */
+.card{background:#fff;border:1px solid #dde3e7;border-radius:16px;box-shadow:0 8px 24px -10px rgba(20,40,50,.18);padding:16px}
+h1{font:700 26px/32px var(--font-display)}
+.chd2{display:flex;align-items:center;gap:10px;margin-bottom:12px}.chd2 h2{margin:0;font:600 17px/24px var(--font-display)}.chd2 .r{margin-left:auto;font-size:12.5px;color:var(--muted)}
+.ic{flex:none;width:34px;height:34px;border-radius:50%;background:var(--tint);color:var(--mine);display:grid;place-items:center}.ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.wrap{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+.obar{position:fixed;z-index:15;left:max(0px,calc((100% - 460px) / 2));right:max(0px,calc((100% - 460px) / 2));bottom:0;margin:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;background:#fff;border-top:1px solid #e8ecef;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+.obar .b.p{flex:none}.obar .b{background:#eef1f3}.obar .b.p{background:var(--mine)}
 .err{color:var(--red);font-size:13px;margin-top:6px}
 .empty{color:var(--muted);text-align:center;padding:16px 0}
 </style>
@@ -134,6 +142,11 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
     }).catch(function () {});
   }
   // ---- organizer view: status strip (tap to see who is next) + tabs รายชื่อ / ตั้งค่า, bar acts on the queue ----
+  var ICN = { users: '<path d="M9 8m-3.5 0a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/>', flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>', check: '<path d="M5 12l5 5 9-10"/>' };
+  function chead(icon, title, right) { // card header like the create-trip page: round icon + title (+ a note on the right)
+    var h = el("div", "chd2"), ic = el("span", "ic"); ic.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICN[icon] + '</svg>';
+    h.appendChild(ic); h.appendChild(el("h2", null, title)); if (right) h.appendChild(el("span", "r", right)); return h;
+  }
   var tab = "list", stripOpen = false, menuId = "", sheet = "", draft = "";
   function turnRow() { return D.items.filter(function (i) { return i.id === D.turn; })[0]; }
   function waitingRows() { return D.items.filter(function (i) { return i.bound && !i.ok && !i.done; }); }
@@ -188,8 +201,8 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
       var c1 = el("div", "card"), h = el("div", "sw2"); h.appendChild(el("span", null, D.on ? "เปิดคิวอยู่ · มีเฉพาะคนที่ถึงคิวจองได้ (ผู้จัดจองได้เสมอ)" : "ปิดคิวอยู่ · ทุกคนจองได้ตามปกติ"));
       var sw = el("button", "swt"); sw.type = "button"; sw.setAttribute("role", "switch"); sw.setAttribute("aria-checked", D.on ? "true" : "false"); sw.setAttribute("aria-label", "เปิดหรือปิดคิว");
       sw.addEventListener("click", function () { if (busy) return; busy = true; call("on", { value: !D.on }).then(function () { busy = false; draw(); }, function () { busy = false; }); });
-      h.appendChild(sw); c1.appendChild(el("h2", null, "สถานะคิว")); c1.appendChild(h); main.appendChild(c1);
-      var cv = el("div", "card"); cv.appendChild(el("h2", null, "ยืนยันชื่อผู้โดยสาร"));
+      h.appendChild(sw); c1.appendChild(chead("flag", "สถานะคิว")); c1.appendChild(h); main.appendChild(c1);
+      var cv = el("div", "card"); cv.appendChild(chead("check", "ยืนยันชื่อผู้โดยสาร"));
       function opt(on, title, sub2, val) { var o = el("button", "opt" + (on ? " on" : "")); o.type = "button"; o.setAttribute("role", "radio"); o.setAttribute("aria-checked", on ? "true" : "false"); o.appendChild(el("i", "rd")); var ww = el("span"); var bb = el("b", null, title); if (val === false) bb.appendChild(el("em", "tag", "แนะนำ")); ww.appendChild(bb); ww.appendChild(el("small", null, sub2)); o.appendChild(ww); o.addEventListener("click", function () { if (busy || on) return; busy = true; call("auto", { value: val }).then(function () { busy = false; draw(); }, function () { busy = false; }); }); return o; }
       var sg = el("div", "seg2"); sg.setAttribute("role", "radiogroup"); sg.setAttribute("aria-label", "ยืนยันชื่อผู้โดยสาร");
       sg.appendChild(opt(!D.auto, "ผู้จัดอนุมัติเอง", "กด “ฉันคือคนนี้” แล้วรอผู้จัดตรวจชื่อและรูป LINE ก่อนจึงจะใช้สิทธิ์ได้ ปลอดภัยสุด", false));
@@ -197,7 +210,7 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
       cv.appendChild(sg); if (D.auto) cv.appendChild(el("div", "warn", "ใครกดชื่อไหนก่อนก็ได้ชื่อนั้นทันที ผู้จัดยังเห็นชื่อและรูป LINE และกด “ปลดชื่อ” ได้ตลอด"));
       main.appendChild(cv); main.appendChild(el("p", "note", "การตั้งค่าบันทึกอัตโนมัติ"));
     } else {
-      var cl2 = el("div", "card"), hd = el("div", "chd"); hd.appendChild(el("h2", null, "ลำดับคิว")); hd.appendChild(el("span", "r", D.items.length + " คน")); cl2.appendChild(hd);
+      var cl2 = el("div", "card"); cl2.appendChild(chead("users", "ลำดับคิว", D.items.length + " คน"));
       if (!D.items.length) cl2.appendChild(el("div", "empty", "ยังไม่มีรายชื่อ"));
       D.items.forEach(function (it, i) { cl2.appendChild(rowEl(it, i, true)); });
       var al = el("button", "addlink", "＋ เพิ่มรายชื่อ"); al.type = "button"; al.addEventListener("click", function () { sheet = "add"; draw(); }); cl2.appendChild(al);
