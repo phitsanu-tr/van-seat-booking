@@ -120,7 +120,7 @@ module.exports = async function handler(req, res) {
     if (q.me !== undefined) {
       const u = await L.currentUser(req);
       const u2 = L.publicUser(u), need = !!u2 && /^(1|true|on)$/i.test(env("REQUIRE_OA_FRIEND")); // the "add the official account as a friend" gate: off unless REQUIRE_OA_FRIEND is set
-      return L.json(res, 200, { user: u2, login: DEV || !!env("LINE_CHANNEL_ID"), friend: need ? { need: true, url: env("OA_ADD_URL") || "https://line.me/R/ti/p/@976dllrx" } : undefined });
+      return L.json(res, 200, { user: u2, login: DEV || !!env("LINE_CHANNEL_ID"), friend: u2 ? { need: need, url: env("OA_ADD_URL") || "https://line.me/R/ti/p/@976dllrx" } : undefined });
     }
 
     if (q.start !== undefined) {

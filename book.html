@@ -741,16 +741,68 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     } else {
       tx.appendChild(el("b", null, "จองตามลำดับคิว")); tx.appendChild(document.createTextNode(" ยังไม่ได้ยืนยันชื่อ · ")); var l2 = el("a", null, "กด “ฉันคือคนนี้”"); l2.href = "/" + TRIP + "/queue"; tx.appendChild(l2);
     }
+    if (qSheet) qSheet.render();
   }
+  // the "not your turn" sheet: lives while open, so it follows the queue (counts down, flips to "your turn")
+  var qSheet = null, qFriend = { flag: null, url: "" };
+  function qCss(e, c) { e.style.cssText = c; return e; }
   function openQueueSheet(n) {
-    var bd = el("div"); bd.style.cssText = "position:fixed;inset:0;z-index:50;background:rgba(10,24,28,.45);display:flex;align-items:flex-end;justify-content:center";
-    var sh = el("div"); sh.style.cssText = "background:var(--surface,#fff);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:18px 18px calc(22px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px";
-    var s = qs && qs.s, h = el("b", null, "ที่นั่ง " + n + " ยังจองไม่ได้"); h.style.cssText = "font:600 17px/24px var(--font-display)";
-    var p = el("div", null, s === "out" ? "ทริปนี้จองตามลำดับคิว กด “ฉันคือคนนี้” ที่ชื่อของคุณในหน้าคิวก่อน" : s === "done" ? "คุณใช้สิทธิ์จองไปแล้ว" : (qs && qs.ok ? "ยังไม่ถึงคิวของคุณ อีก " + qs.ahead + " คนก่อนหน้า เราจะแจ้งเตือนเมื่อถึงคิว" : "รอผู้จัดอนุมัติชื่อของคุณ แล้วจะได้เข้าคิว")); p.style.cssText = "color:var(--muted);font-size:14px";
-    var go = el("a", "go", s === "out" ? "ไปยืนยันชื่อในหน้าคิว" : "ดูลำดับคิว"); go.href = "/" + TRIP + "/queue"; go.style.cssText = "display:block;text-align:center;background:var(--mine);color:var(--mine-ink,#fff);border-radius:12px;padding:13px;font-weight:600;text-decoration:none";
-    var cl = el("button", null, "ปิด"); cl.type = "button"; cl.style.cssText = "background:none;border:1.5px solid var(--mine);color:var(--mine);border-radius:12px;padding:12px;font:600 15px var(--font-body);min-height:44px";
-    cl.addEventListener("click", function () { bd.remove(); }); bd.addEventListener("click", function (e) { if (e.target === bd) bd.remove(); });
-    sh.appendChild(h); sh.appendChild(p); sh.appendChild(go); sh.appendChild(cl); bd.appendChild(sh); document.body.appendChild(bd);
+    if (qSheet) qSheet.close();
+    var bd = qCss(el("div"), "position:fixed;inset:0;z-index:50;background:rgba(10,24,28,.45);display:flex;align-items:flex-end;justify-content:center");
+    var sh = qCss(el("div"), "position:relative;background:var(--surface,#fff);width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:12px 20px calc(22px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px");
+    sh.setAttribute("role", "dialog"); sh.setAttribute("aria-live", "polite");
+    var closeX = qCss(el("button", null, "✕"), "position:absolute;right:8px;top:8px;width:44px;height:44px;background:none;border:0;color:var(--muted,#5f6b73);font-size:20px;cursor:pointer;padding:0"); closeX.type = "button"; closeX.setAttribute("aria-label", "ปิด");
+    var body = el("div"); body.style.cssText = "display:flex;flex-direction:column;gap:14px";
+    sh.appendChild(qCss(el("div"), "width:40px;height:5px;border-radius:9px;background:#dde3e7;margin:0 auto")); sh.appendChild(closeX); sh.appendChild(body);
+    function close() { bd.remove(); qSheet = null; }
+    closeX.addEventListener("click", close); bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
+    function chip(t) { return qCss(el("span", null, t), "display:inline-block;background:var(--tint,#e4f2f3);color:var(--mine);border-radius:99px;padding:2px 10px;font-size:12.5px;font-weight:700;margin-right:6px"); }
+    function node(label, num, kind) { // kind: cur | me | wait
+      var d = qCss(el("div"), "flex:1;text-align:center;font-size:12px;color:var(--muted,#5f6b73);min-width:0");
+      var c = qCss(el("div", null, num), "width:36px;height:36px;border-radius:50%;margin:0 auto 4px;display:grid;place-items:center;font-weight:700;font-size:13px;" + (kind === "cur" ? "background:var(--mine);color:#fff" : kind === "me" ? "background:#fff;border:2px solid var(--mine);color:var(--mine)" : "background:#fff;color:var(--muted,#5f6b73)"));
+      d.appendChild(c); d.appendChild(document.createTextNode(label)); return d;
+    }
+    function line() { return qCss(el("div"), "flex:.5;height:2px;background:#b9dde0;margin-bottom:18px"); }
+    function btnA(t, href, fn) { var a = qCss(el(href ? "a" : "button", null, t), "display:block;text-align:center;background:var(--mine);color:var(--mine-ink,#fff);border:0;border-radius:12px;padding:13px;font:600 16px var(--font-body);text-decoration:none;min-height:48px;cursor:pointer;width:100%"); if (href) a.href = href; else { a.type = "button"; a.addEventListener("click", fn); } return a; }
+    function head(t, sub) { var h = qCss(el("div"), "padding-right:40px"); h.appendChild(qCss(el("b", null, t), "display:block;font:600 19px/26px var(--font-display)")); var p = qCss(el("div"), "font-size:14px;line-height:22px;color:var(--muted,#5f6b73);margin-top:2px"); p.appendChild(chip("ที่นั่ง " + n)); p.appendChild(document.createTextNode(sub)); h.appendChild(p); return h; }
+    function render() {
+      var s = qs && qs.s; body.textContent = "";
+      if (s === "turn") {
+        body.appendChild(head("ถึงคิวคุณแล้ว 🎉", "กดเพื่อเลือกต่อได้เลย"));
+        body.appendChild(qCss(el("div", null, "เลือกที่นั่งได้ตอนนี้"), "background:#e3f4ec;color:#0b6b4a;border-radius:16px;padding:18px 16px;font:600 22px/28px var(--font-display)"));
+        body.appendChild(btnA("เลือกที่นั่ง " + n, null, function () { close(); if (!seats[n]) openSeat(n); else showToast("ที่นั่ง " + n + " มีคนจองไปแล้ว เลือกที่นั่งอื่นได้เลย"); }));
+      } else if (s === "wait" && qs.ok) {
+        var a = qs.ahead || 1;
+        body.appendChild(head("ยังไม่ถึงคิวคุณ", "จองได้เมื่อถึงคิว"));
+        var card = qCss(el("div"), "background:var(--tint,#e4f2f3);border-radius:16px;padding:14px 16px");
+        var top = qCss(el("div"), "display:flex;align-items:baseline;justify-content:space-between");
+        top.appendChild(qCss(el("b", null, "อีก " + a + " คน"), "font:700 34px/1.1 var(--font-display);color:var(--mine)")); top.appendChild(qCss(el("span", null, "คุณคิวที่ " + (a + 1)), "font-size:14px;color:#0b5f67")); card.appendChild(top);
+        var tl = qCss(el("div"), "display:flex;align-items:center;margin-top:14px");
+        if (a === 1) { [node("กำลังเลือก", "1", "cur"), line(), node("คุณ", "2", "me"), line(), node("รอคิว", "3", "wait")].forEach(function (x) { tl.appendChild(x); }); }
+        else if (a === 2) { [node("กำลังเลือก", "1", "cur"), line(), node("รอคิว", "2", "wait"), line(), node("คุณ", "3", "me")].forEach(function (x) { tl.appendChild(x); }); }
+        else { [node("กำลังเลือก", "1", "cur"), line(), node("รออีก " + (a - 1) + " คน", "…", "wait"), line(), node("คุณ", String(a + 1), "me")].forEach(function (x) { tl.appendChild(x); }); }
+        card.appendChild(tl); body.appendChild(card);
+        if (qFriend.flag === false) {
+          var w = qCss(el("div"), "background:#fff4dc;color:#8a5a00;border-radius:12px;padding:10px 12px;font-size:13px;display:flex;gap:10px;align-items:center;justify-content:space-between");
+          w.appendChild(el("span", null, "ยังไม่ได้เพิ่มเพื่อน Van Trip จะไม่ได้รับแจ้งเตือน"));
+          var ad = qCss(el("a", null, "เพิ่มเพื่อน"), "background:var(--mine);color:#fff;border-radius:9px;padding:8px 12px;font-weight:700;text-decoration:none;white-space:nowrap"); ad.href = qFriend.url || "https://line.me/R/ti/p/@976dllrx"; ad.target = "_blank"; ad.rel = "noopener"; w.appendChild(ad); body.appendChild(w);
+        } else body.appendChild(qCss(el("div", null, "🔔 แจ้งเตือนทาง LINE เมื่อถึงคิว · อัปเดตให้อัตโนมัติ"), "font-size:13px;color:var(--muted,#5f6b73)"));
+        body.appendChild(btnA("ดูลำดับคิว", "/" + TRIP + "/queue"));
+      } else if (s === "wait") {
+        body.appendChild(head("รอผู้จัดอนุมัติ", "ผู้จัดกำลังตรวจชื่อของคุณ"));
+        body.appendChild(qCss(el("div", null, "เมื่ออนุมัติแล้วคุณจะเข้าคิวและได้รับแจ้งเตือน"), "background:var(--tint,#e4f2f3);color:#0b5f67;border-radius:16px;padding:14px 16px;font-size:14px"));
+        body.appendChild(btnA("ดูสถานะ", "/" + TRIP + "/queue"));
+      } else if (s === "done") {
+        body.appendChild(head("คุณใช้สิทธิ์จองแล้ว", "ยกเลิกที่นั่งของตัวเองได้"));
+        body.appendChild(btnA("เข้าใจแล้ว", null, close));
+      } else {
+        body.appendChild(head("ยังไม่ได้เข้าคิว", "ต้องเข้าคิวก่อนจึงจะจองได้"));
+        body.appendChild(qCss(el("div", null, "ผู้จัดเพิ่มชื่อไว้แล้ว กดเลือกชื่อของคุณเพื่อเข้าคิว"), "background:var(--tint,#e4f2f3);color:#0b5f67;border-radius:16px;padding:14px 16px;font-size:14px"));
+        body.appendChild(btnA("เลือกชื่อของฉัน", "/" + TRIP + "/queue"));
+      }
+    }
+    bd.appendChild(sh); document.body.appendChild(bd); qSheet = { render: render, close: close }; render();
+    if (window.liff && liff.getFriendship && qFriend.flag === null) { liff.getFriendship().then(function (f) { if (f) { qFriend.flag = f.friendFlag; if (qSheet) qSheet.render(); } }).catch(function () {}); fetch("/api/auth?me=1", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (me) { if (me && me.friend && me.friend.url) qFriend.url = me.friend.url; }).catch(function () {}); }
   }
   function locked() { return ended || (closed && !isOwner); }
   var MON_S = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
