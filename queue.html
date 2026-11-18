@@ -301,7 +301,7 @@ body.org .wrap{padding-top:calc(24px + env(safe-area-inset-top,0px))}.sub{color:
     if (justClaimed) { main.appendChild(el("div", "flash", "✓ เข้าคิวแล้ว")); justClaimed = false; }
     var card;
     if (mine.done) {
-      main.appendChild(el("p", "sub", "ยกเลิกที่นั่งของตัวเองได้ที่ผังที่นั่ง"));
+      main.appendChild(el("p", "sub", "ต้องการยกเลิก แตะที่นั่งของคุณในผังแล้วกดขอยกเลิก"));
       card = el("div", "qcard"); var t0 = el("div", "qt"); t0.appendChild(el("b", "qn", "ใช้สิทธิ์แล้ว")); card.appendChild(t0);
     } else if (isTurn) {
       main.appendChild(el("p", "sub", "เลือกที่นั่งได้ตอนนี้"));
