@@ -207,7 +207,7 @@ body.org .wrap{padding-top:calc(24px + env(safe-area-inset-top,0px))}.obar.one{g
       cl2.appendChild(errBox); main.appendChild(cl2);
 
     }
-    var bar = el("div", "obar one"); var bk = el("a", "b", "ย้อนกลับ"); bk.href = "/" + T + "/seats"; bar.appendChild(bk);
+    var bar = el("div", "obar one"); var bk = el("a", "b", "ย้อนกลับ"); bk.href = "/" + T + "/seats"; bk.addEventListener("click", function (e) { try { if (history.length > 1 && document.referrer && new URL(document.referrer).origin === location.origin) { e.preventDefault(); history.back(); } } catch (x) {} }); bar.appendChild(bk);
     main.appendChild(bar);
     if (sheet === "add") {
       var dim = el("div", "dim"); dim.addEventListener("click", function () { sheet = ""; draw(); }); main.appendChild(dim);
