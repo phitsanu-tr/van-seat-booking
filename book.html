@@ -1830,10 +1830,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var night = !!(hasGo && goT && trip.tripStart && trip.startDate && trip.startDate < trip.tripStart);
     if (hasGo || hasBk || trip.meetPoint) {
       heading("กำหนดการเดินทาง");
-      var bx = X, bw = IW, by = y, pad = 26, bh = pad;
-      ctx.font = '600 32px ' + NF; var mLines = trip.meetPoint ? wrapText(ctx, trip.meetPoint, bw - 2 * pad, 2) : [];
+      var bx = X, bw = IW, by = y, pad = 26, bh = pad, ix = 40; // ix: left/right inset of everything inside the box
+      ctx.font = '600 32px ' + NF; var mLines = trip.meetPoint ? wrapText(ctx, trip.meetPoint, bw - 2 * ix, 2) : [];
       var meetLbl = 0, meetInline = false;
-      if (trip.meetPoint) { ctx.font = '400 24px ' + NF; meetLbl = ctx.measureText("จุดนัดพบ").width + 18; ctx.font = '600 32px ' + NF; meetInline = ctx.measureText(trip.meetPoint).width <= bw - 2 * pad - meetLbl; }
+      if (trip.meetPoint) { ctx.font = '400 24px ' + NF; meetLbl = ctx.measureText("จุดนัดพบ").width + 18; ctx.font = '600 32px ' + NF; meetInline = ctx.measureText(trip.meetPoint).width <= bw - 2 * ix - meetLbl; }
       if (hasGo || hasBk) bh += 24 + 52 + 38 + 16;
       if (hasGo || hasBk) { if (trip.meetPoint) bh += 14; }
       if (trip.meetPoint) bh += meetInline ? 18 + 34 : 18 + 24 + 12 + 40 * mLines.length - 6;
@@ -1843,7 +1843,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var cy = by + pad;
       if (hasGo || hasBk) {
         function half(lbl, d, t, right, col) {
-          ctx.textAlign = right ? "right" : "left"; var hx = right ? bx + bw - 40 : bx + 40; // go/return sit a little further in from the box edge
+          ctx.textAlign = right ? "right" : "left"; var hx = right ? bx + bw - ix : bx + ix;
           ctx.fillStyle = "#6b767c"; ctx.font = '400 24px ' + NF; ctx.fillText(lbl, hx, cy + 24);
           ctx.fillStyle = INK; ctx.font = '600 48px ' + PF; ctx.fillText(t ? t + " น." : "", hx, cy + 24 + 52);
           ctx.fillStyle = col; ctx.font = '400 26px ' + NF; ctx.fillText(d, hx, cy + 24 + 52 + 38); ctx.textAlign = "left";
@@ -1851,7 +1851,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         if (hasGo) half("เดินทางไป", goD, goT, false, "#6b767c");
         if (hasBk) half("เดินทางกลับ", bkD, bkT, hasGo, "#6b767c");
         if (hasGo && hasBk) { // long two-way arrow, same as the card on the booking page (no circle)
-          var cx2 = bx + bw / 2, cy2 = cy + 24 + 32, L2 = 60;
+          var cx2 = bx + bw / 2, cy2 = cy + 24 + 32, L2 = 44;
           ctx.strokeStyle = TEAL; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.beginPath();
           ctx.moveTo(cx2 - L2, cy2 - 7); ctx.lineTo(cx2 + L2, cy2 - 7); ctx.moveTo(cx2 + L2 - 9, cy2 - 15); ctx.lineTo(cx2 + L2, cy2 - 7); ctx.lineTo(cx2 + L2 - 9, cy2 + 1);
           ctx.moveTo(cx2 + L2, cy2 + 9); ctx.lineTo(cx2 - L2, cy2 + 9); ctx.moveTo(cx2 - L2 + 9, cy2 + 1); ctx.lineTo(cx2 - L2, cy2 + 9); ctx.lineTo(cx2 - L2 + 9, cy2 + 17); ctx.stroke();
@@ -1859,13 +1859,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         cy += 24 + 52 + 38 + 16;
       }
       if (trip.meetPoint) {
-        if (hasGo || hasBk) { ctx.fillStyle = DIV; ctx.fillRect(bx + pad, cy + 4, bw - 2 * pad, 2); cy += 14; }
+        if (hasGo || hasBk) { ctx.fillStyle = DIV; ctx.fillRect(bx + ix, cy + 4, bw - 2 * ix, 2); cy += 14; }
         ctx.fillStyle = "#6b767c"; ctx.font = '400 24px ' + NF;
         if (meetInline) {
-          ctx.fillText("จุดนัดพบ", bx + pad, cy + 18 + 26); ctx.fillStyle = INK; ctx.font = '600 32px ' + NF; ctx.fillText(trip.meetPoint, bx + pad + meetLbl, cy + 18 + 27);
+          ctx.fillText("จุดนัดพบ", bx + ix, cy + 18 + 26); ctx.fillStyle = INK; ctx.font = '600 32px ' + NF; ctx.fillText(trip.meetPoint, bx + ix + meetLbl, cy + 18 + 27);
         } else {
-          ctx.fillText("จุดนัดพบ", bx + pad, cy + 18 + 24); ctx.fillStyle = INK; ctx.font = '600 32px ' + NF;
-          mLines.forEach(function (ln, i) { ctx.fillText(ln, bx + pad, cy + 18 + 24 + 12 + 32 + i * 40 - 4); });
+          ctx.fillText("จุดนัดพบ", bx + ix, cy + 18 + 24); ctx.fillStyle = INK; ctx.font = '600 32px ' + NF;
+          mLines.forEach(function (ln, i) { ctx.fillText(ln, bx + ix, cy + 18 + 24 + 12 + 32 + i * 40 - 4); });
         }
       }
       y += bh;
