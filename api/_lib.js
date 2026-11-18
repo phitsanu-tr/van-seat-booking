@@ -371,12 +371,17 @@ async function linePush(uids, text) {
     const token = pickEnv("LINE_BOT_TOKEN");
     const to = Array.from(new Set((uids || []).filter((u) => /^U[0-9a-f]{32}$/.test(u)))).slice(0, 500);
     if (!token || !to.length) return;
-    await fetch(pickEnv("LINE_PUSH_URL") || "https://api.line.me/v2/bot/message/multicast", { // LINE_PUSH_URL: tests only
+    const r = await fetch(pickEnv("LINE_PUSH_URL") || "https://api.line.me/v2/bot/message/multicast", { // LINE_PUSH_URL: tests only
       method: "POST",
       headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
       body: JSON.stringify({ to, messages: [{ type: "text", text: String(text).slice(0, 900) }] }),
     });
-  } catch (e) { /* best effort */ }
+    if (!r.ok) { // visible in the Vercel function logs: 401 = wrong token, 429 = monthly message quota used up
+      let d = ""; try { d = (await r.text()).slice(0, 200); } catch (e) { /* none */ }
+      console.error("[line push] status " + r.status + " " + d);
+      try { bump("line_push_err"); } catch (e) { /* best effort */ }
+    } else { try { bump("line_push_ok", to.length); } catch (e) { /* best effort */ } }
+  } catch (e) { console.error("[line push] " + (e && e.message)); }
 }
 // account ids of everyone booked in the trip, per van: { vanId: [uid, ...] }
 async function tripBookers(trip) {
