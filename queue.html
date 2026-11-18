@@ -75,7 +75,7 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
 .ed{flex:none;height:clamp(150px,32dvh,300px);display:flex;min-height:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}.ed:focus-within{border-color:var(--mine)}
 .gu{flex:none;width:34px;background:var(--tint);color:var(--mine);font:700 13px/28px var(--font-body);text-align:center;padding:12px 0;overflow:hidden;white-space:pre}
 .ed textarea{flex:1;min-width:0;border:0;outline:0;border-radius:0;resize:none;background:transparent;color:var(--ink);font:16px/28px var(--font-body);padding:12px;min-height:0}
-.sct{font-size:13px;line-height:20px;font-weight:700;color:var(--mine);min-height:20px;margin-top:8px}
+.sct.over{color:var(--red)}.addlink:disabled{color:var(--muted);cursor:default}.sct{font-size:13px;line-height:20px;font-weight:700;color:var(--mine);min-height:20px;margin-top:8px}
 body.sheeton{overflow:hidden}
 .obar2{display:flex;gap:10px;margin-top:12px}
 .addlink{width:100%;background:none;color:var(--mine);border-radius:0;border-top:1px solid #eef1f3;min-height:46px;margin-top:4px}
@@ -147,7 +147,7 @@ body.org .wrap{padding-top:calc(24px + env(safe-area-inset-top,0px))}.sub{color:
   document.getElementById("back").href = "/" + T + "/seats";
   function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; }
   function btn(txt, cls, fn) { var b = el("button", cls || "", txt); b.type = "button"; b.addEventListener("click", function () { if (busy) return; busy = true; fn().then(function () { busy = false; }, function () { busy = false; }); }); return b; }
-  var MSG = { login_required: "ต้องเข้าสู่ระบบก่อน", already_claimed: "คุณยืนยันชื่อไปแล้ว", row_taken: "ชื่อนี้มีคนกดยืนยันแล้ว", queue_full: "คิวเต็ม (สูงสุด 80 ชื่อ)", bad_name: "ชื่อไม่ถูกต้อง", not_your_turn: "ยังไม่ถึงคิวของคุณ", busy: "ลองอีกครั้ง", ended: "ทริปจบแล้ว", not_owner: "เฉพาะผู้จัดทริป" };
+  var MSG = { login_required: "ต้องเข้าสู่ระบบก่อน", already_claimed: "คุณยืนยันชื่อไปแล้ว", row_taken: "ชื่อนี้มีคนกดยืนยันแล้ว", queue_full: "เกินจำนวนที่นั่งรวมของทริป", bad_name: "ชื่อไม่ถูกต้อง", not_your_turn: "ยังไม่ถึงคิวของคุณ", busy: "ลองอีกครั้ง", ended: "ทริปจบแล้ว", not_owner: "เฉพาะผู้จัดทริป" };
   function call(a, extra, onFail) {
     return fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ t: T, a: a }, extra || {})) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
@@ -222,10 +222,10 @@ body.org .wrap{padding-top:calc(24px + env(safe-area-inset-top,0px))}.sub{color:
       cv.appendChild(sg); if (D.auto) cv.appendChild(el("div", "warn", "ใครกดชื่อไหนก่อนก็ได้ชื่อนั้นทันที ผู้จัดยังเห็นชื่อและรูป LINE และกด “ปลดชื่อ” ได้ตลอด"));
       main.appendChild(cv); main.appendChild(el("p", "note", "การตั้งค่าบันทึกอัตโนมัติ"));
     } else {
-      var cl2 = el("div", "card"); cl2.appendChild(chead("users", "ลำดับคิว", D.items.length + " คน"));
+      var cl2 = el("div", "card"); cl2.appendChild(chead("users", "ลำดับคิว", D.items.length + " / " + (D.cap || 80) + " คน"));
       if (!D.items.length) cl2.appendChild(el("div", "empty", "ยังไม่มีรายชื่อ"));
       D.items.forEach(function (it, i) { cl2.appendChild(rowEl(it, i, true)); });
-      var al = el("button", "addlink", "＋ เพิ่มรายชื่อ"); al.type = "button"; al.addEventListener("click", function () { sheet = "add"; sheetNew = true; draw(); }); cl2.appendChild(al);
+      var full = D.items.length >= (D.cap || 80); var al = el("button", "addlink", full ? "ครบจำนวนที่นั่งแล้ว (" + (D.cap || 80) + " ชื่อ)" : "＋ เพิ่มรายชื่อ"); al.type = "button"; al.disabled = full; al.addEventListener("click", function () { sheet = "add"; sheetNew = true; draw(); }); cl2.appendChild(al);
       cl2.appendChild(errBox); main.appendChild(cl2);
 
     }
@@ -242,7 +242,8 @@ body.org .wrap{padding-top:calc(24px + env(safe-area-inset-top,0px))}.sub{color:
       var bd = el("div", "sbd"); bd.appendChild(el("p", "note", "บรรทัดละ 1 คน เลขสีเขียวคือลำดับคิวที่จะได้"));
       var ed = el("div", "ed"), gu = el("div", "gu"), ta = el("textarea"); ta.value = draft; ta.setAttribute("wrap", "off"); ta.placeholder = "พิมพ์ชื่อบรรทัดละ 1 คน"; ta.setAttribute("aria-label", "รายชื่อ");
       ed.appendChild(gu); ed.appendChild(ta); bd.appendChild(ed); var ct = el("div", "sct"); bd.appendChild(ct); sh.appendChild(bd);
-      var upd = function () { var n = names().length, g = [], c = base; draft.split("\n").forEach(function (x) { g.push(x.trim() ? String(++c) : ""); }); gu.textContent = g.join("\n"); gu.scrollTop = ta.scrollTop; ct.textContent = n ? "จะเพิ่ม " + n + " คน ต่อจากคิวเดิม " + base + " คน" : ""; addB.textContent = n ? "เพิ่ม " + n + " คน" : "เพิ่ม"; addB.disabled = !n; };
+      var room = Math.max(0, (D.cap || 80) - base);
+      var upd = function () { var n = names().length, g = [], c = base; draft.split("\n").forEach(function (x) { g.push(x.trim() ? String(++c) : ""); }); gu.textContent = g.join("\n"); gu.scrollTop = ta.scrollTop; var over = n - room; ct.classList.toggle("over", over > 0); ct.textContent = over > 0 ? "เกิน " + over + " ชื่อ (เหลือที่ " + room + ")" : n ? "จะเพิ่ม " + n + " คน · เหลือที่อีก " + (room - n) : "เหลือที่อีก " + room + " คน"; addB.textContent = n ? "เพิ่ม " + n + " คน" : "เพิ่ม"; addB.disabled = !n || over > 0; };
       ta.addEventListener("input", function () { draft = ta.value; upd(); }); ta.addEventListener("scroll", function () { gu.scrollTop = ta.scrollTop; }); upd();
       main.appendChild(sh); document.body.classList.add("sheeton"); fitSheet();
       if (first) { requestAnimationFrame(function () { requestAnimationFrame(function () { sh.classList.add("up"); dim.classList.add("up"); setTimeout(function () { ta.focus(); }, 280); }); }); }

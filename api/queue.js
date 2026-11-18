@@ -23,11 +23,12 @@ module.exports = async function handler(req, res) {
     if (!trip) return L.json(res, 404, { error: "no_trip" });
     const user = await L.currentUser(req);
     const role = L.roleOf(trip, user), org = !!role;
+    const cap = Math.min(Q.MAX_ITEMS, Math.max(1, (trip.vans || []).length) * L.TOTAL_SEATS); // one name per seat across every van
 
     const view = (q) => {
       const h = Q.turnOf(q), mine = user ? q.items.find((i) => i.u === user.id) : null;
       return {
-        on: !!q.on, auto: !!q.auto, role: role || undefined, turn: h ? h.id : null, mine: mine ? mine.id : null, me: L.publicUser(user), ended: L.tripEnded(trip),
+        on: !!q.on, auto: !!q.auto, cap, role: role || undefined, turn: h ? h.id : null, mine: mine ? mine.id : null, me: L.publicUser(user), ended: L.tripEnded(trip),
         items: q.items.map((i) => Object.assign({ id: i.id, name: i.name }, i.done ? { done: 1 } : {}, i.u ? { bound: 1 } : {}, i.ok ? { ok: 1 } : {},
           user && i.u === user.id ? { m: 1 } : {}, org && i.u && i.ln ? { ln: String(i.ln), lp: String(i.lp || "") } : {})),
       };
@@ -53,7 +54,7 @@ module.exports = async function handler(req, res) {
     else if (a === "add") {
       const names = (Array.isArray(body.names) ? body.names : [body.name]).map((x) => L.cleanName(String(x == null ? "" : x).replace(/\s+/g, " ").trim()).text).filter((x) => x && L.hasBaseLetter(x) && !L.reservedName(x, true)).slice(0, Q.MAX_ITEMS);
       if (!names.length) return L.json(res, 400, { error: "bad_name" });
-      fn = (q) => { if (q.items.length + names.length > Q.MAX_ITEMS) return { error: "queue_full" }; names.forEach((n) => q.items.push({ id: L.newId(6), name: n })); };
+      fn = (q) => { if (q.items.length + names.length > cap) return { error: "queue_full", cap }; names.forEach((n) => q.items.push({ id: L.newId(6), name: n })); };
     }
     else if (a === "remove") fn = (q) => { const n = q.items.length; q.items = q.items.filter((i) => i.id !== id); if (q.items.length === n) return false; };
     else if (a === "up" || a === "down") fn = (q) => {
