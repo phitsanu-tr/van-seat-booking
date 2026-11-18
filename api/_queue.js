@@ -58,4 +58,15 @@ async function afterBook(trip, user, mineN) {
   await update(trip, (q) => { const h = turnOf(q); if (!h || h.u !== user.id) return false; h.done = 1; });
 }
 
-module.exports = { MAX_ITEMS, flagOn, qKey, head, turnOf, read, update, gate, afterBook };
+// where this visitor stands: {s: "out" (no name claimed) | "wait" (claimed, not their turn yet, or not approved) | "turn" | "done", ahead: people still before them}
+function stateOf(q, user) {
+  const mine = user ? q.items.find((i) => i.u === user.id) : null;
+  if (!mine) return { s: "out" };
+  if (mine.done) return { s: "done" };
+  const h = turnOf(q);
+  if (h && h.id === mine.id) return { s: "turn" };
+  const idx = q.items.indexOf(mine);
+  return { s: "wait", ahead: q.items.slice(0, idx).filter((i) => !i.done).length, ok: !!mine.ok };
+}
+
+module.exports = { stateOf, MAX_ITEMS, flagOn, qKey, head, turnOf, read, update, gate, afterBook };

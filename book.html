@@ -114,6 +114,8 @@ header.trip { display: block; }
 .ended { display: flex; gap: 12px; align-items: flex-start; margin-top: 12px; padding: 12px 16px; border-radius: 16px; background: color-mix(in srgb, var(--ink) 6%, var(--surface)); border: 1px solid var(--line); font-size: 14px; line-height: 20px; }
 .ended svg { flex: none; width: 16px; height: 16px; margin-top: 4px; color: var(--mine); }
 .ended b { font-family: var(--font-display); font-weight: 600; }
+.deck.qlock .seat.seat:not(.taken):not(.mine):not(.held) { opacity: .5; }
+#queueBar.qturn { background: color-mix(in srgb, var(--mine) 14%, var(--surface)); }
 .deck.isended .seat { cursor: default; }
 .deck.isended .seat:hover { background: transparent; }
 .deck.isended .seat.taken:hover { background: color-mix(in srgb, var(--taken) 94%, transparent); }
@@ -542,7 +544,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <button type="button" role="tab" id="swList" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>รายชื่อ</button>
   </div>
     <div class="ended" id="endedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg><span><b>ทริปนี้สิ้นสุดแล้ว</b> ปิดรับจอง ดูรายชื่อผู้จองได้อย่างเดียว</span></div>
-    <div class="ended" id="queueBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span><b>จองตามลำดับคิว</b> จองได้เมื่อถึงคิวของคุณ <a href="#" id="queueLink">ดูคิวของฉัน</a></span></div>
+    <div class="ended" id="queueBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span id="queueTx"><b>จองตามลำดับคิว</b> จองได้เมื่อถึงคิวของคุณ <a href="#" id="queueLink">ดูคิวของฉัน</a></span></div>
     <div class="ended" id="closedBar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span><b>ปิดรับจองแล้ว</b> จองหรือยกเลิกเองไม่ได้ ถ้าต้องการเปลี่ยนที่นั่ง ติดต่อผู้จัดทริป</span></div>
     <div class="chgban" id="chgBan" hidden></div>
     <div class="facts" id="tripFacts" role="list" aria-label="ข้อมูลทริป" hidden></div>
@@ -717,8 +719,39 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   setTimeout(function () { skOff(true); if (!loaded) showNet(true); }, 8000);
   document.getElementById("neRetry").addEventListener("click", function () { showNet(false); document.body.classList.add("sk"); setTimeout(function () { skOff(true); if (!loaded) showNet(true); }, 8000); refresh(true); });
   var selected = null, message = "", shown = false, confirming = false, lastSnapshot = "", wasFree = false; // wasFree: the seat was free when this dialog opened
-  var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false, closed = false, qon = false;
+  var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false, closed = false, qon = false, qs = null;
   // locked: nothing to tap. A finished trip is locked for everyone; a closed one only for passengers (organizers still manage seats).
+  // booking queue: free seats can't be taken until it is this person's turn
+  function qBlocked() { return !!(loaded && qon && !isOwner && !closed && !ended && !(qs && qs.s === "turn")); }
+  function renderQueueBar() {
+    var bar = document.getElementById("queueBar"), tx = document.getElementById("queueTx"), s = qs && qs.s;
+    bar.classList.toggle("qturn", s === "turn"); tx.textContent = "";
+    var link = el("a", null, "ดูคิว"); link.href = "/" + TRIP + "/queue";
+    if (s === "turn") {
+      tx.appendChild(el("b", null, "ถึงคิวของคุณแล้ว")); tx.appendChild(document.createTextNode(" เลือกที่นั่งได้เลย จองครบแล้วกด "));
+      var fin = el("a", null, "เสร็จแล้ว"); fin.href = "#";
+      fin.addEventListener("click", function (e) { e.preventDefault(); fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: TRIP, a: "finish" }) }).then(function () { refresh(true); showToast("เรียกคนถัดไปแล้ว"); }); });
+      tx.appendChild(fin);
+    } else if (s === "wait") {
+      tx.appendChild(el("b", null, qs.ok ? "ยังไม่ถึงคิวของคุณ" : "รอผู้จัดอนุมัติชื่อของคุณ"));
+      tx.appendChild(document.createTextNode(qs.ok ? " อีก " + qs.ahead + " คนก่อนหน้า · เราจะแจ้งเตือนเมื่อถึงคิว " : " · "));
+      tx.appendChild(link);
+    } else if (s === "done") {
+      tx.appendChild(el("b", null, "คุณใช้สิทธิ์จองแล้ว")); tx.appendChild(document.createTextNode(" · ยกเลิกที่นั่งของตัวเองได้ · ")); tx.appendChild(link);
+    } else {
+      tx.appendChild(el("b", null, "จองตามลำดับคิว")); tx.appendChild(document.createTextNode(" ยังไม่ได้ยืนยันชื่อ · ")); var l2 = el("a", null, "กด “ฉันคือคนนี้”"); l2.href = "/" + TRIP + "/queue"; tx.appendChild(l2);
+    }
+  }
+  function openQueueSheet(n) {
+    var bd = el("div"); bd.style.cssText = "position:fixed;inset:0;z-index:50;background:rgba(10,24,28,.45);display:flex;align-items:flex-end;justify-content:center";
+    var sh = el("div"); sh.style.cssText = "background:var(--surface,#fff);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:18px 18px calc(22px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px";
+    var s = qs && qs.s, h = el("b", null, "ที่นั่ง " + n + " ยังจองไม่ได้"); h.style.cssText = "font:600 17px/24px var(--font-display)";
+    var p = el("div", null, s === "out" ? "ทริปนี้จองตามลำดับคิว กด “ฉันคือคนนี้” ที่ชื่อของคุณในหน้าคิวก่อน" : s === "done" ? "คุณใช้สิทธิ์จองไปแล้ว" : (qs && qs.ok ? "ยังไม่ถึงคิวของคุณ อีก " + qs.ahead + " คนก่อนหน้า เราจะแจ้งเตือนเมื่อถึงคิว" : "รอผู้จัดอนุมัติชื่อของคุณ แล้วจะได้เข้าคิว")); p.style.cssText = "color:var(--muted);font-size:14px";
+    var go = el("a", "go", s === "out" ? "ไปยืนยันชื่อในหน้าคิว" : "ดูลำดับคิว"); go.href = "/" + TRIP + "/queue"; go.style.cssText = "display:block;text-align:center;background:var(--mine);color:var(--mine-ink,#fff);border-radius:12px;padding:13px;font-weight:600;text-decoration:none";
+    var cl = el("button", null, "ปิด"); cl.type = "button"; cl.style.cssText = "background:none;border:1.5px solid var(--mine);color:var(--mine);border-radius:12px;padding:12px;font:600 15px var(--font-body);min-height:44px";
+    cl.addEventListener("click", function () { bd.remove(); }); bd.addEventListener("click", function (e) { if (e.target === bd) bd.remove(); });
+    sh.appendChild(h); sh.appendChild(p); sh.appendChild(go); sh.appendChild(cl); bd.appendChild(sh); document.body.appendChild(bd);
+  }
   function locked() { return ended || (closed && !isOwner); }
   var MON_S = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   function closeText(c) { var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(c || ""); return m ? Number(m[3]) + " " + MON_S[Number(m[2]) - 1] + " " + m[4] + ":" + m[5] : ""; }
@@ -845,7 +878,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
           b.setAttribute("aria-label", "ที่นั่ง " + n + " ว่าง");
         }
         if (selected === n) { b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
-        b.addEventListener("click", function () { if (locked()) return; selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll(); });
+        b.addEventListener("click", function () { if (locked()) return; if (!seats[n] && qBlocked()) { openQueueSheet(n); return; } selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; renderAll(); });
         overlayEl.appendChild(frame(b, RECT[n]));
       })(n);
     }
@@ -1328,7 +1361,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     document.getElementById("endedBar").hidden = !ended;
     document.getElementById("closedBar").hidden = !(loaded && closed && !ended && !isOwner);
     document.getElementById("queueBar").hidden = !(loaded && qon && !closed && !ended && !isOwner);
-    document.getElementById("queueLink").href = "/" + TRIP + "/queue";
+    renderQueueBar();
+    document.getElementById("deck").classList.toggle("qlock", qBlocked());
     document.getElementById("deck").classList.toggle("isended", locked());
     box.textContent = "";
     if (locked() || !loaded || !trip) return;
@@ -1403,7 +1437,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       counts = (r.data && r.data.counts) || counts;
       var hw = JSON.stringify(held); held = {}; ((r.data && r.data.held) || []).forEach(function (k) { held[k] = 1; });
       if (JSON.stringify(held) !== hw) force = true;
-      ended = !!(r.data && r.data.ended); closed = !!(r.data && r.data.closed); qon = !!(r.data && r.data.qon);
+      ended = !!(r.data && r.data.ended); closed = !!(r.data && r.data.closed); qon = !!(r.data && r.data.qon); qs = (r.data && r.data.qs) || null;
       var meWas = JSON.stringify(me); me = (r.data && r.data.me) || null; isOwner = !!(r.data && r.data.owner); seatLimit = Number(r.data && r.data.limit) || 0;
       if (JSON.stringify(me) !== meWas || !loaded) renderAcct();
       var next = {};
@@ -1421,7 +1455,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff(); showNet(false);
       if (locked() && selected !== null) { selected = null; message = ""; confirming = false; renaming = false; force = true; } // closed while the dialog was open
       if (changed || force) renderAll();
-      if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !locked()) openSeat(ws); }
+      if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !locked() && !qBlocked()) openSeat(ws); }
     } catch (e) {
       loadError = "เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่";
       if (!loaded) { skOff(true); showNet(true); renderAll(); }
