@@ -85,7 +85,7 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
 <script>
 (function () {
   var T = (location.pathname.match(/^\/([a-z0-9]+)\/queue/) || [])[1] || "";
-  var main = document.getElementById("main"), D = null, busy = false;
+  var main = document.getElementById("main"), D = null, busy = false; var draft = ""; // the names being typed survive a redraw
   document.getElementById("back").href = "/" + T + "/seats";
   function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; }
   function btn(txt, cls, fn) { var b = el("button", cls || "", txt); b.type = "button"; b.addEventListener("click", function () { if (busy) return; busy = true; fn().then(function () { busy = false; }, function () { busy = false; }); }); return b; }
@@ -99,13 +99,13 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
   var errBox = null;
   function flash(t) { if (errBox) { errBox.textContent = t; errBox.hidden = false; setTimeout(function () { if (errBox) errBox.hidden = true; }, 4000); } }
   function load() {
+    if (busy) return Promise.resolve(); // an action is on its way: its answer redraws the page
     return fetch("/api/queue?t=" + encodeURIComponent(T), { cache: "no-store" }).then(function (r) {
       if (r.status === 404) { return r.json().then(function (j) { D = { off: j && j.error }; draw(); }); }
       return r.json().then(function (j) { D = j; draw(); });
     }).catch(function () {});
   }
   function draw() {
-    if (busy && D) return;
     main.textContent = "";
     if (!D) return;
     if (D.off) { var c0 = el("div", "card"); c0.appendChild(el("p", "empty", D.off === "no_trip" ? "ไม่พบทริปนี้" : "ยังไม่เปิดใช้คิวจอง")); main.appendChild(c0); return; }
@@ -119,8 +119,8 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
       sw.appendChild(l); sw.appendChild(btn(D.on ? "ปิดคิว" : "เปิดคิว", D.on ? "o" : "", function () { return call("on", { value: !D.on }); }));
       cs.appendChild(sw); main.appendChild(cs);
       var ca = el("div", "card"); ca.appendChild(el("h2", null, "เพิ่มรายชื่อ (เรียงตามลำดับที่ชำระเงิน)"));
-      var ta = el("textarea"); ta.placeholder = "พิมพ์ชื่อบรรทัดละ 1 คน"; ta.setAttribute("aria-label", "รายชื่อ"); ca.appendChild(ta);
-      var ab = el("div", "acts"); ab.appendChild(btn("เพิ่มท้ายคิว", "", function () { var names = ta.value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean); if (!names.length) return Promise.resolve(); return call("add", { names: names }); })); ca.appendChild(ab);
+      var ta = el("textarea"); ta.value = draft; ta.addEventListener("input", function () { draft = ta.value; }); ta.placeholder = "พิมพ์ชื่อบรรทัดละ 1 คน"; ta.setAttribute("aria-label", "รายชื่อ"); ca.appendChild(ta);
+      var ab = el("div", "acts"); ab.appendChild(btn("เพิ่มท้ายคิว", "", function () { var names = ta.value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean); if (!names.length) return Promise.resolve(); draft = ""; return call("add", { names: names }); })); ca.appendChild(ab);
       main.appendChild(ca);
     } else if (!D.on) {
       var c1 = el("div", "card"); c1.appendChild(el("h2", null, "ทริปนี้ยังไม่เปิดคิว")); c1.appendChild(el("p", "note", "จองที่นั่งได้ตามปกติ")); var go = el("a", "btn", "ไปเลือกที่นั่ง"); go.href = "/" + T + "/seats"; go.style.marginTop = "10px"; c1.appendChild(go); main.appendChild(c1);
