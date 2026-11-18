@@ -787,7 +787,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
           w.appendChild(el("span", null, "ยังไม่ได้เพิ่มเพื่อน Van Trip จะไม่ได้รับแจ้งเตือน"));
           var ad = qCss(el("a", null, "เพิ่มเพื่อน"), "background:var(--mine);color:#fff;border-radius:9px;padding:8px 12px;font-weight:700;text-decoration:none;white-space:nowrap"); ad.href = qFriend.url || "https://line.me/R/ti/p/@976dllrx"; ad.target = "_blank"; ad.rel = "noopener"; w.appendChild(ad); body.appendChild(w);
         } else body.appendChild(qCss(el("div", null, "🔔 แจ้งเตือนทาง LINE เมื่อถึงคิว · อัปเดตให้อัตโนมัติ"), "font-size:13px;color:var(--muted,#5f6b73)"));
-        body.appendChild(btnA("ดูลำดับคิว", "/" + TRIP + "/queue"));
+        body.appendChild(btnA("ดูคิวของฉัน", "/" + TRIP + "/queue"));
       } else if (s === "wait") {
         body.appendChild(head("รอผู้จัดอนุมัติ", "ผู้จัดกำลังตรวจชื่อของคุณ"));
         body.appendChild(qCss(el("div", null, "เมื่ออนุมัติแล้วคุณจะเข้าคิวและได้รับแจ้งเตือน"), "background:var(--tint,#e4f2f3);color:#0b5f67;border-radius:16px;padding:14px 16px;font-size:14px"));
