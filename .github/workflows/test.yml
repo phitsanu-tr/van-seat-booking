@@ -6,7 +6,7 @@ on:
   pull_request:
 jobs:
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Playwright 1.56 has no browsers for ubuntu-latest (26.04)
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
