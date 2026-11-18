@@ -43,7 +43,7 @@ module.exports = async function handler(req, res) {
     if (L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
     if (await L.rateLimited(req, user, "queue:" + t, 120, 600)) return L.json(res, 429, { error: "too_many" });
     const a = String(body.a || ""), id = String(body.id || "");
-    const orgActs = ["on", "auto", "add", "remove", "up", "down", "unbind", "ok", "done"];
+    const orgActs = ["on", "auto", "okall", "add", "remove", "up", "down", "unbind", "ok", "done"];
     if (orgActs.includes(a) && !org) return L.json(res, 403, { error: "not_owner" });
     const row = (q) => q.items.find((i) => i.id === id);
     let fn = null;
@@ -62,6 +62,7 @@ module.exports = async function handler(req, res) {
       const tmp = q.items[i]; q.items[i] = q.items[j]; q.items[j] = tmp;
     };
     else if (a === "unbind") fn = (q) => { const r = row(q); if (!r || !r.u) return false; delete r.u; delete r.ln; delete r.lp; delete r.ok; };
+    else if (a === "okall") fn = (q) => { let n = 0; q.items.forEach((r) => { if (r.u && !r.ok && !r.done) { r.ok = 1; n++; } }); if (!n) return false; };
     else if (a === "ok") fn = (q) => { const r = row(q); if (!r || !r.u) return false; const v = body.value !== false; if (!!r.ok === v) return false; if (v) r.ok = 1; else delete r.ok; };
     else if (a === "done") fn = (q) => { const r = row(q); if (!r) return false; const v = body.value !== false; if (!!r.done === v) return false; if (v) r.done = 1; else delete r.done; };
     else if (a === "claim") fn = (q) => {

@@ -29,9 +29,9 @@ await q(O,'on',{value:false});r=await book(A,6,'แอนน์');log('queue off
 await q(O,'on',{value:true});
 await A.goto(B+'/'+t+'/queue');await A.waitForTimeout(1500);
 log('passenger page shows list',(await A.locator('.row').count()),'rows');
-await O.goto(B+'/'+t+'/queue');await O.waitForTimeout(1500);
+await O.goto(B+'/'+t+'/queue');await O.waitForTimeout(1500);await O.click('.stripw .sx');await O.waitForTimeout(300);
 await O.screenshot({path:HLP.OUT+'/26-org.png',fullPage:true});await A.screenshot({path:HLP.OUT+'/26-pax.png'});
-log('organizer page has controls',(await O.locator('button:has-text("ลบ")').count())>0);
+log('organizer page has controls',(await O.locator('.dots').count())>0);
 await C.goto(B+'/'+t+'/seats');await C.waitForTimeout(1800);
 log('booking page shows queue bar',await C.evaluate(()=>!document.getElementById('queueBar').hidden));
 await O.goto(B+'/trips?f='+Date.now());await O.waitForTimeout(1500);await O.click('.mgo');await O.waitForTimeout(400);

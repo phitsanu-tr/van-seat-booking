@@ -39,7 +39,7 @@ button:disabled{opacity:.5}
 .waitbox{background:var(--warnbg);color:var(--warn)}
 textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius:12px;padding:10px;font:15px/1.5 var(--font-body);resize:vertical;background:#fff;color:var(--ink)}
 .sw{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.seg{display:flex;flex-direction:column;gap:8px}
+.seg2{display:flex;flex-direction:column;gap:8px}
 .opt{display:flex;gap:10px;align-items:flex-start;justify-content:flex-start;white-space:normal;text-align:left;width:100%;background:transparent;color:var(--ink);border:1.5px solid #d6dde1;border-radius:12px;padding:10px 12px;min-height:0;font-weight:400}
 .opt.on{border-color:var(--mine);background:var(--tint)}
 .opt .rd{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid #aab5bb;margin-top:2px;position:relative}
@@ -47,6 +47,25 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
 .opt b{display:block;font-weight:600;line-height:1.5}.opt small{display:block;color:var(--muted);font-size:12.5px;line-height:18px}
 .tag{font-style:normal;font-size:11px;font-weight:600;background:var(--okbg);color:var(--ok);border-radius:999px;padding:1px 8px;margin-left:6px}
 .warn{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:8px 10px;font-size:12.5px;margin-top:8px}
+.stripw{margin-bottom:12px}.strip{display:flex;align-items:center;gap:8px;background:var(--okbg);color:var(--ok);border-radius:14px;padding:6px 8px 6px 12px;min-height:48px}.strip.w{background:var(--warnbg);color:var(--warn)}
+.strip .sx{flex:1;min-width:0;display:flex;align-items:center;gap:10px;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;min-height:40px;padding:0}.strip .dot{width:9px;height:9px;border-radius:50%;background:currentColor;flex:none}
+.strip .sm{flex:1;font-size:13px;line-height:18px;min-width:0}.strip .sm b{font-weight:600}.strip .car{font-weight:700;flex:none}
+.stripx{border:1.5px solid var(--line);border-radius:14px;padding:6px 12px 2px;margin-top:6px;background:var(--surface)}.stripx .lbl{font:600 12px var(--font-display);color:var(--muted);padding-top:4px}
+.seg{display:flex;background:#e3e8eb;border-radius:13px;padding:4px;margin-bottom:12px}.seg button{flex:1;border:0;background:none;color:var(--muted);font:600 14px var(--font-body);padding:0 4px;border-radius:10px;cursor:pointer;min-height:42px}.seg button[aria-selected=true]{background:#fff;color:var(--mine);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.chd{display:flex;justify-content:space-between;align-items:baseline}.chd .r{font-size:12px;color:var(--muted)}
+.dots{flex:none;width:36px;min-height:36px;padding:0;border-radius:50%;background:#eef1f3;color:var(--muted);font-size:16px}
+.menu{position:absolute;right:0;top:48px;z-index:5;background:#fff;border:1.5px solid var(--line);border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.2);padding:4px;min-width:150px}
+.menu button{display:block;width:100%;justify-content:flex-start;text-align:left;background:none;color:var(--ink);font:500 14px var(--font-body);padding:0 12px;min-height:42px;border-radius:8px}.menu button.rm{color:var(--red)}
+.row{position:relative}.row .chip{flex:none}
+.sw2{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px}
+.swt{position:relative;flex:none;width:48px;height:28px;min-height:0;padding:0;border-radius:99px;background:var(--line)}.swt[aria-checked=true]{background:var(--ok)}.swt:after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s}.swt[aria-checked=true]:after{left:23px}
+.obar{position:sticky;bottom:0;display:flex;gap:10px;background:var(--bg);padding:10px 0 calc(14px + env(safe-area-inset-bottom,0px))}
+.obar .b,.obar2 .b{flex:1;min-height:48px;font:600 15px var(--font-display);background:#e3e8eb;color:var(--ink)}.obar .b.p,.obar2 .b.p{background:var(--mine);color:var(--mine-ink);flex:1.3}
+.dim{position:fixed;inset:0;background:rgba(10,24,28,.45);z-index:10}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;max-width:560px;margin:0 auto;background:#fff;border-radius:22px 22px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.sh b{font:600 17px var(--font-display)}.sh button{background:none;color:var(--muted);font-size:18px;min-width:44px;min-height:44px;padding:0}
+.obar2{display:flex;gap:10px;margin-top:12px}
+.addlink{width:100%;background:none;color:var(--mine);border-radius:0;border-top:1px solid #eef1f3;min-height:46px;margin-top:4px}
 .err{color:var(--red);font-size:13px;margin-top:6px}
 .empty{color:var(--muted);text-align:center;padding:16px 0}
 </style>
@@ -113,6 +132,91 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
       return r.json().then(function (j) { D = j; draw(); });
     }).catch(function () {});
   }
+  // ---- organizer view: status strip (tap to see who is next) + tabs รายชื่อ / ตั้งค่า, bar acts on the queue ----
+  var tab = "list", stripOpen = false, menuId = "", sheet = "", draft = "";
+  function turnRow() { return D.items.filter(function (i) { return i.id === D.turn; })[0]; }
+  function waitingRows() { return D.items.filter(function (i) { return i.bound && !i.ok && !i.done; }); }
+  function rowEl(it, i, menu) {
+    var isT = D.turn === it.id, r = el("div", "row" + (it.done ? " done" : ""));
+    r.appendChild(el("div", "no", String(i + 1)));
+    var nm = el("div", "nm"); nm.appendChild(el("b", null, it.name));
+    var sm = el("small"); if (it.lp) { var im = el("img"); im.src = it.lp; im.alt = ""; sm.appendChild(im); }
+    sm.appendChild(el("span", null, it.bound ? "LINE: " + (it.ln || "") : "ยังไม่มีคนกดยืนยัน")); nm.appendChild(sm); r.appendChild(nm);
+    if (it.bound && !it.ok && !it.done) r.appendChild(btn("อนุมัติ", "s", function () { return call("ok", { id: it.id, value: true }); }));
+    else r.appendChild(el("span", "chip" + (isT ? " turn" : ""), it.done ? "เสร็จแล้ว" : isT ? "ถึงคิว" : "รอ"));
+    if (menu) {
+      var d = el("button", "dots", "⋯"); d.type = "button"; d.setAttribute("aria-label", "จัดการ " + it.name); d.setAttribute("aria-expanded", menuId === it.id ? "true" : "false");
+      d.addEventListener("click", function (e) { e.stopPropagation(); menuId = menuId === it.id ? "" : it.id; draw(); });
+      r.appendChild(d);
+      if (menuId === it.id) {
+        var m = el("div", "menu"); m.setAttribute("role", "menu");
+        var add = function (t, cls, fn) { var b = el("button", cls || "", t); b.type = "button"; b.addEventListener("click", function (e) { e.stopPropagation(); menuId = ""; if (busy) return; busy = true; fn().then(function () { busy = false; draw(); }, function () { busy = false; draw(); }); }); m.appendChild(b); };
+        if (i > 0) add("เลื่อนขึ้น", "", function () { return call("up", { id: it.id }); });
+        if (i < D.items.length - 1) add("เลื่อนลง", "", function () { return call("down", { id: it.id }); });
+        if (it.bound) add("ปลดชื่อ", "", function () { return call("unbind", { id: it.id }); });
+        add(it.done ? "คืนคิว" : "ข้าม / จบคิว", "", function () { return call("done", { id: it.id, value: !it.done }); });
+        add("ลบ", "rm", function () { return call("remove", { id: it.id }); });
+        r.appendChild(m);
+      }
+    }
+    return r;
+  }
+  function drawOrg() {
+    errBox = el("div", "err"); errBox.hidden = true; errBox.setAttribute("role", "alert");
+    var w = waitingRows(), t = turnRow(), strip = el("div", "stripw"), sb = el("div", "strip" + (w.length ? " w" : "")), msg, act = null;
+    sb.setAttribute("role", "status");
+    if (!D.on) { msg = ["ปิดคิวอยู่", " ทุกคนจองได้ตามปกติ"]; act = btn("เปิดคิว", "s", function () { return call("on", { value: true }); }); }
+    else if (w.length) { msg = ["รออนุมัติ " + w.length + " คน", t ? " · ถึงคิว: " + t.name : ""]; act = btn("อนุมัติ", "s", function () { return call("okall"); }); }
+    else if (t) { msg = ["ถึงคิว: " + t.name, " กำลังเลือกที่นั่ง"]; act = btn("เรียกคนถัดไป", "s", function () { return call("done", { id: t.id, value: true }); }); }
+    else { msg = ["ยังไม่มีคนถึงคิว", ""]; }
+    var sx = el("button", "sx"); sx.type = "button"; sx.setAttribute("aria-expanded", stripOpen ? "true" : "false");
+    sx.appendChild(el("span", "dot")); var sm = el("span", "sm"); sm.appendChild(el("b", null, msg[0])); sm.appendChild(document.createTextNode(msg[1])); sx.appendChild(sm); sx.appendChild(el("span", "car", stripOpen ? "⌃" : "⌄"));
+    sx.addEventListener("click", function () { stripOpen = !stripOpen; draw(); });
+    sb.appendChild(sx); if (act) sb.appendChild(act); strip.appendChild(sb);
+    if (stripOpen) {
+      var sxp = el("div", "stripx"); sxp.appendChild(el("div", "lbl", "คิวถัดไป"));
+      var nx = D.items.map(function (it, i) { return { it: it, i: i }; }).filter(function (x) { return !x.it.done; }).slice(0, 4);
+      if (!nx.length) sxp.appendChild(el("div", "empty", "จบคิวครบแล้ว")); nx.forEach(function (x) { sxp.appendChild(rowEl(x.it, x.i, false)); });
+      strip.appendChild(sxp);
+    }
+    main.appendChild(strip);
+    var tb = el("div", "seg"); tb.setAttribute("role", "tablist");
+    [["list", "รายชื่อ"], ["set", "ตั้งค่า"]].forEach(function (k) { var b = el("button", null, k[1]); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", tab === k[0] ? "true" : "false"); b.addEventListener("click", function () { tab = k[0]; menuId = ""; draw(); }); tb.appendChild(b); });
+    main.appendChild(tb);
+    if (tab === "set") {
+      var c1 = el("div", "card"), h = el("div", "sw2"); h.appendChild(el("span", null, D.on ? "เปิดคิวอยู่ · มีเฉพาะคนที่ถึงคิวจองได้ (ผู้จัดจองได้เสมอ)" : "ปิดคิวอยู่ · ทุกคนจองได้ตามปกติ"));
+      var sw = el("button", "swt"); sw.type = "button"; sw.setAttribute("role", "switch"); sw.setAttribute("aria-checked", D.on ? "true" : "false"); sw.setAttribute("aria-label", "เปิดหรือปิดคิว");
+      sw.addEventListener("click", function () { if (busy) return; busy = true; call("on", { value: !D.on }).then(function () { busy = false; draw(); }, function () { busy = false; }); });
+      h.appendChild(sw); c1.appendChild(el("h2", null, "สถานะคิว")); c1.appendChild(h); main.appendChild(c1);
+      var cv = el("div", "card"); cv.appendChild(el("h2", null, "ยืนยันชื่อผู้โดยสาร"));
+      function opt(on, title, sub2, val) { var o = el("button", "opt" + (on ? " on" : "")); o.type = "button"; o.setAttribute("role", "radio"); o.setAttribute("aria-checked", on ? "true" : "false"); o.appendChild(el("i", "rd")); var ww = el("span"); var bb = el("b", null, title); if (val === false) bb.appendChild(el("em", "tag", "แนะนำ")); ww.appendChild(bb); ww.appendChild(el("small", null, sub2)); o.appendChild(ww); o.addEventListener("click", function () { if (busy || on) return; busy = true; call("auto", { value: val }).then(function () { busy = false; draw(); }, function () { busy = false; }); }); return o; }
+      var sg = el("div", "seg2"); sg.setAttribute("role", "radiogroup"); sg.setAttribute("aria-label", "ยืนยันชื่อผู้โดยสาร");
+      sg.appendChild(opt(!D.auto, "ผู้จัดอนุมัติเอง", "กด “ฉันคือคนนี้” แล้วรอผู้จัดตรวจชื่อและรูป LINE ก่อนจึงจะใช้สิทธิ์ได้ ปลอดภัยสุด", false));
+      sg.appendChild(opt(!!D.auto, "อนุมัติอัตโนมัติ", "กดแล้วใช้ได้ทันที ไม่ต้องรอ เหมาะกับกลุ่มคนสนิท", true));
+      cv.appendChild(sg); if (D.auto) cv.appendChild(el("div", "warn", "ใครกดชื่อไหนก่อนก็ได้ชื่อนั้นทันที ผู้จัดยังเห็นชื่อและรูป LINE และกด “ปลดชื่อ” ได้ตลอด"));
+      main.appendChild(cv); main.appendChild(el("p", "note", "การตั้งค่าบันทึกอัตโนมัติ"));
+    } else {
+      var cl2 = el("div", "card"), hd = el("div", "chd"); hd.appendChild(el("h2", null, "ลำดับคิว")); hd.appendChild(el("span", "r", D.items.length + " คน")); cl2.appendChild(hd);
+      if (!D.items.length) cl2.appendChild(el("div", "empty", "ยังไม่มีรายชื่อ"));
+      D.items.forEach(function (it, i) { cl2.appendChild(rowEl(it, i, true)); });
+      var al = el("button", "addlink", "＋ เพิ่มรายชื่อ"); al.type = "button"; al.addEventListener("click", function () { sheet = "add"; draw(); }); cl2.appendChild(al);
+      cl2.appendChild(errBox); main.appendChild(cl2);
+      var bar = el("div", "obar");
+      bar.appendChild(btn(D.on ? "ปิดคิว" : "เปิดคิว", "b", function () { return call("on", { value: !D.on }); }));
+      var nb = btn("เรียกคนถัดไป", "b p", function () { return call("done", { id: t.id, value: true }); }); if (!t) nb.disabled = true; bar.appendChild(nb);
+      main.appendChild(bar);
+    }
+    if (sheet === "add") {
+      var dim = el("div", "dim"); dim.addEventListener("click", function () { sheet = ""; draw(); }); main.appendChild(dim);
+      var sh = el("div", "sheet"); sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "เพิ่มรายชื่อ");
+      var shh = el("div", "sh"); shh.appendChild(el("b", null, "เพิ่มรายชื่อ")); var x = el("button", null, "✕"); x.type = "button"; x.setAttribute("aria-label", "ปิด"); x.addEventListener("click", function () { sheet = ""; draw(); }); shh.appendChild(x); sh.appendChild(shh);
+      sh.appendChild(el("p", "note", "เรียงตามลำดับที่ชำระเงิน บรรทัดละ 1 คน"));
+      var ta = el("textarea"); ta.value = draft; ta.placeholder = "พิมพ์ชื่อบรรทัดละ 1 คน"; ta.setAttribute("aria-label", "รายชื่อ"); ta.addEventListener("input", function () { draft = ta.value; }); sh.appendChild(ta);
+      var sb2 = el("div", "obar2"); var cn = el("button", "b", "ยกเลิก"); cn.type = "button"; cn.addEventListener("click", function () { sheet = ""; draw(); }); sb2.appendChild(cn);
+      sb2.appendChild(btn("เพิ่มท้ายคิว", "b p", function () { var names = draft.split("\n").map(function (s2) { return s2.trim(); }).filter(Boolean); if (!names.length) return Promise.resolve(); draft = ""; sheet = ""; return call("add", { names: names }).then(function () { draw(); }); }));
+      sh.appendChild(sb2); main.appendChild(sh); setTimeout(function () { ta.focus(); }, 30);
+    }
+  }
   function draw() {
     main.textContent = "";
     if (!D) return;
@@ -120,25 +224,8 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
     var org = !!D.role, signedIn = !!D.me;
     errBox = el("div", "err"); errBox.hidden = true; errBox.setAttribute("role", "alert");
     var idx = 0;
-    if (org) {
-      var cs = el("div", "card"), sw = el("div", "sw");
-      var l = el("div"); l.appendChild(el("h2", null, "เปิดคิวจองตามลำดับ"));
-      l.appendChild(el("p", "note", D.on ? "เปิดอยู่: มีเฉพาะคนที่ถึงคิวที่จองที่นั่งได้ (ผู้จัดจองได้เสมอ)" : "ปิดอยู่: ทุกคนจองได้ตามปกติ"));
-      sw.appendChild(l); sw.appendChild(btn(D.on ? "ปิดคิว" : "เปิดคิว", D.on ? "o" : "", function () { return call("on", { value: !D.on }); }));
-      cs.appendChild(sw); main.appendChild(cs);
-      var cv = el("div", "card"); cv.appendChild(el("h2", null, "ยืนยันชื่อผู้โดยสาร"));
-      function opt(on, title, sub, val) { var o = el("button", "opt" + (on ? " on" : "")); o.type = "button"; o.setAttribute("role", "radio"); o.setAttribute("aria-checked", on ? "true" : "false"); o.appendChild(el("i", "rd")); var w = el("span"); var b = el("b", null, title); if (val === false) b.appendChild(el("em", "tag", "แนะนำ")); w.appendChild(b); w.appendChild(el("small", null, sub)); o.appendChild(w); o.addEventListener("click", function () { if (busy || on) return; busy = true; call("auto", { value: val }).then(function () { busy = false; }, function () { busy = false; }); }); return o; }
-      var sg = el("div", "seg"); sg.setAttribute("role", "radiogroup"); sg.setAttribute("aria-label", "ยืนยันชื่อผู้โดยสาร");
-      sg.appendChild(opt(!D.auto, "ผู้จัดอนุมัติเอง", "กด “ฉันคือคนนี้” แล้วรอผู้จัดตรวจชื่อและรูป LINE ก่อนจึงจะใช้สิทธิ์ได้ ปลอดภัยสุด", false));
-      sg.appendChild(opt(!!D.auto, "อนุมัติอัตโนมัติ", "กดแล้วใช้ได้ทันที ไม่ต้องรอ เหมาะกับกลุ่มคนสนิท", true));
-      cv.appendChild(sg);
-      if (D.auto) cv.appendChild(el("div", "warn", "ใครกดชื่อไหนก่อนก็ได้ชื่อนั้นทันที ผู้จัดยังเห็นชื่อและรูป LINE และกด “ปลดชื่อ” ได้ตลอด"));
-      main.appendChild(cv);
-      var ca = el("div", "card"); ca.appendChild(el("h2", null, "เพิ่มรายชื่อ (เรียงตามลำดับที่ชำระเงิน)"));
-      var ta = el("textarea"); ta.value = draft; ta.addEventListener("input", function () { draft = ta.value; }); ta.placeholder = "พิมพ์ชื่อบรรทัดละ 1 คน"; ta.setAttribute("aria-label", "รายชื่อ"); ca.appendChild(ta);
-      var ab = el("div", "acts"); ab.appendChild(btn("เพิ่มท้ายคิว", "", function () { var names = ta.value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean); if (!names.length) return Promise.resolve(); draft = ""; return call("add", { names: names }); })); ca.appendChild(ab);
-      main.appendChild(ca);
-    } else if (!D.on) {
+    if (org) { drawOrg(); return; }
+    if (!D.on) {
       var c1 = el("div", "card"); c1.appendChild(el("h2", null, "ทริปนี้ยังไม่เปิดคิว")); c1.appendChild(el("p", "note", "จองที่นั่งได้ตามปกติ")); var go = el("a", "btn", "ไปเลือกที่นั่ง"); go.href = "/" + T + "/seats"; go.style.marginTop = "10px"; c1.appendChild(go); main.appendChild(c1);
     } else if (!signedIn) {
       var c2 = el("div", "card"); c2.appendChild(el("h2", null, "เข้าสู่ระบบด้วย LINE ก่อน")); var li = el("a", "btn big", "เข้าสู่ระบบด้วย LINE"); li.href = "/api/auth?start=1&r=" + encodeURIComponent(location.pathname); li.style.marginTop = "6px"; c2.appendChild(li); main.appendChild(c2);
