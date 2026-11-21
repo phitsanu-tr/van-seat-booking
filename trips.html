@@ -73,11 +73,11 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 #mState .okdot { flex: none; width: 24px; height: 24px; border-radius: 100px; background: var(--mine); color: var(--mine-ink); display: grid; place-items: center; }
 #mState .okdot svg { width: 14px; height: 14px; }
 #mState > svg { width: 24px; height: 24px; flex: none; color: var(--mine); }
-.mcard { border: 1.5px solid #0b5f67; background: #f2f8f9; border-radius: 16px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.mcard { border: 1.5px solid #0b5f67; background: #f2f8f9; border-radius: 16px; padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
 .msub2 { font-size: 14px; line-height: 20px; color: var(--muted); }
 .msub { font: 700 16px/24px var(--font-display); color: var(--ink); overflow-wrap: anywhere; min-width: 0; }
 .mlink { cursor: pointer; display: flex; align-items: center; gap: 12px; border-top: 1px solid #cfe0e2; padding-top: 12px; -webkit-tap-highlight-color: transparent; }
-.mlink .url { flex: 1; min-width: 0; }
+.mlink .url { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .url .code { display: block; font: 700 26px/32px var(--font-display); letter-spacing: .08em; color: #0b5f67; overflow: hidden; white-space: nowrap; }
 .url .sub { display: block; font-size: 14px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 20px}
 .cpbtn { flex: none; width: 44px; height: 44px; display: grid; place-items: center; background: #e3eef0; color: var(--ink); border-radius: 12px; }
