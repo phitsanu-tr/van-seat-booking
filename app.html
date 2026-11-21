@@ -840,7 +840,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
     sheetHead(sh, "ลบทริปนี้?", shut);
     var n = x.booked || 0;
-    sh.appendChild(node("p", "msub", "ลบแล้วกู้คืนไม่ได้ ที่นั่งและรายชื่อหายทั้งหมด · ลิงก์ที่แชร์ไปจะใช้ไม่ได้"));
+    sh.appendChild(node("p", "msub", "ลบแล้วกู้คืนไม่ได้ ที่นั่งและรายชื่อหายทั้งหมด"));
     if (n) {
       var who = node("div"); who.style.cssText = "display:flex;gap:12px;align-items:center;font:500 14px/20px var(--font-body)";
       var num = node("b", null, String(n)); num.style.cssText = "font:700 28px/32px var(--font-display);color:var(--mine)";
@@ -851,11 +851,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var why = "", chips = node("div"); chips.style.cssText = "display:flex;flex-wrap:wrap;gap:8px";
     var ta = node("input"); ta.type = "text"; ta.maxLength = 120; ta.placeholder = "เพิ่มข้อความถึงผู้จอง (ไม่บังคับ)"; ta.setAttribute("aria-label", "ข้อความถึงผู้จอง");
     ta.style.cssText = "height:48px;border:1px solid #d3dadd;border-radius:12px;padding:0 12px;font:16px/24px var(--font-body);width:100%;box-sizing:border-box;background:#fff";
-    var picked = "";
-    ["ยกเลิกการเดินทาง", "คนไม่พอ", "เปลี่ยนแผน"].forEach(function (t) {
+    var picked = "ยกเลิกการเดินทาง";
+    ["ยกเลิกการเดินทาง", "คนไม่พอ", "เปลี่ยนแผน", "อื่น ๆ"].forEach(function (t) {
       var c = node("button", null, t); c.type = "button";
       var paint = function () { var on = picked === t; c.style.cssText = "border:1px solid " + (on ? "var(--mine)" : "#cfd8d9") + ";background:" + (on ? "#e3eef0" : "#fff") + ";color:" + (on ? "var(--mine)" : "var(--ink)") + ";border-radius:99px;padding:6px 12px;font:" + (on ? 600 : 500) + " 14px/20px var(--font-body)"; };
-      paint(); c.addEventListener("click", function () { picked = picked === t ? "" : t; Array.prototype.forEach.call(chips.children, function (k) { k.dispatchEvent(new Event("paint")); }); });
+      paint(); c.addEventListener("click", function () { picked = picked === t ? "" : t; if (t === "อื่น ๆ" && picked) { setTimeout(function () { ta.focus(); }, 0); } Array.prototype.forEach.call(chips.children, function (k) { k.dispatchEvent(new Event("paint")); }); });
       c.addEventListener("paint", paint); chips.appendChild(c);
     });
     if (n) { sh.appendChild(chips); sh.appendChild(ta); }
@@ -864,7 +864,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var no = node("button", null, "ไม่ลบ"); no.type = "button"; no.style.cssText = "height:52px;border:0;border-radius:14px;background:#eef1f1;color:var(--ink);font:500 16px/24px var(--font-body)";
     no.addEventListener("click", shut);
     go.addEventListener("click", async function () {
-      go.disabled = true; var txt = ta.value.trim(), reason = [picked, txt].filter(Boolean).join(" · ").slice(0, 120);
+      go.disabled = true; var txt = ta.value.trim(), reason = [picked === "อื่น ๆ" ? "" : picked, txt].filter(Boolean).join(" · ").slice(0, 120);
       try {
         var r = await fetch("/api/trip?t=" + encodeURIComponent(x.id) + (reason ? "&why=" + encodeURIComponent(reason) : ""), { method: "DELETE", cache: "no-store" });
         if (!r.ok && r.status !== 404) throw new Error();
