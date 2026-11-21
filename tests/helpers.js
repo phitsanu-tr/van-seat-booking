@@ -33,6 +33,8 @@ for (const [fam, d] of FAM) if (dirs[d]) for (const w of [400, 500, 600]) for (c
 // (localStorage vsb_seen_<trip>). Pass { firstVisit: true } to behave like a brand-new visitor.
 async function fonts(ctx, opt) {
   if (!(opt && opt.firstVisit)) await ctx.addInitScript(() => { const g = Storage.prototype.getItem; Storage.prototype.getItem = function (k) { return String(k).indexOf("vsb_seen_") === 0 ? "1" : g.call(this, k); }; });
+  // Same as an offline machine: the real LINE SDK / LIFF servers are never reached (on CI they are, and change page behaviour).
+  await ctx.route(/^https:\/\/(static\.line-scdn\.net|liff\.line\.me|access\.line\.me|api\.line\.me)\//, (r) => r.abort());
   await ctx.route("**/fonts.googleapis.com/**", (r) => r.fulfill({ status: 200, contentType: "text/css", body: css }));
   await ctx.route("**/fonts.gstatic.com/x/**", (r) => {
     const [, , d, f] = new URL(r.request().url()).pathname.split("/");
