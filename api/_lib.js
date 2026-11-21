@@ -357,7 +357,7 @@ function lineText(it) {
   switch (it.k) {
     case "queue_turn": return "🚐 ถึงคิวจองที่นั่งของคุณแล้ว\n" + tn + "\nเลือกที่นั่งได้เลย" + link;
     case "trip_changed": return "🚐 ทริปมีการเปลี่ยนแปลง\n" + tn + "\nดูรายละเอียดที่ลิงก์นี้" + link;
-    case "trip_deleted": return "🚐 ทริปถูกยกเลิกโดยผู้จัด\n" + tn;
+    case "trip_deleted": return "🚐 ทริปถูกยกเลิกโดยผู้จัด\n" + tn + (it.why ? "\nเหตุผล: " + String(it.why).slice(0, 120) : "");
     case "seat_moved": return "🚐 ที่นั่งของคุณถูกย้าย\n" + tn + "\nคัน " + it.fvl + " ที่ " + it.fs + " → คัน " + it.tvl + " ที่ " + it.ts + link;
     case "seat_cancelled": return "🚐 ผู้จัดยกเลิกที่นั่งของคุณ\n" + tn + " · คัน " + it.vl + " ที่ " + it.s;
     case "cancel_req": return "🚐 มีคำขอยกเลิกที่นั่ง\n" + tn + "\n" + String(it.n || "") + " · คัน " + it.vl + " ที่ " + it.s + (it.why ? "\nเหตุผล: " + it.why : "") + "\nอนุมัติได้ที่แจ้งเตือนในแอป" + link;

@@ -826,7 +826,53 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       } catch (e) { btn.disabled = false; toast("ทำรายการไม่สำเร็จ ลองอีกครั้ง", true); }
     });
     lk.querySelector("svg").outerHTML = x.closed ? OPEN_SVG : LOCK_SVG;
+    if (x.role !== "helper") {
+      var dl = item(g2, "dup", "ลบทริป", "dg", null, function () { shut(); openDelete(x); });
+      dl.querySelector("svg").outerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>';
+    }
     sh.appendChild(g1); sh.appendChild(g2);
+    document.body.appendChild(bd);
+  }
+
+  function openDelete(x) { // delete from the manage menu: say who will be told, pick a reason, then confirm
+    var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
+    var shut = function () { bd.remove(); };
+    bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
+    sheetHead(sh, "ลบทริปนี้?", shut);
+    var n = x.booked || 0;
+    sh.appendChild(node("p", "msub", "ลบแล้วกู้คืนไม่ได้ ที่นั่งและรายชื่อหายทั้งหมด · ลิงก์ที่แชร์ไปจะใช้ไม่ได้"));
+    if (n) {
+      var who = node("div"); who.style.cssText = "display:flex;gap:12px;align-items:center;font:500 14px/20px var(--font-body)";
+      var num = node("b", null, String(n)); num.style.cssText = "font:700 28px/32px var(--font-display);color:var(--mine)";
+      who.appendChild(num); who.appendChild(node("span", null, "ที่นั่งที่มีคนจอง ผู้จองและทีมผู้จัดจะได้รับแจ้งเตือนทาง LINE และในแอป"));
+      sh.appendChild(who);
+      sh.appendChild(node("div", null, "เหตุผล (ส่งไปพร้อมข้อความ)")).style.cssText = "font:600 14px/20px var(--font-body)";
+    }
+    var why = "", chips = node("div"); chips.style.cssText = "display:flex;flex-wrap:wrap;gap:8px";
+    var ta = node("input"); ta.type = "text"; ta.maxLength = 120; ta.placeholder = "เพิ่มข้อความถึงผู้จอง (ไม่บังคับ)"; ta.setAttribute("aria-label", "ข้อความถึงผู้จอง");
+    ta.style.cssText = "height:48px;border:1px solid #d3dadd;border-radius:12px;padding:0 12px;font:16px/24px var(--font-body);width:100%;box-sizing:border-box;background:#fff";
+    var picked = "";
+    ["ยกเลิกการเดินทาง", "คนไม่พอ", "เปลี่ยนแผน"].forEach(function (t) {
+      var c = node("button", null, t); c.type = "button";
+      var paint = function () { var on = picked === t; c.style.cssText = "border:1px solid " + (on ? "var(--mine)" : "#cfd8d9") + ";background:" + (on ? "#e3eef0" : "#fff") + ";color:" + (on ? "var(--mine)" : "var(--ink)") + ";border-radius:99px;padding:6px 12px;font:" + (on ? 600 : 500) + " 14px/20px var(--font-body)"; };
+      paint(); c.addEventListener("click", function () { picked = picked === t ? "" : t; Array.prototype.forEach.call(chips.children, function (k) { k.dispatchEvent(new Event("paint")); }); });
+      c.addEventListener("paint", paint); chips.appendChild(c);
+    });
+    if (n) { sh.appendChild(chips); sh.appendChild(ta); }
+    var go = node("button", null, n ? "ลบทริปและแจ้งทุกคน" : "ลบทริป"); go.type = "button";
+    go.style.cssText = "height:52px;border:0;border-radius:14px;background:#b3261e;color:#fff;font:600 16px/24px var(--font-body)";
+    var no = node("button", null, "ไม่ลบ"); no.type = "button"; no.style.cssText = "height:52px;border:0;border-radius:14px;background:#eef1f1;color:var(--ink);font:500 16px/24px var(--font-body)";
+    no.addEventListener("click", shut);
+    go.addEventListener("click", async function () {
+      go.disabled = true; var txt = ta.value.trim(), reason = [picked, txt].filter(Boolean).join(" · ").slice(0, 120);
+      try {
+        var r = await fetch("/api/trip?t=" + encodeURIComponent(x.id) + (reason ? "&why=" + encodeURIComponent(reason) : ""), { method: "DELETE", cache: "no-store" });
+        if (!r.ok && r.status !== 404) throw new Error();
+        var d = {}; try { d = await r.json(); } catch (e) {}
+        toast("ลบทริปแล้ว" + (d.refunded ? " · คืนโควตา 1 ทริป" : "")); shut(); load();
+      } catch (e) { go.disabled = false; toast("ลบไม่สำเร็จ ลองอีกครั้ง", true); }
+    });
+    sh.appendChild(go); sh.appendChild(no);
     document.body.appendChild(bd);
   }
 

@@ -456,7 +456,8 @@ module.exports = async function handler(req, res) {
       cmds.push(["DEL", "queue:" + t]);
       await L.pipeline(cmds);
       await L.audit({ e: "trip_delete", u: user.id, t, tn: trip.name, refunded: refunded ? 1 : 0, capped: capped ? 1 : 0, age_h: Math.round((Date.now() - (trip.createdAt || 0)) / 3600000) });
-      await L.notify([].concat(...Object.values(bookers), L.teamIds(trip)), { k: "trip_deleted", t, tn: trip.name, by: "owner" }, user.id);
+      const why = String((req.query && req.query.why) || "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+      await L.notify([].concat(...Object.values(bookers), L.teamIds(trip)), Object.assign({ k: "trip_deleted", t, tn: trip.name, by: "owner" }, why ? { why } : {}), user.id);
       return L.json(res, 200, { ok: true, refunded, capped });
     }
 
