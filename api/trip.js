@@ -200,6 +200,7 @@ function rosterPayload(trip, user, all) {
   });
   return { trip: tripSummary(trip, user), booked, perVan, roster, board: trip.board || null, ended: L.tripEnded(trip), team: team(trip, user) };
 }
+const BCAST_MAX = 2; // reminders per trip per day
 function roundName(v) { return String(v == null ? "" : v).replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 24); } // check-in round label, e.g. "เที่ยวกลับ"
 
 module.exports = async function handler(req, res) {
@@ -230,6 +231,24 @@ module.exports = async function handler(req, res) {
       await L.logEvent(t, { e: "helper_join", n: user.name, u: user.id, at: Date.now() });
       await L.notify([trip.owner], { k: "helper_joined", t, tn: trip.name, n: user.name });
       return L.json(res, 200, { ok: true, id: t, name: trip.name });
+    }
+    if (req.method === "POST" && typeof pb.broadcast === "string") {
+      // a reminder from an organizer to everyone who booked: at most BCAST_MAX a day per trip (LINE messages have a monthly quota)
+      const t = L.tripId(pb.t);
+      const trip = t ? await L.loadTrip(t) : null;
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      if (!isManager(trip, user)) return deny(res, user);
+      if (L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
+      const msg = String(pb.broadcast).replace(/[\u0000-\u001f\u007f<>]/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+      if (!msg) return L.json(res, 400, { error: "empty" });
+      const day = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10), ck = "bcast:" + t + ":" + day;
+      const used = Number(await L.redis(["INCR", ck]));
+      if (used === 1) await L.redis(["EXPIRE", ck, String(2 * 86400)]);
+      if (used > BCAST_MAX) { await L.redis(["DECR", ck]); return L.json(res, 429, { error: "bcast_limit", max: BCAST_MAX }); }
+      const bk = await L.tripBookers(trip), ppl = Array.from(new Set([].concat(...Object.values(bk)))).filter((u) => u !== user.id);
+      await L.audit({ e: "trip_broadcast", u: user.id, t, tn: trip.name, n: ppl.length });
+      await L.notify(ppl, { k: "broadcast", t, tn: trip.name, m: msg, by: user.name }, user.id);
+      return L.json(res, 200, { ok: true, sent: ppl.length, used, max: BCAST_MAX });
     }
     if (req.method === "POST" && (pb.resetBoard === true || typeof pb.boardName === "string")) {
       // check-in rounds (trip.board = { cur: {i, name, at, by}, hist: [summary of each earlier round] }), organizers only
@@ -415,7 +434,8 @@ module.exports = async function handler(req, res) {
       if (req.query.notify !== undefined) { // who a deletion would tell: distinct people with a seat, and the other team members
         const bk = await L.tripBookers(trip), ppl = new Set([].concat(...Object.values(bk)));
         const team = L.teamIds(trip).filter((u) => u !== user.id);
-        return L.json(res, 200, { people: ppl.size, team: team.length });
+        const day = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10), sent = Number(await L.redis(["GET", "bcast:" + t + ":" + day])) || 0;
+        return L.json(res, 200, { people: ppl.size, team: team.length, sent, max: BCAST_MAX });
       }
       const wantRoster = req.query.roster !== undefined;
       // one round trip: the roster's HGETALL also gives the counts (HLEN only when no roster is asked for)

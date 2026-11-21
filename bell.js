@@ -94,6 +94,7 @@
         if (ch.length === 1) return { title: (FIELD[ch[0].f] || FIELD.name)[0], body: tn + " · " + chLine(ch[0]), tone: "amber", icon: FIELD[ch[0].f][1] };
         return { title: "ทริปมีการเปลี่ยนแปลง", body: tn + "<br>" + ch.map(function (c) { return FIELD[c.f][0].replace("เปลี่ยน", "") + ": " + chLine(c); }).join("<br>"), tone: "amber", icon: "edit" };
       }
+      case "broadcast": return { title: "แจ้งจากผู้จัดทริป", body: tn + "<br>" + esc(it.m), tone: "teal", icon: "bell" };
       case "trip_deleted": return { title: "ทริปถูกยกเลิก", body: tn + " · ผู้จัดลบทริปนี้แล้ว" + (it.why ? "<br>เหตุผล: " + esc(it.why) : ""), tone: "red", icon: "trash" };
       case "van_removed": return { title: "คันรถที่คุณจองถูกลบ", body: tn + " · คัน " + esc(it.vl) + " · ที่นั่งของคุณถูกยกเลิก", tone: "red", icon: "trash" };
       case "seat_moved": return { title: "ที่นั่งของคุณถูกย้าย", body: tn + " · คัน " + esc(it.fvl) + " ที่ " + it.fs + " → <em>คัน " + esc(it.tvl) + " ที่ " + it.ts + "</em>", tone: "teal", icon: "move" };
