@@ -810,6 +810,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (right != null) { var r = node("span", "c"); if (right) r.appendChild(node("small", null, right)); r.appendChild(document.createTextNode("›")); b.appendChild(r); }
       g.appendChild(b); return b;
     }
+    var cc = item(g1, "dup", "คัดลอกรหัสทริป", "", null, function () { copyText(x.id.toUpperCase(), "คัดลอกรหัสทริปแล้ว"); });
+    cc.querySelector("svg").outerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9h14M5 15h14M10 4L8 20M16 4l-2 16"/></svg>'; cc.appendChild(node("span", "c", x.id.toUpperCase())).style.cssText = "font-weight:700;letter-spacing:.08em;color:var(--mine,#0b5f67)";
     item(g1, "pen", "แก้ไขทริป", "", "", "/" + x.id + "/edit");
     item(g1, "team", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป", "", x.role === "helper" ? "" : (x.helpers || 0) + "/2", function () { shut(); openTeam(x); });
     if (x.qf) item(g1, "queue", "คิวจองตามลำดับ", "", "", "/" + x.id + "/queue");
