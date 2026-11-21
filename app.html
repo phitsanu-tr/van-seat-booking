@@ -844,8 +844,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (n) {
       var who = node("div"); who.style.cssText = "display:flex;gap:12px;align-items:center;font:500 14px/20px var(--font-body)";
       var num = node("b", null, String(n)); num.style.cssText = "font:700 28px/32px var(--font-display);color:var(--mine)";
-      who.appendChild(num); who.appendChild(node("span", null, "ที่นั่งที่มีคนจอง ผู้จองและทีมผู้จัดจะได้รับแจ้งเตือนทาง LINE และในแอป"));
+      var wtxt = node("span", null, "คนที่จองไว้ จะได้รับแจ้งเตือนทาง LINE และในแอป"), wsub = node("small"); wsub.style.cssText = "display:block;color:var(--muted);font-size:13px"; wtxt.appendChild(wsub);
+      who.appendChild(num); who.appendChild(wtxt);
       sh.appendChild(who);
+      fetch("/api/trip?t=" + encodeURIComponent(x.id) + "&notify=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+        if (!d) return; num.textContent = String(d.people); if (d.team) wsub.textContent = "รวมทีมผู้จัดอีก " + d.team + " คน";
+      }).catch(function () {});
       sh.appendChild(node("div", null, "เหตุผล (ส่งไปพร้อมข้อความ)")).style.cssText = "font:600 14px/20px var(--font-body)";
     }
     var why = "", chips = node("div"); chips.style.cssText = "display:flex;flex-wrap:wrap;gap:8px";

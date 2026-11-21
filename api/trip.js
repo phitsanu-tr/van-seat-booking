@@ -412,6 +412,11 @@ module.exports = async function handler(req, res) {
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
       if (!isManager(trip, user)) return deny(res, user);
+      if (req.query.notify !== undefined) { // who a deletion would tell: distinct people with a seat, and the other team members
+        const bk = await L.tripBookers(trip), ppl = new Set([].concat(...Object.values(bk)));
+        const team = L.teamIds(trip).filter((u) => u !== user.id);
+        return L.json(res, 200, { people: ppl.size, team: team.length });
+      }
       const wantRoster = req.query.roster !== undefined;
       // one round trip: the roster's HGETALL also gives the counts (HLEN only when no roster is asked for)
       const all = await L.pipeline(trip.vans.map((v) => [wantRoster ? "HGETALL" : "HLEN", L.seatsKey(t, v.id)]));
