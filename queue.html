@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="robots" content="noindex">
 <title>คิวจองที่นั่ง · VanTrip</title>
 <style>html{touch-action:manipulation}html,body{overscroll-behavior:none}</style>
@@ -70,7 +70,7 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
 .stb .tx{justify-self:start;background:none;color:var(--muted);font:600 16px var(--font-body);min-height:44px;padding:0 6px}
 .stb .go{justify-self:end;min-height:40px;padding:0 14px;border-radius:10px;font:700 15px var(--font-body);background:var(--mine);color:#fff}.stb .go:disabled{opacity:.4}
 .sbd{flex:1;display:flex;flex-direction:column;min-height:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}.sbd .note{margin:0 0 8px;font-size:13px;color:var(--muted)}
-.ed{flex:none;height:clamp(150px,32dvh,300px);display:flex;min-height:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}.ed:focus-within{border-color:var(--mine)}
+.ed{flex:none;flex:0 1 250px;height:250px;display:flex;min-height:120px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.ed:focus-within{border-color:var(--mine)}
 .gu{flex:none;width:34px;background:var(--tint);color:var(--mine);font:700 13px/28px var(--font-body);text-align:center;padding:12px 0;overflow:hidden;white-space:pre}
 .ed textarea{flex:1;min-width:0;border:0;outline:0;border-radius:0;resize:none;background:transparent;color:var(--ink);font:16px/28px var(--font-body);padding:12px;min-height:0}
 .sct.over{color:var(--red)}.addlink:disabled{color:var(--muted);cursor:default}.sct{font-size:13px;line-height:20px;font-weight:700;color:var(--mine);min-height:20px;margin-top:8px}
@@ -170,7 +170,7 @@ h1{margin:0 0 16px}.card,.swc,.seg{margin-bottom:16px}.ic{width:30px;height:30px
   }
   var tab = "list", stripOpen = false, menuId = "", sheet = "", draft = "", sheetNew = false;
   function fitSheet() { var sh = document.querySelector(".sheet"); if (!sh) return; var vv = window.visualViewport; sh.style.bottom = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) + "px" : "0px"; if (vv) sh.style.maxHeight = (vv.height - 36) + "px"; }
-  if (window.visualViewport) { window.visualViewport.addEventListener("resize", fitSheet); window.visualViewport.addEventListener("scroll", fitSheet); }
+  if (window.visualViewport) { var fsRaf = 0; window.visualViewport.addEventListener("resize", function () { cancelAnimationFrame(fsRaf); fsRaf = requestAnimationFrame(fitSheet); }); }
   function closeSheet() { var sh = document.querySelector(".sheet"), dm = document.querySelector(".dim"); if (sh) sh.classList.remove("up"); if (dm) dm.classList.remove("up"); document.body.classList.remove("sheeton"); try { document.activeElement.blur(); } catch (e) {} setTimeout(function () { sheet = ""; draw(); }, 260); }
   function turnRow() { return D.items.filter(function (i) { return i.id === D.turn; })[0]; }
   function waitingRows() { return D.items.filter(function (i) { return i.bound && !i.ok && !i.done; }); }
@@ -244,7 +244,7 @@ h1{margin:0 0 16px}.card,.swc,.seg{margin-bottom:16px}.ic{width:30px;height:30px
       var upd = function () { var n = names().length, g = [], c = base; draft.split("\n").forEach(function (x) { g.push(x.trim() ? String(++c) : ""); }); gu.textContent = g.join("\n"); gu.scrollTop = ta.scrollTop; var over = n - room; ct.classList.toggle("over", over > 0); ct.textContent = over > 0 ? "เกิน " + over + " ชื่อ (เหลือที่ " + room + ")" : n ? "จะเพิ่ม " + n + " คน · เหลือที่อีก " + (room - n) : "เหลือที่อีก " + room + " คน"; addB.textContent = n ? "เพิ่ม " + n + " คน" : "เพิ่ม"; addB.disabled = !n || over > 0; };
       ta.addEventListener("input", function () { draft = ta.value; upd(); }); ta.addEventListener("scroll", function () { gu.scrollTop = ta.scrollTop; }); upd();
       main.appendChild(sh); document.body.classList.add("sheeton"); fitSheet();
-      if (first) { requestAnimationFrame(function () { requestAnimationFrame(function () { sh.classList.add("up"); dim.classList.add("up"); setTimeout(function () { ta.focus(); }, 280); }); }); }
+      if (first) { requestAnimationFrame(function () { requestAnimationFrame(function () { sh.classList.add("up"); dim.classList.add("up"); ta.focus({ preventScroll: true }); }); }); }
     }
   }
   function draw() {
