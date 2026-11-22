@@ -13,7 +13,7 @@
 :root{color-scheme:light;--bg:#eef1f3;--surface:#fff;--ink:#1b1f22;--muted:#5f6b73;--line:#c9d2d8;--mine:#0e7c86;--mine-ink:#fff;--tint:#e4f2f3;--ok:#0b8457;--okbg:#e3f4ec;--warn:#8a5a00;--warnbg:#fff4dc;--red:#b3261e;--font-display:"Prompt","Noto Sans Thai",system-ui,sans-serif;--font-body:"Noto Sans Thai",system-ui,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;background:#fff;color:var(--ink);font:15px/1.5 var(--font-body);padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
-.wrap{max-width:460px;margin:0 auto;min-height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column} /* 460px: the same column width as the app pages */
+.wrap{max-width:428px;margin:0 auto;min-height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column} /* 428px = the 460px app column minus its 16px side padding, so cards are the same width as on the other pages */
 #main{flex:1;display:flex;flex-direction:column}
 h1{font:700 24px/30px var(--font-display);margin:0 0 4px;text-wrap:balance}
 .sub{color:var(--muted);margin:0 0 14px;font-size:14px}
