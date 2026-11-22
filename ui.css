@@ -5,7 +5,7 @@
 @media (max-width: 340px) { :root { --pg-t: 24px; --pg-tl: 32px; --pg-s: 12px; --pg-sl: 16px; --pg-bt: 2px; --pg-bb: 2px; } }
 
 .hero { position: static; display: flex; align-items: center; gap: 12px; background: none; border-radius: 0; padding: 0 0 4px; }
-body { padding-top: 20px !important; } /* page title starts 24px below the top on every page except home (20px here + the page header's own 4px) */
+body { padding-top: 16px !important; } /* page title starts 20px below the top on every page except home (16px here + the page header's own 4px) */
 .hero .pgi { display: none; } /* no teal bar: every page title starts at the same left edge */
 .hero .ht { min-width: 0; flex: 1; }
 .hero h1 { font-size: var(--pg-t); line-height: var(--pg-tl); margin: 0; white-space: nowrap; overflow-wrap: normal; }
