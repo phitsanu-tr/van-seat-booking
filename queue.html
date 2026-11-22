@@ -15,8 +15,6 @@
 body{margin:0;background:#fff;color:var(--ink);font:15px/1.5 var(--font-body);padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
 .wrap{max-width:460px;margin:0 auto;min-height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column} /* 460px: the same column width as the app pages */
 #main{flex:1;display:flex;flex-direction:column}
-.top{display:flex;align-items:center;gap:8px;padding:14px 0 6px}
-.top a{color:var(--mine);text-decoration:none;font-weight:600;display:inline-flex;align-items:center;min-height:44px}
 h1{font:700 24px/30px var(--font-display);margin:2px 0 4px;text-wrap:balance}
 .sub{color:var(--muted);margin:0 0 14px;font-size:14px}
 .card{background:var(--surface);border-radius:16px;padding:14px;margin:0 0 12px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
@@ -136,7 +134,6 @@ body.org .wrap{padding-top:calc(24px + env(safe-area-inset-top,0px))}.sub{color:
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><a id="back" href="/">‹ กลับ</a></div>
   <h1>คิวจองที่นั่ง</h1>
   <div id="main"><div class="empty">กำลังโหลด…</div></div>
 </div>
@@ -144,7 +141,6 @@ body.org .wrap{padding-top:calc(24px + env(safe-area-inset-top,0px))}.sub{color:
 (function () {
   var T = (location.pathname.match(/^\/([a-z0-9]+)\/queue/) || [])[1] || "";
   var main = document.getElementById("main"), D = null, busy = false; var draft = ""; // the names being typed survive a redraw
-  document.getElementById("back").href = "/" + T + "/seats";
   function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; }
   function btn(txt, cls, fn) { var b = el("button", cls || "", txt); b.type = "button"; b.addEventListener("click", function () { if (busy) return; busy = true; fn().then(function () { busy = false; }, function () { busy = false; }); }); return b; }
   var MSG = { login_required: "ต้องเข้าสู่ระบบก่อน", already_claimed: "คุณยืนยันชื่อไปแล้ว", row_taken: "ชื่อนี้มีคนกดยืนยันแล้ว", queue_full: "เกินจำนวนที่นั่งรวมของทริป", bad_name: "ชื่อไม่ถูกต้อง", not_your_turn: "ยังไม่ถึงคิวของคุณ", busy: "ลองอีกครั้ง", ended: "ทริปจบแล้ว", not_owner: "เฉพาะผู้จัดทริป" };
@@ -254,7 +250,7 @@ body.org .wrap{padding-top:calc(24px + env(safe-area-inset-top,0px))}.sub{color:
     if (!D) return;
     if (D.off) { var c0 = el("div", "card"); c0.appendChild(el("p", "empty", D.off === "no_trip" ? "ไม่พบทริปนี้" : "ยังไม่เปิดใช้คิวจอง")); main.appendChild(c0); return; }
     var org = !!D.role, signedIn = !!D.me;
-    var topEl = document.querySelector(".top"); if (topEl) topEl.style.display = org ? "none" : ""; document.body.classList.toggle("org", org);
+    document.body.classList.toggle("org", org);
     errBox = el("div", "err"); errBox.hidden = true; errBox.setAttribute("role", "alert");
     var h1 = document.querySelector("h1");
     if (org) { if (h1) h1.textContent = "คิวจองที่นั่ง"; drawOrg(); return; }
@@ -266,7 +262,7 @@ body.org .wrap{padding-top:calc(24px + env(safe-area-inset-top,0px))}.sub{color:
   function tlNode(label, num, kind) { var d = el("div", "nd " + kind); d.appendChild(el("i", null, num)); d.appendChild(document.createTextNode(label)); return d; }
   function drawPax() {
     var h1 = document.querySelector("h1"), signedIn = !!D.me;
-    document.body.classList.add("org"); var topEl = document.querySelector(".top"); if (topEl) topEl.style.display = "none";
+    document.body.classList.add("org");
     if (!D.on) {
       if (h1) h1.textContent = "คิวจองที่นั่ง";
       var c1 = el("div", "card"); c1.appendChild(el("h2", null, "ทริปนี้ยังไม่เปิดคิว")); c1.appendChild(el("p", "note", "จองที่นั่งได้ตามปกติ")); main.appendChild(c1);
