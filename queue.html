@@ -319,7 +319,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var mine = D.items.filter(function (i) { return i.m; })[0];
     if (!mine) { // find your name
       if (h1) h1.textContent = "เลือกชื่อของคุณ";
-      main.appendChild(el("p", "sub", D.auto ? "แตะ “ฉันคือคนนี้” ที่ชื่อของคุณเพื่อเข้าคิว" : "หาชื่อของคุณแล้วกด “ฉันคือคนนี้” ผู้จัดจะตรวจก่อนว่าเป็นคุณจริง"));
+      main.appendChild(el("p", "sub", D.auto ? "แตะ “นี่คือฉัน” ที่ชื่อของคุณเพื่อเข้าคิว" : "หาชื่อของคุณแล้วกด “นี่คือฉัน” ผู้จัดจะตรวจก่อนว่าเป็นคุณจริง"));
       var cl = el("div", "card");
       if (!D.items.length) cl.appendChild(el("div", "empty", "ยังไม่มีรายชื่อ"));
       D.items.forEach(function (it, i) {
@@ -327,11 +327,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var nm = el("div", "nm"); nm.appendChild(el("b", null, it.name)); r.appendChild(nm);
         if (it.done) r.appendChild(el("span", "chip done", "เสร็จแล้ว"));
         else if (it.bound) r.appendChild(el("span", "chip", "ยืนยันแล้ว"));
-        else { var cb = el("button", "s", "ฉันคือคนนี้"); cb.type = "button"; cb.addEventListener("click", function () { if (D.auto) openClaim(it, i); else doClaim(it); }); r.appendChild(cb); }
+        else { var cb = el("button", "s", "นี่คือฉัน"); cb.type = "button"; cb.addEventListener("click", function () { if (D.auto) openClaim(it, i); else doClaim(it); }); r.appendChild(cb); }
         cl.appendChild(r);
       });
       cl.appendChild(errBox); main.appendChild(cl);
-      main.appendChild(el("p", "note", "ไม่เจอชื่อ? ติดต่อผู้จัดทริปให้เพิ่มชื่อ"));
+      main.appendChild((function () { var n = el("p", "note"); n.appendChild(el("span", null, "ชื่อในรายการอ้างอิงจากชื่อใน LINE")); n.appendChild(el("br")); n.appendChild(el("span", null, "ไม่เจอชื่อ? ติดต่อผู้จัดทริปให้เพิ่มชื่อ")); return n; })());
       if (paxSheet) drawClaimSheet();
       backBar(null); return;
     }
