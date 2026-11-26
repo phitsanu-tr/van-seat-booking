@@ -220,7 +220,7 @@ h1{margin:0 0 16px}.card,.swc,.seg{margin-bottom:16px}.clb{display:flex;gap:12px
       sg.appendChild(opt(!D.auto, "ผู้จัดอนุมัติเอง", "กด “ฉันคือคนนี้” แล้วรอผู้จัดตรวจชื่อและรูป LINE ก่อนจึงจะใช้สิทธิ์ได้ ปลอดภัยสุด", false));
       sg.appendChild(opt(!!D.auto, "อนุมัติอัตโนมัติ", "กดแล้วใช้ได้ทันที ไม่ต้องรอ เหมาะกับกลุ่มคนสนิท", true));
       cv.appendChild(sg); if (D.auto) cv.appendChild(el("div", "warn", "ใครกดชื่อไหนก่อนก็ได้ชื่อนั้นทันที ผู้จัดยังเห็นชื่อและรูป LINE และกด “ปลดชื่อ” ได้ตลอด"));
-      main.appendChild(cv); main.appendChild(el("p", "note", "การตั้งค่าบันทึกอัตโนมัติ"));
+      main.appendChild(cv);
     } else {
       var cl2 = el("div", "card"); cl2.appendChild(chead("users", "ลำดับคิว", D.items.length + " / " + (D.cap || 80) + " คน"));
       if (!D.items.length) cl2.appendChild(el("div", "empty", "ยังไม่มีรายชื่อ"));
