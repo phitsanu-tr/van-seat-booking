@@ -4,6 +4,7 @@
 // lose the link to the account (the name stays on the organizer's list), my trips are deleted or kept without an owner,
 // the account id is removed from those trips' logs, and every session of the account ends.
 // GET ?inbox=1 -> { items, unread }   in-app notifications (newest first)
+// GET ?prefs=1 -> { off: [kinds] }   POST { prefs: { off: [kinds] } }   which LINE messages the person switched off
 // POST { read: "all" | { t } | { id } } -> marks notifications read (all / one trip / one item)
 const L = require("./_lib");
 const P = require("./_plans");
@@ -109,7 +110,7 @@ async function deleteAll(req, res, user, dropTrips) {
 
   // account activity log: this account's own list goes, and its id is taken off the shared list (the events stay, without a person)
   try {
-    await L.redis(["DEL", "audit:u:" + uid]);
+    await L.redis(["DEL", "audit:u:" + uid]); await L.redis(["DEL", L.pushOffKey(uid)]);
     const list = (await L.redis(["LRANGE", "audit:all", "0", "19999"])) || [], n = list.length;
     for (let i = 0; i < n; i++) {
       let ev = null; try { ev = JSON.parse(list[i]); } catch (e) { continue; }
@@ -140,6 +141,15 @@ module.exports = async function handler(req, res) {
     if (req.method === "GET" && req.query && req.query.inbox !== undefined) {
       const items = await inbox(user.id);
       return L.json(res, 200, { items, unread: items.filter((x) => !x.r).length });
+    }
+    if (req.method === "GET" && req.query && req.query.prefs !== undefined) {
+      let off = []; try { off = JSON.parse((await L.redis(["GET", L.pushOffKey(user.id)])) || "[]"); } catch (e) { /* none */ }
+      return L.json(res, 200, { off: off.filter((x) => L.PUSH_KINDS.includes(x)) });
+    }
+    if (req.method === "POST" && L.readBody(req).prefs) {
+      const off = Array.from(new Set((Array.isArray(L.readBody(req).prefs.off) ? L.readBody(req).prefs.off : []).filter((x) => L.PUSH_KINDS.includes(x))));
+      if (off.length) await L.redis(["SET", L.pushOffKey(user.id), JSON.stringify(off)]); else await L.redis(["DEL", L.pushOffKey(user.id)]);
+      return L.json(res, 200, { ok: true, off });
     }
     if (req.method === "POST") {
       const rd = L.readBody(req).read, uid = user.id, ttl = String(L.INBOX_DAYS * 86400);

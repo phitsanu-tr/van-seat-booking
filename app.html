@@ -55,6 +55,11 @@ body.signed{background:#fff}
 .plc .k{font-size:12px;color:#cfeaec; line-height: 16px}.plc b{font:700 20px/28px var(--font-display)}.plc .u{font-size:14px;color:#d4ecee; line-height: 20px}
 .plc .rw{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.plc .rw span{background:rgba(255,255,255,.14);border-radius:12px;padding:8px;font-size:12px;color:#d9eff1; line-height: 16px}.plc .rw b{display:block;font-size:16px;color:#fff; line-height: 24px}
 .plc .go{margin-top:12px;height:44px;border-radius:12px;background:#fff;color:var(--deep);font:600 14px/44px var(--font-display);text-align:center}
+.stg-back{align-self:flex-start;width:40px;height:40px;border:0;border-radius:50%;background:#f1f4f6;color:var(--ink);display:flex;align-items:center;justify-content:center;margin:-4px 0 -4px;cursor:pointer}.stg-back svg{width:22px;height:22px}
+.swr{display:flex;align-items:center;gap:12px;padding:10px 14px;min-height:52px}.swr+.swr{border-top:1px solid #e8ecef}.swr .tx{flex:1;min-width:0;font:500 16px/24px var(--font-body)}.swr small{display:block;font-size:14px;line-height:20px;color:var(--muted)}
+.sw{flex:none;width:46px;height:28px;border:0;border-radius:14px;background:#c3ccd2;position:relative;cursor:pointer;padding:0}.sw:after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s}.sw.on{background:var(--mine)}.sw.on:after{left:21px}.sw:disabled{opacity:.45;cursor:default}
+.stp{display:flex;gap:12px;padding:12px 14px;align-items:flex-start}.stp+.stp{border-top:1px solid #e8ecef}.stp .n{flex:none;width:28px;height:28px;border-radius:50%;background:#e6f2f3;color:var(--mine);font:700 14px/28px var(--font-display);text-align:center}.stp b{display:block;font:600 16px/24px var(--font-display)}.stp small{display:block;font-size:14px;line-height:20px;color:var(--muted)}
+.stg-ft{text-align:center;font-size:14px;line-height:20px;color:var(--muted);margin-top:4px}.stg-ft.left{text-align:left}
 .stg-h{font-size:14px;font-weight:600;color:var(--muted);margin:8px 0 -4px; line-height: 20px}
 #paneAcct .acchd .av{width:56px;height:56px;font-size:24px; line-height: 32px}
 #paneAcct .acchd .hn b{font-size:20px; line-height: 28px}
@@ -2063,8 +2068,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     form.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.parse(input.value); if (!id) { showErr(input.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); input.focus(); return; } location.href = "/" + id + "/seats"; });
     input.addEventListener("input", function () { showErr(""); });
   })();
-  var wantAcct = false, loadedAt = 0;
+  var wantAcct = false, loadedAt = 0, acctView = "";
   function setTab(t) {
+    if (t !== "acct") acctView = "";
     tab = t;
     $("tabTrips").setAttribute("aria-selected", t === "trips" ? "true" : "false");
     $("tabSeats").setAttribute("aria-selected", t === "seats" ? "true" : "false");
@@ -2092,7 +2098,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     else if (tab === "trips") { T = "ทริปของฉัน"; }
     else if (tab === "seats") { T = "ที่นั่งของฉัน"; }
     else if (tab === "notif") { T = "แจ้งเตือน"; }
-    else { T = "โปรไฟล์"; }
+    else { T = acctView === "notif" ? "การแจ้งเตือน" : acctView === "help" ? "วิธีใช้" : "โปรไฟล์"; }
     $("ltT").textContent = T;
     document.body.classList.toggle("t-home", tab === "home");
     $("mkTrip").classList.toggle("show", (tab === "trips" || tab === "home") && !!(D && D.trips.length));
@@ -2220,6 +2226,8 @@ var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใ�
   }
   function renderAcctPane() { // settings page: profile, a few numbers, account actions
     var p = $("paneAcct"), parts = acctParts(function () {}); p.textContent = "";
+    if (acctView === "notif") return renderNotifSet(p);
+    if (acctView === "help") return renderHelp(p);
     p.appendChild(parts[0]);
     if (D) {
       var st = node("div", "stg-stat"), booked = (D.trips || []).reduce(function (n, x) { return n + (x.booked || 0); }, 0);
@@ -2227,7 +2235,50 @@ var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใ�
       p.appendChild(st);
     }
     if (D && D.plan && D.plan.on) p.appendChild(planCard(D.plan));
-    p.appendChild(node("div", "stg-h", "บัญชี")); p.appendChild(parts[1]); p.appendChild(parts[2]);
+    var SV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+    function grp(title, rows) {
+      p.appendChild(node("div", "stg-h", title)); var g = node("div", "agrp");
+      rows.forEach(function (x) { var tag = x[4] ? "a" : "button", e = node(tag, "acti"); if (x[4]) { e.href = x[4]; if (/^https?:/.test(x[4])) e.target = "_blank"; } else { e.type = "button"; e.addEventListener("click", x[3]); }
+        e.insertAdjacentHTML("beforeend", SV + x[1] + "</svg>"); e.appendChild(node("span", null, x[0])); var c = node("span", "c"); if (x[2]) c.appendChild(node("small", null, x[2])); c.appendChild(document.createTextNode(x[4] && /^(https?:|mailto:)/.test(x[4]) ? "↗" : "›")); e.appendChild(c); g.appendChild(e); });
+      p.appendChild(g);
+    }
+    var offAll = false; try { offAll = (JSON.parse(sessionStorage.getItem("vsb_poff") || "[]")).indexOf("all") >= 0; } catch (e) {}
+    if (!window.__poffAsked) { window.__poffAsked = 1; fetch("/api/me?prefs=1", { cache: "no-store" }).then(function (x) { return x.json(); }).then(function (d) { if (d && Array.isArray(d.off)) { try { sessionStorage.setItem("vsb_poff", JSON.stringify(d.off)); } catch (e) {} if (tab === "acct" && !acctView) renderAcctPane(); } }).catch(function () {}); }
+    grp("การแจ้งเตือน", [["แจ้งเตือนทาง LINE", '<path d="M6 17v-6a6 6 0 0 1 12 0v6l1.5 2h-15zM10 21h4"/>', offAll ? "ปิดอยู่" : "", function () { goAcct("notif"); }]]);
+    grp("ช่วยเหลือ", [
+      ["วิธีใช้ VanTrip", '<path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/>', "", function () { goAcct("help"); }],
+      ["แจ้งปัญหา", '<circle cx="12" cy="13" r="5"/><path d="M12 8V5M7 12H4M20 12h-3M8 8 6 6M16 8l2-2M8 18l-2 2M16 18l2 2"/>', "", null, "mailto:phitsanu.tr@outlook.com?subject=" + encodeURIComponent("แจ้งปัญหา VanTrip")],
+      ["ติดต่อเรา", '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>', "", null, "mailto:phitsanu.tr@outlook.com"],
+      ["นโยบายความเป็นส่วนตัว", '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>', "", null, "/privacy"],
+      ["เงื่อนไขการใช้งาน", '<path d="M7 3h7l5 5v13H7zM14 3v5h5"/>', "", null, "/terms"]]);
+    grp("ช่วยบอกต่อ", [["ส่ง VanTrip เข้ากลุ่ม LINE", '<path d="M12 15V4M8 8l4-4 4 4M5 13v7h14v-7"/>', "", function () { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent("VanTrip จองที่นั่งรถตู้ผ่าน LINE ได้ง่าย ๆ\nhttps://liff.line.me/2012285472-FvtYKx00"); }]]);
+    p.appendChild(node("div", "stg-h", "บัญชี")); p.appendChild(parts[2]);
+  }
+  function goAcct(v) { acctView = v; try { history.pushState({ acct: v }, ""); } catch (e) {} renderAcctPane(); updateHead(); window.scrollTo(0, 0); }
+  window.addEventListener("popstate", function () { if (acctView) { acctView = ""; if (tab === "acct") { renderAcctPane(); updateHead(); } } });
+  function backBtn() { var b = node("button", "stg-back"); b.type = "button"; b.setAttribute("aria-label", "กลับ"); b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>'; b.addEventListener("click", function () { try { if (history.state && history.state.acct) { history.back(); return; } } catch (e) {} acctView = ""; renderAcctPane(); updateHead(); }); return b; }
+  function renderNotifSet(p) {
+    p.appendChild(backBtn());
+    var ROWS = [["all", "รับแจ้งเตือนทาง LINE", "ปิดอันนี้ = ไม่ส่งข้อความเข้า LINE เลย"]], GR = [
+      ["สำหรับผู้จอง", [["turn", "ถึงคิวจองของฉันแล้ว"], ["bcast", "ผู้จัดส่งประกาศถึงผู้จอง"], ["change", "ทริปหรือที่นั่งของฉันเปลี่ยนแปลง"]]],
+      ["สำหรับผู้จัด", [["creq", "มีคนขอยกเลิกที่นั่ง"]]]];
+    var off = []; try { off = JSON.parse(sessionStorage.getItem("vsb_poff") || "[]"); } catch (e) {}
+    var boxes = [];
+    function sw(kind) { var b = node("button", "sw"); b.type = "button"; b.setAttribute("role", "switch"); b.dataset.k = kind; boxes.push(b); return b; }
+    function paint() { boxes.forEach(function (b) { var on = off.indexOf(b.dataset.k) < 0; b.classList.toggle("on", on); b.setAttribute("aria-checked", on ? "true" : "false"); if (b.dataset.k !== "all") b.disabled = off.indexOf("all") >= 0; }); try { sessionStorage.setItem("vsb_poff", JSON.stringify(off)); } catch (e) {} }
+    function save() { paint(); fetch("/api/me", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prefs: { off: off } }) }).catch(function () { toast("บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง"); }); }
+    function row(kind, label, sub) { var it = node("div", "swr"); var tx = node("div", "tx"); tx.appendChild(node("span", null, label)); if (sub) tx.appendChild(node("small", null, sub)); it.appendChild(tx); var b = sw(kind); b.addEventListener("click", function () { if (b.disabled) return; var i = off.indexOf(kind); if (i >= 0) off.splice(i, 1); else off.push(kind); save(); }); it.appendChild(b); return it; }
+    var g0 = node("div", "agrp"); g0.appendChild(row(ROWS[0][0], ROWS[0][1], ROWS[0][2])); p.appendChild(g0);
+    GR.forEach(function (gr) { p.appendChild(node("div", "stg-h", gr[0])); var g = node("div", "agrp"); gr[1].forEach(function (x) { g.appendChild(row(x[0], x[1])); }); p.appendChild(g); });
+    p.appendChild(node("div", "stg-ft left", "การแจ้งเตือนในแอป (กระดิ่ง) จะยังขึ้นทุกครั้ง การปิดนี้มีผลเฉพาะข้อความเข้า LINE"));
+    paint();
+    fetch("/api/me?prefs=1", { cache: "no-store" }).then(function (x) { return x.json(); }).then(function (d) { if (d && Array.isArray(d.off)) { off = d.off; paint(); } }).catch(function () {});
+  }
+  function renderHelp(p) {
+    p.appendChild(backBtn());
+    var SETS = [["ผู้จัดทริป", [["สร้างทริป", "ใส่ชื่อ วันเดินทาง จุดนัดพบ และรถตู้"], ["ส่งลิงก์เข้ากลุ่ม LINE", "กด \"แชร์ลิงก์\" แล้วเลือกกลุ่ม"], ["ดูรายชื่อและเช็กชื่อขึ้นรถ", "เปิดรายชื่อหรือผังที่นั่งได้ทุกเมื่อ"]]],
+      ["ผู้จอง", [["เปิดลิงก์จากกลุ่ม", "เข้าสู่ระบบด้วย LINE ครั้งเดียว"], ["แตะที่นั่งที่ต้องการ", "ใส่ชื่อแล้วกดยืนยัน ที่นั่งเป็นของคุณทันที"], ["ยกเลิกหรือเปลี่ยนที่นั่ง", "ทำได้ในหน้า \"ที่นั่งของฉัน\""]]]];
+    SETS.forEach(function (st) { p.appendChild(node("div", "stg-h", st[0])); var g = node("div", "agrp"); st[1].forEach(function (x, i) { var e = node("div", "stp"); e.appendChild(node("span", "n", String(i + 1))); var t = node("div"); t.appendChild(node("b", null, x[0])); t.appendChild(node("small", null, x[1])); e.appendChild(t); g.appendChild(e); }); p.appendChild(g); });
   }
   function planCard(pl) { // profile: current package, what it allows, and the packages page
     var MON2 = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];

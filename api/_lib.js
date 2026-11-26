@@ -347,8 +347,19 @@ async function notify(uids, item, exceptUid) {
     });
     await pipeline(cmds);
     const text = lineText(item);
-    if (text) await linePush(list, text); // the same notice also goes to the person's LINE chat (only when LINE_BOT_TOKEN is set)
+    if (text) await linePush(await pushAllowed(list, item.k), text); // the same notice also goes to the person's LINE chat (only when LINE_BOT_TOKEN is set)
   } catch (e) { /* best effort: never breaks the action that caused it */ }
+}
+// What a person switched off for LINE messages (profile > notifications): pushoff:<uid> = JSON list of kinds + "all". The in-app bell is not affected.
+const PUSH_KINDS = ["all", "turn", "bcast", "change", "creq"];
+const PUSH_KIND_OF = { queue_turn: "turn", broadcast: "bcast", trip_changed: "change", trip_deleted: "change", seat_moved: "change", seat_cancelled: "change", creq_ok: "change", creq_no: "change", van_removed: "change", cancel_req: "creq" };
+function pushOffKey(uid) { return "pushoff:" + uid; }
+async function pushAllowed(uids, k) {
+  const kind = PUSH_KIND_OF[k];
+  try {
+    const rows = await pipeline(uids.map((u) => ["GET", pushOffKey(u)]));
+    return uids.filter((u, i) => { let off = []; try { off = JSON.parse(rows[i] || "[]"); } catch (e) { /* none */ } return !(off.includes("all") || (kind && off.includes(kind))); });
+  } catch (e) { return uids; }
 }
 // Notices that also go out as a LINE message (each one counts toward the official account's monthly message quota, so only what matters).
 const LIFF_ID = "2012285472-FvtYKx00";
@@ -407,7 +418,7 @@ const DEFAULT_MAX_PER_PERSON = 4;
 function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); return Number.isInteger(n) && n >= 0 && n <= 50 ? n : DEFAULT_MAX_PER_PERSON; }
 
 module.exports = {
-  lineText, linePush,
+  lineText, linePush, PUSH_KINDS, pushOffKey,
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, tooBig, json,
   audit, ledger, errLog, seal, open, statDay, bump, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripDaysText, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
   SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, crossSite, clientIp, rateLimited, myTripsKey, mySeatsKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, linePush, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
