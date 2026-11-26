@@ -301,6 +301,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .acti .c { margin-left: auto; color: #b7c1c7; font-size: 16px; line-height: 24px}
 .acti.dg { color: var(--danger); } .acti.dg svg { color: var(--danger); }
 .acti.op, .acti.op svg { color: var(--mine); } .acti .c small { font-size: 14px; color: var(--muted); margin-right: 8px; line-height: 20px} .acti .c { display: flex; align-items: center; }
+.cbar { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border: 0; border-radius: 12px; background: #f3f6f7; width: 100%; text-align: left; cursor: pointer; font: 500 14px/20px var(--font-body); color: var(--muted); } .cbar svg { width: 20px; height: 20px; flex: none; } .cbar span { flex: 1; } .cbar b { color: var(--mine); font: 700 16px/24px var(--font-body); letter-spacing: .08em; } .cbar:active { background: #e6ecef; }
 .msub { margin: -8px 0 0; font-size: 14px; color: var(--muted); line-height: 20px}
 .acti:active { background: #e6ecef; }
 .agrp { background: #f3f6f7; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
@@ -807,8 +808,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var shut = function () { bd.remove(); };
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
     sheetHead(sh, x.name, shut);
-    sh.appendChild(node("p", "msub", [dateRange(x.startDate, x.endDate), x.departTime ? x.departTime : "", "จองแล้ว " + x.booked + "/" + x.total].filter(Boolean).join(" · ")));
-    var g1 = node("div", "agrp"), g2 = node("div", "agrp");
+    sh.style.gap = "12px";
+    var cb = node("button", "cbar"); cb.type = "button"; cb.insertAdjacentHTML("beforeend", COPY_SVG); cb.appendChild(node("span", null, "รหัสทริป")); cb.appendChild(node("b", null, x.id.toUpperCase()));
+    cb.addEventListener("click", function () { copyText(x.id.toUpperCase(), "คัดลอกรหัสทริปแล้ว"); });
+    sh.appendChild(cb);
+    var g1 = node("div", "agrp"), g1b = node("div", "agrp"), g2 = node("div", "agrp");
     function item(g, icon, label, cls, right, act) {
       var b = node(typeof act === "string" ? "a" : "button", "acti mgb" + (cls ? " " + cls : ""));
       if (typeof act === "string") b.href = act; else { b.type = "button"; b.addEventListener("click", function () { act(b); }); }
@@ -816,17 +820,15 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (right != null) { var r = node("span", "c"); if (right) r.appendChild(node("small", null, right)); r.appendChild(document.createTextNode("›")); b.appendChild(r); }
       g.appendChild(b); return b;
     }
-    var cc = item(g1, "dup", "คัดลอกรหัสทริป", "", null, function () { copyText(x.id.toUpperCase(), "คัดลอกรหัสทริปแล้ว"); });
-    cc.querySelector("svg").outerHTML = COPY_SVG; cc.appendChild(node("span", "c", x.id.toUpperCase())).style.cssText = "font-weight:700;letter-spacing:.08em;color:var(--mine,#0b5f67)";
     function tagNew(b) { var t = node("span", null, "ใหม่"); t.style.cssText = "font:600 11px/16px var(--font-body);background:#e3eef0;color:var(--mine);border-radius:99px;padding:1px 8px;margin-left:8px"; b.querySelector("span").appendChild(t); }
     tagNew(item(g1, "queue", "ส่งรายชื่อเข้ากลุ่ม", "", "", function () { shut(); openSendList(x); }));
     if (daysTo(x.startDate) <= 1 && daysTo(x.endDate || x.startDate) >= 0) tagNew(item(g1, "seats", "เช็กชื่อขึ้นรถ", "", "", function () { shut(); openRoster(x, "board"); }));
     var bl = item(g1, "share", "แจ้งเตือนผู้จอง", "", "", function () { shut(); openRemind(x); }); tagNew(bl);
     bl.querySelector("svg").outerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/></svg>';
-    item(g1, "pen", "แก้ไขทริป", "", "", "/" + x.id + "/edit");
-    item(g1, "team", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป", "", x.role === "helper" ? "" : (x.helpers || 0) + "/2", function () { shut(); openTeam(x); });
-    if (x.qf) item(g1, "queue", "คิวจองตามลำดับ", "", "", "/" + x.id + "/queue");
-    item(g1, "dup", "สร้างทริปซ้ำ", "", "", "/new?copy=" + encodeURIComponent(x.id));
+    item(g1b, "pen", "แก้ไขทริป", "", "", "/" + x.id + "/edit");
+    item(g1b, "team", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป", "", x.role === "helper" ? "" : (x.helpers || 0) + "/2", function () { shut(); openTeam(x); });
+    if (x.qf) item(g1b, "queue", "คิวจองตามลำดับ", "", "", "/" + x.id + "/queue").querySelector("svg").outerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6h10M10 12h10M10 18h10"/><path d="M4 5l1.5-1v5M3.5 14.5c0-1 2.5-1 2.5.2 0 1.2-2.5 2-2.5 3.3h2.7"/></svg>';
+    item(g1b, "dup", "สร้างทริปซ้ำ", "", "", "/new?copy=" + encodeURIComponent(x.id));
     var lk = item(g2, "share", x.closed ? "เปิดรับจอง" : "ปิดรับจอง", x.closed ? "op" : "dg lk", null, async function (btn) {
       if (!x.closed && btn.dataset.sure !== "1") { btn.dataset.sure = "1"; btn.querySelector("span").textContent = "ยืนยันปิด?"; setTimeout(function () { if (btn.isConnected) { btn.dataset.sure = ""; btn.querySelector("span").textContent = "ปิดรับจอง"; } }, 3500); return; }
       btn.disabled = true;
@@ -837,7 +839,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       } catch (e) { btn.disabled = false; toast("ทำรายการไม่สำเร็จ ลองอีกครั้ง", true); }
     });
     lk.querySelector("svg").outerHTML = x.closed ? OPEN_SVG : LOCK_SVG;
-    sh.appendChild(g1); sh.appendChild(g2);
+    sh.appendChild(g1); sh.appendChild(g1b); sh.appendChild(g2);
     document.body.appendChild(bd);
   }
 
