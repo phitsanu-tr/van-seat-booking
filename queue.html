@@ -8,6 +8,7 @@
 <title>คิวจองที่นั่ง · VanTrip</title>
 <style>html{touch-action:manipulation}html,body{overscroll-behavior:none}.menu button svg{flex:none;color:var(--muted)}.menu button.rm svg{color:var(--red)}.menu button.rm.armed svg{color:#fff}.menu.up{top:auto;bottom:48px}.menu button.rm.armed{background:var(--red);color:#fff}.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;width:max-content;max-width:min(92vw,360px);background:#1b2226;color:#fff;border-radius:16px;padding:12px 16px;font:14px/20px var(--font-body);text-align:center;pointer-events:none;box-shadow:0 8px 28px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;gap:8px}.toast .tick{flex:none;width:20px;height:20px;border-radius:50%;background:#34c38f url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f2b22' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/16px no-repeat}
 .stb.nb{border-bottom:0}.sbd.nb{padding-top:16px}
+.ecnt.full{color:#8a5a00;font-weight:700}
 </style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
@@ -261,7 +262,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var eed = el("div", "ed one"), egu = el("div", "gu", String(epos)); eed.appendChild(egu); eed.appendChild(einp); eed.appendChild(ecnt); ebd.appendChild(eed);
         if (eit.bound) ebd.appendChild(el("div", "sct", "ผูกกับบัญชี LINE แล้ว · การผูกไม่เปลี่ยน"));
         esh.appendChild(ebd);
-        var eupd = function () { ecnt.textContent = einp.value.length + "/12"; var ev = einp.value.trim(); esave.disabled = !ev || ev === eit.name; };
+        var eupd = function () { ecnt.textContent = einp.value.length + "/12"; ecnt.classList.toggle("full", einp.value.length >= 12); var ev = einp.value.trim(); esave.disabled = !ev || ev === eit.name; };
         einp.addEventListener("input", eupd); einp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); if (!esave.disabled) esave.click(); } }); eupd();
         main.appendChild(esh); document.body.classList.add("sheeton"); fitSheet();
         if (efirst) { requestAnimationFrame(function () { requestAnimationFrame(function () { esh.classList.add("up"); edim.classList.add("up"); einp.focus({ preventScroll: true }); try { var el_ = einp.value.length; einp.setSelectionRange(el_, el_); } catch (x) {} }); }); }
