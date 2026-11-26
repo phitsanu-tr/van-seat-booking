@@ -6,9 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="robots" content="noindex">
 <title>คิวจองที่นั่ง · VanTrip</title>
-<style>html{touch-action:manipulation}html,body{overscroll-behavior:none}.menu button svg{flex:none;color:var(--muted)}.menu button.rm svg{color:var(--red)}.menu button.rm.armed svg{color:#fff}.menu.up{top:auto;bottom:48px}.menu button.rm.armed{background:var(--red);color:#fff}.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;width:max-content;max-width:min(92vw,360px);background:#1b2226;color:#fff;border-radius:16px;padding:12px 16px;font:14px/20px var(--font-body);text-align:center;pointer-events:none;box-shadow:0 8px 28px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;gap:8px}.toast .tick{flex:none;width:20px;height:20px;border-radius:50%;background:#34c38f url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f2b22' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/16px no-repeat}
+<style>html{touch-action:manipulation}html,body{overscroll-behavior:none}.menu button svg{flex:none;color:var(--muted)}.menu button.rm svg{color:var(--red)}.menu button.rm.armed svg{color:#fff}.menu.up{top:auto;bottom:48px}.menu button.rm.armed{background:var(--red);color:#fff}.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;width:max-content;max-width:min(92vw,360px);background:#1b2226;color:#fff;border-radius:16px;padding:12px 16px;font:14px/20px var(--font-body);text-align:center;pointer-events:none;box-shadow:0 8px 28px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;gap:8px}.toast .tick{flex:none;width:20px;height:20px;border-radius:50%;background:#34c38f url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f2b22' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/16px no-repeat}
 .stb.nb{border-bottom:0}.sbd.nb{padding-top:16px}
 .ecnt.near{color:#8a5a00}.ecnt.full{font-weight:700}.ed.full,.ed.full:focus-within{border-color:#d9a441}
+.qcard.am{background:#fff4dc}.qcard.am .qn,.qcard.am .qs2{color:#8a5a00}
 </style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
@@ -317,8 +318,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     var mine = D.items.filter(function (i) { return i.m; })[0];
     if (!mine) { // find your name
-      if (h1) h1.textContent = "คิวจองที่นั่ง";
-      main.appendChild(el("p", "sub", D.auto ? "หาชื่อของคุณแล้วกด “ฉันคือคนนี้” เข้าคิวได้ทันที ไม่ต้องรอผู้จัด" : "หาชื่อของคุณแล้วกด “ฉันคือคนนี้” ผู้จัดจะตรวจก่อนว่าเป็นคุณจริง"));
+      if (h1) h1.textContent = "เลือกชื่อของคุณ";
+      main.appendChild(el("p", "sub", D.auto ? "แตะ “ฉันคือคนนี้” ที่ชื่อของคุณเพื่อเข้าคิว" : "หาชื่อของคุณแล้วกด “ฉันคือคนนี้” ผู้จัดจะตรวจก่อนว่าเป็นคุณจริง"));
       var cl = el("div", "card");
       if (!D.items.length) cl.appendChild(el("div", "empty", "ยังไม่มีรายชื่อ"));
       D.items.forEach(function (it, i) {
@@ -337,11 +338,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (h1) h1.textContent = "คิวของคุณ";
     var pos = D.items.indexOf(mine) + 1, isTurn = D.turn === mine.id;
     var ahead = D.items.slice(0, pos - 1).filter(function (i) { return !i.done; }).length;
-    if (justClaimed) { main.appendChild(el("div", "flash", "✓ เข้าคิวแล้ว")); justClaimed = false; }
+    if (justClaimed) { showToast("เข้าคิวแล้ว · คิวที่ " + pos); justClaimed = false; }
     var card;
-    if (mine.done) {
+    if (mine.done && !(D.seats > 0)) {
+      card = el("div", "qcard am"); var t0b = el("div", "qt"); t0b.appendChild(el("b", "qn", "จบคิวแล้ว")); card.appendChild(t0b); card.appendChild(el("div", "qs2", "คุณยังไม่ได้เลือกที่นั่ง ติดต่อผู้จัดถ้าต้องการจองต่อ"));
+    } else if (mine.done) {
       main.appendChild(el("p", "sub", "ต้องการยกเลิก แตะที่นั่งของคุณในผังแล้วกดขอยกเลิก"));
-      card = el("div", "qcard"); var t0 = el("div", "qt"); t0.appendChild(el("b", "qn", "ใช้สิทธิ์แล้ว")); card.appendChild(t0);
+      card = el("div", "qcard"); var t0 = el("div", "qt"); t0.appendChild(el("b", "qn", "จองเสร็จแล้ว")); card.appendChild(t0);
     } else if (isTurn) {
       main.appendChild(el("p", "sub", "เลือกที่นั่งได้ตอนนี้"));
       card = el("div", "qcard ok"); var t1 = el("div", "qt"); t1.appendChild(el("b", "qn", "ถึงคิวคุณแล้ว")); card.appendChild(t1); card.appendChild(el("div", "qs2", "จองครบแล้วกด “จองเสร็จแล้ว” ให้คนถัดไปได้เลือก"));
@@ -378,8 +381,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var sh = el("div", "psheet"); sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "ยืนยันชื่อ");
     var x = el("button", "px", "✕"); x.type = "button"; x.setAttribute("aria-label", "ปิด"); x.addEventListener("click", function () { paxSheet = null; draw(); }); sh.appendChild(x);
     sh.appendChild(el("h3", null, "คุณคือ “" + it.name + "” ใช่ไหม"));
-    var pr = el("div", "pair"); pr.appendChild(el("div", "no", String(i + 1))); var pw = el("div"); pw.appendChild(el("b", null, it.name)); pw.appendChild(el("small", null, "คิวที่ " + (i + 1) + " · ผูกกับบัญชี LINE ของคุณ")); pr.appendChild(pw); sh.appendChild(pr);
-    sh.appendChild(el("div", "warn", "เลือกแล้วใช้สิทธิ์ของชื่อนี้ทันที ผู้จัดเห็นรูปและชื่อ LINE ของคุณ และยกเลิกได้ถ้าเลือกผิด"));
+    var pr = el("div", "pair"); pr.appendChild(el("div", "no", String(i + 1))); var pw = el("div"); pw.appendChild(el("b", null, it.name)); pw.appendChild(el("small", null, "คิวที่ " + (i + 1))); pr.appendChild(pw); sh.appendChild(pr);
+    sh.appendChild(el("div", "warn", "เลือกแล้วใช้สิทธิ์ของชื่อนี้ทันที ผู้จัดเห็นรูปและชื่อ LINE ของคุณ · ยกเลิกได้ถ้าเลือกผิด"));
     var ok = btn("ใช่ ฉันคือ" + it.name, "b p big", function () { paxSheet = null; busy = false; return doClaim(it); }); sh.appendChild(ok);
     main.appendChild(sh);
   }

@@ -116,6 +116,7 @@ header.trip { display: block; }
 .ended b { font-family: var(--font-display); font-weight: 600; }
 .deck.qlock .seat.seat:not(.taken):not(.mine):not(.held) { opacity: .5; }
 #queueBar.qturn { background: color-mix(in srgb, var(--mine) 14%, var(--surface)); }
+#queueBar.qcta{display:block;background:color-mix(in srgb,var(--mine) 14%,var(--surface));border:0;padding:16px}#queueBar.qcta svg{display:none}#queueBar.qcta b{display:block;font-size:16px;line-height:24px}#queueBar.qcta p{margin:0 0 12px}#queueBar.qcta a{display:flex;height:48px;align-items:center;justify-content:center;border-radius:12px;background:var(--mine);color:#fff;font:600 16px/24px var(--font-body);text-decoration:none}
 .deck.isended .seat { cursor: default; }
 .deck.isended .seat:hover { background: transparent; }
 .deck.isended .seat.taken:hover { background: color-mix(in srgb, var(--taken) 94%, transparent); }
@@ -733,7 +734,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function qBlocked() { return !!(loaded && qon && !isOwner && !closed && !ended && !(qs && qs.s === "turn")); }
   function renderQueueBar() {
     var bar = document.getElementById("queueBar"), tx = document.getElementById("queueTx"), s = qs && qs.s;
-    bar.classList.toggle("qturn", s === "turn"); tx.textContent = "";
+    bar.classList.toggle("qturn", s === "turn"); tx.textContent = ""; bar.classList.remove("qcta");
     var link = el("a", null, "ดูคิว"); link.href = "/" + TRIP + "/queue";
     if (s === "turn") {
       tx.appendChild(el("b", null, "ถึงคิวของคุณแล้ว")); tx.appendChild(document.createTextNode(" เลือกที่นั่งได้เลย จองครบแล้วกด "));
@@ -747,7 +748,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     } else if (s === "done") {
       tx.appendChild(el("b", null, "คุณใช้สิทธิ์จองแล้ว")); tx.appendChild(document.createTextNode(" · ขอยกเลิกได้ที่ที่นั่งของคุณ · ")); tx.appendChild(link);
     } else {
-      tx.appendChild(el("b", null, "จองตามลำดับคิว")); tx.appendChild(document.createTextNode(" ยังไม่ได้ยืนยันชื่อ · ")); var l2 = el("a", null, "กด “ฉันคือคนนี้”"); l2.href = "/" + TRIP + "/queue"; tx.appendChild(l2);
+      bar.classList.add("qcta"); tx.appendChild(el("b", null, "ต้องเข้าคิวก่อนจึงจะจองได้")); tx.appendChild(el("p", null, "ผู้จัดเพิ่มชื่อไว้แล้ว")); var l2 = el("a", null, "เลือกชื่อของฉัน"); l2.href = "/" + TRIP + "/queue"; tx.appendChild(l2);
     }
     if (qSheet) qSheet.render();
   }
@@ -804,8 +805,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         body.appendChild(head("คุณใช้สิทธิ์จองแล้ว", "ต้องการยกเลิก แตะที่นั่งของคุณแล้วกดขอยกเลิก"));
         body.appendChild(btnA("เข้าใจแล้ว", null, close));
       } else {
-        body.appendChild(head("ยังไม่ได้เข้าคิว", "ต้องเข้าคิวก่อนจึงจะจองได้"));
-        body.appendChild(qCss(el("div", null, "ผู้จัดเพิ่มชื่อไว้แล้ว กดเลือกชื่อของคุณเพื่อเข้าคิว"), "background:var(--tint,#e4f2f3);color:#0b5f67;border-radius:16px;padding:14px 16px;font-size:14px"));
+        body.appendChild(qCss(el("b", null, "ต้องเข้าคิวก่อนจึงจะจองได้"), "display:block;padding-right:40px;font:600 19px/26px var(--font-display)"));
         body.appendChild(btnA("เลือกชื่อของฉัน", "/" + TRIP + "/queue"));
       }
     }

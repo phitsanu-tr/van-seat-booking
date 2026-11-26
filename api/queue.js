@@ -27,10 +27,12 @@ module.exports = async function handler(req, res) {
     const cap = Math.min(Q.MAX_ITEMS, Math.max(1, (trip.vans || []).length) * L.TOTAL_SEATS); // one name per seat across every van
 
     // a passenger sees other names only while finding their own; signed out or already in the queue: only their own
+    let myN = 0; // seats this person already holds on the trip (tells "used the turn and booked" from "turn ended without a seat")
+    if (user) { const refs = (await L.redis(["SMEMBERS", L.mySeatsKey(user.id)])) || []; myN = refs.filter((x) => String(x).indexOf(t + "|") === 0).length; }
     const view = (q) => {
       const h = Q.turnOf(q), mine = user ? q.items.find((i) => i.u === user.id) : null;
       return {
-        on: !!q.on, auto: !!q.auto, cap, role: role || undefined, turn: h ? h.id : null, mine: mine ? mine.id : null, me: L.publicUser(user), ended: L.tripEnded(trip), closed: !!L.bookingClosed(trip),
+        on: !!q.on, auto: !!q.auto, cap, role: role || undefined, turn: h ? h.id : null, mine: mine ? mine.id : null, me: L.publicUser(user), ended: L.tripEnded(trip), closed: !!L.bookingClosed(trip), ...(mine ? { seats: myN } : {}),
         items: q.items.map((i) => Object.assign({ id: i.id, name: org || (user && !mine) || (mine && i === mine) ? i.name : "" }, i.done ? { done: 1 } : {}, i.u ? { bound: 1 } : {}, i.ok ? { ok: 1 } : {},
           user && i.u === user.id ? { m: 1 } : {}, org && i.u && i.ln ? { ln: String(i.ln), lp: String(i.lp || "") } : {})),
       };
