@@ -914,7 +914,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var warn = inp.value.length >= 90; ring(focused, warn); cnt.textContent = inp.value.length + "/100"; cnt.style.color = warn ? "#8a5a00" : "var(--muted)";
       var left = info ? info.max - info.sent : 0;
       go.disabled = sending || !info || !info.people || left <= 0 || !msg();
-      if (go.disabled && !sending && info && (!info.people || left <= 0)) { go.style.background = "#e3e7ea"; go.style.color = "var(--muted)"; } else { go.style.background = "var(--mine)"; go.style.color = "#fff"; }
+      if (go.disabled && !sending) { go.style.background = "#e3e7ea"; go.style.color = "var(--muted)"; } else { go.style.background = "var(--mine)"; go.style.color = "#fff"; }
       go.style.justifyContent = armed ? "space-between" : "center"; go.textContent = "";
       if (armed) { go.appendChild(node("span", null, "แตะอีกครั้งเพื่อยืนยันส่ง")); var cd = node("span", null, String(armLeft)); cd.setAttribute("aria-hidden", "true"); cd.style.cssText = "flex:none;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font:700 14px/20px var(--font-display)"; go.appendChild(cd); }
       else go.textContent = "ส่งแจ้งเตือน";
