@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="robots" content="noindex">
 <title>คิวจองที่นั่ง · VanTrip</title>
-<style>html{touch-action:manipulation}html,body{overscroll-behavior:none}.menu button svg{flex:none;color:var(--muted)}.menu button.rm svg{color:var(--red)}.menu button.rm.armed svg{color:#fff}.menu button.rm.armed{background:var(--red);color:#fff}.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;width:max-content;max-width:min(92vw,360px);background:#1b2226;color:#fff;border-radius:16px;padding:12px 16px;font:14px/20px var(--font-body);text-align:center;pointer-events:none;box-shadow:0 8px 28px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;gap:8px}.toast .tick{flex:none;width:20px;height:20px;border-radius:50%;background:#34c38f url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f2b22' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/16px no-repeat}
+<style>html{touch-action:manipulation}html,body{overscroll-behavior:none}.menu button svg{flex:none;color:var(--muted)}.menu button.rm svg{color:var(--red)}.menu button.rm.armed svg{color:#fff}.menu.up{top:auto;bottom:48px}.menu button.rm.armed{background:var(--red);color:#fff}.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;width:max-content;max-width:min(92vw,360px);background:#1b2226;color:#fff;border-radius:16px;padding:12px 16px;font:14px/20px var(--font-body);text-align:center;pointer-events:none;box-shadow:0 8px 28px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;gap:8px}.toast .tick{flex:none;width:20px;height:20px;border-radius:50%;background:#34c38f url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f2b22' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/16px no-repeat}
 </style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
@@ -285,6 +285,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (first) { requestAnimationFrame(function () { requestAnimationFrame(function () { sh.classList.add("up"); dim.classList.add("up"); ta.focus({ preventScroll: true }); }); }); }
     }
   }
+  function fitMenu() { var m = document.querySelector(".menu"); if (!m) return; var lim = window.innerHeight, bar = document.querySelector(".obar"); if (bar) lim = Math.min(lim, bar.getBoundingClientRect().top); if (m.getBoundingClientRect().bottom > lim - 8) m.classList.add("up"); }
   function draw() {
     main.textContent = "";
     if (!D) return;
@@ -293,7 +294,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     document.body.classList.toggle("org", org);
     errBox = el("div", "err"); errBox.hidden = true; errBox.setAttribute("role", "alert");
     var h1 = document.querySelector("h1");
-    if (org) { if (h1) h1.textContent = "คิวจองที่นั่ง"; drawOrg(); return; }
+    if (org) { if (h1) h1.textContent = "คิวจองที่นั่ง"; drawOrg(); fitMenu(); return; }
     drawPax();
   }
   // passenger view: the full list only while finding your own name; once claimed, only your own status
@@ -380,6 +381,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var ok = btn("ใช่ ฉันคือ" + it.name, "b p big", function () { paxSheet = null; busy = false; return doClaim(it); }); sh.appendChild(ok);
     main.appendChild(sh);
   }
+  document.addEventListener("click", function (e) { if (!menuId) return; var t = e.target; if (t.closest && (t.closest(".menu") || t.closest(".dots"))) return; menuId = ""; e.stopPropagation(); e.preventDefault(); draw(); }, true);
   function boot() { load(); setInterval(function () { if (!document.hidden && !busy) load(); }, 8000); document.addEventListener("visibilitychange", function () { if (!document.hidden) load(); }); }
   var rd = window.__liffReady || Promise.resolve();
   rd.then(boot, boot);
