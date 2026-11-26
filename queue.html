@@ -10,6 +10,7 @@
 .stb.nb{border-bottom:0}.sbd.nb{padding-top:16px}
 .ecnt.near{color:#8a5a00}.ecnt.full{font-weight:700}.ed.full,.ed.full:focus-within{border-color:#d9a441}
 .qcard.am{background:#fff4dc}.qcard.am .qn,.qcard.am .qs2{color:#8a5a00}
+h1.pend{visibility:hidden}
 </style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
@@ -143,7 +144,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 </head>
 <body>
 <div class="wrap">
-  <h1>คิวจองที่นั่ง</h1>
+  <h1 class="pend">&nbsp;</h1>
   <div id="main"><div class="empty">กำลังโหลด…</div></div>
 </div>
 <script>
@@ -292,6 +293,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function draw() {
     main.textContent = "";
     if (!D) return;
+    var h0 = document.querySelector("h1"); if (h0) { h0.classList.remove("pend"); if (D.off) h0.textContent = "คิวจองที่นั่ง"; }
     if (D.off) { var c0 = el("div", "card"); c0.appendChild(el("p", "empty", D.off === "no_trip" ? "ไม่พบทริปนี้" : "ยังไม่เปิดใช้คิวจอง")); main.appendChild(c0); return; }
     var org = !!D.role, signedIn = !!D.me;
     document.body.classList.toggle("org", org);
