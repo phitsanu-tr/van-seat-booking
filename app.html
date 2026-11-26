@@ -219,11 +219,15 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .h2 + .card { margin-top: -4px; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; border-color: #e8ecef; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
 .card.dim { opacity: .62; }
-.card.qw .l { background-image: none; }
-.card.qw .qst { font-weight: 700; font-size: 14px; line-height: 20px; color: var(--mine); }
-.card.qw.go { background: #e3f4ec; border-color: #e3f4ec; box-shadow: none; } .card.qw.go .qst { color: #0b7a4a; }
-.card.qw.pend { background: #fff4dc; border-color: #fff4dc; box-shadow: none; } .card.qw.pend .qst { color: #8a5a00; }
-.card.qw .qgo { display: flex; align-items: center; justify-content: center; height: 48px; margin-top: 12px; border-radius: 12px; background: var(--mine); color: #fff; font-weight: 600; font-size: 16px; text-decoration: none; }
+.card.qw .qbox { border-radius: 16px; padding: 12px 16px; background: color-mix(in srgb, var(--mine) 14%, var(--surface)); }
+.card.qw .qbox.go { background: #e3f4ec; } .card.qw .qbox.pend { background: #fff4dc; color: #8a5a00; }
+.card.qw .ql { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.card.qw .ql b { font: 600 16px/24px var(--font-display); color: var(--mine); } .card.qw .qbox.go .ql b { color: #0b7a4a; } .card.qw .qbox.pend .ql b { color: #8a5a00; }
+.card.qw .ql span { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--mine); white-space: nowrap; } .card.qw .qbox.pend .ql span { color: #8a5a00; }
+.card.qw .qbox p { margin: 0; font-size: 14px; line-height: 20px; } .card.qw .qbox.go p { color: #0a5c3c; }
+.card.qw .qpb { display: flex; gap: 4px; margin: 8px 0 4px; } .card.qw .qpb i { flex: 1; height: 8px; border-radius: 4px; background: #bcd8da; } .card.qw .qpb i.d, .card.qw .qpb i.m { background: var(--mine); } .card.qw .qpb i.m { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--mine); }
+.card.qw .qpf { display: flex; justify-content: space-between; font-size: 14px; line-height: 20px; color: var(--muted); }
+.card .ab.pr { background: var(--mine); border-color: var(--mine); color: #fff; }
 /* cards you can tap (whole card opens the trip's seat plan): press feedback so the tap is felt */
 .card.tap { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .1s ease, background-color .1s ease; }
 .card.tap.press { transform: scale(.98); background: #f4f7f8; }
@@ -1052,15 +1056,30 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
   }
 
-  function queueCard(x) { // waiting in a booking queue: one line of status, the green card (with a button) when it is the person's turn
-    var turn = x.qs === "turn", pend = !turn && !x.ok;
-    var c = node("div", "card tk qw" + (turn ? " go" : pend ? " pend" : "")), l = node("div", "l");
-    var go = "/" + x.id + (turn ? "/seats" : "/queue"); tapCard(c, go);
-    l.appendChild(node("div", "t", x.name));
-    var dr = dateRange(x.startDate, x.endDate); if (dr) l.appendChild(node("div", "orgx", dr));
-    l.appendChild(node("div", "qst", turn ? "ถึงคิวคุณแล้ว" : pend ? "รออนุมัติชื่อจากผู้จัด" : "อีก " + Math.max(1, x.ahead) + " คน ถึงคิวคุณ"));
-    if (turn) { var b = node("a", "qgo", "ไปเลือกที่นั่ง"); b.href = go; l.appendChild(b); }
-    c.appendChild(l); return c;
+  function queueCard(x) { // same card as "my trips" (name, organizer, days, van chip, route box) with the queue status in place of the seat bar
+    var turn = x.qs === "turn", pend = !turn && !x.ok, go = "/" + x.id + (turn ? "/seats" : "/queue");
+    var c = node("div", "card qw"); tapCard(c, go);
+    var hd = node("div", "chead"), r1 = node("div", "row1"); r1.appendChild(node("div", "t", x.name)); hd.appendChild(r1);
+    var p = statusPill(x), sub = node("div", "org"); if (x.organizer) sub.appendChild(node("span", null, x.organizer)); if (p) sub.appendChild(p);
+    var vc = node("span", "vchip"); vc.insertAdjacentHTML("beforeend", VAN_SVG); vc.appendChild(document.createTextNode("รถตู้ " + x.vans + " คัน")); sub.appendChild(vc); hd.appendChild(sub);
+    hd.appendChild(routeBox(x, true)); c.appendChild(hd);
+    var bx = node("div", "qbox" + (turn ? " go" : pend ? " pend" : "")), l1 = node("div", "ql");
+    l1.appendChild(node("b", null, turn ? "ถึงคิวคุณแล้ว" : pend ? "รออนุมัติชื่อจากผู้จัด" : "อีก " + Math.max(1, x.ahead) + " คน ถึงคิวคุณ"));
+    if (!turn) l1.appendChild(node("span", null, "ดูคิว ›")); bx.appendChild(l1);
+    if (turn) bx.appendChild(node("p", null, "คุณคิวที่ " + x.qpos + (x.limit > 0 ? " · จองได้ " + x.limit + " ที่นั่ง" : "")));
+    else if (pend) bx.appendChild(node("p", null, "ผู้จัดตรวจชื่อแล้ว เราจะแจ้งทาง LINE"));
+    else {
+      var pb = node("div", "qpb"), segs = Math.min(Math.max(1, x.ahead) + 1, 8);
+      for (var i = 0; i < segs; i++) pb.appendChild(node("i", i === 0 ? "d" : i === segs - 1 ? "m" : ""));
+      bx.appendChild(pb);
+      var pf = node("div", "qpf"); pf.appendChild(node("span", null, x.qturn ? "กำลังเลือก: คิวที่ " + x.qturn : "รอเริ่มคิว")); pf.appendChild(node("span", null, "คุณคิวที่ " + x.qpos)); bx.appendChild(pf);
+    }
+    c.appendChild(bx);
+    if (turn) {
+      var acts = node("div", "acts"), v = node("a", "ab", "ดูคิว"), g = node("a", "ab pr", "ไปเลือกที่นั่ง");
+      v.href = "/" + x.id + "/queue"; g.href = go; acts.appendChild(v); acts.appendChild(g); c.appendChild(acts);
+    }
+    return c;
   }
   function renderSeats(list, queues) {
     var pane = $("paneSeats"); pane.textContent = "";

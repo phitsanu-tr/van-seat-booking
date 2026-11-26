@@ -218,7 +218,8 @@ module.exports = async function handler(req, res) {
           if (!tr || L.tripEnded(tr) || !q || !Array.isArray(q.items)) { drop.push(id); return; }
           const st = Q.stateOf(q, user);
           if (!q.on || (st.s !== "wait" && st.s !== "turn")) { if (st.s === "out" || st.s === "done") drop.push(id); return; }
-          queues.push(Object.assign(summary(tr, {}), { qs: st.s, ahead: st.ahead || 0, ok: st.s === "turn" ? true : !!st.ok }));
+          const mineRow = q.items.find((i) => i.u === user.id), hd = Q.turnOf(q);
+          queues.push(Object.assign(summary(tr, {}), { qs: st.s, ahead: st.ahead || 0, ok: st.s === "turn" ? true : !!st.ok, qpos: q.items.indexOf(mineRow) + 1, qturn: hd ? q.items.indexOf(hd) + 1 : 0 }));
         });
         if (drop.length) { try { await L.redis(["SREM", L.myQueueKey(user.id)].concat(drop)); } catch (e) { /* best effort */ } }
         queues.sort((a, b) => (a.qs === "turn" ? 0 : 1) - (b.qs === "turn" ? 0 : 1) || String(a.startDate || "9").localeCompare(String(b.startDate || "9")));
