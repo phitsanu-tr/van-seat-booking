@@ -19,7 +19,7 @@ card closing line true
 closeAt 1 min ago 200 closed true P books 403 closed
 reopen after passed time: closed false closeAt cleared yes P books 200
 bad closeAt 400 bad_close
-first tap ยืนยันปิด?
+first tap แตะอีกครั้งเพื่อยืนยันปิดรับจอง5
 sheet closed ปิดรับจองแล้ว note true server true
 form switch shown true checked true
 saved with switch off: closed false form errors 0

@@ -22,7 +22,7 @@ await A.click('.mx');await A.waitForTimeout(300);log('x closes',await A.$$eval('
 log('no copy or seat map in manage',await A.$$eval('.mgb',e=>e.filter(x=>/คัดลอก|ผังที่นั่ง/.test(x.textContent)).length));
 await A.click('.mgb.lk');await A.waitForTimeout(200);log('first tap',(await A.textContent('.mgb.lk')).trim());await A.click('.mgb.lk');await A.waitForTimeout(1200);
 const closedNow=async()=>(await (await A.request.get(B+'/api/seats?t='+ID+'&v=v1')).json()).closed;
-log('closed',await closedNow(),'card share',(await A.textContent('.acts .ab.tl')).trim());
+log('closed',await closedNow(),'card share',(await A.textContent('.acts .ab:last-child')).trim());
 await A.click('.ab.mgo');await A.waitForTimeout(500);await A.click('.mgb.op');await A.waitForTimeout(1200);log('reopened',await closedNow());
 // --- duplicate an upcoming trip
 await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);
