@@ -1938,10 +1938,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     function wideBtn(cls, label) { var b = node("button", cls, label); b.type = "button"; b.style.height = "48px"; b.style.borderRadius = "12px"; b.style.fontSize = "16px"; b.style.fontWeight = "600"; return b; }
     function draw() {
       sh.textContent = "";       sheetHead(sh, "ผู้ช่วยจัดทริป", close);
-      sh.appendChild(node("p", null, x.name));
       if (!st.t) { sh.appendChild(node("p", null, "กำลังโหลด...")); return; }
       var T = st.t, owner = T.role === "owner";
-      sh.appendChild(node("p", null, "ผู้ช่วยแก้ไขทริปและจัดการที่นั่งได้เหมือนเจ้าของ แต่ลบทริป เชิญ หรือนำผู้ช่วยออกไม่ได้ · สูงสุด " + T.max + " คน"));
+      var rules = node("p"); rules.style.cssText = "margin:0;font:400 14px/24px var(--font-body);color:var(--muted)";
+      [["ผู้ช่วยทำได้", " แก้ไขทริป และจัดการที่นั่ง"], ["ผู้ช่วยทำไม่ได้", " ลบทริป เชิญหรือนำผู้ช่วยออก"]].forEach(function (r, i) {
+        if (i) rules.appendChild(document.createElement("br"));
+        var bb = node("b", null, r[0]); bb.style.cssText = "font-weight:600;color:var(--ink)"; rules.appendChild(bb); rules.appendChild(document.createTextNode(r[1]));
+      });
+      sh.appendChild(rules);
       var list = node("div", "rlist");
       var orow = node("div", "rrow"); orow.appendChild(node("div", "no", "★"));
       var on = node("div", "nm2"); on.appendChild(node("b", null, T.ownerName || "เจ้าของทริป")); on.appendChild(node("small", null, owner ? "เจ้าของทริป (คุณ)" : "เจ้าของทริป")); orow.appendChild(on); list.appendChild(orow);
@@ -1963,11 +1967,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         row.appendChild(ra); list.appendChild(row);
       });
       sh.appendChild(list);
-      if (!T.helpers.length) sh.appendChild(node("div", "rfree", "ยังไม่มีผู้ช่วย"));
+      var noPlan = owner && T.max === 0 && !T.helpers.length; // package without helpers: one box below says so
+      if (!T.helpers.length && !noPlan) sh.appendChild(node("div", "rfree", "ยังไม่มีผู้ช่วย"));
       if (owner) {
-        if (T.max === 0 && !T.helpers.length) { // package without helpers
-          var up = node("div", "rfree"); up.appendChild(document.createTextNode("แพ็กเกจ Free ยังเพิ่มผู้ช่วยไม่ได้ · "));
-          var ul = node("a", null, "ดูแพ็กเกจ"); ul.href = "/plans?next=" + encodeURIComponent("/trips"); ul.style.cssText = "color:var(--mine);font-weight:600"; up.appendChild(ul); sh.appendChild(up);
+        if (noPlan) {
+          var up = node("div"); up.style.cssText = "background:#f3f6f7;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:12px";
+          var ut = node("div", null, "แพ็กเกจ Free ยังเพิ่มผู้ช่วยไม่ได้"); ut.style.cssText = "font:500 14px/20px var(--font-body);color:var(--ink)";
+          var ul = node("a", null, "ดูแพ็กเกจ"); ul.href = "/plans?next=" + encodeURIComponent("/trips"); ul.style.cssText = "display:grid;place-items:center;height:48px;border-radius:12px;background:var(--mine);color:#fff;font:600 16px/24px var(--font-display);text-decoration:none";
+          up.appendChild(ut); up.appendChild(ul); sh.appendChild(up);
         }
         else if (T.helpers.length >= T.max) sh.appendChild(node("div", "rfree", "ผู้ช่วยครบ " + T.max + " คนแล้ว"));
         else if (T.invite) {
