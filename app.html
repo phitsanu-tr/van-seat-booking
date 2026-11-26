@@ -865,7 +865,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
     sheetHead(sh, "ส่งรายชื่อเข้ากลุ่ม", shut);
     sh.appendChild(node("p", "msub", "ข้อความพร้อมวางในกลุ่ม LINE"));
-    var pv = node("div", null, "กำลังโหลด…"); pv.style.cssText = "min-height:132px;background:#f1f4f4;border-radius:12px;padding:12px;font:14px/22px var(--font-body);white-space:pre-line;max-height:34vh;overflow:auto;overflow-wrap:anywhere";
+    var pv = node("div", "sk", "กำลังโหลด…"); pv.style.cssText = "min-height:132px;border-radius:12px;padding:12px;font:14px/22px var(--font-body);white-space:pre-line;max-height:34vh;overflow:auto;overflow-wrap:anywhere";
     var row = node("div"); row.style.cssText = "display:flex;gap:8px";
     var cp = node("button", null, "คัดลอก"), ln = node("a", null, "ส่งใน LINE"); cp.type = "button"; ln.target = "_blank"; ln.rel = "noopener";
     var base = "flex:1;height:48px;border-radius:14px;border:0;display:grid;place-items:center;font:600 15px/24px var(--font-body);text-decoration:none;";
@@ -877,8 +877,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     sh.appendChild(pv); sh.appendChild(row); sh.appendChild(nt); document.body.appendChild(bd);
     (ROSTER_PRE[x.id] && Date.now() - ROSTER_PRE[x.id].at < 20000 ? ROSTER_PRE[x.id].p : getRoster(x.id)).then(function (d) {
       text = rosterText(d.trip, d.roster || {}, !d.trip.closedNow && !d.ended); pv.textContent = text;
-      pv.style.minHeight = ""; cp.disabled = false; ln.href = "https://line.me/R/msg/text/?" + encodeURIComponent(text); ln.style.opacity = ""; ln.style.pointerEvents = "";
-    }).catch(function () { pv.textContent = "โหลดรายชื่อไม่สำเร็จ ลองอีกครั้ง"; });
+      pv.classList.remove("sk"); pv.style.background = "#f1f4f4"; pv.style.minHeight = ""; cp.disabled = false; ln.href = "https://line.me/R/msg/text/?" + encodeURIComponent(text); ln.style.opacity = ""; ln.style.pointerEvents = "";
+    }).catch(function () { pv.classList.remove("sk"); pv.style.background = "#f1f4f4"; pv.textContent = "โหลดรายชื่อไม่สำเร็จ ลองอีกครั้ง"; });
   }
 
   var NOTIFY_PRE = {};
@@ -889,7 +889,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var shut = function () { bd.remove(); };
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
     sheetHead(sh, "แจ้งเตือนผู้จอง", shut);
-    var sub = node("p", "msub", "กำลังโหลด…"); sh.appendChild(sub);
+    var sub = node("p", "msub sk", "กำลังโหลด…"); sub.style.width = "60%"; sh.appendChild(sub);
     var meet = [x.departTime ? "ออก " + x.departTime : "", x.meetPoint ? "นัดที่ " + x.meetPoint : ""].filter(Boolean).join(" ");
     var opts = [
       { t: "เตือนก่อนเดินทาง", d: (meet ? meet + " " : "") + "อย่าลืมมาก่อน 15 นาที", pre: "" },
@@ -928,10 +928,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     });
     document.body.appendChild(bd);
     (NOTIFY_PRE[x.id] && Date.now() - NOTIFY_PRE[x.id].at < 20000 ? NOTIFY_PRE[x.id].p : getNotify(x.id)).then(function (d) {
-      if (!d) throw new Error(); info = d;
+      if (!d) throw new Error(); info = d; sub.classList.remove("sk"); sub.style.width = "";
       sub.textContent = d.people ? "ส่งถึง " + d.people + " คน ทาง LINE และในแอป" : "ยังไม่มีผู้จอง จึงยังไม่มีใครให้ส่ง";
       nt.textContent = "ส่งได้ " + d.max + " ครั้งต่อทริปต่อวัน (วันนี้ใช้แล้ว " + d.sent + ") · ข้อความ LINE มีโควตารายเดือน"; paint();
-    }).catch(function () { sub.textContent = "โหลดข้อมูลไม่สำเร็จ ลองอีกครั้ง"; });
+    }).catch(function () { sub.classList.remove("sk"); sub.style.width = ""; sub.textContent = "โหลดข้อมูลไม่สำเร็จ ลองอีกครั้ง"; });
   }
 
   function shareTrip(x) {
