@@ -303,7 +303,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .acti .cdn { margin-left: auto; flex: none; width: 28px; height: 28px; border-radius: 50%; background: rgba(255, 255, 255, .22); display: grid; place-items: center; font: 700 14px/20px var(--font-display); }
 .acti.dg { color: var(--danger); } .acti.dg svg { color: var(--danger); }
 .acti.op, .acti.op svg { color: var(--mine); } .acti .c small { font-size: 14px; color: var(--muted); margin-right: 8px; line-height: 20px} .acti .c { display: flex; align-items: center; }
-.cbar { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border: 0; border-radius: 12px; background: #f3f6f7; width: 100%; text-align: left; cursor: pointer; font: 500 14px/20px var(--font-body); color: var(--muted); } .cbar svg { width: 20px; height: 20px; flex: none; } .cbar span { flex: 1; } .cbar b { color: var(--mine); font: 700 16px/24px var(--font-body); letter-spacing: .08em; } .cbar:active { background: #e6ecef; }
+.cbar { display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 12px; border: 0; border-radius: 12px; background: #f3f6f7; width: 100%; text-align: left; cursor: pointer; font: 500 16px/24px var(--font-body); color: var(--ink); } .cbar svg { width: 20px; height: 20px; flex: none; color: var(--muted); } .cbar span { flex: 1; } .cbar b { color: var(--mine); font: 700 16px/24px var(--font-body); letter-spacing: .08em; } .cbar:active { background: #e6ecef; }
 .msub { margin: -8px 0 0; font-size: 14px; color: var(--muted); line-height: 20px}
 .acti:active { background: #e6ecef; }
 .agrp { background: #f3f6f7; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
@@ -828,10 +828,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (right != null) { var r = node("span", "c"); if (right) r.appendChild(node("small", null, right)); r.appendChild(document.createTextNode("›")); b.appendChild(r); }
       g.appendChild(b); return b;
     }
-    function tagNew(b) { var t = node("span", null, "ใหม่"); t.style.cssText = "font:600 11px/16px var(--font-body);background:#e3eef0;color:var(--mine);border-radius:99px;padding:1px 8px;margin-left:8px"; b.querySelector("span").appendChild(t); }
-    tagNew(item(g1, "queue", "ส่งรายชื่อเข้ากลุ่ม", "", "", function () { shut(); openSendList(x); }));
-    if (daysTo(x.startDate) <= 1 && daysTo(x.endDate || x.startDate) >= 0) tagNew(item(g1, "seats", "เช็กชื่อขึ้นรถ", "", "", function () { shut(); openRoster(x, "board"); }));
-    var bl = item(g1, "share", "แจ้งเตือนผู้จอง", "", "", function () { shut(); openRemind(x); }); tagNew(bl);
+    item(g1, "queue", "ส่งรายชื่อเข้ากลุ่ม", "", "", function () { shut(); openSendList(x); });
+    if (daysTo(x.startDate) <= 1 && daysTo(x.endDate || x.startDate) >= 0) item(g1, "seats", "เช็กชื่อขึ้นรถ", "", "", function () { shut(); openRoster(x, "board"); });
+    var bl = item(g1, "share", "แจ้งเตือนผู้จอง", "", "", function () { shut(); openRemind(x); });
     bl.querySelector("svg").outerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/></svg>';
     item(g1b, "pen", "แก้ไขทริป", "", "", "/" + x.id + "/edit");
     item(g1b, "team", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป", "", x.role === "helper" ? "" : (x.helpers || 0) + "/2", function () { shut(); openTeam(x); });
