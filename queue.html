@@ -73,7 +73,7 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
 .ed{flex:none;flex:0 1 250px;height:250px;display:flex;min-height:120px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.ed:focus-within{border-color:var(--mine)}
 .gu{flex:none;width:34px;background:var(--tint);color:var(--mine);font:700 13px/28px var(--font-body);text-align:center;padding:12px 0;overflow:hidden;white-space:pre}
 .ed textarea{flex:1;min-width:0;border:0;outline:0;border-radius:0;resize:none;background:transparent;color:var(--ink);font:16px/28px var(--font-body);padding:12px;min-height:0}
-.ed{position:relative}.edfull{position:absolute;right:12px;bottom:8px;background:#fff;color:var(--muted);font-size:13px;line-height:20px;pointer-events:none}.edtoast{position:absolute;left:10px;right:10px;bottom:10px;background:var(--warnbg);color:var(--warn);border-radius:10px;padding:8px 12px;font:600 13px/18px var(--font-display);pointer-events:none}[hidden]{display:none!important}.addlink:disabled{color:var(--muted);cursor:default}.sct{font-size:13px;line-height:20px;font-weight:700;color:var(--mine);min-height:20px;margin-top:8px}
+.ed.one{height:auto;min-height:0;flex:none;align-items:stretch}.ed.one .gu{padding:0;line-height:48px}.ed.one input{flex:1;min-width:0;border:0;outline:0;font:16px/24px var(--font-body);padding:12px;background:transparent;color:var(--ink)}.ecnt{align-self:center;padding-right:12px;font-size:12px;color:var(--muted)}.ed{position:relative}.edfull{position:absolute;right:12px;bottom:8px;background:#fff;color:var(--muted);font-size:13px;line-height:20px;pointer-events:none}.edtoast{position:absolute;left:10px;right:10px;bottom:10px;background:var(--warnbg);color:var(--warn);border-radius:10px;padding:8px 12px;font:600 13px/18px var(--font-display);pointer-events:none}[hidden]{display:none!important}.addlink:disabled{color:var(--muted);cursor:default}.sct{font-size:13px;line-height:20px;font-weight:700;color:var(--mine);min-height:20px;margin-top:8px}
 body.sheeton{overflow:hidden}
 .obar2{display:flex;gap:10px;margin-top:12px}
 .addlink{width:100%;background:none;color:var(--mine);border-radius:0;border-top:1px solid #eef1f3;min-height:46px;margin-top:4px}
@@ -156,7 +156,7 @@ h1{margin:0 0 16px}.card,.swc,.seg{margin-bottom:16px}.ic{width:30px;height:30px
   function flash(t) { if (errBox) { errBox.textContent = t; errBox.hidden = false; setTimeout(function () { if (errBox) errBox.hidden = true; }, 4000); } }
   var lastJ = "";
   function load() {
-    if (busy || sheet === "add" || document.activeElement && document.activeElement.tagName === "TEXTAREA") return Promise.resolve(); // an action is on its way, or the person is typing: do not redraw under them
+    if (busy || sheet === "add" || sheet === "edit" || document.activeElement && document.activeElement.tagName === "TEXTAREA") return Promise.resolve(); // an action is on its way, or the person is typing: do not redraw under them
     return fetch("/api/queue?t=" + encodeURIComponent(T), { cache: "no-store" }).then(function (r) {
       if (r.status === 404) { return r.json().then(function (j) { D = { off: j && j.error }; draw(); }); }
       return r.json().then(function (j) { var sj = JSON.stringify(j); if (D && sj === lastJ) return; lastJ = sj; D = j; draw(); });
@@ -168,7 +168,7 @@ h1{margin:0 0 16px}.card,.swc,.seg{margin-bottom:16px}.ic{width:30px;height:30px
     var h = el("div", "chd2"), ic = el("span", "ic"); ic.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICN[icon] + '</svg>';
     h.appendChild(ic); h.appendChild(el("h2", null, title)); if (right) h.appendChild(el("span", "r", right)); return h;
   }
-  var tab = "list", stripOpen = false, menuId = "", sheet = "", draft = "", sheetNew = false;
+  var tab = "list", stripOpen = false, menuId = "", sheet = "", draft = "", sheetNew = false, editId = "";
   function fitSheet() { var sh = document.querySelector(".sheet"); if (!sh) return; var vv = window.visualViewport; sh.style.bottom = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) + "px" : "0px"; if (vv) sh.style.maxHeight = (vv.height - 36) + "px"; }
   if (window.visualViewport) { var fsRaf = 0; window.visualViewport.addEventListener("resize", function () { cancelAnimationFrame(fsRaf); fsRaf = requestAnimationFrame(fitSheet); }); }
   function closeSheet() { var sh = document.querySelector(".sheet"), dm = document.querySelector(".dim"); if (sh) sh.classList.remove("up"); if (dm) dm.classList.remove("up"); document.body.classList.remove("sheeton"); try { document.activeElement.blur(); } catch (e) {} setTimeout(function () { sheet = ""; draw(); }, 260); }
@@ -189,6 +189,7 @@ h1{margin:0 0 16px}.card,.swc,.seg{margin-bottom:16px}.ic{width:30px;height:30px
       if (menuId === it.id) {
         var m = el("div", "menu"); m.setAttribute("role", "menu");
         var add = function (t, cls, fn) { var b = el("button", cls || "", t); b.type = "button"; b.addEventListener("click", function (e) { e.stopPropagation(); menuId = ""; if (busy) return; busy = true; fn().then(function () { busy = false; draw(); }, function () { busy = false; draw(); }); }); m.appendChild(b); };
+        add("แก้ชื่อ", "", function () { editId = it.id; sheet = "edit"; sheetNew = true; return Promise.resolve(); });
         if (i > 0) add("เลื่อนขึ้น", "", function () { return call("up", { id: it.id }); });
         if (i < D.items.length - 1) add("เลื่อนลง", "", function () { return call("down", { id: it.id }); });
         if (it.bound) add("ปลดชื่อ", "", function () { return call("unbind", { id: it.id }); });
@@ -229,6 +230,27 @@ h1{margin:0 0 16px}.card,.swc,.seg{margin-bottom:16px}.ic{width:30px;height:30px
     }
     var bar = el("div", "obar one"); var bk = el("a", "b", "ย้อนกลับ"); bk.href = "/" + T + "/seats"; bk.addEventListener("click", function (e) { try { if (history.length > 1) { e.preventDefault(); history.back(); } } catch (x) {} }); bar.appendChild(bk);
     main.appendChild(bar);
+    if (sheet === "edit") {
+      var eit = D.items.filter(function (x) { return x.id === editId; })[0], efirst = sheetNew; sheetNew = false;
+      if (!eit) { sheet = ""; } else {
+        var edim = el("div", "dim" + (efirst ? "" : " up")); edim.addEventListener("click", function () { closeSheet(); }); main.appendChild(edim);
+        var esh = el("div", "sheet" + (efirst ? "" : " up")); esh.setAttribute("role", "dialog"); esh.setAttribute("aria-label", "แก้ชื่อ");
+        var epos = D.items.indexOf(eit) + 1;
+        var etb = el("div", "stb"); var ecn = el("button", "tx", "ยกเลิก"); ecn.type = "button"; ecn.addEventListener("click", function () { closeSheet(); }); etb.appendChild(ecn); etb.appendChild(el("b", null, "แก้ชื่อ"));
+        var einp = el("input"); einp.type = "text"; einp.value = eit.name; einp.maxLength = 12; einp.setAttribute("aria-label", "ชื่อ"); einp.autocomplete = "off";
+        var ecnt = el("span", "ecnt");
+        var esave = btn("บันทึก", "go", function () { var v = einp.value.trim(); if (!v || v === eit.name) { closeSheet(); return Promise.resolve(); } sheet = ""; document.body.classList.remove("sheeton"); return call("rename", { id: eit.id, name: v }).then(function () { draw(); }); });
+        etb.appendChild(esave); esh.appendChild(etb);
+        var ebd = el("div", "sbd"); ebd.appendChild(el("p", "note", "คิวที่ " + epos + " · แก้ชื่อได้ ลำดับคิวไม่เปลี่ยน"));
+        var eed = el("div", "ed one"), egu = el("div", "gu", String(epos)); eed.appendChild(egu); eed.appendChild(einp); eed.appendChild(ecnt); ebd.appendChild(eed);
+        if (eit.bound) ebd.appendChild(el("div", "sct", "ผูกกับบัญชี LINE แล้ว · การผูกไม่เปลี่ยน"));
+        esh.appendChild(ebd);
+        var eupd = function () { ecnt.textContent = einp.value.length + "/12"; esave.disabled = !einp.value.trim(); };
+        einp.addEventListener("input", eupd); einp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); if (!esave.disabled) esave.click(); } }); eupd();
+        main.appendChild(esh); document.body.classList.add("sheeton"); fitSheet();
+        if (efirst) { requestAnimationFrame(function () { requestAnimationFrame(function () { esh.classList.add("up"); edim.classList.add("up"); einp.focus({ preventScroll: true }); einp.select(); }); }); }
+      }
+    }
     if (sheet === "add") {
       var first = sheetNew; sheetNew = false;
       var dim = el("div", "dim" + (first ? "" : " up")); dim.addEventListener("click", function () { closeSheet(); }); main.appendChild(dim);

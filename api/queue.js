@@ -4,6 +4,7 @@
 //        {t, a: "auto", value}        organizer: true = "this is me" is approved at once (no organizer check)
 //        {t, a: "add", names: [..]}   organizer: add passengers at the end (one name per entry)
 //        {t, a: "remove" | "up" | "down" | "unbind", id}   organizer
+//        {t, a: "rename", id, name}   organizer: fix the spelling of a name (place and LINE binding stay)
 //        {t, a: "ok", id, value}      organizer: approve / withdraw approval of the account that claimed this row
 //        {t, a: "done", id, value}    organizer: skip a row (done) / put it back
 //        {t, a: "claim", id}          passenger (signed in): "this is me" on a free row; waits for approval
@@ -45,7 +46,7 @@ module.exports = async function handler(req, res) {
     if (L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
     if (await L.rateLimited(req, user, "queue:" + t, 120, 600)) return L.json(res, 429, { error: "too_many" });
     const a = String(body.a || ""), id = String(body.id || "");
-    const orgActs = ["on", "auto", "okall", "add", "remove", "up", "down", "unbind", "ok", "done"];
+    const orgActs = ["on", "auto", "okall", "add", "remove", "up", "down", "unbind", "ok", "done", "rename"];
     if (orgActs.includes(a) && !org) return L.json(res, 403, { error: "not_owner" });
     const row = (q) => q.items.find((i) => i.id === id);
     let fn = null;
@@ -56,6 +57,11 @@ module.exports = async function handler(req, res) {
       const names = (Array.isArray(body.names) ? body.names : [body.name]).map((x) => L.cleanName(String(x == null ? "" : x).replace(/\s+/g, " ").trim()).text).filter((x) => x && L.hasBaseLetter(x) && !L.reservedName(x, true)).slice(0, Q.MAX_ITEMS);
       if (!names.length) return L.json(res, 400, { error: "bad_name" });
       fn = (q) => { if (q.items.length + names.length > cap) return { error: "queue_full", cap }; names.forEach((n) => q.items.push({ id: L.newId(6), name: n })); };
+    }
+    else if (a === "rename") {
+      const nn = L.cleanName(String(body.name == null ? "" : body.name).replace(/\s+/g, " ").trim()).text;
+      if (!nn || !L.hasBaseLetter(nn) || L.reservedName(nn, true)) return L.json(res, 400, { error: "bad_name" });
+      fn = (q) => { const r = row(q); if (!r || r.name === nn) return false; r.name = nn; };
     }
     else if (a === "remove") fn = (q) => { const n = q.items.length; q.items = q.items.filter((i) => i.id !== id); if (q.items.length === n) return false; };
     else if (a === "up" || a === "down") fn = (q) => {
