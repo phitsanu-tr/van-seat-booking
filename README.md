@@ -188,7 +188,7 @@ node dev.js
 
 ## UI standard
 - All font sizes and picture sizes are **even px** (22, 24, 26, 28 …). See `ui.css`.
-- Page header (booking, create / edit trip): 4px teal bar on the left (stretches to the full height of the two text lines, so it always matches the text), then the title and one short line. Title / line sizes step with the screen width: 28/16 (≥414px), 26/14, 24/14, 22/12 (≤340px); the short line never wraps. Styles live in `ui.css`.
+- Page header: title only (26/32 bold, no teal bar, no subtitle line); see `DESIGN.md`. Styles live in `ui.css`.
 - Bottom menu: the 5-tab bar is in the app itself (`/home`, `/trips`, `/seats`, `/notify`, `/profile`) and, for signed-in users, on the trips form, plans, privacy and booking pages through `tabbar.js` (`data-tab` marks the active tab; keep its look in sync with the bar in `app.html`). The trips form asks before leaving when there is unsaved input.
-- Top bar on every page: back arrow (sub-pages) · app name · bell.
+- No top bar, back arrow or bell inside pages: LINE / the browser provides back, and notices live in the bottom "แจ้งเตือน" tab. Pages without the 5-tab menu (plans, privacy, terms, and the profile sub-pages การแจ้งเตือน / วิธีใช้) hide it and show a fixed bottom "ย้อนกลับ" button. The full standard is in `DESIGN.md`.
 - Page title position: the top of the title's line box is **20px** below the top edge on every page except home (which opens with the app bar). Pages that load `ui.css` get 16px from `body` plus the header's own 4px; `app.html` tabs use `.top > div` (16px padding, 56px high); `queue.html` uses `.wrap` (20px + safe area); detail page `#tripHdr` is pulled up 4px. Measured on a 390px-wide screen; change one page and re-measure all.
