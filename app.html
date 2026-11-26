@@ -565,7 +565,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 
   <section id="meView" hidden>
     <div style="display:flex;flex-direction:column;gap:16px">
-      <div class="who"><button class="hi acct" id="acctBtn" type="button" aria-haspopup="dialog" aria-label="เมนูบัญชี"><span class="avw"><span class="av" id="av"></span></span><span class="hn"><span class="nmr"><b id="meName"></b><span class="chv" aria-hidden="true">›</span></span></span></button></div>
+      <div class="who"><button class="hi acct" id="acctBtn" type="button" aria-label="โปรไฟล์"><span class="avw"><span class="av" id="av"></span></span><span class="hn"><span class="nmr"><b id="meName"></b><span class="chv" aria-hidden="true">›</span></span></span></button></div>
       <div class="seg" role="tablist"><button id="tabTrips" role="tab" aria-selected="false" type="button">ทริปของฉัน <span class="n" id="nTrips">0</span></button><button id="tabSeats" role="tab" aria-selected="false" type="button">ที่นั่งของฉัน <span class="n" id="nSeats">0</span></button></div>
       <div id="paneHome" hidden>
         <div id="hNext"></div>
@@ -2139,7 +2139,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var acts = node("div", "acts"), back = node("button", "b-soft", "ย้อนกลับ"), go = node("button", "b-danger", "ลบถาวร");
     back.type = go.type = "button";
     var close = function () { bd.remove(); };
-    back.addEventListener("click", function () { close(); openAccount(); }); bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
+    back.addEventListener("click", function () { close(); setTab("acct"); }); bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
     go.addEventListener("click", async function () {
       go.disabled = true; go.textContent = "กำลังลบ...";
       try {
@@ -2163,7 +2163,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       $("nTrips").textContent = d.trips.length; $("nSeats").textContent = d.seats.length;
       renderTrips(d.trips); renderSeats(d.seats); HM.render(d); if (tab === "acct") renderAcctPane(); updateHead();
       if (!fromCache) try { localStorage.setItem("vsb_in", "1"); localStorage.setItem("vsb_tb", JSON.stringify({ name: d.user.name || "", pic: d.user.pic || "" })); } catch (e) {}
-      if (wantAcct) { wantAcct = false; openAccount(); }
+      if (wantAcct) { wantAcct = false; setTab("acct"); }
       if (!fromCache) setTimeout(function () { preloadRosters(d.trips); }, 300); // after the page has drawn
   }
   var lastSig = "";
@@ -2308,8 +2308,9 @@ var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใ�
     row(g2, "button", SV0 + '<path d="M4 7h16M10 7V4h4v3M6 7l1 13h10l1-13"/></svg>', "ลบข้อมูลของฉัน", "dg", function () { shut(); askWipe(); });
     return [head, g1, g2];
   }
-  $("acctBtn").addEventListener("click", openAccount);
-  $("acctBtn2").addEventListener("click", openAccount);
+  function toProfile() { setTab("acct"); }
+  $("acctBtn").addEventListener("click", toProfile);
+  $("acctBtn2").addEventListener("click", toProfile);
   function goHome(msg) { // data deleted: show a closing page; in LINE the window closes by itself (button as a fallback)
     forgetRosters();
     try { localStorage.removeItem("vsb_in"); localStorage.removeItem("vsb_name"); localStorage.removeItem("vsb_me"); localStorage.removeItem("vsb_tb"); localStorage.setItem("vsb_gone", "1"); } catch (e) {}
