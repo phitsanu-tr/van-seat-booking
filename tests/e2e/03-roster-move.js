@@ -9,15 +9,15 @@ const ros=async()=>JSON.stringify((await (await A.request.get(B+'/api/trip?t='+I
 log('roster0',await ros());
 await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);await A.screenshot({path:S+'/15_roster.png'});
 // rename Bob
-await A.click('.rrow >> nth=0 >> text=แก้ชื่อ');await A.waitForTimeout(200);await A.fill('.nin','บ็อบบี้');await A.click('.sheet .b-danger');await A.waitForTimeout(900);log('after rename',await ros());
+await A.click('.rrow >> nth=0 >> .rmore');await A.click('.mgb >> text=แก้ชื่อ');await A.waitForTimeout(200);await A.fill('.nin','บ็อบบี้');await A.click('.sheet .b-danger');await A.waitForTimeout(900);log('after rename',await ros());
 // move Bob (row0) to van 2 seat 5
-await A.click('.rrow >> nth=0 >> text=ย้าย');await A.waitForTimeout(200);await A.click('.sheet .vchips button >> nth=1');await A.waitForTimeout(200);await A.click('.sgrid button >> nth=4');await A.waitForTimeout(200);await A.screenshot({path:S+'/16_move.png'});await A.click('.sheet .b-danger');await A.waitForTimeout(900);log('after move',await ros());
+await A.click('.rrow >> nth=0 >> .rmore');await A.click('.mgb >> text=ย้ายที่นั่ง');await A.waitForTimeout(200);await A.click('.sheet .vchips button >> nth=1');await A.waitForTimeout(200);await A.click('.sgrid button >> nth=4');await A.waitForTimeout(200);await A.screenshot({path:S+'/16_move.png'});await A.click('.sheet .b-danger');await A.waitForTimeout(900);log('after move',await ros());
 // swap: in van1, Cat (seat4) with van2 seat5 (Bob)
-await A.click('.sheet .vchips button >> nth=0');await A.waitForTimeout(200);await A.click('.rrow >> nth=0 >> text=ย้าย');await A.waitForTimeout(200);await A.click('.sheet .vchips button >> nth=1');await A.waitForTimeout(200);await A.click('.sgrid button >> nth=4');await A.waitForTimeout(200);log('swap btn',await A.textContent('.sheet .b-danger'));await A.click('.sheet .b-danger');await A.waitForTimeout(900);log('after swap',await ros());
+await A.click('.sheet .vchips button >> nth=0');await A.waitForTimeout(200);await A.click('.rrow >> nth=0 >> .rmore');await A.click('.mgb >> text=ย้ายที่นั่ง');await A.waitForTimeout(200);await A.click('.sheet .vchips button >> nth=1');await A.waitForTimeout(200);await A.click('.sgrid button >> nth=4');await A.waitForTimeout(200);log('swap btn',await A.textContent('.sheet .b-danger'));await A.click('.sheet .b-danger');await A.waitForTimeout(900);log('after swap',await ros());
 // Bob's my seats reflect new place
 log('bob me',JSON.stringify((await (await P.request.get(B+'/api/me')).json()).seats.map(x=>x.seats)));
 // cancel Bob (now van1 seat4) via roster double tap
-await A.click('.sheet .vchips button >> nth=0');await A.waitForTimeout(200);await A.click('.rrow >> nth=0 >> text=ยกเลิก');await A.click('.rrow >> nth=0 >> text=ยืนยัน?');await A.waitForTimeout(900);log('after cancel',await ros());
+await A.click('.sheet .vchips button >> nth=0');await A.waitForTimeout(200);await A.click('.rrow >> nth=0 >> .rmore');await A.click('.mgb.dg');await A.click('.mgb.dg');await A.waitForTimeout(900);log('after cancel',await ros());
 // passenger rename own seat in booking panel (Cat now van2 seat5)
 await C.goto(B+'/'+ID+'/seats?v=v2');await C.waitForTimeout(1200);await C.evaluate(()=>[...document.querySelectorAll('.seat')].find(b=>b.getAttribute('aria-label').includes('ที่นั่ง 5')).click());await C.waitForTimeout(300);
 await C.screenshot({path:S+'/17_own.png'});await C.click('#panel button.plain:has-text("แก้ชื่อ")');await C.waitForTimeout(200);await C.fill('#nameInput','แคทลียา');await C.click('#panel .primary');await C.waitForTimeout(1000);log('after self rename',await ros(),await C.textContent('#toast'));

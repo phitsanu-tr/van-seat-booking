@@ -391,7 +391,7 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .rrow .nm2 { flex: 1; min-width: 0; }
 .rrow .nm2 b { display: block; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 24px}
 .rrow .nm2 small { color: var(--muted); font-size: 14px; line-height: 20px}
-.rrow .ra { display: flex; gap: 8px; flex: none; }
+.rrow .ra { display: flex; gap: 8px; flex: none; } .rrow .rmore { flex: none; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 12px; background: #f1f4f6; color: var(--ink); display: grid; place-items: center; } .rrow .rmore svg { width: 18px; height: 18px; } .rrow .rmore:active { background: #e4e9ec; }
 .rrow .ra button { height: 44px; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 600; color: var(--ink); line-height: 20px}
 .rrow .ra button.dg { border-color: transparent; color: var(--danger); }
 .rfree { font-size: 14px; color: var(--muted); line-height: 20px}
@@ -1348,6 +1348,24 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var seats = st.roster[st.van] || {}, nums = Object.keys(seats).map(Number).sort(function (a, b) { return a - b; });
       if (!nums.length) sh.appendChild(node("div", "empty", "คัน " + vanLabel(st.van) + " ยังไม่มีผู้จอง"));
       else {
+        function seatMenu(n, s) { // the ⋯ menu of one booking: note, rename, move, cancel
+          var bd2 = node("div", "bd"), m = node("div", "sheet"); bd2.appendChild(m);
+          var shut2 = function () { bd2.remove(); };
+          bd2.addEventListener("click", function (e) { if (e.target === bd2) shut2(); });
+          sheetHead(m, "ที่นั่ง " + n + " · " + s.name, shut2); m.style.gap = "12px";
+          var g = node("div", "agrp");
+          function it(svg, label, cls, act) { var b = node("button", "acti mgb" + (cls ? " " + cls : "")); b.type = "button"; b.insertAdjacentHTML("beforeend", svg); b.appendChild(node("span", null, label)); b.addEventListener("click", function () { act(b); }); g.appendChild(b); return b; }
+          var SV = function (d) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>'; };
+          it(SV('<rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 9h6M9 13h6"/>'), s.nt ? "แก้โน้ต" : "โน้ต", "", function () { shut2(); st.sel = { v: st.van, s: n, name: s.name, nt: s.nt || "" }; st.mode = "note"; draw(); });
+          it(MG.pen, "แก้ชื่อ", "", function () { shut2(); st.sel = { v: st.van, s: n, name: s.name }; st.mode = "rename"; draw(); });
+          it(SV('<path d="M7 8h12l-3-3M17 16H5l3 3"/>'), "ย้ายที่นั่ง", "", function () { shut2(); st.sel = { v: st.van, s: n, name: s.name, tv: st.van, ts: null }; st.mode = "move"; draw(); });
+          it(SV('<path d="M6 6l12 12M18 6L6 18"/>'), "ยกเลิกการจอง", "dg", function (b) {
+            var sp = b.querySelector("span");
+            if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.classList.add("armed"); sp.textContent = "แตะอีกครั้งเพื่อยืนยันยกเลิก"; setTimeout(function () { if (b.isConnected) { b.dataset.sure = ""; b.classList.remove("armed"); sp.textContent = "ยกเลิกการจอง"; } }, 3500); return; }
+            shut2(); cancelOne(st.van, n, s.name, { dataset: { sure: "1" } });
+          });
+          m.appendChild(g); document.body.appendChild(bd2);
+        }
         var list = node("div", "rlist");
         nums.forEach(function (n) {
           var s = seats[n], row = node("div", "rrow");
@@ -1355,13 +1373,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
           var nm = node("div", "nm2"); nm.appendChild(node("b", null, s.name)); nm.appendChild(node("small", null, when(s.at) + (s.a ? "" : " · ผู้จองลบบัญชีแล้ว")));
           if (s.nt) { var ntl = node("small", "ntl"); ntl.textContent = "📝 " + s.nt; nm.appendChild(ntl); } row.appendChild(nm);
           if (!st.ended) {
-            var ra = node("div", "ra");
-            var b1 = node("button", null, "แก้ชื่อ"); b1.type = "button"; b1.addEventListener("click", function () { st.sel = { v: st.van, s: n, name: s.name }; st.mode = "rename"; draw(); });
-            var b2 = node("button", null, "ย้าย"); b2.type = "button"; b2.addEventListener("click", function () { st.sel = { v: st.van, s: n, name: s.name, tv: st.van, ts: null }; st.mode = "move"; draw(); });
-            var b3 = node("button", "dg", "ยกเลิก"); b3.type = "button"; b3.addEventListener("click", function () { cancelOne(st.van, n, s.name, b3); });
-            var b0 = node("button", null, s.nt ? "📝" : "โน้ต"); b0.type = "button"; b0.setAttribute("aria-label", "หมายเหตุ ที่นั่ง " + n);
-            b0.addEventListener("click", function () { st.sel = { v: st.van, s: n, name: s.name, nt: s.nt || "" }; st.mode = "note"; draw(); });
-            ra.appendChild(b0); ra.appendChild(b1); ra.appendChild(b2); ra.appendChild(b3); row.appendChild(ra);
+            var ra = node("div", "ra"), mb = node("button", "rmore"); mb.type = "button"; mb.insertAdjacentHTML("beforeend", MG.dots); mb.setAttribute("aria-label", "จัดการที่นั่ง " + n);
+            mb.addEventListener("click", function () { seatMenu(n, s); });
+            ra.appendChild(mb); row.appendChild(ra);
           }
           list.appendChild(row);
         });
