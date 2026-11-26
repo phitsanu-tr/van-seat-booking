@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
     const view = (q) => {
       const h = Q.turnOf(q), mine = user ? q.items.find((i) => i.u === user.id) : null;
       return {
-        on: !!q.on, auto: !!q.auto, cap, role: role || undefined, turn: h ? h.id : null, mine: mine ? mine.id : null, me: L.publicUser(user), ended: L.tripEnded(trip),
+        on: !!q.on, auto: !!q.auto, cap, role: role || undefined, turn: h ? h.id : null, mine: mine ? mine.id : null, me: L.publicUser(user), ended: L.tripEnded(trip), closed: !!L.bookingClosed(trip),
         items: q.items.map((i) => Object.assign({ id: i.id, name: org || (user && !mine) || (mine && i === mine) ? i.name : "" }, i.done ? { done: 1 } : {}, i.u ? { bound: 1 } : {}, i.ok ? { ok: 1 } : {},
           user && i.u === user.id ? { m: 1 } : {}, org && i.u && i.ln ? { ln: String(i.ln), lp: String(i.lp || "") } : {})),
       };

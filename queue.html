@@ -98,7 +98,7 @@ h1{font:700 26px/32px var(--font-display)}
 .err{color:var(--red);font-size:13px;margin-top:6px}
 .empty{color:var(--muted);text-align:center;padding:16px 0}
 /* same sizes and spacing as the create-trip page: 16px between title and cards and between cards, 30px icon, 16px card title, 14px/20px text */
-h1{margin:0 0 16px}.card,.swc,.seg{margin-bottom:16px}.ic{width:30px;height:30px}.ic svg{width:16px;height:16px}.chd2 h2{font:600 16px/24px var(--font-display)}.chd2 .r{font-size:12px;line-height:16px}.swc small,.empty{font-size:14px;line-height:20px}.obar a.b{font-size:16px;line-height:24px}
+h1{margin:0 0 16px}.card,.swc,.seg{margin-bottom:16px}.clb{display:flex;gap:12px;align-items:flex-start;background:var(--warnbg);color:var(--warn);border-radius:16px;padding:12px 16px;margin-bottom:16px;font:500 14px/20px var(--font-body,inherit)}.clb svg{flex:none;margin-top:0}.clb b{font-weight:600}.ic{width:30px;height:30px}.ic svg{width:16px;height:16px}.chd2 h2{font:600 16px/24px var(--font-display)}.chd2 .r{font-size:12px;line-height:16px}.swc small,.empty{font-size:14px;line-height:20px}.obar a.b{font-size:16px;line-height:24px}
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
@@ -203,7 +203,8 @@ h1{margin:0 0 16px}.card,.swc,.seg{margin-bottom:16px}.ic{width:30px;height:30px
   function drawOrg() {
     errBox = el("div", "err"); errBox.hidden = true; errBox.setAttribute("role", "alert");
     var w = waitingRows(), t = turnRow();
-    var sub = !D.on ? "ทุกคนจองได้ตามปกติ" : t ? "ถึงคิว: " + t.name + " · กำลังเลือกที่นั่ง" : "ยังไม่มีคนถึงคิว · ผู้จัดจองได้เสมอ";
+    if (D.closed) { var cb = el("div", "clb"); cb.setAttribute("role", "status"); cb.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'; var cd = el("div"); cd.appendChild(el("b", null, "ทริปปิดรับจองอยู่")); cd.appendChild(document.createElement("br")); cd.appendChild(document.createTextNode("คิวหยุดชั่วคราว เปิดรับจองแล้วเดินต่อจากเดิม")); cb.appendChild(cd); main.appendChild(cb); }
+    var sub = !D.on ? "ทุกคนจองได้ตามปกติ" : t ? "ถึงคิว: " + t.name + (D.closed ? " · รอเปิดรับจอง" : " · กำลังเลือกที่นั่ง") : "ยังไม่มีคนถึงคิว · ผู้จัดจองได้เสมอ";
     var c1 = el("div", "card swc " + (D.on ? "gon" : "goff")), h = el("div", "sw2"); var swt = el("span"); swt.appendChild(el("b", null, D.on ? "เปิดระบบคิว" : "ปิดระบบคิว")); swt.appendChild(el("small", null, sub)); h.appendChild(swt);
     var sw = el("button", "swt"); sw.type = "button"; sw.setAttribute("role", "switch"); sw.setAttribute("aria-checked", D.on ? "true" : "false"); sw.setAttribute("aria-label", "เปิดหรือปิดระบบคิว");
     sw.addEventListener("click", function () { if (busy) return; busy = true; var prev = D.on; D.on = !prev; draw(); call("on", { value: !prev }, function () { D.on = prev; draw(); }).then(function () { busy = false; }, function () { busy = false; }); });
