@@ -99,6 +99,9 @@ h1{font:700 26px/32px var(--font-display)}
 .empty{color:var(--muted);text-align:center;padding:16px 0}
 /* same sizes and spacing as the create-trip page: 16px between title and cards and between cards, 30px icon, 16px card title, 14px/20px text */
 h1{margin:0 0 16px}.card,.swc,.seg{margin-bottom:16px}.clb{display:flex;gap:12px;align-items:flex-start;background:var(--warnbg);color:var(--warn);border-radius:16px;padding:12px 16px;margin-bottom:16px;font:500 14px/20px var(--font-body,inherit)}.clb svg{flex:none;margin-top:0}.clb b{font-weight:600}.ic{width:30px;height:30px}.ic svg{width:16px;height:16px}.chd2 h2{font:600 16px/24px var(--font-display)}.chd2 .r{font-size:12px;line-height:16px}.swc small,.empty{font-size:14px;line-height:20px}.obar a.b{font-size:16px;line-height:24px}
+/* app screen: a long press does not select text or open the iOS callout; typing fields stay selectable (same rule as the other app pages) */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
