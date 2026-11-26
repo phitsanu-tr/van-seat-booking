@@ -811,7 +811,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     return fetch("/api/trip?t=" + encodeURIComponent(id), { cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error(); return r.json(); }).then(function (d) { TC[id] = d.team; teamSave(); return d.team; }).catch(function () { return null; });
   }
   function openManage(x) {
-    teamPrefetch(x.id);
+    teamPrefetch(x.id); prefetchRoster(x.id); prefetchNotify(x.id); // the three sheets behind this menu open with their data already in
     var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
     var shut = function () { bd.remove(); };
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
@@ -865,7 +865,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
     sheetHead(sh, "ส่งรายชื่อเข้ากลุ่ม", shut);
     sh.appendChild(node("p", "msub", "ข้อความพร้อมวางในกลุ่ม LINE"));
-    var pv = node("div", null, "กำลังโหลด…"); pv.style.cssText = "background:#f1f4f4;border-radius:12px;padding:12px;font:14px/22px var(--font-body);white-space:pre-line;max-height:34vh;overflow:auto;overflow-wrap:anywhere";
+    var pv = node("div", null, "กำลังโหลด…"); pv.style.cssText = "min-height:132px;background:#f1f4f4;border-radius:12px;padding:12px;font:14px/22px var(--font-body);white-space:pre-line;max-height:34vh;overflow:auto;overflow-wrap:anywhere";
     var row = node("div"); row.style.cssText = "display:flex;gap:8px";
     var cp = node("button", null, "คัดลอก"), ln = node("a", null, "ส่งใน LINE"); cp.type = "button"; ln.target = "_blank"; ln.rel = "noopener";
     var base = "flex:1;height:48px;border-radius:14px;border:0;display:grid;place-items:center;font:600 15px/24px var(--font-body);text-decoration:none;";
@@ -875,12 +875,15 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     row.appendChild(cp); row.appendChild(ln);
     var nt = node("p", "msub", "รายชื่อเป็นชื่อบนผังที่ทุกคนเห็นอยู่แล้ว ไม่มีชื่อ LINE"); nt.style.cssText = "margin:0;font-size:12px;line-height:18px";
     sh.appendChild(pv); sh.appendChild(row); sh.appendChild(nt); document.body.appendChild(bd);
-    getRoster(x.id).then(function (d) {
+    (ROSTER_PRE[x.id] && Date.now() - ROSTER_PRE[x.id].at < 20000 ? ROSTER_PRE[x.id].p : getRoster(x.id)).then(function (d) {
       text = rosterText(d.trip, d.roster || {}, !d.trip.closedNow && !d.ended); pv.textContent = text;
-      cp.disabled = false; ln.href = "https://line.me/R/msg/text/?" + encodeURIComponent(text); ln.style.opacity = ""; ln.style.pointerEvents = "";
+      pv.style.minHeight = ""; cp.disabled = false; ln.href = "https://line.me/R/msg/text/?" + encodeURIComponent(text); ln.style.opacity = ""; ln.style.pointerEvents = "";
     }).catch(function () { pv.textContent = "โหลดรายชื่อไม่สำเร็จ ลองอีกครั้ง"; });
   }
 
+  var NOTIFY_PRE = {};
+  function getNotify(id) { return fetch("/api/trip?t=" + encodeURIComponent(id) + "&notify=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }); }
+  function prefetchNotify(id) { if (!NOTIFY_PRE[id] || Date.now() - NOTIFY_PRE[id].at > 3000) NOTIFY_PRE[id] = { p: getNotify(id), at: Date.now() }; NOTIFY_PRE[id].p.catch(function () {}); }
   function openRemind(x) { // a message to everyone who booked (LINE chat + in-app bell), at most twice a day per trip
     var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
     var shut = function () { bd.remove(); };
@@ -898,7 +901,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     inp.style.cssText = "height:48px;border:1px solid #d3dadd;border-radius:12px;padding:0 12px;font:16px/24px var(--font-body);width:100%;box-sizing:border-box;background:#fff";
     var go = node("button", null, "ส่ง"); go.type = "button"; go.disabled = true;
     go.style.cssText = "height:52px;border:0;border-radius:14px;background:var(--mine);color:#fff;font:600 16px/24px var(--font-body)";
-    var nt = node("p", "msub", ""); nt.style.cssText = "margin:0;font-size:12px;line-height:18px";
+    var nt = node("p", "msub", "\u00a0"); nt.style.cssText = "margin:0;font-size:12px;line-height:18px"; // holds its line while loading
     var info = null, sending = false;
     function msg() { var o = opts[cur]; return o.input ? (inp.value.trim() ? o.pre + inp.value.trim() : "") : o.d; }
     function paint() {
@@ -924,7 +927,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       } catch (e) { sending = false; paint(); toast("ส่งไม่สำเร็จ ลองอีกครั้ง", true); }
     });
     document.body.appendChild(bd);
-    fetch("/api/trip?t=" + encodeURIComponent(x.id) + "&notify=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+    (NOTIFY_PRE[x.id] && Date.now() - NOTIFY_PRE[x.id].at < 20000 ? NOTIFY_PRE[x.id].p : getNotify(x.id)).then(function (d) {
       if (!d) throw new Error(); info = d;
       sub.textContent = d.people ? "ส่งถึง " + d.people + " คน ทาง LINE และในแอป" : "ยังไม่มีผู้จอง จึงยังไม่มีใครให้ส่ง";
       nt.textContent = "ส่งได้ " + d.max + " ครั้งต่อทริปต่อวัน (วันนี้ใช้แล้ว " + d.sent + ") · ข้อความ LINE มีโควตารายเดือน"; paint();
