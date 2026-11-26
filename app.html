@@ -1004,7 +1004,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!x.closed && closeText(x.closeAt)) hd.appendChild(node("div", "cat", "ปิดรับจองอัตโนมัติ " + closeText(x.closeAt)));
       c.appendChild(hd);
       var ros = node("button", "ab ros3", "รายชื่อ"); ros.type = "button"; ros.addEventListener("click", function () { openRoster(x); }); ros.addEventListener("pointerdown", function () { prefetchRoster(x.id); }); ros.insertAdjacentHTML("afterbegin", MG.team);
-      var vmap = node("a", "ab vmap", "ผังที่นั่ง"); vmap.href = "/" + x.id; vmap.insertAdjacentHTML("afterbegin", MG.seats);
+      var vmap = node("a", "ab vmap", "ผังที่นั่ง"); vmap.href = "/" + x.id + "/seats"; vmap.insertAdjacentHTML("afterbegin", MG.seats);
       var acts = node("div", "acts a3"), sh = node("button", "ab" + (x.closed ? "" : " tl")); sh.type = "button";
       sh.insertAdjacentHTML("beforeend", MG.share); sh.appendChild(document.createTextNode(x.closed ? "แชร์ผัง" : "แชร์ลิงก์")); sh.setAttribute("aria-label", x.closed ? "แชร์ผังที่นั่ง" : "แชร์ลิงก์จอง");
       sh.addEventListener("click", function () { shareTrip(x); });
