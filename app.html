@@ -55,7 +55,7 @@ body.signed{background:#fff}
 .plc .k{font-size:12px;color:#cfeaec; line-height: 16px}.plc b{font:700 20px/28px var(--font-display)}.plc .u{font-size:14px;color:#d4ecee; line-height: 20px}
 .plc .rw{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.plc .rw span{background:rgba(255,255,255,.14);border-radius:12px;padding:8px;font-size:12px;color:#d9eff1; line-height: 16px}.plc .rw b{display:block;font-size:16px;color:#fff; line-height: 24px}
 .plc .go{margin-top:12px;height:44px;border-radius:12px;background:#fff;color:var(--deep);font:600 14px/44px var(--font-display);text-align:center}
-.stg-back{align-self:flex-start;width:40px;height:40px;border:0;border-radius:50%;background:#f1f4f6;color:var(--ink);display:flex;align-items:center;justify-content:center;margin:-4px 0 -4px;cursor:pointer}.stg-back svg{width:22px;height:22px}
+.stg-back{height:48px;border:0;border-radius:12px;background:#eef1f3;color:var(--ink);font:600 16px/24px var(--font-display);cursor:pointer;margin-top:8px}
 .swr{display:flex;align-items:center;gap:12px;padding:10px 14px;min-height:52px}.swr+.swr{border-top:1px solid #e8ecef}.swr .tx{flex:1;min-width:0;font:500 16px/24px var(--font-body)}.swr small{display:block;font-size:14px;line-height:20px;color:var(--muted)}
 .sw{flex:none;width:46px;height:28px;border:0;border-radius:14px;background:#c3ccd2;position:relative;cursor:pointer;padding:0}.sw:after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s}.sw.on{background:var(--mine)}.sw.on:after{left:21px}.sw:disabled{opacity:.45;cursor:default}
 .stp{display:flex;gap:12px;padding:12px 14px;align-items:flex-start}.stp+.stp{border-top:1px solid #e8ecef}.stp .n{flex:none;width:28px;height:28px;border-radius:50%;background:#e6f2f3;color:var(--mine);font:700 14px/28px var(--font-display);text-align:center}.stp b{display:block;font:600 16px/24px var(--font-display)}.stp small{display:block;font-size:14px;line-height:20px;color:var(--muted)}
@@ -2256,9 +2256,8 @@ var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใ�
   }
   function goAcct(v) { acctView = v; try { history.pushState({ acct: v }, ""); } catch (e) {} renderAcctPane(); updateHead(); window.scrollTo(0, 0); }
   window.addEventListener("popstate", function () { if (acctView) { acctView = ""; if (tab === "acct") { renderAcctPane(); updateHead(); } } });
-  function backBtn() { var b = node("button", "stg-back"); b.type = "button"; b.setAttribute("aria-label", "กลับ"); b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>'; b.addEventListener("click", function () { try { if (history.state && history.state.acct) { history.back(); return; } } catch (e) {} acctView = ""; renderAcctPane(); updateHead(); }); return b; }
+  function backBtn() { var b = node("button", "stg-back", "ย้อนกลับ"); b.type = "button"; b.addEventListener("click", function () { try { if (history.state && history.state.acct) { history.back(); return; } } catch (e) {} acctView = ""; renderAcctPane(); updateHead(); window.scrollTo(0, 0); }); return b; }
   function renderNotifSet(p) {
-    p.appendChild(backBtn());
     var ROWS = [["all", "รับแจ้งเตือนทาง LINE", "ปิดอันนี้ = ไม่ส่งข้อความเข้า LINE เลย"]], GR = [
       ["สำหรับผู้จอง", [["turn", "ถึงคิวจองของฉันแล้ว"], ["bcast", "ผู้จัดส่งประกาศถึงผู้จอง"], ["change", "ทริปหรือที่นั่งของฉันเปลี่ยนแปลง"]]],
       ["สำหรับผู้จัด", [["creq", "มีคนขอยกเลิกที่นั่ง"]]]];
@@ -2271,14 +2270,15 @@ var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใ�
     var g0 = node("div", "agrp"); g0.appendChild(row(ROWS[0][0], ROWS[0][1], ROWS[0][2])); p.appendChild(g0);
     GR.forEach(function (gr) { p.appendChild(node("div", "stg-h", gr[0])); var g = node("div", "agrp"); gr[1].forEach(function (x) { g.appendChild(row(x[0], x[1])); }); p.appendChild(g); });
     p.appendChild(node("div", "stg-ft left", "การแจ้งเตือนในแอป (กระดิ่ง) จะยังขึ้นทุกครั้ง การปิดนี้มีผลเฉพาะข้อความเข้า LINE"));
+    p.appendChild(backBtn());
     paint();
     fetch("/api/me?prefs=1", { cache: "no-store" }).then(function (x) { return x.json(); }).then(function (d) { if (d && Array.isArray(d.off)) { off = d.off; paint(); } }).catch(function () {});
   }
   function renderHelp(p) {
-    p.appendChild(backBtn());
     var SETS = [["ผู้จัดทริป", [["สร้างทริป", "ใส่ชื่อ วันเดินทาง จุดนัดพบ และรถตู้"], ["ส่งลิงก์เข้ากลุ่ม LINE", "กด \"แชร์ลิงก์\" แล้วเลือกกลุ่ม"], ["ดูรายชื่อและเช็กชื่อขึ้นรถ", "เปิดรายชื่อหรือผังที่นั่งได้ทุกเมื่อ"]]],
       ["ผู้จอง", [["เปิดลิงก์จากกลุ่ม", "เข้าสู่ระบบด้วย LINE ครั้งเดียว"], ["แตะที่นั่งที่ต้องการ", "ใส่ชื่อแล้วกดยืนยัน ที่นั่งเป็นของคุณทันที"], ["ยกเลิกหรือเปลี่ยนที่นั่ง", "ทำได้ในหน้า \"ที่นั่งของฉัน\""]]]];
     SETS.forEach(function (st) { p.appendChild(node("div", "stg-h", st[0])); var g = node("div", "agrp"); st[1].forEach(function (x, i) { var e = node("div", "stp"); e.appendChild(node("span", "n", String(i + 1))); var t = node("div"); t.appendChild(node("b", null, x[0])); t.appendChild(node("small", null, x[1])); e.appendChild(t); g.appendChild(e); }); p.appendChild(g); });
+    p.appendChild(backBtn());
   }
   function planCard(pl) { // profile: current package, what it allows, and the packages page
     var MON2 = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
