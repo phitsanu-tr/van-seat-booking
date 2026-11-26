@@ -7,6 +7,7 @@
 <meta name="robots" content="noindex">
 <title>คิวจองที่นั่ง · VanTrip</title>
 <style>html{touch-action:manipulation}html,body{overscroll-behavior:none}.menu button svg{flex:none;color:var(--muted)}.menu button.rm svg{color:var(--red)}.menu button.rm.armed svg{color:#fff}.menu.up{top:auto;bottom:48px}.menu button.rm.armed{background:var(--red);color:#fff}.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;width:max-content;max-width:min(92vw,360px);background:#1b2226;color:#fff;border-radius:16px;padding:12px 16px;font:14px/20px var(--font-body);text-align:center;pointer-events:none;box-shadow:0 8px 28px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;gap:8px}.toast .tick{flex:none;width:20px;height:20px;border-radius:50%;background:#34c38f url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f2b22' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/16px no-repeat}
+.stb.nb{border-bottom:0}.sbd.nb{padding-top:16px}
 </style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
@@ -251,12 +252,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var edim = el("div", "dim" + (efirst ? "" : " up")); edim.addEventListener("click", function () { closeSheet(); }); main.appendChild(edim);
         var esh = el("div", "sheet" + (efirst ? "" : " up")); esh.setAttribute("role", "dialog"); esh.setAttribute("aria-label", "แก้ชื่อ");
         var epos = D.items.indexOf(eit) + 1;
-        var etb = el("div", "stb"); var ecn = el("button", "tx", "ยกเลิก"); ecn.type = "button"; ecn.addEventListener("click", function () { closeSheet(); }); etb.appendChild(ecn); etb.appendChild(el("b", null, "แก้ชื่อ"));
+        var etb = el("div", "stb nb"); var ecn = el("button", "tx", "ยกเลิก"); ecn.type = "button"; ecn.addEventListener("click", function () { closeSheet(); }); etb.appendChild(ecn); etb.appendChild(el("b", null, "แก้ชื่อ"));
         var einp = el("input"); einp.type = "text"; einp.value = eit.name; einp.maxLength = 12; einp.setAttribute("aria-label", "ชื่อ"); einp.autocomplete = "off";
         var ecnt = el("span", "ecnt");
         var esave = btn("บันทึก", "go", function () { var v = einp.value.trim(); if (!v || v === eit.name) { closeSheet(); return Promise.resolve(); } sheet = ""; document.body.classList.remove("sheeton"); var rfail = false; return call("rename", { id: eit.id, name: v }, function () { rfail = true; }).then(function () { draw(); if (!rfail) showToast("แก้ชื่อคิว " + epos + " เป็น " + v + " แล้ว"); }); });
         etb.appendChild(esave); esh.appendChild(etb);
-        var ebd = el("div", "sbd"); ebd.appendChild(el("p", "note", "คิวที่ " + epos + " · แก้ชื่อได้ ลำดับคิวไม่เปลี่ยน"));
+        var ebd = el("div", "sbd nb");
         var eed = el("div", "ed one"), egu = el("div", "gu", String(epos)); eed.appendChild(egu); eed.appendChild(einp); eed.appendChild(ecnt); ebd.appendChild(eed);
         if (eit.bound) ebd.appendChild(el("div", "sct", "ผูกกับบัญชี LINE แล้ว · การผูกไม่เปลี่ยน"));
         esh.appendChild(ebd);
