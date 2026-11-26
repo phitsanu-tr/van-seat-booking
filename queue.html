@@ -56,7 +56,7 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
 .seg{display:flex;background:#e3e8eb;border-radius:13px;padding:4px;margin-bottom:12px}.seg button{flex:1;border:0;background:none;color:var(--muted);font:600 14px var(--font-body);padding:0 4px;border-radius:10px;cursor:pointer;min-height:42px}.seg button[aria-selected=true]{background:#fff;color:var(--mine);box-shadow:0 1px 3px rgba(0,0,0,.15)}
 .chd{display:flex;justify-content:space-between;align-items:baseline}.chd .r{font-size:12px;color:var(--muted)}
 .dots{flex:none;width:36px;min-height:36px;padding:0;border-radius:50%;background:#eef1f3;color:var(--muted);font-size:16px}
-.menu{position:absolute;right:0;top:48px;z-index:5;background:#fff;border:1.5px solid var(--line);border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.2);padding:4px;min-width:150px}
+.menu{position:absolute;right:0;top:48px;z-index:5;background:#fff;border:1.5px solid var(--line);border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.2);padding:4px;width:160px}
 .menu button{display:block;width:100%;justify-content:flex-start;text-align:left;background:none;color:var(--ink);font:500 14px var(--font-body);padding:0 12px;min-height:42px;border-radius:8px}.menu button.rm{color:var(--red)}
 .row{position:relative}.row .chip{flex:none}
 .apb{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--warnbg);color:var(--warn);border-radius:12px;padding:8px 8px 8px 14px;margin-top:8px;font-size:13px;font-weight:600}.apb button{min-height:38px;font-size:14px;padding:0 16px}.swc{margin-bottom:12px}.swc.gon{background:var(--okbg);border-color:#bfe3d0}.swc.goff{background:#f5f7f8}.sw2 b{display:block;font:600 16px/24px var(--font-display)}.sw2 small{display:block;font-size:13px;line-height:20px;color:var(--muted)}.sw2{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px}
@@ -203,7 +203,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var rmb = el("button", "rm", "ลบ"); rmb.type = "button"; var rmT = null, rmN = 0;
         var rmStop = function () { clearInterval(rmT); rmT = null; rmb.classList.remove("armed"); rmb.textContent = "ลบ"; };
         rmb.addEventListener("click", function (e) { e.stopPropagation(); if (busy) return;
-          if (!rmT) { rmN = 5; rmb.classList.add("armed"); rmb.textContent = "แตะอีกครั้งเพื่อลบ (" + rmN + ")"; rmT = setInterval(function () { if (!rmb.isConnected) { clearInterval(rmT); return; } rmN--; if (rmN <= 0) rmStop(); else rmb.textContent = "แตะอีกครั้งเพื่อลบ (" + rmN + ")"; }, 1000); return; }
+          if (!rmT) { rmN = 5; rmb.classList.add("armed"); rmb.textContent = "ยืนยันลบ (" + rmN + ")"; rmT = setInterval(function () { if (!rmb.isConnected) { clearInterval(rmT); return; } rmN--; if (rmN <= 0) rmStop(); else rmb.textContent = "ยืนยันลบ (" + rmN + ")"; }, 1000); return; }
           clearInterval(rmT); menuId = ""; busy = true; var rf = false;
           call("remove", { id: it.id }, function () { rf = true; }).then(function () { busy = false; draw(); if (!rf) showToast("ลบออกจากคิวแล้ว"); }, function () { busy = false; draw(); }); });
         m.appendChild(rmb);
