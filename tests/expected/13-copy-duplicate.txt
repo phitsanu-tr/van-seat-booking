@@ -29,7 +29,7 @@ manage sheet [
 ]
 x closes 0
 no copy or seat map in manage 0
-first tap ยืนยันปิด?
+first tap แตะอีกครั้งเพื่อยืนยันปิดรับจอง5
 closed true card share แชร์ผัง
 reopened false
 duplicate link /new?copy=<id>
