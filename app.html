@@ -913,7 +913,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     function paint() {
       boxes.forEach(function (b, i) { var on = i === cur; b.style.cssText = "display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;border:1px solid " + (on ? "var(--mine)" : "#cfd8d9") + ";background:" + (on ? "#f2f8f9" : "#fff") + ";border-radius:16px;padding:12px;font:14px/20px var(--font-body);color:var(--ink)"; b.firstChild.style.cssText = "flex:none;width:18px;height:18px;border-radius:50%;margin-top:1px;box-sizing:border-box;border:" + (on ? "5px solid var(--mine)" : "2px solid #9fb0b3"); });
       var o = opts[cur]; tw.hidden = !o.input; if (o.input) inp.placeholder = o.input;
-      var warn = inp.value.length >= 90; ring(focused, warn); cnt.textContent = inp.value.length + "/100"; cnt.style.color = warn ? "#8a5a00" : "var(--muted)";
+      var n_ = inp.value.length, warn = n_ >= 90, full = n_ >= 100; ring(focused, full); cnt.textContent = n_ + "/100"; cnt.style.color = warn ? "#8a5a00" : "var(--muted)"; cnt.style.fontWeight = full ? "700" : "400";
       var left = info ? info.max - info.sent : 0;
       go.disabled = sending || !info || !info.people || left <= 0 || !msg();
       if (go.disabled && !sending) { go.style.background = "#e3e7ea"; go.style.color = "var(--muted)"; } else { go.style.background = "var(--mine)"; go.style.color = "#fff"; }
