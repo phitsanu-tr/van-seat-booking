@@ -31,6 +31,7 @@ x closes 0
 no copy or seat map in manage 0
 first tap แตะอีกครั้งเพื่อยืนยันปิดรับจอง5
 closed true card share แชร์ผัง
+reopen first tap แตะอีกครั้งเพื่อยืนยันเปิดรับจอง5
 reopened false
 duplicate link /new?copy=<id>
 form {"name":"เขาใหญ่ชิล ๆ","org":"ทัวร์ตัวตึง","start":"","end":"","time":"07:00","meet":"BTS หมอชิต","max":"2","close":"","vans":["1","กข 1234","2"]} lead 

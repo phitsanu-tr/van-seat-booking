@@ -23,7 +23,7 @@ log('no copy or seat map in manage',await A.$$eval('.mgb',e=>e.filter(x=>/คั
 await A.click('.mgb.lk');await A.waitForTimeout(200);log('first tap',(await A.textContent('.mgb.lk')).trim());await A.click('.mgb.lk');await A.waitForTimeout(1200);
 const closedNow=async()=>(await (await A.request.get(B+'/api/seats?t='+ID+'&v=v1')).json()).closed;
 log('closed',await closedNow(),'card share',(await A.textContent('.acts .ab:last-child')).trim());
-await A.click('.ab.mgo');await A.waitForTimeout(500);await A.click('.mgb.op');await A.waitForTimeout(1200);log('reopened',await closedNow());
+await A.click('.ab.mgo');await A.waitForTimeout(500);await A.click('.mgb.op');log('reopen first tap',(await A.textContent('.mgb.op')).trim());await A.click('.mgb.op');await A.waitForTimeout(1200);log('reopened',await closedNow());
 // --- duplicate an upcoming trip
 await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);
 await A.click('.ab.mgo');await A.waitForTimeout(300);log('duplicate link',(await A.getAttribute('.mgb:has-text("สร้างทริปซ้ำ")','href')).replace(ID,'<id>'));
