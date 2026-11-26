@@ -227,6 +227,9 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .card.qw .qbox p { margin: 0; font-size: 14px; line-height: 20px; } .card.qw .qbox.go p { color: #0a5c3c; }
 .card.qw .qpb { display: flex; gap: 4px; margin: 8px 0 4px; } .card.qw .qpb i { flex: 1; height: 8px; border-radius: 4px; background: #bcd8da; } .card.qw .qpb i.d, .card.qw .qpb i.m { background: var(--mine); } .card.qw .qpb i.m { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--mine); }
 .card.qw .qpf { display: flex; justify-content: space-between; font-size: 14px; line-height: 20px; color: var(--muted); }
+.card.mini { flex-direction: row; align-items: center; gap: 12px; padding: 12px 16px; box-shadow: none; }
+.card.mini .tx { flex: 1; min-width: 0; } .card.mini .tx b { display: block; font: 600 16px/24px var(--font-display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .card.mini .tx small { display: block; color: var(--muted); font-size: 14px; line-height: 20px; }
+.card.mini .mb { flex: none; width: 44px; height: 44px; border-radius: 12px; border: 0; background: #f1f4f6; color: var(--muted); display: grid; place-items: center; font-size: 16px; padding: 0; cursor: pointer; } .card.mini .mb.on { background: #e1f0ef; color: var(--mine); } .card.mini .mb svg { width: 20px; height: 20px; }
 .card .ab.pr { background: var(--mine); border-color: var(--mine); color: #fff; }
 /* cards you can tap (whole card opens the trip's seat plan): press feedback so the tap is felt */
 .card.tap { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .1s ease, background-color .1s ease; }
@@ -1081,15 +1084,43 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     return c;
   }
-  function renderSeats(list, queues) {
+  var STAR_ON = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>';
+  function miniStatus(x) { return [dateRange(x.startDate, x.endDate), x.closed ? "ปิดรับจอง" : x.total && x.booked >= x.total ? "เต็มแล้ว" : x.total ? "เหลือ " + (x.total - x.booked) + " ที่" : ""].filter(Boolean).join(" · "); }
+  function miniCard(x, saved) { // starred / recently opened trip: one small card, tap opens it
+    var c = node("div", "card mini"), tx = node("div", "tx"); tapCard(c, "/" + x.id);
+    tx.appendChild(node("b", null, x.name)); tx.appendChild(node("small", null, miniStatus(x))); c.appendChild(tx);
+    var b = node("button", "mb" + (saved ? " on" : "")); b.type = "button";
+    if (saved) { b.innerHTML = STAR_ON; b.setAttribute("aria-label", "เลิกบันทึกทริป"); } else { b.textContent = "✕"; b.setAttribute("aria-label", "ลบออกจากรายการเปิดดูล่าสุด"); }
+    b.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (saved) {
+        fetch("/api/me", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ save: x.id, on: false }) }).then(function (r) { if (!r.ok) throw new Error(); D.saved = (D.saved || []).filter(function (s) { return s.id !== x.id; }); renderSeats(D.seats, D.queues, D); toast("เลิกบันทึกแล้ว"); }).catch(function () { toast("ทำรายการไม่สำเร็จ ลองใหม่", true); });
+      } else {
+        try { localStorage.setItem("vsb_recent", JSON.stringify(recentIds().filter(function (id) { return id !== x.id; }))); } catch (er) {}
+        D.recent = (D.recent || []).filter(function (s) { return s.id !== x.id; }); renderSeats(D.seats, D.queues, D);
+      }
+    });
+    c.appendChild(b); return c;
+  }
+  function renderSeats(list, queues, ext) {
     var pane = $("paneSeats"); pane.textContent = "";
-    queues = queues || [];
+    queues = queues || []; ext = ext || {};
+    var taken = {}; list.concat(queues, ext.trips || []).forEach(function (x) { taken[x.id] = 1; }); // already shown above (my seats, waiting, my own trips)
+    var savedL = (ext.saved || []).filter(function (x) { return !taken[x.id]; }), savedIds = {}; savedL.forEach(function (x) { savedIds[x.id] = 1; });
+    var recentL = (ext.recent || []).filter(function (x) { return !taken[x.id] && !savedIds[x.id]; });
     if (queues.length) { section(pane, "กำลังรอคิว", "", queues.length); queues.forEach(function (x) { pane.appendChild(queueCard(x)); }); }
     var up = list.filter(function (x) { return !x.ended; }), done = list.filter(function (x) { return x.ended; });
     if (up.length) section(pane, queues.length ? "จองแล้ว" : "กำลังจะถึง", "", up.length);
     up.forEach(function (x) { pane.appendChild(ticket(x, false)); });
+    var extra = savedL.length + recentL.length;
+    if (savedL.length) { section(pane, "ทริปที่บันทึกไว้", "", savedL.length); savedL.forEach(function (x) { pane.appendChild(miniCard(x, true)); }); }
+    if (recentL.length) {
+      var rh = node("div", "h2"); rh.appendChild(node("b", null, "เปิดดูล่าสุด"));
+      var cl0 = node("button", "hlink", "ล้าง"); cl0.type = "button"; cl0.addEventListener("click", function () { try { localStorage.setItem("vsb_recent", JSON.stringify(recentIds().filter(function (id) { return savedIds[id]; }))); } catch (er) {} D.recent = []; renderSeats(D.seats, D.queues, D); });
+      rh.appendChild(cl0); pane.appendChild(rh); recentL.forEach(function (x) { pane.appendChild(miniCard(x, false)); });
+    }
     if (done.length) { section(pane, "ผ่านมาแล้ว", ""); done.forEach(function (x) { pane.appendChild(ticket(x, true)); }); }
-    if (list.length || queues.length) { // more trips: a small "ใส่รหัสทริป" link at the right of the first heading (no hint box under the cards)
+    if (list.length || queues.length || extra) { // more trips: a small "ใส่รหัสทริป" link at the right of the first heading (no hint box under the cards)
       var fh = pane.querySelector(".h2");
       if (fh) { var cl = node("button", "hlink"); cl.type = "button"; cl.innerHTML = KEY_ICON + "ใส่รหัสทริป"; cl.addEventListener("click", openCode); fh.appendChild(cl); }
     }
@@ -2264,18 +2295,25 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var nv = $("navAv"); var kn = d.user.pic && nv.querySelector("img") && nv.querySelector("img").getAttribute("src") === d.user.pic; if (!kn) nv.textContent = ""; var ini = (d.user.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
       if (d.user.pic && kn) {} else if (d.user.pic) { var ni = node("img"); ni.alt = ""; ni.src = d.user.pic; ni.referrerPolicy = "no-referrer"; ni.onerror = function () { nv.textContent = ini; }; nv.appendChild(ni); } else nv.textContent = ini;
       $("nTrips").textContent = d.trips.length; $("nSeats").textContent = d.seats.length;
-      renderTrips(d.trips); renderSeats(d.seats, d.queues); HM.render(d); if (tab === "acct") renderAcctPane(); updateHead();
+      renderTrips(d.trips); renderSeats(d.seats, d.queues, d); HM.render(d); if (tab === "acct") renderAcctPane(); updateHead();
       if (!fromCache) try { localStorage.setItem("vsb_in", "1"); localStorage.setItem("vsb_tb", JSON.stringify({ name: d.user.name || "", pic: d.user.pic || "" })); } catch (e) {}
       if (wantAcct) { wantAcct = false; setTab("acct"); }
       if (!fromCache) setTimeout(function () { preloadRosters(d.trips); }, 300); // after the page has drawn
   }
   var lastSig = "";
+  function recentIds() { try { var l = JSON.parse(localStorage.getItem("vsb_recent") || "[]"); return Array.isArray(l) ? l.filter(function (x) { return typeof x === "string" && /^[a-z0-9]{4,32}$/.test(x); }).slice(0, 5) : []; } catch (e) { return []; } }
+  function pruneRecent(d) {
+    var live = {}; (d.recent || []).concat(d.saved || []).forEach(function (x) { live[x.id] = 1; });
+    try { localStorage.setItem("vsb_recent", JSON.stringify(recentIds().filter(function (id) { return live[id]; }))); } catch (e) {}
+  }
   async function load(quiet) {
     try {
-      var r = await fetch("/api/me", { cache: "no-store" });
+      var rl = recentIds();
+      var r = await fetch("/api/me" + (rl.length ? "?recent=" + rl.join(",") : ""), { cache: "no-store" });
       if (r.status === 401) { showLogin(); return; }
       var d = await r.json();
       if (!r.ok) throw new Error();
+      pruneRecent(d); // forget opened trips that no longer exist or have ended
       var sig = JSON.stringify(d);
       if (quiet && D && sig === lastSig) { loadedAt = Date.now(); return; } // nothing changed: keep the screen as it is, no redraw
       try { localStorage.setItem("vsb_me", sig); } catch (e) {} // last good copy: next visit draws the whole page in the first frame
@@ -2474,7 +2512,7 @@ var btn = node("a", "mkp", inLine ? "ลองใหม่" : "เปิดใ�
     $("topName").textContent = "ของฉัน";
     $("acctBtn2").hidden = false;
     if (JOIN) { try { history.replaceState(null, "", "/trips"); } catch (e) {} await joinTeam(JOIN); JOIN = ""; setTab("trips"); }
-    if (window.VSBBell) { if (!VSBBell.btn) VSBBell.mount($("bellHost")); VSBBell.onChange(function () { if (D) { renderTrips(D.trips); renderSeats(D.seats, D.queues); HM.render(D); } if (tab === "notif") renderNotif(); updateHead(); }); VSBBell.load(); }
+    if (window.VSBBell) { if (!VSBBell.btn) VSBBell.mount($("bellHost")); VSBBell.onChange(function () { if (D) { renderTrips(D.trips); renderSeats(D.seats, D.queues, D); HM.render(D); } if (tab === "notif") renderNotif(); updateHead(); }); VSBBell.load(); }
     if (new URLSearchParams(location.search).get("acct") === "1") { try { history.replaceState(null, "", location.pathname); } catch (e) {} openAccount(); }
     load(true);
   })();

@@ -88,6 +88,9 @@ header.trip { display: block; }
 .lock { font-size: 14px; color: var(--muted); display: flex; gap: 8px; align-items: center; line-height: 20px}
 .org { font-size: 14px; color: var(--mine); font-weight: 600; margin-bottom: 2px; line-height: 20px}
 .hero .ht { min-width: 0; }
+#tripHdr .hero { display: flex; align-items: center; gap: 12px; } #tripHdr .hero .ht { flex: 1; }
+.star { flex: none; width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid #bfe0e3; background: #fff; color: var(--mine); display: grid; place-items: center; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.star[hidden] { display: none; } .star svg { width: 24px; height: 24px; } .star.on { background: #e1f0ef; border-color: #e1f0ef; } .star.on svg { fill: currentColor; }
 .hero .org span { display: inline-block; }
 .facts .fhead { display: block; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .facts .fhead:only-child { padding-bottom: 0; border-bottom: 0; }
@@ -550,7 +553,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 <main>
   <header class="trip" id="tripHdr">
     <div class="hbar"><a class="lback" id="lback" href="/home" aria-label="กลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><a class="brand" href="/mytrips">VanTrip</a><span class="bellhost" id="bellHost"></span><a class="acct" id="acct" href="/mytrips" hidden></a></div>
-    <div class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht"><h1>รายละเอียดทริป</h1></div></div>
+    <div class="hero"><span class="pgi" aria-hidden="true"></span><div class="ht"><h1>รายละเอียดทริป</h1></div><button type="button" class="star" id="starBtn" hidden aria-label="บันทึกทริป" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></button></div>
     <div class="vsw" id="viewSw" role="tablist" aria-label="เลือกมุมมอง">
     <button type="button" role="tab" id="swInfo" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>ข้อมูลทริป</button>
     <button type="button" role="tab" id="swMap" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h3v3H8zM13 7h3v3h-3zM8 14h3v3H8zM13 14h3v3h-3z"/></svg>ผังที่นั่ง</button>
@@ -686,6 +689,24 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     else { b.href = "https://liff.line.me/2012285472-FvtYKx00/" + TRIP + (curVan ? "?v=" + encodeURIComponent(curVan) : ""); b.appendChild(el("i", null, "LINE")); b.appendChild(document.createTextNode("เปิดใน LINE เพื่อจองที่นั่ง")); }
     w.appendChild(b); return w;
   }
+  // star ("บันทึกทริป"): keeps the trip in my seats; the last few opened trips are remembered on this device too
+  var starred = null;
+  function paintStar() { var b = document.getElementById("starBtn"); if (!b) return; b.classList.toggle("on", !!starred); b.setAttribute("aria-pressed", starred ? "true" : "false"); b.setAttribute("aria-label", starred ? "เลิกบันทึกทริป" : "บันทึกทริป"); }
+  function initStar() {
+    var b = document.getElementById("starBtn"); if (!b || !me || IMG_ONLY || b.dataset.on) return; b.dataset.on = "1";
+    fetch("/api/me?saved=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) { if (!d || !Array.isArray(d.ids)) return; starred = d.ids.indexOf(TRIP) >= 0; b.hidden = false; paintStar(); }).catch(function () {});
+    b.addEventListener("click", function () {
+      var want = !starred; starred = want; paintStar();
+      fetch("/api/me", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ save: TRIP, on: want }) })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) { if (!x.ok) { starred = !want; paintStar(); showToast(x.j && x.j.error === "saved_full" ? "บันทึกได้ไม่เกิน " + x.j.max + " ทริป เลิกบันทึกบางทริปก่อน" : "บันทึกไม่สำเร็จ ลองใหม่", "error"); } else showToast(want ? "บันทึกทริปแล้ว · ดูได้ที่ “ที่นั่งของฉัน”" : "เลิกบันทึกแล้ว"); })
+        .catch(function () { starred = !want; paintStar(); showToast("บันทึกไม่สำเร็จ ลองใหม่", "error"); });
+    });
+  }
+  (function rememberTrip() { // last 5 opened trips on this device (ids only; names and seats come from the server later)
+    if (!TRIP) return;
+    try { var l = JSON.parse(localStorage.getItem("vsb_recent") || "[]"); if (!Array.isArray(l)) l = []; l = [TRIP].concat(l.filter(function (x) { return x !== TRIP; })).slice(0, 5); localStorage.setItem("vsb_recent", JSON.stringify(l)); } catch (e) {}
+  })();
   function renderAcct() {
     var a = document.getElementById("acct"); if (!a || IMG_ONLY) return;
     a.textContent = ""; a.hidden = false;
@@ -694,7 +715,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var av = el("span", "aav");
       if (me.pic) { var im = document.createElement("img"); im.alt = ""; im.src = me.pic; im.referrerPolicy = "no-referrer"; av.appendChild(im); } else av.textContent = (me.name || "?").replace(/^[เแโใไ]/, "").slice(0, 1);
       a.appendChild(av); a.appendChild(el("span", null, "ของฉัน"));
-      startBell();
+      startBell(); initStar();
     } else { a.hidden = true; }
   }
   // ---- notifications: bell in the header, banner + highlighted facts for unread changes of this trip ----

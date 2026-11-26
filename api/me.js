@@ -10,6 +10,7 @@ const L = require("./_lib");
 const P = require("./_plans");
 const Q = require("./_queue");
 const MAX = 60;
+const SAVED_MAX = 30, RECENT_MAX = 5;
 
 function summary(trip, perVan) {
   const booked = trip.vans.reduce((a, v) => a + (perVan[v.id] || 0), 0);
@@ -123,7 +124,7 @@ async function deleteAll(req, res, user, dropTrips) {
   } catch (e) { /* best effort */ }
 
   // the account itself: indexes and every session
-  const end = [["DEL", L.myTripsKey(uid)], ["DEL", L.mySeatsKey(uid)], ["DEL", L.myQueueKey(uid)], ["DEL", L.inboxKey(uid)], ["DEL", L.inboxReadKey(uid)], ["DEL", L.inboxAllKey(uid)], ["DEL", L.inboxVerKey(uid)], ["DEL", "usess:" + uid], ["DEL", "sess:" + user.sid]];
+  const end = [["DEL", L.myTripsKey(uid)], ["DEL", L.mySeatsKey(uid)], ["DEL", L.myQueueKey(uid)], ["DEL", L.mySavedKey(uid)], ["DEL", L.inboxKey(uid)], ["DEL", L.inboxReadKey(uid)], ["DEL", L.inboxAllKey(uid)], ["DEL", L.inboxVerKey(uid)], ["DEL", "usess:" + uid], ["DEL", "sess:" + user.sid]];
   (sids || []).forEach((sid) => { if (/^[a-z0-9]{32}$/.test(String(sid))) end.push(["DEL", "sess:" + sid]); });
   await L.pipeline(end);
   res.setHeader("Set-Cookie", [L.cookieStr(req, "vsb_s", "", 0)]);
@@ -139,6 +140,20 @@ module.exports = async function handler(req, res) {
     const user = await L.currentUser(req);
     if (!user) return L.json(res, 401, { error: "login_required" });
     if (req.method === "DELETE") return deleteAll(req, res, user, L.readBody(req).trips === "delete");
+    if (req.method === "GET" && req.query && req.query.saved !== undefined) {
+      const ids = ((await L.redis(["SMEMBERS", L.mySavedKey(user.id)])) || []).map(String).filter((x) => L.tripId(x));
+      return L.json(res, 200, { ids });
+    }
+    if (req.method === "POST" && L.readBody(req).save !== undefined) { // star / un-star a trip: { save: <trip id>, on: true|false }
+      const b = L.readBody(req), id = L.tripId(String(b.save || "").toLowerCase());
+      if (!id) return L.json(res, 400, { error: "bad_trip" });
+      if (b.on === false) { await L.redis(["SREM", L.mySavedKey(user.id), id]); return L.json(res, 200, { ok: true, saved: false }); }
+      const cur = ((await L.redis(["SMEMBERS", L.mySavedKey(user.id)])) || []).map(String), n = cur.length, has = cur.includes(id); // at most 30, cheap to read whole
+      if (!has && n >= SAVED_MAX) return L.json(res, 400, { error: "saved_full", max: SAVED_MAX });
+      if (!(await L.loadTrip(id))) return L.json(res, 404, { error: "no_trip" });
+      await L.pipeline([["SADD", L.mySavedKey(user.id), id], ["EXPIRE", L.mySavedKey(user.id), String(L.MY_DAYS * 86400)]]);
+      return L.json(res, 200, { ok: true, saved: true });
+    }
     if (req.method === "GET" && req.query && req.query.inbox !== undefined) {
       const items = await inbox(user.id);
       return L.json(res, 200, { items, unread: items.filter((x) => !x.r).length });
@@ -225,6 +240,25 @@ module.exports = async function handler(req, res) {
         queues.sort((a, b) => (a.qs === "turn" ? 0 : 1) - (b.qs === "turn" ? 0 : 1) || String(a.startDate || "9").localeCompare(String(b.startDate || "9")));
       }
     } catch (e) { queues = []; }
+    // starred trips + the few trips this device opened last (?recent=a,b,c): small cards in "my seats"
+    let saved = [], recent = [];
+    try {
+      const savedIds = ((await L.redis(["SMEMBERS", L.mySavedKey(user.id)])) || []).map(String).filter((x) => L.tripId(x)).slice(0, SAVED_MAX);
+      const recentIds = Array.from(new Set(String((req.query && req.query.recent) || "").toLowerCase().split(",").filter((x) => L.tripId(x)))).slice(0, RECENT_MAX);
+      const all = Array.from(new Set(savedIds.concat(recentIds)));
+      const need = all.filter((id) => !trips[id]);
+      const rawT = need.length ? await L.pipeline(need.map((id) => ["GET", L.tripKey(id)])) : [];
+      need.forEach((id, i) => { try { if (rawT[i]) trips[id] = JSON.parse(rawT[i]); } catch (e) { /* skip */ } });
+      const live = all.filter((id) => trips[id] && !L.tripEnded(trips[id]));
+      const cmds2 = [], map2 = [];
+      live.forEach((id) => trips[id].vans.forEach((v) => { cmds2.push(["HLEN", L.seatsKey(id, v.id)]); map2.push([id, v.id]); }));
+      const out2 = cmds2.length ? await L.pipeline(cmds2) : [];
+      const pv = {}; map2.forEach((m, i) => { (pv[m[0]] = pv[m[0]] || {})[m[1]] = Number(out2[i]) || 0; });
+      saved = savedIds.filter((id) => live.includes(id)).map((id) => summary(trips[id], pv[id] || {}));
+      const stale = savedIds.filter((id) => !live.includes(id));
+      if (stale.length) { try { await L.redis(["SREM", L.mySavedKey(user.id)].concat(stale)); } catch (e) { /* best effort */ } }
+      recent = recentIds.filter((id) => live.includes(id) && !savedIds.includes(id)).map((id) => summary(trips[id], pv[id] || {}));
+    } catch (e) { saved = []; recent = []; }
     let plan = null;
     {
       try {
@@ -238,7 +272,7 @@ module.exports = async function handler(req, res) {
         }
       } catch (e) { plan = null; }
     }
-    return L.json(res, 200, { user: L.publicUser(user), trips: myTrips, seats: mySeats, queues, plan });
+    return L.json(res, 200, { user: L.publicUser(user), trips: myTrips, seats: mySeats, queues, saved, recent, plan });
   } catch (e) {
     return L.json(res, 502, { error: "storage_error" });
   }
