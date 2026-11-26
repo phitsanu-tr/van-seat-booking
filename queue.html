@@ -263,7 +263,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var eupd = function () { ecnt.textContent = einp.value.length + "/12"; var ev = einp.value.trim(); esave.disabled = !ev || ev === eit.name; };
         einp.addEventListener("input", eupd); einp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); if (!esave.disabled) esave.click(); } }); eupd();
         main.appendChild(esh); document.body.classList.add("sheeton"); fitSheet();
-        if (efirst) { requestAnimationFrame(function () { requestAnimationFrame(function () { esh.classList.add("up"); edim.classList.add("up"); einp.focus({ preventScroll: true }); einp.select(); }); }); }
+        if (efirst) { requestAnimationFrame(function () { requestAnimationFrame(function () { esh.classList.add("up"); edim.classList.add("up"); einp.focus({ preventScroll: true }); try { var el_ = einp.value.length; einp.setSelectionRange(el_, el_); } catch (x) {} }); }); }
       }
     }
     if (sheet === "add") {
