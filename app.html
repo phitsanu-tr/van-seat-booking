@@ -890,11 +890,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
     sheetHead(sh, "แจ้งเตือนผู้จอง", shut);
     var sub = node("p", "msub sk", "กำลังโหลด…"); sub.style.width = "60%"; sh.appendChild(sub);
-    var meet = [x.departTime ? "ออก " + x.departTime : "", x.meetPoint ? "นัดที่ " + x.meetPoint : ""].filter(Boolean).join(" ");
+    var dm = /^(\d{1,2}):(\d{2})$/.exec(x.departTime || ""), arrive = "";
+    if (dm) { var am = ((+dm[1] * 60 + +dm[2] - 20) % 1440 + 1440) % 1440; arrive = ("0" + Math.floor(am / 60)).slice(-2) + ":" + ("0" + am % 60).slice(-2); } // 20 minutes before departure
+    var meet = [x.departTime ? "ออก " + x.departTime + " น." : "", x.meetPoint ? "นัดที่ " + x.meetPoint : "", arrive ? "ขอให้ถึงก่อน " + arrive + " น." : "อย่าลืมมาก่อน 20 นาที"].filter(Boolean).join(" ");
     var opts = [
-      { t: "เตือนก่อนเดินทาง", d: (meet ? meet + " " : "") + "อย่าลืมมาก่อน 15 นาที", pre: "" },
-      { t: "เปลี่ยนเวลา/จุดนัด", d: "เลือกแล้วใส่รายละเอียดใหม่", pre: "เปลี่ยนแปลง: ", input: "เช่น เลื่อนเป็น 19:30" },
-      { t: "เขียนข้อความเอง", d: "ไม่เกิน 100 ตัวอักษร", pre: "", input: "พิมพ์ข้อความถึงผู้จอง" }
+      { t: "เตือนก่อนเดินทาง", d: meet, pre: "" },
+      { t: "เปลี่ยนเวลา/จุดนัด", d: "ข้อความจะขึ้นต้นว่า “เปลี่ยนแปลง:”", pre: "เปลี่ยนแปลง: ", input: "เช่น เลื่อนเป็น 19:30" },
+      { t: "เขียนข้อความเอง", d: "พิมพ์ข้อความถึงผู้จองเอง", pre: "", input: "เช่น ฝนตก เลื่อนออกเดินทางเป็น 20:00" }
     ];
     var cur = 0, inputs = [], boxes = [];
     var tw = node("div"), inp = node("textarea"), cnt = node("span"); inp.maxLength = 100; inp.rows = 3; inp.setAttribute("aria-label", "ข้อความ"); tw.style.position = "relative";
