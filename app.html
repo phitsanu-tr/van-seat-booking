@@ -803,7 +803,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     f.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.parse(inp.value); if (!id) { bad(inp.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); inp.focus(); return; } location.href = "/" + id + "/seats"; });
     document.body.appendChild(bd); setTimeout(function () { inp.focus(); }, 50);
   }
+  var TC = {}; try { TC = JSON.parse(sessionStorage.getItem("vsb_tc") || "{}") || {}; } catch (e) { TC = {}; }
+  function teamSave() { try { sessionStorage.setItem("vsb_tc", JSON.stringify(TC)); } catch (e) {} }
+  function teamPrefetch(id) { // helpers-sheet data, fetched while the manage menu is open so the sheet opens complete
+    return fetch("/api/trip?t=" + encodeURIComponent(id), { cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error(); return r.json(); }).then(function (d) { TC[id] = d.team; teamSave(); return d.team; }).catch(function () { return null; });
+  }
   function openManage(x) {
+    teamPrefetch(x.id);
     var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
     var shut = function () { bd.remove(); };
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
@@ -1914,7 +1920,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 
   // ---- organizer team: helpers join with an invite link; the owner removes them or hands the trip over ----
   function openTeam(x) {
-    var st = { t: null };
+    var st = { t: TC[x.id] || null, err: false };
     var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
     var close = function () { bd.remove(); load(); };
     bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
@@ -1925,10 +1931,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!r.ok) { toast(d.error === "owner_only" ? "ทำได้เฉพาะเจ้าของทริป" : "ทำรายการไม่สำเร็จ ลองอีกครั้ง", true); return null; }
       return d;
     }
-    async function fetchTeam() {
-      try { var r = await fetch("/api/trip?t=" + encodeURIComponent(x.id), { cache: "no-store" }); var d = await r.json(); if (!r.ok) throw new Error(); st.t = d.team; }
-      catch (e) { toast("โหลดข้อมูลทีมไม่สำเร็จ", true); }
-      draw();
+    async function fetchTeam() { // quiet refresh: the sheet is already drawn from the menu's prefetch; redraw only if something changed
+      var d = await teamPrefetch(x.id);
+      if (d) { if (JSON.stringify(d) !== JSON.stringify(st.t)) { st.t = d; draw(); } }
+      else if (!st.t) { st.err = true; toast("โหลดข้อมูลทีมไม่สำเร็จ", true); draw(); }
     }
     function inviteUrl(code) { return "https://liff.line.me/2012285472-FvtYKx00/join/" + code; }
     function confirmBtn(btn, label, fn) {
@@ -1938,14 +1944,25 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     function wideBtn(cls, label) { var b = node("button", cls, label); b.type = "button"; b.style.height = "48px"; b.style.borderRadius = "12px"; b.style.fontSize = "16px"; b.style.fontWeight = "600"; return b; }
     function draw() {
       sh.textContent = "";       sheetHead(sh, "ผู้ช่วยจัดทริป", close);
-      if (!st.t) { sh.appendChild(node("p", null, "กำลังโหลด...")); return; }
-      var T = st.t, owner = T.role === "owner";
+      if (st.t) { TC[x.id] = st.t; teamSave(); }
+      var T = st.t, owner = T ? T.role === "owner" : x.role !== "helper";
       var rules = node("p"); rules.style.cssText = "margin:0;font:400 14px/24px var(--font-body);color:var(--muted)";
       [["ผู้ช่วยทำได้", " แก้ไขทริป และจัดการที่นั่ง"], ["ผู้ช่วยทำไม่ได้", " ลบทริป เชิญหรือนำผู้ช่วยออก"]].forEach(function (r, i) {
         if (i) rules.appendChild(document.createElement("br"));
         var bb = node("b", null, r[0]); bb.style.cssText = "font-weight:600;color:var(--ink)"; rules.appendChild(bb); rules.appendChild(document.createTextNode(r[1]));
       });
       sh.appendChild(rules);
+      if (!T) { // no data yet (first open, slow network): same-size grey placeholders, then it fills in
+        var gs = "background:#e6ecef;border-radius:6px;";
+        var rows = 1 + (x.helpers || 0);
+        var skl = node("div", "rlist");
+        for (var q = 0; q < rows; q++) { var sr = node("div", "rrow"); sr.appendChild(node("div", "no", q ? "" : "★")); var sn = node("div", "nm2"); var s1 = node("b"), s2 = node("small"); s1.style.cssText = "display:block;height:24px;width:100%;background:linear-gradient(#e6ecef,#e6ecef) 0 4px/140px 16px no-repeat"; s2.style.cssText = "display:block;height:20px;width:100%;background:linear-gradient(#e6ecef,#e6ecef) 0 3px/96px 14px no-repeat"; s1.style.borderRadius = s2.style.borderRadius = "6px"; sn.appendChild(s1); sn.appendChild(s2); sr.appendChild(sn); skl.appendChild(sr); }
+        sh.appendChild(skl);
+        if (st.err) sh.appendChild(node("div", "rfree", "โหลดข้อมูลทีมไม่สำเร็จ ปิดแล้วเปิดใหม่อีกครั้ง"));
+        else if (owner) { var sb = node("div"); sb.style.cssText = "background:#f3f6f7;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:12px"; var b1 = node("div"), b2 = node("div"); b1.style.cssText = gs + "width:200px;height:16px;margin:2px 0"; b2.style.cssText = "height:48px;border-radius:12px;background:#e6ecef"; sb.appendChild(b1); sb.appendChild(b2); sh.appendChild(sb); }
+        return;
+      }
+
       var list = node("div", "rlist");
       var orow = node("div", "rrow"); orow.appendChild(node("div", "no", "★"));
       var on = node("div", "nm2"); on.appendChild(node("b", null, T.ownerName || "เจ้าของทริป")); on.appendChild(node("small", null, owner ? "เจ้าของทริป (คุณ)" : "เจ้าของทริป")); orow.appendChild(on); list.appendChild(orow);
