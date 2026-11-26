@@ -199,7 +199,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         if (i > 0) add("เลื่อนขึ้น", "", function () { return call("up", { id: it.id }); });
         if (i < D.items.length - 1) add("เลื่อนลง", "", function () { return call("down", { id: it.id }); });
         if (it.bound) add("ปลดชื่อ", "", function () { return call("unbind", { id: it.id }); });
-        add(it.done ? "คืนคิว" : "ข้าม / จบคิว", "", function () { return call("done", { id: it.id, value: !it.done }); });
+        add(it.done ? "คืนคิว" : isT ? "จบคิว" : "ข้ามคิว", "", function () { var df = false, msg = it.done ? "คืนคิวแล้ว" : isT ? "จบคิวแล้ว · เรียกคนถัดไป" : "ข้ามคิวแล้ว"; return call("done", { id: it.id, value: !it.done }, function () { df = true; }).then(function () { if (!df) showToast(msg); }); });
         var rmb = el("button", "rm", "ลบ"); rmb.type = "button"; var rmT = null, rmN = 0;
         var rmStop = function () { clearInterval(rmT); rmT = null; rmb.classList.remove("armed"); rmb.textContent = "ลบ"; };
         rmb.addEventListener("click", function (e) { e.stopPropagation(); if (busy) return;
