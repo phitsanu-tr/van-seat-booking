@@ -942,7 +942,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     L.push("", x.closed ? "ปิดรับจองแล้ว · ดูผังที่นั่ง 👇" : "จองที่นั่งได้ที่นี่ 👇");
     var lead = L.join("\n"), UA = navigator.userAgent || "";
     if (/\bLine\//i.test(UA) || /Android|iPhone|iPad/i.test(UA)) { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(lead + "\n" + u); return; }
-    if (navigator.clipboard) navigator.clipboard.writeText(lead + "\n" + u).then(function () { toast("คัดลอกข้อความและลิงก์แล้ว"); }, function () { toast(u); });
+    if (navigator.clipboard) navigator.clipboard.writeText(lead + "\n" + u).then(function () { toast("คัดลอกลิงก์แล้ว วางในไลน์ได้เลย"); }, function () { toast(u); });
     else toast(u);
   }
 
