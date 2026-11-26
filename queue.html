@@ -11,6 +11,7 @@
 .ecnt.near{color:#8a5a00}.ecnt.full{font-weight:700}.ed.full,.ed.full:focus-within{border-color:#d9a441}
 .qcard.am{background:#fff4dc}.qcard.am .qn,.qcard.am .qs2{color:#8a5a00}
 h1.pend{visibility:hidden}
+.qsent{font:500 20px/28px var(--font-body);color:#0b5f67}.qsent b{font:700 32px/40px var(--font-display);color:var(--mine)}.qpb{display:flex;gap:4px;margin-top:16px}.qpb i{flex:1;height:8px;border-radius:4px;background:#fff}.qpb i.d{background:var(--mine)}.qpb i.m{box-shadow:0 0 0 2px var(--mine)}.qpf{display:flex;justify-content:space-between;margin-top:8px;color:#0b5f67;font-size:12px;line-height:16px}
 </style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600&display=swap">
@@ -355,13 +356,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       card = el("div", "qcard pend"); var t2 = el("div", "qt"); t2.appendChild(el("b", "qn", "รออนุมัติ")); t2.appendChild(el("span", "qs", "คิวที่ " + pos)); card.appendChild(t2); card.appendChild(el("div", "qs2", "อนุมัติแล้วจะเข้าคิวและได้รับแจ้งเตือนทาง LINE"));
     } else {
       main.appendChild(el("p", "sub", "จองที่นั่งได้เมื่อถึงคิว"));
-      var a = Math.max(1, ahead);
-      card = el("div", "qcard"); var t3 = el("div", "qt"); t3.appendChild(el("b", "qn", "อีก " + a + " คน")); t3.appendChild(el("span", "qs", "คุณคิวที่ " + (a + 1))); card.appendChild(t3);
-      var tl = el("div", "qtl"), L = function () { return el("div", "ln"); };
-      var ns = a === 1 ? [tlNode("กำลังเลือก", "1", "cur"), L(), tlNode("คุณ", "2", "me"), L(), tlNode("รอคิว", "3", "w")]
-        : a === 2 ? [tlNode("กำลังเลือก", "1", "cur"), L(), tlNode("รอคิว", "2", "w"), L(), tlNode("คุณ", "3", "me")]
-        : [tlNode("กำลังเลือก", "1", "cur"), L(), tlNode("รออีก " + (a - 1) + " คน", "…", "w"), L(), tlNode("คุณ", String(a + 1), "me")];
-      ns.forEach(function (x) { tl.appendChild(x); }); card.appendChild(tl);
+      var a = Math.max(1, ahead), tr = D.turn ? D.items.findIndex(function (x) { return x.id === D.turn; }) + 1 : 0;
+      card = el("div", "qcard");
+      var sn = el("div", "qsent"); sn.appendChild(el("b", null, "อีก " + a + " คน")); sn.appendChild(document.createTextNode(" ถึงคิวคุณ")); card.appendChild(sn);
+      var pb = el("div", "qpb"), segs = Math.min(a + 1, 8); for (var si = 0; si < segs; si++) pb.appendChild(el("i", si === 0 ? "d" : si === segs - 1 ? "m" : "")); card.appendChild(pb);
+      var pf = el("div", "qpf"); pf.appendChild(el("span", null, tr ? "กำลังเลือก: คิวที่ " + tr : "รอเริ่มคิว")); pf.appendChild(el("span", null, "คุณคิวที่ " + pos)); card.appendChild(pf);
     }
     main.appendChild(card);
     if (!mine.done && !isTurn && mine.ok) main.appendChild(el("p", "note", "🔔 แจ้งเตือนทาง LINE เมื่อถึงคิว · อัปเดตให้อัตโนมัติ"));
