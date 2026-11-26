@@ -897,28 +897,33 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       { t: "เขียนข้อความเอง", d: "ไม่เกิน 100 ตัวอักษร", pre: "", input: "พิมพ์ข้อความถึงผู้จอง" }
     ];
     var cur = 0, inputs = [], boxes = [];
-    var inp = node("input"); inp.type = "text"; inp.maxLength = 100; inp.setAttribute("aria-label", "ข้อความ");
-    inp.style.cssText = "height:48px;border:1px solid #d3dadd;border-radius:12px;padding:0 12px;font:16px/24px var(--font-body);width:100%;box-sizing:border-box;background:#fff";
+    var tw = node("div"), inp = node("textarea"), cnt = node("span"); inp.maxLength = 100; inp.rows = 3; inp.setAttribute("aria-label", "ข้อความ"); tw.style.position = "relative";
+    var BOX = "display:block;width:100%;box-sizing:border-box;height:112px;resize:none;border-radius:12px;background:#fff;font:16px/24px var(--font-body);color:var(--ink);outline:none;";
+    function ring(on, warn) { inp.style.cssText = BOX + (on ? "border:2px solid " + (warn ? "#d9a441" : "var(--mine)") + ";padding:11px 11px 35px" : "border:1px solid " + (warn ? "#d9a441" : "#d3dadd") + ";padding:12px 12px 36px"); }
+    cnt.style.cssText = "position:absolute;right:12px;bottom:8px;font:400 14px/20px var(--font-body);color:var(--muted);pointer-events:none"; var focused = false;
+    inp.addEventListener("focus", function () { focused = true; paint(); }); inp.addEventListener("blur", function () { focused = false; paint(); });
+    tw.appendChild(inp); tw.appendChild(cnt);
     var go = node("button", null, "ส่ง"); go.type = "button"; go.disabled = true;
     go.style.cssText = "height:48px;border:0;border-radius:12px;background:var(--mine);color:#fff;font:600 16px/24px var(--font-body);display:flex;align-items:center;justify-content:center;padding:0 16px";
     var info = null, sending = false, armed = false, armLeft = 0, armT = null;
     function disarm() { armed = false; clearInterval(armT); }
-    function msg() { var o = opts[cur]; return o.input ? (inp.value.trim() ? o.pre + inp.value.trim() : "") : o.d; }
+    function msg() { var o = opts[cur], v = inp.value.replace(/\s+/g, " ").trim(); return o.input ? (v ? o.pre + v : "") : o.d; }
     function paint() {
       boxes.forEach(function (b, i) { var on = i === cur; b.style.cssText = "display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;border:1px solid " + (on ? "var(--mine)" : "#cfd8d9") + ";background:" + (on ? "#f2f8f9" : "#fff") + ";border-radius:16px;padding:12px;font:14px/20px var(--font-body);color:var(--ink)"; b.firstChild.style.cssText = "flex:none;width:18px;height:18px;border-radius:50%;margin-top:1px;box-sizing:border-box;border:" + (on ? "5px solid var(--mine)" : "2px solid #9fb0b3"); });
-      var o = opts[cur]; inp.hidden = !o.input; if (o.input) inp.placeholder = o.input;
+      var o = opts[cur]; tw.hidden = !o.input; if (o.input) inp.placeholder = o.input;
+      var warn = inp.value.length >= 90; ring(focused, warn); cnt.textContent = inp.value.length + "/100"; cnt.style.color = warn ? "#8a5a00" : "var(--muted)";
       var left = info ? info.max - info.sent : 0;
       go.disabled = sending || !info || !info.people || left <= 0 || !msg();
       if (go.disabled && !sending && info && (!info.people || left <= 0)) { go.style.background = "#e3e7ea"; go.style.color = "var(--muted)"; } else { go.style.background = "var(--mine)"; go.style.color = "#fff"; }
       go.style.justifyContent = armed ? "space-between" : "center"; go.textContent = "";
       if (armed) { go.appendChild(node("span", null, "แตะอีกครั้งเพื่อยืนยันส่ง")); var cd = node("span", null, String(armLeft)); cd.setAttribute("aria-hidden", "true"); cd.style.cssText = "flex:none;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font:700 14px/20px var(--font-display)"; go.appendChild(cd); }
-      else go.textContent = info && !info.people ? "ยังไม่มีผู้จองให้ส่ง" : info ? "ส่งถึง " + info.people + " คน" : "ส่ง";
+      else go.textContent = "ส่งแจ้งเตือน";
     }
     opts.forEach(function (o, i) {
       var b = node("button"); b.type = "button"; b.appendChild(node("span")); var tx = node("span"); tx.appendChild(node("b", null, o.t)); tx.appendChild(document.createElement("br")); tx.appendChild(document.createTextNode(o.d)); b.appendChild(tx);
       b.addEventListener("click", function () { disarm(); cur = i; paint(); if (o.input) setTimeout(function () { inp.focus(); }, 0); }); boxes.push(b); sh.appendChild(b);
     });
-    inp.addEventListener("input", function () { disarm(); paint(); }); sh.appendChild(inp); sh.appendChild(go); paint();
+    inp.addEventListener("input", function () { disarm(); paint(); }); sh.appendChild(tw); sh.appendChild(go); paint();
     go.addEventListener("click", async function () {
       var m = msg(); if (!m) return;
       if (!armed) { armed = true; armLeft = 5; paint(); armT = setInterval(function () { if (!go.isConnected) { disarm(); return; } armLeft--; if (armLeft <= 0) disarm(); paint(); }, 1000); return; }
@@ -935,7 +940,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     (NOTIFY_PRE[x.id] && Date.now() - NOTIFY_PRE[x.id].at < 20000 ? NOTIFY_PRE[x.id].p : getNotify(x.id)).then(function (d) {
       if (!d) throw new Error(); info = d; sub.classList.remove("sk"); sub.style.width = "";
       var more = d.max - d.sent;
-      sub.textContent = more > 0 ? "แจ้งผู้จองทาง LINE และในแอป · วันนี้ส่งได้อีก " + more + " ครั้ง" : "วันนี้ส่งครบ " + d.max + " ครั้งแล้ว ลองใหม่พรุ่งนี้"; paint();
+      sub.textContent = !d.people ? "ยังไม่มีผู้จองให้แจ้ง" : more > 0 ? "แจ้งผู้จอง " + d.people + " คน ทาง LINE และในแอป · ส่งได้อีก " + more + " ครั้ง" : "วันนี้ส่งครบ " + d.max + " ครั้งแล้ว ลองใหม่พรุ่งนี้"; paint();
     }).catch(function () { sub.classList.remove("sk"); sub.style.width = ""; sub.textContent = "โหลดข้อมูลไม่สำเร็จ ลองอีกครั้ง"; });
   }
 
