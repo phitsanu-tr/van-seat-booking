@@ -1299,7 +1299,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       st.lastView = st.mode + st.tab + st.van;
       sh.textContent = "";       if (sameView) setTimeout(function () { var nl = sh.querySelector(".rlist"); if (nl) nl.scrollTop = keep; sh.scrollTop = keepSh; }, 0);
       if (!st.trip) { // still loading: the sheet's real shape (title, tabs, grey rows) at its usual height instead of a short "loading" box
-        sheetHead(sh, "รายชื่อผู้จอง", close); sh.appendChild(node("p", null, x.name));
+        sheetHead(sh, "รายชื่อผู้จอง", close);
         var sk = node("div", "rtabs skel"); ["ที่นั่ง", "เช็กชื่อ"].forEach(function (t, i) { var b = node("button", i === 0 ? "on" : null, t); b.type = "button"; b.disabled = true; sk.appendChild(b); }); sh.appendChild(sk);
         var sl = node("div", "rlist skel-list"); for (var i = 0; i < 5; i++) { var r = node("div", "rrow"); r.appendChild(node("div", "no sk")); var m = node("div", "nm2"); m.appendChild(node("b", "sk sk-l")); m.appendChild(node("small", "sk sk-s")); r.appendChild(m); sl.appendChild(r); }
         sh.appendChild(sl);
@@ -1310,7 +1310,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     function drawList() {
       sheetHead(sh, "รายชื่อผู้จอง", close);
-      if (st.tab !== "board" || st.ended) sh.appendChild(node("p", null, st.trip.name + (st.ended ? " · ทริปจบแล้ว ดูได้อย่างเดียว" : "")));
+      if (st.ended) sh.appendChild(node("p", null, "ทริปจบแล้ว ดูได้อย่างเดียว"));
       var tabs = node("div", "rtabs");
       [["seats", "ที่นั่ง"], ["board", "เช็กชื่อ"]].forEach(function (tb) {
         var b = node("button", st.tab === tb[0] ? "on" : null, tb[1]); b.type = "button"; b.setAttribute("aria-pressed", st.tab === tb[0] ? "true" : "false");
