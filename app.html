@@ -867,9 +867,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     sh.appendChild(node("p", "msub", "คัดลอกและส่งเข้ากลุ่ม LINE ได้เลย · ใช้ชื่อบนผัง"));
     var pv = node("div", "sk", "กำลังโหลด…"); pv.style.cssText = "min-height:132px;border-radius:16px;padding:12px;font:14px/20px var(--font-body);white-space:pre-line;max-height:34vh;overflow:auto;overflow-wrap:anywhere";
     var row = node("div"); row.style.cssText = "display:flex;gap:8px";
-    var cp = node("button", null, "คัดลอก"), ln = node("a", null, "ส่งใน LINE"); cp.type = "button"; ln.target = "_blank"; ln.rel = "noopener";
-    var base = "flex:1;height:48px;border-radius:12px;border:0;display:grid;place-items:center;font:600 16px/24px var(--font-body);text-decoration:none;";
-    cp.style.cssText = base + "background:#eef1f1;color:var(--ink)"; ln.style.cssText = base + "background:#06c755;color:#fff";
+    var cp = node("button"), ln = node("a"), ico = function (d) { return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>'; };
+    cp.insertAdjacentHTML("beforeend", ico('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>')); cp.appendChild(node("span", null, "คัดลอก")); ln.insertAdjacentHTML("beforeend", ico('<path d="M4 12l16-8-6 16-3-7z"/>')); ln.appendChild(node("span", null, "ส่งเข้า LINE")); cp.type = "button"; ln.target = "_blank"; ln.rel = "noopener";
+    var base = "flex:1;height:48px;border-radius:12px;border:0;padding:0;display:flex;align-items:center;justify-content:center;gap:8px;font:600 16px/24px var(--font-body);text-decoration:none;";
+    cp.style.cssText = base + "background:#f3f6f7;color:var(--ink)"; ln.style.cssText = base + "background:#06c755;color:#fff";
     var text = ""; cp.disabled = true; ln.style.opacity = ".5"; ln.style.pointerEvents = "none";
     cp.addEventListener("click", function () { if (text) copyText(text, "คัดลอกรายชื่อแล้ว"); });
     row.appendChild(cp); row.appendChild(ln);
