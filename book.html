@@ -115,7 +115,8 @@ header.trip { display: block; }
 .ended svg { flex: none; width: 16px; height: 16px; margin-top: 4px; color: var(--mine); }
 .ended b { font-family: var(--font-display); font-weight: 600; }
 .deck.qlock .seat.seat:not(.taken):not(.mine):not(.held) { opacity: .5; }
-#queueBar.qturn { background: color-mix(in srgb, var(--mine) 14%, var(--surface)); }
+#queueBar.qturn { background: #e3f4ec; }
+#queueBar.qrow{align-items:center;gap:8px;min-height:48px;padding:12px 16px;background:color-mix(in srgb,var(--mine) 14%,var(--surface));border:0}#queueBar.qrow svg{display:none}#queueBar.qrow>span{display:flex;gap:8px;align-items:center;flex:1;min-width:0}#queueBar.qrow b{font-weight:700}#queueBar.qrow .rt{flex:none;margin-left:auto;color:var(--mine);font-weight:600}#queueBar.qrow[role=link]{cursor:pointer}#queueBar.qrow.qturn{background:#e3f4ec}#queueBar.qrow.qturn b{color:#0b8457}#queueBar.qrow.qturn span{color:#0a5c3c}#queueBar.qamb{background:#fff4dc;color:#8a5a00}#queueBar.qamb b,#queueBar.qamb .rt{color:#8a5a00}
 #queueBar.qcta{display:block;background:color-mix(in srgb,var(--mine) 14%,var(--surface));border:0;padding:16px}#queueBar.qcta svg{display:none}#queueBar.qcta b{display:block;font-size:16px;line-height:24px}#queueBar.qcta p{margin:0 0 12px}#queueBar.qcta a{display:flex;height:48px;align-items:center;justify-content:center;border-radius:12px;background:var(--mine);color:#fff;font:600 16px/24px var(--font-body);text-decoration:none}
 body.v-list #queueBar,body.v-info #queueBar{display:none!important}
 body:not(.v-info):not(.v-list) #queueBar.qcta{background:#fff4dc;box-shadow:inset 0 0 0 1px #e7cf9a}body:not(.v-info):not(.v-list) #queueBar.qcta b,body:not(.v-info):not(.v-list) #queueBar.qcta p{color:#8a5a00}#queueBar.qcta.qnudge{box-shadow:inset 0 0 0 1px #d9a441!important}#queueBar.qshake{animation:qshake .4s}@keyframes qshake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
@@ -386,6 +387,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .msg.nmmsg:empty { display: block; }
 .msg.nmmsg svg { flex: none; }
 .msg.nmmsg.info { color: var(--muted); }
+.msg.nmmsg.hint { font-size: 12px; line-height: 18px; padding-left: 4px; }
 
 .list { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
 .vsw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; margin: 8px 0 4px; border-radius: 14px; background: color-mix(in srgb, var(--ink) 6%, var(--surface)); } /* segmented switch */
@@ -736,19 +738,20 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function qBlocked() { return !!(loaded && qon && !isOwner && !closed && !ended && !(qs && qs.s === "turn")); }
   function renderQueueBar() {
     var bar = document.getElementById("queueBar"), tx = document.getElementById("queueTx"), s = qs && qs.s;
-    bar.classList.toggle("qturn", s === "turn"); tx.textContent = ""; bar.classList.remove("qcta");
+    bar.classList.toggle("qturn", s === "turn"); tx.textContent = ""; bar.classList.remove("qcta", "qrow", "qamb");
     var link = el("a", null, "ดูคิว"); link.href = "/" + TRIP + "/queue";
+    bar.classList.remove("qrow"); bar.onclick = null; bar.removeAttribute("role"); bar.removeAttribute("tabindex");
+    var goQ = function () { bar.classList.add("qrow"); bar.setAttribute("role", "link"); bar.tabIndex = 0; bar.onclick = function () { location.href = "/" + TRIP + "/queue"; }; bar.onkeydown = function (e) { if (e.key === "Enter") bar.onclick(); }; tx.appendChild(el("span", "rt", "›")); };
+    bar.classList.toggle("qamb", s === "wait" && !qs.ok);
     if (s === "turn") {
-      tx.appendChild(el("b", null, "ถึงคิวของคุณแล้ว")); tx.appendChild(document.createTextNode(" เลือกที่นั่งได้เลย จองครบแล้วกด "));
-      var fin = el("a", null, "เสร็จแล้ว"); fin.href = "#";
-      fin.addEventListener("click", function (e) { e.preventDefault(); fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: TRIP, a: "finish" }) }).then(function () { refresh(true); showToast("เรียกคนถัดไปแล้ว"); }); });
-      tx.appendChild(fin);
+      bar.classList.add("qrow"); tx.appendChild(el("b", null, "ถึงคิวคุณแล้ว")); tx.appendChild(el("span", null, "เลือกที่นั่งได้เลย"));
     } else if (s === "wait") {
-      tx.appendChild(el("b", null, qs.ok ? "ยังไม่ถึงคิวของคุณ" : "รอผู้จัดอนุมัติชื่อของคุณ"));
-      tx.appendChild(document.createTextNode(qs.ok ? " อีก " + qs.ahead + " คนก่อนหน้า · เราจะแจ้งเตือนเมื่อถึงคิว " : " · "));
-      tx.appendChild(link);
+      bar.classList.add("qrow");
+      if (qs.ok) { tx.appendChild(el("b", null, "อีก " + Math.max(1, qs.ahead) + " คน ถึงคิวคุณ")); }
+      else { tx.appendChild(el("b", null, "รออนุมัติชื่อ")); tx.appendChild(el("span", null, "จากผู้จัด")); }
+      goQ();
     } else if (s === "done") {
-      tx.appendChild(el("b", null, "คุณใช้สิทธิ์จองแล้ว")); tx.appendChild(document.createTextNode(" · ขอยกเลิกได้ที่ที่นั่งของคุณ · ")); tx.appendChild(link);
+      bar.classList.add("qrow"); tx.appendChild(el("b", null, "คุณจองแล้ว")); tx.appendChild(el("span", null, "ยกเลิกที่ที่นั่งของคุณ")); goQ();
     } else {
       bar.classList.add("qcta"); tx.appendChild(el("b", null, "จองที่นั่งตามลำดับคิว")); tx.appendChild(el("p", null, "เลือกชื่อของคุณก่อน แล้วรอถึงคิว")); var l2 = el("a", null, "เลือกชื่อของฉัน"); l2.href = "/" + TRIP + "/queue"; tx.appendChild(l2);
     }
@@ -992,7 +995,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var asking = false, askWhy = ""; // booking queue: the "ask the organizer to cancel" step
   function closeModal() { selected = null; message = ""; confirming = false; renaming = false; asking = false; renderAll(); }
   function openSeat(n) { selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; asking = false; renderAll(); }
-  function attachNameField(input, onEnter) { // the name box with its live "n/12" counter and the character notes, shared by booking a seat and editing a name
+  function attachNameField(input, onEnter, hint) { // the name box with its live "n/12" counter and the character notes, shared by booking a seat and editing a name
       var wrap = el("div", "nmwrap");
       var cnt = el("span", "nmcnt"); cnt.setAttribute("aria-hidden", "true");
       var noteBox = el("div", "msg nmmsg"); noteBox.setAttribute("role", "status");
@@ -1002,7 +1005,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         cnt.textContent = len ? len + "/" + NAME_MAX : "";
         cnt.className = "nmcnt" + (len >= NAME_MAX ? " full" : "");
       };
-      var note = function (kind, text) { noteInto(noteBox, kind, text); input.classList.toggle("bad", kind === "err" && !!text); };
+      var note = function (kind, text) { if (!text && hint) { noteBox.className = "msg nmmsg info hint"; noteBox.textContent = hint; input.classList.remove("bad"); return; } noteInto(noteBox, kind, text); input.classList.toggle("bad", kind === "err" && !!text); };
       var sanitize = function () {
         var raw = input.value;
         var sel = input.selectionStart == null ? raw.length : input.selectionStart;
@@ -1206,12 +1209,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       input.autocomplete = "off"; input.autocapitalize = "off"; input.spellcheck = false;
       input.setAttribute("autocorrect", "off");
       input.setAttribute("aria-label", "ชื่อผู้จอง");
-      var nf = attachNameField(input, function () { book(n, input.value); }), wrap = nf.wrap, note = nf.note, showCount = nf.showCount;
+      var nf = attachNameField(input, function () { book(n, input.value); }, seatLimit > 0 && !isOwner ? "จองได้ไม่เกิน " + seatLimit + " ที่นั่งต่อคน (รวมทุกคัน)" : ""), wrap = nf.wrap, note = nf.note, showCount = nf.showCount;
       noteBox = nf.noteBox;
       panelEl.appendChild(wrap);
       panelEl.appendChild(noteBox);
-      if (seatLimit > 0 && !isOwner) panelEl.appendChild(el("div", "lgnote", "จองได้ไม่เกิน " + seatLimit + " ที่นั่งต่อคน (รวมทุกคัน)"));
-      showCount();
+      nf.note("", ""); showCount();
       if (message) note("err", message);
       var ok = el("button", "primary", "จองที่นั่ง");
       ok.type = "button";

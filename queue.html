@@ -98,7 +98,7 @@ h1{font:700 26px/32px var(--font-display)}
 .qtl{display:flex;align-items:center;margin-top:14px}.nd{flex:1;text-align:center;font-size:12px;color:var(--muted);min-width:0}.nd i{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;margin:0 auto 4px;font-style:normal;font-weight:700;font-size:13px;background:#fff;color:var(--muted)}.nd.cur i{background:var(--mine);color:#fff}.nd.me i{border:2px solid var(--mine);color:var(--mine)}.qtl .ln{flex:.5;height:2px;background:#b9dde0;margin-bottom:18px}
 .who{display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px 14px;border:1px solid #dde3e7;border-radius:14px}.who .av{width:36px;height:36px;border-radius:50%;background:#c9d2d8;flex:none;object-fit:cover}.who b{display:block;font-size:15px}.who small{font-size:12px;color:var(--muted)}.who .nm2{margin-left:auto;background:none;color:var(--red);font-weight:600;font-size:13px;padding:0 4px;min-height:40px}
 .psheet{position:fixed;left:0;right:0;bottom:0;z-index:21;max-width:460px;margin:0 auto;background:#fff;border-radius:24px 24px 0 0;padding:20px 20px calc(22px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}.psheet h3{font:600 19px/26px var(--font-display);margin:0;padding-right:40px}.psheet .px{position:absolute;right:8px;top:12px;width:44px;height:44px;background:none;color:var(--muted);font-size:20px;padding:0}
-.pair{display:flex;align-items:center;gap:12px;background:var(--tint);border-radius:16px;padding:14px}.pair .no{flex:0 0 40px;height:40px;line-height:40px;font-size:16px;background:#fff}.pair b{display:block;font-size:18px}.pair small{font-size:12.5px;color:#0b5f67}.psheet .warn{margin:0}.psheet .big{width:100%}
+.pair{display:flex;align-items:center;gap:12px;background:var(--tint);border-radius:16px;padding:14px}.pair .no{flex:0 0 40px;height:40px;line-height:40px;font-size:16px;background:#fff}.pair b{display:block;font-size:18px}.pair small{font-size:12.5px;color:#0b5f67}.psheet .warn{margin:0;padding:12px;border-radius:12px;font-size:14px;line-height:20px}.psheet .warn div{display:flex;gap:8px}.ch{display:flex;align-items:center;justify-content:space-between;height:48px}.ch b{font:600 16px/24px var(--font-display)}.ch span{color:var(--muted);font-size:14px;line-height:20px}.psheet .big{width:100%}
 .obar a.b.p{background:var(--mine);color:#fff}
 .obar.one{grid-template-columns:minmax(0,1fr)}.obar a.b{display:grid;place-items:center;text-decoration:none;border-radius:12px;min-height:48px}.strip button.ol{background:#fff;color:var(--red);border:1.5px solid #f0c9c6}.strip button.wide{width:100%;margin:6px 0 8px}.obar .b.p{flex:none}.obar .b{background:#eef1f3}.obar .b.p{background:var(--mine)}
 .err{color:var(--red);font-size:13px;margin-top:6px}
@@ -322,8 +322,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var mine = D.items.filter(function (i) { return i.m; })[0];
     if (!mine) { // find your name
       if (h1) h1.textContent = "เลือกชื่อของคุณ";
-      var psub = el("p", "sub"); psub.appendChild(el("span", null, D.auto ? "แตะ “นี่คือฉัน” ที่ชื่อของคุณเพื่อเข้าคิว" : "หาชื่อของคุณแล้วกด “นี่คือฉัน” ผู้จัดจะตรวจก่อนว่าเป็นคุณจริง")); psub.appendChild(el("br")); psub.appendChild(el("span", null, "ชื่อในรายการอ้างอิงจากชื่อใน LINE")); main.appendChild(psub);
-      var cl = el("div", "card");
+      var psub = el("p", "sub"); psub.appendChild(el("span", null, D.auto ? "แตะ “นี่คือฉัน” ที่ชื่อของคุณเพื่อเข้าคิว" : "หาชื่อของคุณแล้วกด “นี่คือฉัน” ผู้จัดจะตรวจก่อนว่าเป็นคุณจริง")); main.appendChild(psub);
+      var cl = el("div", "card"); var chd = el("div", "ch"); chd.appendChild(el("b", null, "รายชื่อในคิว")); chd.appendChild(el("span", null, "ทั้งหมด " + D.items.length + " คน")); if (D.items.length) cl.appendChild(chd);
       if (!D.items.length) cl.appendChild(el("div", "empty", "ยังไม่มีรายชื่อ"));
       D.items.forEach(function (it, i) {
         var r = el("div", "row" + (it.done ? " done" : "")); r.appendChild(el("div", "no", String(i + 1)));
@@ -349,8 +349,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       main.appendChild(el("p", "sub", "ต้องการยกเลิก แตะที่นั่งของคุณในผังแล้วกดขอยกเลิก"));
       card = el("div", "qcard"); var t0 = el("div", "qt"); t0.appendChild(el("b", "qn", "จองเสร็จแล้ว")); card.appendChild(t0);
     } else if (isTurn) {
-      main.appendChild(el("p", "sub", "เลือกที่นั่งได้ตอนนี้"));
-      card = el("div", "qcard ok"); var t1 = el("div", "qt"); t1.appendChild(el("b", "qn", "ถึงคิวคุณแล้ว")); card.appendChild(t1); card.appendChild(el("div", "qs2", "จองครบแล้วกด “จองเสร็จแล้ว” ให้คนถัดไปได้เลือก"));
+      card = el("div", "qcard ok"); card.style.marginTop = "16px"; var t1 = el("div", "qt"); t1.appendChild(el("b", "qn", "ถึงคิวคุณแล้ว")); card.appendChild(t1); card.appendChild(el("div", "qs2", "เลือกที่นั่งได้เลย"));
     } else if (!mine.ok) {
       main.appendChild(el("p", "sub", "ผู้จัดกำลังตรวจชื่อของคุณ"));
       card = el("div", "qcard pend"); var t2 = el("div", "qt"); t2.appendChild(el("b", "qn", "รออนุมัติ")); t2.appendChild(el("span", "qs", "คิวที่ " + pos)); card.appendChild(t2); card.appendChild(el("div", "qs2", "อนุมัติแล้วจะเข้าคิวและได้รับแจ้งเตือนทาง LINE"));
@@ -369,9 +368,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (!mine.done) { var nb = btn("ไม่ใช่ฉัน", "nm2", function () { return call("unclaim"); }); who.appendChild(nb); }
     main.appendChild(who); main.appendChild(errBox);
     if (isTurn) {
-      var fin = btn("จองเสร็จแล้ว", "b", function () { return call("finish"); });
       var go = el("a", "b p", "ไปเลือกที่นั่ง"); go.href = "/" + T + "/seats";
-      backBar([fin, go]);
+      backBar([go]);
     } else backBar(null);
   }
   function doClaim(it) { busy = true; return call("claim", { id: it.id }).then(function () { busy = false; if (D && D.items.some(function (x) { return x.m; })) { justClaimed = !!D.auto; draw(); } }, function () { busy = false; }); }
@@ -383,7 +381,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var x = el("button", "px", "✕"); x.type = "button"; x.setAttribute("aria-label", "ปิด"); x.addEventListener("click", function () { paxSheet = null; draw(); }); sh.appendChild(x);
     sh.appendChild(el("h3", null, "คุณคือ “" + it.name + "” ใช่ไหม"));
     var pr = el("div", "pair"); pr.appendChild(el("div", "no", String(i + 1))); var pw = el("div"); pw.appendChild(el("b", null, it.name)); pw.appendChild(el("small", null, "คิวที่ " + (i + 1))); pr.appendChild(pw); sh.appendChild(pr);
-    sh.appendChild(el("div", "warn", "เลือกแล้วใช้สิทธิ์ของชื่อนี้ทันที ผู้จัดเห็นรูปและชื่อ LINE ของคุณ · ยกเลิกได้ถ้าเลือกผิด"));
+    var wn = el("div", "warn"); ["ใช้สิทธิ์ของชื่อนี้ทันที", "ผู้จัดเห็นรูปและชื่อ LINE ของคุณ"].forEach(function (t) { var d = el("div"); d.appendChild(el("span", null, "•")); d.appendChild(el("span", null, t)); wn.appendChild(d); }); sh.appendChild(wn);
     var ok = btn("ใช่ ฉันคือ" + it.name, "b p big", function () { paxSheet = null; busy = false; return doClaim(it); }); sh.appendChild(ok);
     main.appendChild(sh);
   }
