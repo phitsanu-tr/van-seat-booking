@@ -864,21 +864,20 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var shut = function () { bd.remove(); };
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
     sheetHead(sh, "ส่งรายชื่อเข้ากลุ่ม", shut);
-    sh.appendChild(node("p", "msub", "ข้อความพร้อมวางในกลุ่ม LINE"));
-    var pv = node("div", "sk", "กำลังโหลด…"); pv.style.cssText = "min-height:132px;border-radius:12px;padding:12px;font:14px/22px var(--font-body);white-space:pre-line;max-height:34vh;overflow:auto;overflow-wrap:anywhere";
+    sh.appendChild(node("p", "msub", "คัดลอกและส่งเข้ากลุ่ม LINE ได้เลย · ใช้ชื่อบนผัง"));
+    var pv = node("div", "sk", "กำลังโหลด…"); pv.style.cssText = "min-height:132px;border-radius:16px;padding:12px;font:14px/20px var(--font-body);white-space:pre-line;max-height:34vh;overflow:auto;overflow-wrap:anywhere";
     var row = node("div"); row.style.cssText = "display:flex;gap:8px";
     var cp = node("button", null, "คัดลอก"), ln = node("a", null, "ส่งใน LINE"); cp.type = "button"; ln.target = "_blank"; ln.rel = "noopener";
-    var base = "flex:1;height:48px;border-radius:14px;border:0;display:grid;place-items:center;font:600 15px/24px var(--font-body);text-decoration:none;";
+    var base = "flex:1;height:48px;border-radius:12px;border:0;display:grid;place-items:center;font:600 16px/24px var(--font-body);text-decoration:none;";
     cp.style.cssText = base + "background:#eef1f1;color:var(--ink)"; ln.style.cssText = base + "background:#06c755;color:#fff";
     var text = ""; cp.disabled = true; ln.style.opacity = ".5"; ln.style.pointerEvents = "none";
     cp.addEventListener("click", function () { if (text) copyText(text, "คัดลอกรายชื่อแล้ว"); });
     row.appendChild(cp); row.appendChild(ln);
-    var nt = node("p", "msub", "รายชื่อเป็นชื่อบนผังที่ทุกคนเห็นอยู่แล้ว ไม่มีชื่อ LINE"); nt.style.cssText = "margin:0;font-size:12px;line-height:18px";
-    sh.appendChild(pv); sh.appendChild(row); sh.appendChild(nt); document.body.appendChild(bd);
+    sh.appendChild(pv); sh.appendChild(row); document.body.appendChild(bd);
     (ROSTER_PRE[x.id] && Date.now() - ROSTER_PRE[x.id].at < 20000 ? ROSTER_PRE[x.id].p : getRoster(x.id)).then(function (d) {
       text = rosterText(d.trip, d.roster || {}, !d.trip.closedNow && !d.ended); pv.textContent = text;
-      pv.classList.remove("sk"); pv.style.background = "#f1f4f4"; pv.style.minHeight = ""; cp.disabled = false; ln.href = "https://line.me/R/msg/text/?" + encodeURIComponent(text); ln.style.opacity = ""; ln.style.pointerEvents = "";
-    }).catch(function () { pv.classList.remove("sk"); pv.style.background = "#f1f4f4"; pv.textContent = "โหลดรายชื่อไม่สำเร็จ ลองอีกครั้ง"; });
+      pv.classList.remove("sk"); pv.style.background = "#f3f6f7"; pv.style.minHeight = ""; cp.disabled = false; ln.href = "https://line.me/R/msg/text/?" + encodeURIComponent(text); ln.style.opacity = ""; ln.style.pointerEvents = "";
+    }).catch(function () { pv.classList.remove("sk"); pv.style.background = "#f3f6f7"; pv.textContent = "โหลดรายชื่อไม่สำเร็จ ลองอีกครั้ง"; });
   }
 
   var NOTIFY_PRE = {};
@@ -894,30 +893,35 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var opts = [
       { t: "เตือนก่อนเดินทาง", d: (meet ? meet + " " : "") + "อย่าลืมมาก่อน 15 นาที", pre: "" },
       { t: "เปลี่ยนเวลา/จุดนัด", d: "เลือกแล้วใส่รายละเอียดใหม่", pre: "เปลี่ยนแปลง: ", input: "เช่น เลื่อนเป็น 19:30" },
-      { t: "ข้อความของฉัน", d: "พิมพ์เองได้ไม่เกิน 120 ตัวอักษร", pre: "", input: "พิมพ์ข้อความถึงผู้จอง" }
+      { t: "เขียนข้อความเอง", d: "ไม่เกิน 100 ตัวอักษร", pre: "", input: "พิมพ์ข้อความถึงผู้จอง" }
     ];
     var cur = 0, inputs = [], boxes = [];
     var inp = node("input"); inp.type = "text"; inp.maxLength = 100; inp.setAttribute("aria-label", "ข้อความ");
     inp.style.cssText = "height:48px;border:1px solid #d3dadd;border-radius:12px;padding:0 12px;font:16px/24px var(--font-body);width:100%;box-sizing:border-box;background:#fff";
     var go = node("button", null, "ส่ง"); go.type = "button"; go.disabled = true;
-    go.style.cssText = "height:52px;border:0;border-radius:14px;background:var(--mine);color:#fff;font:600 16px/24px var(--font-body)";
-    var nt = node("p", "msub", "\u00a0"); nt.style.cssText = "margin:0;font-size:12px;line-height:18px"; // holds its line while loading
-    var info = null, sending = false;
+    go.style.cssText = "height:48px;border:0;border-radius:12px;background:var(--mine);color:#fff;font:600 16px/24px var(--font-body);display:flex;align-items:center;justify-content:center;padding:0 16px";
+    var info = null, sending = false, armed = false, armLeft = 0, armT = null;
+    function disarm() { armed = false; clearInterval(armT); }
     function msg() { var o = opts[cur]; return o.input ? (inp.value.trim() ? o.pre + inp.value.trim() : "") : o.d; }
     function paint() {
-      boxes.forEach(function (b, i) { var on = i === cur; b.style.cssText = "display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;border:1px solid " + (on ? "var(--mine)" : "#cfd8d9") + ";background:" + (on ? "#f2f8f9" : "#fff") + ";border-radius:12px;padding:10px 12px;font:14px/20px var(--font-body);color:var(--ink)"; b.firstChild.style.cssText = "flex:none;width:18px;height:18px;border-radius:50%;margin-top:1px;box-sizing:border-box;border:" + (on ? "5px solid var(--mine)" : "2px solid #9fb0b3"); });
+      boxes.forEach(function (b, i) { var on = i === cur; b.style.cssText = "display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;border:1px solid " + (on ? "var(--mine)" : "#cfd8d9") + ";background:" + (on ? "#f2f8f9" : "#fff") + ";border-radius:16px;padding:12px;font:14px/20px var(--font-body);color:var(--ink)"; b.firstChild.style.cssText = "flex:none;width:18px;height:18px;border-radius:50%;margin-top:1px;box-sizing:border-box;border:" + (on ? "5px solid var(--mine)" : "2px solid #9fb0b3"); });
       var o = opts[cur]; inp.hidden = !o.input; if (o.input) inp.placeholder = o.input;
       var left = info ? info.max - info.sent : 0;
       go.disabled = sending || !info || !info.people || left <= 0 || !msg();
-      go.textContent = info && info.people ? "ส่งถึง " + info.people + " คน" : "ส่ง";
+      if (go.disabled && !sending && info && (!info.people || left <= 0)) { go.style.background = "#e3e7ea"; go.style.color = "var(--muted)"; } else { go.style.background = "var(--mine)"; go.style.color = "#fff"; }
+      go.style.justifyContent = armed ? "space-between" : "center"; go.textContent = "";
+      if (armed) { go.appendChild(node("span", null, "แตะอีกครั้งเพื่อยืนยันส่ง")); var cd = node("span", null, String(armLeft)); cd.setAttribute("aria-hidden", "true"); cd.style.cssText = "flex:none;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font:700 14px/20px var(--font-display)"; go.appendChild(cd); }
+      else go.textContent = info && !info.people ? "ยังไม่มีผู้จองให้ส่ง" : info ? "ส่งถึง " + info.people + " คน" : "ส่ง";
     }
     opts.forEach(function (o, i) {
       var b = node("button"); b.type = "button"; b.appendChild(node("span")); var tx = node("span"); tx.appendChild(node("b", null, o.t)); tx.appendChild(document.createElement("br")); tx.appendChild(document.createTextNode(o.d)); b.appendChild(tx);
-      b.addEventListener("click", function () { cur = i; paint(); if (o.input) setTimeout(function () { inp.focus(); }, 0); }); boxes.push(b); sh.appendChild(b);
+      b.addEventListener("click", function () { disarm(); cur = i; paint(); if (o.input) setTimeout(function () { inp.focus(); }, 0); }); boxes.push(b); sh.appendChild(b);
     });
-    inp.addEventListener("input", paint); sh.appendChild(inp); sh.appendChild(go); sh.appendChild(nt); paint();
+    inp.addEventListener("input", function () { disarm(); paint(); }); sh.appendChild(inp); sh.appendChild(go); paint();
     go.addEventListener("click", async function () {
-      var m = msg(); if (!m) return; sending = true; paint();
+      var m = msg(); if (!m) return;
+      if (!armed) { armed = true; armLeft = 5; paint(); armT = setInterval(function () { if (!go.isConnected) { disarm(); return; } armLeft--; if (armLeft <= 0) disarm(); paint(); }, 1000); return; }
+      disarm(); sending = true; paint();
       try {
         var r = await fetch("/api/trip", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body: JSON.stringify({ t: x.id, broadcast: m }) });
         var d = {}; try { d = await r.json(); } catch (e) {}
@@ -929,8 +933,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     document.body.appendChild(bd);
     (NOTIFY_PRE[x.id] && Date.now() - NOTIFY_PRE[x.id].at < 20000 ? NOTIFY_PRE[x.id].p : getNotify(x.id)).then(function (d) {
       if (!d) throw new Error(); info = d; sub.classList.remove("sk"); sub.style.width = "";
-      sub.textContent = d.people ? "ส่งถึง " + d.people + " คน ทาง LINE และในแอป" : "ยังไม่มีผู้จอง จึงยังไม่มีใครให้ส่ง";
-      nt.textContent = "ส่งได้ " + d.max + " ครั้งต่อทริปต่อวัน (วันนี้ใช้แล้ว " + d.sent + ") · ข้อความ LINE มีโควตารายเดือน"; paint();
+      var more = d.max - d.sent;
+      sub.textContent = more > 0 ? "แจ้งผู้จองทาง LINE และในแอป · วันนี้ส่งได้อีก " + more + " ครั้ง" : "วันนี้ส่งครบ " + d.max + " ครั้งแล้ว ลองใหม่พรุ่งนี้"; paint();
     }).catch(function () { sub.classList.remove("sk"); sub.style.width = ""; sub.textContent = "โหลดข้อมูลไม่สำเร็จ ลองอีกครั้ง"; });
   }
 
