@@ -117,6 +117,7 @@ header.trip { display: block; }
 .deck.qlock .seat.seat:not(.taken):not(.mine):not(.held) { opacity: .5; }
 #queueBar.qturn { background: color-mix(in srgb, var(--mine) 14%, var(--surface)); }
 #queueBar.qcta{display:block;background:color-mix(in srgb,var(--mine) 14%,var(--surface));border:0;padding:16px}#queueBar.qcta svg{display:none}#queueBar.qcta b{display:block;font-size:16px;line-height:24px}#queueBar.qcta p{margin:0 0 12px}#queueBar.qcta a{display:flex;height:48px;align-items:center;justify-content:center;border-radius:12px;background:var(--mine);color:#fff;font:600 16px/24px var(--font-body);text-decoration:none}
+#queueBar.qcta.qnudge{background:#fff4dc;box-shadow:0 0 0 3px #d9a441}#queueBar.qcta.qnudge b,#queueBar.qcta.qnudge p{color:#8a5a00}#queueBar.qshake{animation:qshake .4s}@keyframes qshake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 .deck.isended .seat { cursor: default; }
 .deck.isended .seat:hover { background: transparent; }
 .deck.isended .seat.taken:hover { background: color-mix(in srgb, var(--taken) 94%, transparent); }
@@ -748,13 +749,22 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     } else if (s === "done") {
       tx.appendChild(el("b", null, "คุณใช้สิทธิ์จองแล้ว")); tx.appendChild(document.createTextNode(" · ขอยกเลิกได้ที่ที่นั่งของคุณ · ")); tx.appendChild(link);
     } else {
-      bar.classList.add("qcta"); tx.appendChild(el("b", null, "ต้องเข้าคิวก่อนจึงจะจองได้")); tx.appendChild(el("p", null, "ผู้จัดเพิ่มชื่อไว้แล้ว")); var l2 = el("a", null, "เลือกชื่อของฉัน"); l2.href = "/" + TRIP + "/queue"; tx.appendChild(l2);
+      bar.classList.add("qcta"); tx.appendChild(el("b", null, "จองที่นั่งตามลำดับคิว")); tx.appendChild(el("p", null, "เลือกชื่อของคุณก่อน แล้วรอถึงคิว")); var l2 = el("a", null, "เลือกชื่อของฉัน"); l2.href = "/" + TRIP + "/queue"; tx.appendChild(l2);
     }
     if (qSheet) qSheet.render();
   }
   // the "not your turn" sheet: lives while open, so it follows the queue (counts down, flips to "your turn")
   var qSheet = null, qFriend = { flag: null, url: "" };
   function qCss(e, c) { e.style.cssText = c; return e; }
+  // not in the queue yet: no sheet, bring the "choose your name" card into view and mark it briefly
+  var nudgeT = null;
+  function nudgeQueueCard() {
+    var bar = document.getElementById("queueBar"); if (!bar || bar.hidden) return;
+    var calm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    try { window.scrollTo({ top: 0, behavior: calm ? "auto" : "smooth" }); } catch (e) { window.scrollTo(0, 0); }
+    bar.classList.remove("qnudge", "qshake"); void bar.offsetWidth; bar.classList.add("qnudge"); if (!calm) bar.classList.add("qshake");
+    clearTimeout(nudgeT); nudgeT = setTimeout(function () { bar.classList.remove("qnudge", "qshake"); }, 2000);
+  }
   function openQueueSheet(n) {
     if (qSheet) qSheet.close();
     var bd = qCss(el("div"), "position:fixed;inset:0;z-index:50;background:rgba(10,24,28,.45);display:flex;align-items:flex-end;justify-content:center");
@@ -940,7 +950,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
           b.setAttribute("aria-label", "ที่นั่ง " + n + " ว่าง");
         }
         if (selected === n) { b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
-        b.addEventListener("click", function () { if (locked()) return; if (!seats[n] && qBlocked()) { openQueueSheet(n); return; } selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; asking = false; renderAll(); });
+        b.addEventListener("click", function () { if (locked()) return; if (!seats[n] && qBlocked()) { if (!qs || qs.s === "out") nudgeQueueCard(); else openQueueSheet(n); return; } selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; asking = false; renderAll(); });
         overlayEl.appendChild(frame(b, RECT[n]));
       })(n);
     }
