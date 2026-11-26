@@ -18,6 +18,7 @@
     ".vt-bar a.on{color:#0b5f67;font-weight:700}.vt-bar a.on svg{stroke-width:2.4}" +
     ".vt-bar .nb{position:absolute;top:-4px;left:50%;margin-left:4px;min-width:18px;height:18px;padding:0 6px;border-radius:10px;background:#e5484d;color:#fff;font:700 10px/18px 'Noto Sans Thai',system-ui,sans-serif;text-align:center;box-sizing:border-box}" +
     ".vt-bar .nb[hidden]{display:none}" +
+    ".vt-bar .nd{position:absolute;top:0;left:50%;margin-left:8px;width:12px;height:12px;border-radius:50%;background:#e5484d;border:2px solid #fff;box-sizing:border-box}.vt-bar .nd[hidden]{display:none}" +
     ".vt-bar .av{flex:none;width:24px;height:24px;border-radius:50%;background:#0e7c86;color:#fff;font:700 12px/24px 'Prompt','Noto Sans Thai',system-ui,sans-serif;text-align:center;overflow:hidden;display:block;box-sizing:border-box}" +
     ".vt-bar .av img{width:100%;height:100%;object-fit:cover;display:block}" +
     ".vt-bar a.on .av{box-shadow:0 0 0 2px #fff,0 0 0 4px #0b5f67}" +
@@ -32,14 +33,15 @@
     nav.innerHTML =
       a("home", "/home", "หน้าหลัก", icon("home")) +
       a("trips", "/trips", "ทริปของฉัน", icon("trips")) +
-      a("seats", "/seats", "ที่นั่งของฉัน", icon("seats")) +
+      a("seats", "/seats", "ที่นั่งของฉัน", icon("seats") + '<span class="nd" id="vtDot" hidden></span>') +
       a("notif", "/notify", "แจ้งเตือน", icon("notif") + '<span class="nb" id="vtBadge" hidden></span>') +
       a("acct", "/profile", "โปรไฟล์", '<span class="av" id="vtAv"></span>');
     document.body.appendChild(nav); document.body.classList.add("vt-on"); document.documentElement.style.paddingBottom = "0"; /* the body padding already clears the bar + safe area; a page-level safe-area padding would add it twice */
     var av = document.getElementById("vtAv");
     if (user.pic) { var im = document.createElement("img"); im.alt = ""; im.src = user.pic; im.referrerPolicy = "no-referrer"; im.onerror = function () { av.textContent = ini; }; av.appendChild(im); } else av.textContent = ini;
     function badge() { var n = window.VSBBell && VSBBell.ready ? VSBBell.unread : 0, b = document.getElementById("vtBadge"); b.hidden = !n; b.textContent = n > 99 ? "99+" : String(n); }
-    if (window.VSBBell) { badge(); VSBBell.onChange(badge); }
+    function dot() { var d = document.getElementById("vtDot"); if (d) d.hidden = !(window.VSBBell && VSBBell.ready && (VSBBell.items || []).some(function (x) { return !x.r && x.k === "queue_turn"; })); } /* your queue turn is unread: red dot on the seats tab */
+    if (window.VSBBell) { badge(); dot(); VSBBell.onChange(function () { badge(); dot(); }); }
   }
   function readCache() { try { var c = JSON.parse(localStorage.getItem("vsb_tb") || "null"); return c && localStorage.getItem("vsb_in") === "1" && !localStorage.getItem("vsb_gone") ? c : null; } catch (e) { return null; } }
   function paintAv(user) {

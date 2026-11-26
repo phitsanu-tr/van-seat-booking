@@ -40,6 +40,7 @@ module.exports = async function handler(req, res) {
 
     if (req.method === "GET") {
       const { q } = await Q.read(t);
+      if (user && q.items.some((i) => i.u === user.id)) { try { await L.pipeline([["SADD", L.myQueueKey(user.id), t], ["EXPIRE", L.myQueueKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* best effort: also fills the list for people who joined before it existed */ } }
       res.setHeader("Cache-Control", "no-store");
       return L.json(res, 200, view(q));
     }
@@ -87,6 +88,8 @@ module.exports = async function handler(req, res) {
 
     const out = await Q.update(trip, fn);
     if (out.error) return L.json(res, out.error === "busy" ? 409 : out.error === "not_your_turn" ? 403 : 400, { error: out.error });
+    if (a === "claim" && out.changed) { try { await L.pipeline([["SADD", L.myQueueKey(user.id), t], ["EXPIRE", L.myQueueKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* best effort */ } }
+    if (a === "unclaim" && out.changed) { try { await L.redis(["SREM", L.myQueueKey(user.id), t]); } catch (e) { /* best effort */ } }
     if (a === "claim" && out.changed && !out.q.auto) { // tell the organizer team that someone is waiting for approval
       const r = out.q.items.find((i) => i.u === user.id);
       await L.notify(L.teamIds(trip), { k: "queue_claim", t, tn: trip.name, n: r ? r.name : "" }, user.id);

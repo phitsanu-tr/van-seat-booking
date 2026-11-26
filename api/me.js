@@ -8,6 +8,7 @@
 // POST { read: "all" | { t } | { id } } -> marks notifications read (all / one trip / one item)
 const L = require("./_lib");
 const P = require("./_plans");
+const Q = require("./_queue");
 const MAX = 60;
 
 function summary(trip, perVan) {
@@ -122,7 +123,7 @@ async function deleteAll(req, res, user, dropTrips) {
   } catch (e) { /* best effort */ }
 
   // the account itself: indexes and every session
-  const end = [["DEL", L.myTripsKey(uid)], ["DEL", L.mySeatsKey(uid)], ["DEL", L.inboxKey(uid)], ["DEL", L.inboxReadKey(uid)], ["DEL", L.inboxAllKey(uid)], ["DEL", L.inboxVerKey(uid)], ["DEL", "usess:" + uid], ["DEL", "sess:" + user.sid]];
+  const end = [["DEL", L.myTripsKey(uid)], ["DEL", L.mySeatsKey(uid)], ["DEL", L.myQueueKey(uid)], ["DEL", L.inboxKey(uid)], ["DEL", L.inboxReadKey(uid)], ["DEL", L.inboxAllKey(uid)], ["DEL", L.inboxVerKey(uid)], ["DEL", "usess:" + uid], ["DEL", "sess:" + user.sid]];
   (sids || []).forEach((sid) => { if (/^[a-z0-9]{32}$/.test(String(sid))) end.push(["DEL", "sess:" + sid]); });
   await L.pipeline(end);
   res.setHeader("Set-Cookie", [L.cookieStr(req, "vsb_s", "", 0)]);
@@ -201,6 +202,28 @@ module.exports = async function handler(req, res) {
     });
     const byDate = (a, b) => (a.ended - b.ended) || String(a.startDate || "9").localeCompare(String(b.startDate || "9"));
     myTrips.sort(byDate); mySeats.sort(byDate);
+    // trips where I am waiting in the booking queue (claimed a name, turn not over): shown above my seats
+    let queues = [];
+    try {
+      const qids = ((await L.redis(["SMEMBERS", L.myQueueKey(user.id)])) || []).map(String).filter((x) => L.tripId(x)).slice(0, MAX);
+      if (qids.length && Q.flagOn()) {
+        const need = qids.filter((id) => !trips[id]);
+        const rawT = need.length ? await L.pipeline(need.map((id) => ["GET", L.tripKey(id)])) : [];
+        need.forEach((id, i) => { try { if (rawT[i]) trips[id] = JSON.parse(rawT[i]); } catch (e) { /* skip */ } });
+        const rawQ = await L.pipeline(qids.map((id) => ["HGET", Q.qKey(id), "q"]));
+        const drop = [];
+        qids.forEach((id, i) => {
+          let q = null; try { q = JSON.parse(rawQ[i]); } catch (e) { q = null; }
+          const tr = trips[id];
+          if (!tr || L.tripEnded(tr) || !q || !Array.isArray(q.items)) { drop.push(id); return; }
+          const st = Q.stateOf(q, user);
+          if (!q.on || (st.s !== "wait" && st.s !== "turn")) { if (st.s === "out" || st.s === "done") drop.push(id); return; }
+          queues.push(Object.assign(summary(tr, {}), { qs: st.s, ahead: st.ahead || 0, ok: st.s === "turn" ? true : !!st.ok }));
+        });
+        if (drop.length) { try { await L.redis(["SREM", L.myQueueKey(user.id)].concat(drop)); } catch (e) { /* best effort */ } }
+        queues.sort((a, b) => (a.qs === "turn" ? 0 : 1) - (b.qs === "turn" ? 0 : 1) || String(a.startDate || "9").localeCompare(String(b.startDate || "9")));
+      }
+    } catch (e) { queues = []; }
     let plan = null;
     {
       try {
@@ -214,7 +237,7 @@ module.exports = async function handler(req, res) {
         }
       } catch (e) { plan = null; }
     }
-    return L.json(res, 200, { user: L.publicUser(user), trips: myTrips, seats: mySeats, plan });
+    return L.json(res, 200, { user: L.publicUser(user), trips: myTrips, seats: mySeats, queues, plan });
   } catch (e) {
     return L.json(res, 502, { error: "storage_error" });
   }
