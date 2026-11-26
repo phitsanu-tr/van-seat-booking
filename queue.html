@@ -214,11 +214,11 @@ h1{margin:0 0 16px}.card,.swc,.seg{margin-bottom:16px}.clb{display:flex;gap:12px
     [["list", "รายชื่อ"], ["set", "ตั้งค่า"]].forEach(function (k) { var b = el("button", null, k[1]); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", tab === k[0] ? "true" : "false"); b.addEventListener("click", function () { tab = k[0]; menuId = ""; draw(); }); tb.appendChild(b); });
     main.appendChild(tb);
     if (tab === "set") {
-      var cv = el("div", "card"); cv.appendChild(chead("check", "ยืนยันชื่อผู้โดยสาร"));
+      var cv = el("div", "card"); cv.appendChild(chead("check", "การยืนยันผู้เข้าคิว"));
       function opt(on, title, sub2, val) { var o = el("button", "opt" + (on ? " on" : "")); o.type = "button"; o.setAttribute("role", "radio"); o.setAttribute("aria-checked", on ? "true" : "false"); o.appendChild(el("i", "rd")); var ww = el("span"); var bb = el("b", null, title); if (val === false) bb.appendChild(el("em", "tag", "แนะนำ")); ww.appendChild(bb); ww.appendChild(el("small", null, sub2)); o.appendChild(ww); o.addEventListener("click", function () { if (busy || on) return; busy = true; var pa = D.auto; D.auto = val ? 1 : 0; draw(); call("auto", { value: val }, function () { D.auto = pa; draw(); }).then(function () { busy = false; }, function () { busy = false; }); }); return o; }
-      var sg = el("div", "seg2"); sg.setAttribute("role", "radiogroup"); sg.setAttribute("aria-label", "ยืนยันชื่อผู้โดยสาร");
-      sg.appendChild(opt(!D.auto, "ผู้จัดอนุมัติเอง", "กด “ฉันคือคนนี้” แล้วรอผู้จัดตรวจชื่อและรูป LINE ก่อนจึงจะใช้สิทธิ์ได้ ปลอดภัยสุด", false));
-      sg.appendChild(opt(!!D.auto, "อนุมัติอัตโนมัติ", "กดแล้วใช้ได้ทันที ไม่ต้องรอ เหมาะกับกลุ่มคนสนิท", true));
+      var sg = el("div", "seg2"); sg.setAttribute("role", "radiogroup"); sg.setAttribute("aria-label", "การยืนยันผู้เข้าคิว");
+      sg.appendChild(opt(!D.auto, "ผู้จัดอนุมัติ", "ผู้จัดตรวจชื่อและรูป LINE ก่อน จึงจะใช้สิทธิ์ได้", false));
+      sg.appendChild(opt(!!D.auto, "อนุมัติทันที", "ใช้สิทธิ์ได้เลยโดยไม่ต้องรอ เหมาะกับกลุ่มคนสนิท", true));
       cv.appendChild(sg); if (D.auto) cv.appendChild(el("div", "warn", "ใครกดชื่อไหนก่อนก็ได้ชื่อนั้นทันที ผู้จัดยังเห็นชื่อและรูป LINE และกด “ปลดชื่อ” ได้ตลอด"));
       main.appendChild(cv);
     } else {
