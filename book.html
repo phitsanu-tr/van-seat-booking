@@ -441,6 +441,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   max-width: min(92vw, 360px); background: var(--ink); color: var(--bg); padding: 12px 16px; border-radius: 16px;
   font-size: 14px; text-align: center; box-shadow: 0 8px 28px rgba(0, 0, 0, .3); line-height: 20px}
 .toast.error { background: var(--danger); color: var(--paper); }
+.toast.ic { display: flex; align-items: center; gap: 12px; padding: 12px 20px; font-weight: 600; text-align: left; }
 .seat.pending { opacity: .6; }
 .seat.held { background: repeating-linear-gradient(135deg, var(--surface) 0 8px, color-mix(in srgb, var(--taken) 70%, var(--surface)) 8px 16px); color: var(--muted); }
 .seat.held .who { font-size: 14px; font-size: clamp(12px, 2.6cqw, 20px); font-weight: 600; color: var(--muted); line-height: 1.25; }
@@ -709,7 +710,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var want = !starred; starred = want; paintStar();
       fetch("/api/me", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ save: TRIP, on: want }) })
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-        .then(function (x) { if (!x.ok) { starred = !want; paintStar(); showToast(x.j && x.j.error === "saved_full" ? "บันทึกได้ไม่เกิน " + x.j.max + " ทริป เลิกบันทึกบางทริปก่อน" : "บันทึกไม่สำเร็จ ลองใหม่", "error"); } else showToast(want ? "บันทึกทริปแล้ว · ดูได้ที่ “ที่นั่งของฉัน”" : "เลิกบันทึกแล้ว"); })
+        .then(function (x) { if (!x.ok) { starred = !want; paintStar(); showToast(x.j && x.j.error === "saved_full" ? "บันทึกได้ไม่เกิน " + x.j.max + " ทริป เลิกบันทึกบางทริปก่อน" : "บันทึกไม่สำเร็จ ลองใหม่", "error"); } else showToast(want ? "บันทึกทริปแล้ว" : "เลิกบันทึกแล้ว", want ? "star-on" : "star-off"); })
         .catch(function () { starred = !want; paintStar(); showToast("บันทึกไม่สำเร็จ ลองใหม่", "error"); });
     });
   }
@@ -1081,8 +1082,16 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
 
   function showToast(text, kind) {
-    toastEl.textContent = text;
-    toastEl.className = "toast" + (kind === "error" ? " error" : "");
+    var star = kind === "star-on" || kind === "star-off";
+    if (star) { // a star in front: yellow and solid = saved, grey and outlined = removed
+      toastEl.textContent = "";
+      var ns = "http://www.w3.org/2000/svg", sv = document.createElementNS(ns, "svg"), pa = document.createElementNS(ns, "path"), on = kind === "star-on", col = on ? "#f5b301" : "#c3cbd1";
+      sv.setAttribute("viewBox", "0 0 24 24"); sv.setAttribute("width", "24"); sv.setAttribute("height", "24"); sv.setAttribute("aria-hidden", "true"); sv.style.flex = "none";
+      sv.setAttribute("fill", on ? col : "none"); sv.setAttribute("stroke", col); sv.setAttribute("stroke-width", "2"); sv.setAttribute("stroke-linejoin", "round"); sv.setAttribute("stroke-linecap", "round");
+      pa.setAttribute("d", "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"); sv.appendChild(pa);
+      var tx = document.createElement("span"); tx.textContent = text; toastEl.appendChild(sv); toastEl.appendChild(tx);
+    } else toastEl.textContent = text;
+    toastEl.className = "toast" + (kind === "error" ? " error" : "") + (star ? " ic" : "");
     toastEl.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { toastEl.hidden = true; }, kind === "error" ? 5000 : 3000);
