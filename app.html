@@ -262,8 +262,8 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .rt .s.rr { text-align: right; }
 .rt .s span.q { color: var(--muted); }
 .rt .mid { flex: none; width: 32px; height: 32px; box-sizing: border-box; border: 1px solid #dfe5e8; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; align-self: center; }
-.rt .mid img { width: 20px; height: 20px; display: block; }
-.rt.sm .mid { width: 28px; height: 28px; } .rt.sm .mid img { width: 16px; height: 16px; }
+.rt .mid svg { width: 20px; height: 20px; display: block; }
+.rt.sm .mid { width: 28px; height: 28px; } .rt.sm .mid svg { width: 16px; height: 16px; }
 .stat { display: flex; align-items: center; gap: 12px; }
 .stat .bar { flex: 1; }
 .stat b { font-size: 14px; line-height: 20px; font-weight: 600; white-space: nowrap; }
@@ -659,7 +659,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     box.appendChild(side("เดินทางไป", x.startDate, x.departTime));
     var back = x.endDate || x.startDate, same = !x.endDate || x.endDate === x.startDate;
     if ((x.endDate && !same) || x.returnTime) { // a same-day trip with no return time shows the way out only
-      box.insertAdjacentHTML("beforeend", '<div class="mid"><img src="/swap-icon.png" alt=""></div>');
+      box.insertAdjacentHTML("beforeend", '<div class="mid"><svg viewBox="0 0 24 24" fill="none" stroke="#0e7c86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M16 4l4 4-4 4M20 16H4M8 12l-4 4 4 4"/></svg></div>');
       box.appendChild(side("เดินทางกลับ", back, x.returnTime, "rr", same && x.returnTime ? "วันเดียวกัน" : ""));
     } else box.classList.add("one");
     return box;
