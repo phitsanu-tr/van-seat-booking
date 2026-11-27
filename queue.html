@@ -458,14 +458,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var rw = el("div", "arw"), tx = el("span"); tx.appendChild(el("b", null, allOn ? "เปิดคิวทุกคัน" : "ปิดคิวทุกคัน"));
     tx.appendChild(el("small", null, allOn ? "ผู้จองต้องรอถึงคิวก่อนเลือกที่นั่ง" : onN ? "เปิดอยู่ " + onN + " จาก " + n + " คัน · กดเพื่อเปิดทุกคัน" : "ทุกคนจองได้ตามปกติ")); rw.appendChild(tx);
     var swb = el("button", "swt"); swb.type = "button"; swb.setAttribute("role", "switch"); swb.setAttribute("aria-checked", allOn ? "true" : "false"); swb.setAttribute("aria-label", "เปิดหรือปิดคิวทุกคัน");
-    swb.addEventListener("click", function () { if (busy) return; busy = true; var v = !allOn; allSheet = false; call("onall", { value: v }).then(function () { busy = false; draw(); showToast(v ? "เปิดคิวทุกคันแล้ว" : "ปิดคิวทุกคันแล้ว"); }, function () { busy = false; }); });
+    swb.addEventListener("click", function () { if (busy) return; busy = true; var v = !allOn; call("onall", { value: v }).then(function () { busy = false; draw(); showToast(v ? "เปิดคิวทุกคันแล้ว" : "ปิดคิวทุกคันแล้ว"); }, function () { busy = false; }); });
     rw.appendChild(swb); b1.appendChild(rw); sh.appendChild(b1);
     var b2 = el("div", "abox"); b2.appendChild(head("check", "การยืนยันผู้เข้าคิว"));
     if (auN && auN < n) { var mn = el("div", "mixn"); mn.appendChild(el("i", null, "i")); mn.appendChild(el("span", null, "ตอนนี้แต่ละคันตั้งไม่เหมือนกัน เลือกด้านล่างเพื่อให้เหมือนกันทุกคัน")); b2.appendChild(mn); }
     function aopt(on, title, sub2, val) {
       var o = el("button", "opt" + (on ? " on" : "")); o.type = "button"; o.setAttribute("role", "radio"); o.setAttribute("aria-checked", on ? "true" : "false"); o.appendChild(el("i", "rd"));
       var ww = el("span"); ww.appendChild(el("b", null, title)); ww.appendChild(el("small", null, sub2)); o.appendChild(ww);
-      o.addEventListener("click", function () { if (busy || on) return; busy = true; allSheet = false; call("autoall", { value: val }).then(function () { busy = false; draw(); showToast(val ? "เปลี่ยนเป็นอนุมัติทันทีทุกคันแล้ว" : "เปลี่ยนเป็นผู้จัดอนุมัติทุกคันแล้ว"); }, function () { busy = false; }); });
+      o.addEventListener("click", function () { if (busy || on) return; busy = true; call("autoall", { value: val }).then(function () { busy = false; draw(); showToast(val ? "เปลี่ยนเป็นอนุมัติทันทีทุกคันแล้ว" : "เปลี่ยนเป็นผู้จัดอนุมัติทุกคันแล้ว"); }, function () { busy = false; }); });
       return o;
     }
     b2.appendChild(aopt(auN === 0, "ผู้จัดอนุมัติ", "ผู้จัดตรวจสอบชื่อก่อน จึงจะใช้สิทธิ์ได้", false));
