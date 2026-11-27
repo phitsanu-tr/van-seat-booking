@@ -1648,7 +1648,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (r.data && r.data.trip) {
         trip = r.data.trip;
         if (K && r.data.nv > 1 && trip.vans[0]) { var hh = document.querySelector(".hero h1"), v0 = trip.vans[0]; vanTitle = "คัน " + v0.label + ""; } // a van link of a trip with several vans: say which van this is
-        if (!curVan || !trip.vans.some(function (v) { return v.id === curVan; })) curVan = r.data.van || trip.vans[0].id;
+        VKS = r.data.vks || VKS; if (!curVan || !trip.vans.some(function (v) { return v.id === curVan; })) curVan = r.data.van || trip.vans[0].id;
       }
       counts = (r.data && r.data.counts) || counts;
       var hw = JSON.stringify(held); held = {}; ((r.data && r.data.held) || []).forEach(function (k) { held[k] = 1; });
@@ -2198,11 +2198,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     lineUrl = location.origin + basePath() + "/seats?" + qs.join("&");
     return lineUrl;
   }
-  function inviteLink(kind) { return "https://liff.line.me/2012285472-FvtYKx00/" + (K ? "t/" + K : TRIP) + (kind === "info" ? "" : "/seats"); }
+  var VKS = {}; // organizer on the trip link: each van's own link code, so a shared card opens the van the organizer is looking at
+  function shareKey(kind) { return kind === "info" ? "" : K || VKS[curVan] || ""; }
+  function inviteLink(kind) { var k = shareKey(kind); return "https://liff.line.me/2012285472-FvtYKx00/" + (k ? "t/" + k : TRIP) + (kind === "info" ? "" : "/seats"); }
   async function shareFriend(kind) {
     kind = kind === "info" ? "info" : ""; // the click handlers pass an event, only the details tab passes "info"
-    var u = inviteLink(kind), L = [], T = trip || {};
-    if (await VSBShare.send({ id: TRIP, name: T.name, organizer: T.organizer, tripDays: T.tripDays, vans: (T.vans || []).length, staffSeat: !!T.staffSeat, limit: seatLimit, startDate: T.startDate, tripStart: T.tripStart, endDate: T.endDate, departTime: T.departTime, returnTime: T.returnTime, meetPoint: T.meetPoint, closed: closed || ended }, kind)) return; // a card in the chat; otherwise the text link below
+    var u = inviteLink(kind), L = [], T = trip || {}, sk = shareKey(kind), sv = (T.vans || []).filter(function (x) { return x.id === curVan; })[0];
+    if (await VSBShare.send({ id: TRIP, vk: sk || undefined, vl: sk && sv ? sv.label : undefined, name: T.name, organizer: T.organizer, tripDays: T.tripDays, vans: sk ? 1 : (T.vans || []).length, staffSeat: !!T.staffSeat, limit: seatLimit, startDate: T.startDate, tripStart: T.tripStart, endDate: T.endDate, departTime: T.departTime, returnTime: T.returnTime, meetPoint: T.meetPoint, closed: closed || ended }, kind)) return; // a card in the chat; otherwise the text link below
     L.push("🚐 " + (T.name || "จองที่นั่งรถตู้"), "");
     if (T.startDate || T.departTime) L.push("📅 เดินทางไป " + leg(T.startDate, T.departTime));
     if (T.endDate || T.returnTime) L.push("🔁 เดินทางกลับ " + leg(T.endDate || T.startDate, T.returnTime));
