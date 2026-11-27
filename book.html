@@ -1299,10 +1299,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   // /<id> = trip details, /<id>/seats = seat map, /<id>/list = names. Going from the details to the map pushes (back returns to the details); map <-> names just replaces the address.
   var mineLine = "", mineLoaded = false, mineDone = false, wasInfo = false; // mineDone: the first answer to "which seats are mine" has arrived (the skeleton page stays up for it on the details page)
   function infoMode() { return pathView() === "info"; }
-  var vanTitle = ""; // a van link of a trip with several vans: the seat map and names pages are headed with the van; the trip details keep their own title
-  function applyHero() { var hh = document.querySelector(".hero h1"); if (hh) hh.textContent = vanTitle && !infoMode() ? vanTitle : "รายละเอียดทริป"; }
+  var vanTitle = ""; // a van link of a trip with several vans: which van this is (shown above the seat map)
   function applyMode() {
-    var on = infoMode(); applyHero();
+    var on = infoMode();
     if (!on) { view = pathView() === "list" ? "list" : "map"; document.getElementById("sheetView").hidden = view !== "map"; document.getElementById("listView").hidden = view !== "list"; }
     document.body.classList.toggle("v-info", on);
     document.body.classList.toggle("v-list", !on && view === "list");
@@ -1486,7 +1485,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     plateEl.textContent = "";
     if (cur && cur.plate) { plateEl.appendChild(document.createTextNode("ทะเบียน ")); plateEl.appendChild(el("b", null, cur.plate)); }
     plateEl.hidden = !(cur && cur.plate);
-    lblEl.hidden = !multi;
+    lblEl.hidden = !multi && !vanTitle;
+    if (vanTitle && !multi) { var tl0 = lblEl.querySelector(".tl"); if (tl0 && tl0.lastChild) tl0.lastChild.textContent = vanTitle; } // a van link: the card says which van it is, in place of "เลือกรถตู้"
     tabsEl.textContent = "";
     tabsEl.hidden = trip.vans.length < 2;
     trip.vans.forEach(function (v) {
@@ -1596,7 +1596,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       }
       if (r.data && r.data.trip) {
         trip = r.data.trip;
-        if (K && r.data.nv > 1 && trip.vans[0]) { var hh = document.querySelector(".hero h1"), v0 = trip.vans[0]; vanTitle = "คัน " + v0.label + (v0.g ? " · " + v0.g : ""); applyHero(); } // a van link of a trip with several vans: say which van this is
+        if (K && r.data.nv > 1 && trip.vans[0]) { var hh = document.querySelector(".hero h1"), v0 = trip.vans[0]; vanTitle = "คัน " + v0.label + (v0.g ? " · " + v0.g : ""); } // a van link of a trip with several vans: say which van this is
         if (!curVan || !trip.vans.some(function (v) { return v.id === curVan; })) curVan = r.data.van || trip.vans[0].id;
       }
       counts = (r.data && r.data.counts) || counts;
