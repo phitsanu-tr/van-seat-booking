@@ -830,8 +830,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
     sheetHead(sh, x.name, shut);
     sh.style.gap = "12px";
-    var cb = node("button", "cbar"); cb.type = "button"; cb.insertAdjacentHTML("beforeend", COPY_SVG); cb.appendChild(node("span", null, "รหัสทริป")); cb.appendChild(node("b", null, x.id.toUpperCase()));
-    cb.addEventListener("click", function () { copyText(x.id.toUpperCase(), "คัดลอกรหัสทริปแล้ว"); });
+    var cb = node("button", "cbar"); cb.type = "button"; cb.insertAdjacentHTML("beforeend", COPY_SVG); cb.appendChild(node("span", null, "รหัสผู้จัด")); cb.appendChild(node("b", null, "OG" + x.id.toUpperCase()));
+    cb.addEventListener("click", function () { copyText("OG" + x.id.toUpperCase(), "คัดลอกรหัสทริปแล้ว"); });
     sh.appendChild(cb);
     var g1 = node("div", "agrp"), g1b = node("div", "agrp"), g2 = node("div", "agrp");
     function item(g, icon, label, cls, right, act) {
