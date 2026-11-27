@@ -1084,7 +1084,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     return c;
   }
-  var STAR_ON = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>';
+  var STAR_ON = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"/></svg>';
   function miniStatus(x) { return [dateRange(x.startDate, x.endDate), x.closed ? "ปิดรับจอง" : x.total && x.booked >= x.total ? "เต็มแล้ว" : x.total ? "เหลือ " + (x.total - x.booked) + " ที่" : ""].filter(Boolean).join(" · "); }
   function miniCard(x, saved) { // starred / recently opened trip: one small card, tap opens it
     var c = node("div", "card mini"), tx = node("div", "tx"); tapCard(c, "/" + x.id);
