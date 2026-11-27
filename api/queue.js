@@ -54,10 +54,10 @@ module.exports = async function handler(req, res) {
     if (L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
     if (await L.rateLimited(req, user, "queue:" + t, 120, 600)) return L.json(res, 429, { error: "too_many" });
     const a = String(body.a || ""), id = String(body.id || "");
-    const orgActs = ["on", "auto", "okall", "add", "remove", "up", "down", "unbind", "ok", "done", "rename"];
+    const orgActs = ["on", "auto", "okall", "add", "remove", "up", "down", "unbind", "reject", "ok", "done", "rename"];
     if (orgActs.includes(a) && !org) return L.json(res, 403, { error: "not_owner" });
     const row = (q) => q.items.find((i) => i.id === id);
-    let fn = null;
+    let fn = null, rejUid = "", rejName = "";
 
     if (a === "auto") fn = (q) => { const v = body.value === true; if (!!q.auto === v) return false; if (v) q.auto = 1; else delete q.auto; }; // true: "this is me" counts at once, no approval
     else if (a === "on") fn = (q) => { const v = body.value === true; if (q.on === v) return false; q.on = v; };
@@ -77,6 +77,12 @@ module.exports = async function handler(req, res) {
       if (i < 0 || j < 0 || j >= q.items.length) return false;
       const tmp = q.items[i]; q.items[i] = q.items[j]; q.items[j] = tmp;
     };
+    else if (a === "reject") { // a name someone claimed but the organizer does not approve: same as unlinking it, and the person is told
+      const { q: cur } = await Q.read(t); const r0 = cur.items.find((i) => i.id === id);
+      if (!r0 || !r0.u || r0.ok) return L.json(res, 409, { error: "not_pending" });
+      rejUid = r0.u; rejName = r0.name;
+      fn = (q) => { const r = row(q); if (!r || !r.u || r.ok) return false; delete r.u; delete r.ln; delete r.lp; delete r.ok; };
+    }
     else if (a === "unbind") {
       { const { q: cur } = await Q.read(t); const r0 = cur.items.find((i) => i.id === id); if (r0 && r0.u && (await seatsOf(r0.u)) > 0) return L.json(res, 409, { error: "has_seats" }); }
       fn = (q) => { const r = row(q); if (!r || !r.u) return false; delete r.u; delete r.ln; delete r.lp; delete r.ok; };
@@ -101,6 +107,10 @@ module.exports = async function handler(req, res) {
     if (out.error) return L.json(res, out.error === "busy" ? 409 : out.error === "not_your_turn" ? 403 : 400, { error: out.error });
     if (a === "claim" && out.changed) { try { await L.pipeline([["SADD", L.myQueueKey(user.id), t], ["EXPIRE", L.myQueueKey(user.id), String(L.MY_DAYS * 86400)]]); } catch (e) { /* best effort */ } }
     if (a === "unclaim" && out.changed) { try { await L.redis(["SREM", L.myQueueKey(user.id), t]); } catch (e) { /* best effort */ } }
+    if (a === "reject" && out.changed && rejUid) {
+      try { await L.redis(["SREM", L.myQueueKey(rejUid), t]); } catch (e) { /* best effort */ }
+      await L.notify([rejUid], { k: "queue_no", t, tn: trip.name, n: rejName }, user.id);
+    }
     if (a === "claim" && out.changed && !out.q.auto) { // tell the organizer team that someone is waiting for approval
       const r = out.q.items.find((i) => i.u === user.id);
       await L.notify(L.teamIds(trip), { k: "queue_claim", t, tn: trip.name, n: r ? r.name : "" }, user.id);

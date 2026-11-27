@@ -99,6 +99,7 @@
       case "van_removed": return { title: "คันรถที่คุณจองถูกลบ", body: tn + " · คัน " + esc(it.vl) + " · ที่นั่งของคุณถูกยกเลิก", tone: "red", icon: "trash" };
       case "seat_moved": return { title: "ที่นั่งของคุณถูกย้าย", body: tn + " · คัน " + esc(it.fvl) + " ที่ " + it.fs + " → <em>คัน " + esc(it.tvl) + " ที่ " + it.ts + "</em>", tone: "teal", icon: "move" };
       case "queue_turn": return { title: "ถึงคิวจองที่นั่งของคุณแล้ว", body: tn + " · เปิดทริปแล้วเลือกที่นั่งได้เลย", tone: "green", icon: "bell" };
+      case "queue_no": return { title: "ผู้จัดไม่อนุมัติชื่อ “" + esc(it.n) + "”", body: tn + " · เลือกชื่ออื่นของคุณ หรือติดต่อผู้จัด", tone: "amber", icon: "shield" };
       case "queue_claim": return { title: "มีคนกด “ฉันคือคนนี้”", body: tn + " · " + esc(it.n) + " · รออนุมัติ", tone: "amber", icon: "shield" };
       case "seat_cancelled": return { title: "ผู้จัดยกเลิกที่นั่งของคุณ", body: tn + " · คัน " + esc(it.vl) + " ที่ " + it.s, tone: "red", icon: "trash" };
       case "cancel_req": return { title: esc(it.n) + " ขอยกเลิกที่นั่ง " + it.s, body: tn + " · คัน " + esc(it.vl) + (it.why ? "<br>เหตุผล: " + esc(it.why) : ""), tone: "amber", icon: "trash" };
