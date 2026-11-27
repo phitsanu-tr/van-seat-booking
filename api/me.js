@@ -220,21 +220,24 @@ module.exports = async function handler(req, res) {
     // trips where I am waiting in the booking queue (claimed a name, turn not over): shown above my seats
     let queues = [];
     try {
-      const qids = ((await L.redis(["SMEMBERS", L.myQueueKey(user.id)])) || []).map(String).filter((x) => L.tripId(x)).slice(0, MAX);
+      // entries are "<trip>" (the trip's first van) or "<trip>|<van id>"
+      const qents = ((await L.redis(["SMEMBERS", L.myQueueKey(user.id)])) || []).map(String).map((x) => { const k = x.indexOf("|"); return { raw: x, id: k < 0 ? x : x.slice(0, k), v: k < 0 ? "" : x.slice(k + 1) }; }).filter((x) => L.tripId(x.id)).slice(0, MAX);
+      const qids = qents.map((x) => x.id);
       if (qids.length && Q.flagOn()) {
-        const need = qids.filter((id) => !trips[id]);
+        const need = Array.from(new Set(qids.filter((id) => !trips[id])));
         const rawT = need.length ? await L.pipeline(need.map((id) => ["GET", L.tripKey(id)])) : [];
         need.forEach((id, i) => { try { if (rawT[i]) trips[id] = JSON.parse(rawT[i]); } catch (e) { /* skip */ } });
-        const rawQ = await L.pipeline(qids.map((id) => ["HGET", Q.qKey(id), "q"]));
+        const rawQ = await L.pipeline(qents.map((e) => ["HGET", Q.qKey(e.id), trips[e.id] ? Q.field(trips[e.id], e.v) : "q"]));
         const drop = [];
-        qids.forEach((id, i) => {
-          let q = null; try { q = JSON.parse(rawQ[i]); } catch (e) { q = null; }
+        qents.forEach((e, i) => {
+          const id = e.id;
+          let q = null; try { q = JSON.parse(rawQ[i]); } catch (err) { q = null; }
           const tr = trips[id];
-          if (!tr || L.tripEnded(tr) || !q || !Array.isArray(q.items)) { drop.push(id); return; }
+          if (!tr || L.tripEnded(tr) || !q || !Array.isArray(q.items)) { drop.push(e.raw); return; }
           const st = Q.stateOf(q, user);
-          if (!q.on || (st.s !== "wait" && st.s !== "turn")) { if (st.s === "out" || st.s === "done") drop.push(id); return; }
+          if (!q.on || (st.s !== "wait" && st.s !== "turn")) { if (st.s === "out" || st.s === "done") drop.push(e.raw); return; }
           const mineRow = q.items.find((i) => i.u === user.id), hd = Q.turnOf(q);
-          queues.push(Object.assign(summary(tr, {}), { qs: st.s, ahead: st.ahead || 0, ok: st.s === "turn" ? true : !!st.ok, qpos: q.items.indexOf(mineRow) + 1, qturn: hd ? q.items.indexOf(hd) + 1 : 0 }));
+          queues.push(Object.assign(summary(tr, {}), { qv: Q.vanOf(tr, e.v).id, qvl: tr.vans.length > 1 ? Q.vanOf(tr, e.v).label : undefined, qs: st.s, ahead: st.ahead || 0, ok: st.s === "turn" ? true : !!st.ok, qpos: q.items.indexOf(mineRow) + 1, qturn: hd ? q.items.indexOf(hd) + 1 : 0 }));
         });
         if (drop.length) { try { await L.redis(["SREM", L.myQueueKey(user.id)].concat(drop)); } catch (e) { /* best effort */ } }
         queues.sort((a, b) => (a.qs === "turn" ? 0 : 1) - (b.qs === "turn" ? 0 : 1) || String(a.startDate || "9").localeCompare(String(b.startDate || "9")));

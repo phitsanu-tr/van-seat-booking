@@ -50,8 +50,8 @@ module.exports = async function handler(req, res) {
       const counts = {};
       trip.vans.forEach((x, i) => { counts[x.id] = Number(out[i + 2]) || 0; });
       const held = []; (out[1] || []).forEach((h, i) => { if (h && !seats[i + 1]) held.push(i + 1); }); // free seats someone is signing in to book
-      let qon = false, qs; if (Q.flagOn()) { try { const qq = (await Q.read(t)).q; qon = !!qq.on; if (qon && !isOwner) qs = Q.stateOf(qq, user); } catch (e) { /* the page still works */ } } // booking queue switched on for this trip
-      return L.json(res, 200, { qon: qon || undefined, qs, trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip), closed });
+      let qon = false, qs, qv; if (Q.flagOn()) { try { const qa = await Q.readAll(trip), qq = (qa.find((x) => x.id === van.id) || { q: { on: false, items: [] } }).q; qon = !!qq.on; if (qon && !isOwner) qs = Q.stateOf(qq, user); qv = {}; qa.forEach((x) => { if (x.q.on) qv[x.id] = 1; }); } catch (e) { /* the page still works */ } } // booking queue switched on for this trip
+      return L.json(res, 200, { qon: qon || undefined, qs, qv: qv && trip.vans.length > 1 ? qv : undefined, trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip), closed });
     }
 
     if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
@@ -64,7 +64,7 @@ module.exports = async function handler(req, res) {
       const seat = L.parseSeat(body.hold);
       if (seat === null) return L.json(res, 400, { error: "bad_seat" });
       if (closed) return L.json(res, 403, { error: "closed" });
-      { const qg = await Q.gate(trip, user, isOwner); if (qg) return L.json(res, 403, qg); } // booking queue: only the person whose turn it is
+      { const qg = await Q.gate(trip, van.id, user, isOwner); if (qg) return L.json(res, 403, qg); } // booking queue: only the person whose turn it is
       const hc = /^[a-z0-9]{16}$/.test(String(body.hc || "")) ? String(body.hc) : "";
       if (await L.rateLimited(req, null, "hold:" + t, hc ? 40 : 10, 600)) return L.json(res, 429, { error: "too_many" }); // per network
       if (hc && await L.rateLimited(req, { id: "hc:" + hc }, "hold:" + t, 10, 600)) return L.json(res, 429, { error: "too_many" }); // per browser
@@ -303,7 +303,7 @@ module.exports = async function handler(req, res) {
       if (name !== rawName || !L.hasBaseLetter(name)) return L.json(res, 400, { error: "name_chars" });
       if (L.reservedName(name, isOwner)) return L.json(res, 400, { error: "name_reserved" });
       if (closed && !isOwner) return L.json(res, 403, { error: "closed" });
-      { const qg = await Q.gate(trip, user, isOwner); if (qg) return L.json(res, 403, qg); }
+      { const qg = await Q.gate(trip, van.id, user, isOwner); if (qg) return L.json(res, 403, qg); }
       const limit = L.maxPerPerson(trip);
       if (user && !isOwner && limit > 0) { // count this account's seats in every van of the trip
         const all = await L.pipeline(trip.vans.map((x) => ["HGETALL", L.seatsKey(t, x.id)]));
@@ -334,7 +334,7 @@ module.exports = async function handler(req, res) {
       if (!isOwner && Q.flagOn()) { // booking queue: the turn ends by itself once the person holds as many seats as one person may
         try {
           const mine = (await L.redis(["SMEMBERS", L.mySeatsKey(user.id)])) || [];
-          await Q.afterBook(trip, user, mine.filter((x) => String(x).indexOf(t + "|") === 0).length);
+          await Q.afterBook(trip, van.id, user, mine.filter((x) => String(x).indexOf(t + "|") === 0).length);
         } catch (e) { /* the seat is booked; the queue can be moved on by hand */ }
       }
       return L.json(res, 200, { ok: true, at });
@@ -355,7 +355,7 @@ module.exports = async function handler(req, res) {
         // Only the person who booked the seat, or the trip's organizer, can cancel it.
         if (!((prev.u && user.id === prev.u) || isOwner)) return L.json(res, 403, { error: "not_yours" });
         if (closed && !isOwner) return L.json(res, 403, { error: "closed" }); // after closing, only the organizer changes the list
-        if (!isOwner && Q.flagOn()) { try { if ((await Q.read(t)).q.on) return L.json(res, 403, { error: "ask_organizer" }); } catch (e) { /* queue unreadable: fall back to the usual rule */ } }
+        if (!isOwner && Q.flagOn()) { try { if ((await Q.read(trip, van.id)).q.on) return L.json(res, 403, { error: "ask_organizer" }); } catch (e) { /* queue unreadable: fall back to the usual rule */ } }
         if (await L.hcas([{ key, field: seat, expect: raw, value: "" }])) { removed = 1; break; }
         if (tries >= 3) return L.json(res, 409, { error: "busy" });
       }
@@ -376,7 +376,7 @@ module.exports = async function handler(req, res) {
       let qrow = null;
       if (Number(removed) === 1 && isOwner && prev.u && prev.u !== user.id && Q.flagOn()) {
         try {
-          const { q } = await Q.read(t);
+          const { q } = await Q.read(trip, van.id);
           const r = q.on && q.items.find((i) => i.u === prev.u);
           if (r) { const left = ((await L.redis(["SMEMBERS", L.mySeatsKey(prev.u)])) || []).filter((x) => String(x).indexOf(t + "|") === 0).length; if (!left) qrow = { id: r.id, name: r.name }; }
         } catch (e) { /* best effort: the seat is already cancelled */ }
