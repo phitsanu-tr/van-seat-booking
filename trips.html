@@ -958,11 +958,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       d.appendChild(h);
       var two = document.createElement("div"); two.className = "vf";
       var l1 = document.createElement("label"); l1.appendChild(document.createTextNode("ชื่อรถ"));
-      var inp = document.createElement("input"); inp.type = "text"; inp.className = "vn"; inp.maxLength = 4; inp.value = r.label;
+      var inp = document.createElement("input"); inp.type = "text"; inp.className = "vn"; inp.maxLength = 2; inp.value = r.label;
       inp.placeholder = "เช่น A หรือ 1"; inp.setAttribute("aria-label", "ชื่อรถคันที่ " + (i + 1));
       inp.autocapitalize = "characters"; inp.autocomplete = "off"; inp.spellcheck = false;
       inp.addEventListener("input", function () {
-        var v = inp.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 4);
+        var v = inp.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase(); v = /^[A-Z]/.test(v) ? v.slice(0, 1) : v.replace(/\D/g, "").slice(0, 2); // one letter (A, B, C) or a number (1, 2 ... 99)
         if (v !== inp.value) inp.value = v;
         r.label = v;
       });
@@ -1201,7 +1201,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var ERR = {
     bad_departgap: "วันเดินทางไปต้องไม่เกิน 2 วันก่อนทริปเริ่ม", bad_returngap: "วันเดินทางกลับต้องไม่เกิน 2 วันหลังวันสุดท้ายของทริป",
     bad_name: "ระบุชื่อทริป", bad_tripdays: "เลือกรูปแบบทริป", bad_timepast: "เวลานี้ผ่านไปแล้ว", bad_pastdate: "วันที่นี้ผ่านไปแล้ว ระบุวันใหม่", bad_far: "เลือกวันได้ไม่เกิน 1 ปีนับจากวันนี้", bad_daytrip: "เดย์ทริปต้องกลับวันที่จัดทริป", bad_daydepart: "เดย์ทริปรถออกได้ไม่เกิน 1 วันก่อนวันที่เดินทาง", bad_daytime: "เวลากลับต้องหลังเวลาออก", bad_tripstart: "วันเดินทางไปต้องไม่หลังวันแรกของทริป", bad_tripend: "วันเดินทางกลับต้องไม่ก่อนวันสุดท้ายของทริป", bad_date: "รูปแบบวันที่ไม่ถูกต้อง", bad_time: "รูปแบบเวลาไม่ถูกต้อง", bad_meet: "ระบุจุดนัดพบ",
-    bad_vans: "ระบุชื่อรถ และชื่อต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าสู่ระบบด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
+    bad_vans: "ชื่อรถเป็นตัวอักษรเดียว (A, B, C) หรือตัวเลข (1, 2, 3) และต้องไม่ซ้ำกัน", bad_max: "เลือกจำนวนที่นั่งสูงสุดต่อคนใหม่", bad_close: "เวลาปิดรับจองไม่ถูกต้อง", owner_only: "ลบทริปได้เฉพาะเจ้าของทริป", not_owner: "ทริปนี้อยู่ในบัญชี LINE อื่น", login_required: "เข้าสู่ระบบด้วย LINE ก่อน", bad_token: "ลิงก์แก้ไขไม่ถูกต้อง", no_trip: "ไม่พบทริปนี้",
     not_configured: "ยังไม่ได้เชื่อมต่อฐานข้อมูล",
     quota_month: "เดือนนี้คุณสร้างทริปครบ 30 ทริปแล้ว ลองใหม่เดือนหน้านะ",
     plan_vans: "แพ็กเกจของคุณเพิ่มรถได้ไม่เกินนี้", plan_trips: "เปิดทริปครบตามแพ็กเกจแล้ว", no_pass: "ตั๋วรายทริปหมดแล้ว",

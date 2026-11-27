@@ -67,8 +67,9 @@ function clean(body, vanCap, planVans, prev) {
   const outVans = [];
   for (const v of vans) {
     const ov = oldVan(String((v && v.id) || ""));
-    const label = keep(v && v.label, LIM.label, ov.label);
-    if (!label) return { error: "bad_vans" };
+    const rawLabel = keep(v && v.label, LIM.label, ov.label);
+    const label = rawLabel === ov.label ? rawLabel : rawLabel.toUpperCase(); // a van keeps its old name as it was; a new name is one letter (A, B, C) or a number (1 .. 99)
+    if (!label || (label !== ov.label && !/^([A-Z]|[0-9]{1,2})$/.test(label))) return { error: "bad_vans" };
     const id = s(v && v.id, 12);
     if (id && (seen.has(id) || !/^[A-Za-z0-9]+$/.test(id))) return { error: "bad_vans" };
     if (id) seen.add(id);
