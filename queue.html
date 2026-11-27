@@ -154,7 +154,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var main = document.getElementById("main"), D = null, busy = false; var draft = ""; // the names being typed survive a redraw
   function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; }
   function btn(txt, cls, fn) { var b = el("button", cls || "", txt); b.type = "button"; b.addEventListener("click", function () { if (busy) return; busy = true; fn().then(function () { busy = false; }, function () { busy = false; }); }); return b; }
-  var MSG = { login_required: "ต้องเข้าสู่ระบบก่อน", already_claimed: "คุณยืนยันชื่อไปแล้ว", row_taken: "ชื่อนี้มีคนกดยืนยันแล้ว", queue_full: "เกินจำนวนที่นั่งรวมของทริป", bad_name: "ชื่อไม่ถูกต้อง", not_your_turn: "ยังไม่ถึงคิวของคุณ", busy: "ลองอีกครั้ง", ended: "ทริปจบแล้ว", not_owner: "เฉพาะผู้จัดทริป" };
+  var MSG = { has_seats: "คนนี้จองที่นั่งไปแล้ว คืนคิวไม่ได้", login_required: "ต้องเข้าสู่ระบบก่อน", already_claimed: "คุณยืนยันชื่อไปแล้ว", row_taken: "ชื่อนี้มีคนกดยืนยันแล้ว", queue_full: "เกินจำนวนที่นั่งรวมของทริป", bad_name: "ชื่อไม่ถูกต้อง", not_your_turn: "ยังไม่ถึงคิวของคุณ", busy: "ลองอีกครั้ง", ended: "ทริปจบแล้ว", not_owner: "เฉพาะผู้จัดทริป" };
   function call(a, extra, onFail) {
     return fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ t: T, a: a }, extra || {})) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
@@ -206,7 +206,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         if (i > 0) add("เลื่อนขึ้น", "", function () { return call("up", { id: it.id }); }, "up");
         if (i < D.items.length - 1) add("เลื่อนลง", "", function () { return call("down", { id: it.id }); }, "down");
         if (it.bound) add("ปลดชื่อ", "", function () { return call("unbind", { id: it.id }); }, "unlink");
-        add(it.done ? "คืนคิว" : isT ? "จบคิว" : "ข้ามคิว", "", function () { var df = false, msg = it.done ? "คืนคิวแล้ว" : isT ? "จบคิวแล้ว · เรียกคนถัดไป" : "ข้ามคิวแล้ว"; return call("done", { id: it.id, value: !it.done }, function () { df = true; }).then(function () { if (!df) showToast(msg); }); }, it.done ? "undo" : isT ? "check" : "skip");
+        if (!(it.done && it.hs)) add(it.done ? "คืนคิว" : isT ? "จบคิว" : "ข้ามคิว", "", function () { var df = false, msg = it.done ? "คืนคิวแล้ว" : isT ? "จบคิวแล้ว · เรียกคนถัดไป" : "ข้ามคิวแล้ว"; return call("done", { id: it.id, value: !it.done }, function () { df = true; }).then(function () { if (!df) showToast(msg); }); }, it.done ? "undo" : isT ? "check" : "skip");
         var rmb = el("button", "rm", ""); rmb.type = "button"; var rmL = el("span", null, "ลบ"); rmb.innerHTML = MI("trash"); rmb.appendChild(rmL); var rmT = null, rmN = 0;
         var rmStop = function () { clearInterval(rmT); rmT = null; rmb.classList.remove("armed"); rmL.textContent = "ลบ"; };
         rmb.addEventListener("click", function (e) { e.stopPropagation(); if (busy) return;
