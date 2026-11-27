@@ -293,7 +293,7 @@ module.exports = async function handler(req, res) {
       await L.logEvent(t, { e: "board_reset", n: user.name, u: user.id, by: L.roleOf(trip, user), at: Date.now() });
       return L.json(res, 200, { ok: true, board: next.board });
     }
-    if (req.method === "POST" && (pb.vanLink === "rotate" || pb.vanLink === "name" || pb.vanLink === "ensure")) { // the share sheet: new link for one van, a group name for it, or fill in missing codes
+    if (req.method === "POST" && (pb.vanLink === "rotate" || pb.vanLink === "ensure")) { // the share sheet: new link for one van, or fill in missing codes
       const t = L.tripId(pb.t);
       const trip = t ? await L.loadTrip(t) : null;
       if (!trip) return L.json(res, 404, { error: "no_trip" });
@@ -303,8 +303,7 @@ module.exports = async function handler(req, res) {
       if (pb.vanLink !== "ensure") {
         const van = trip.vans.find((x) => x.id === String(pb.v || ""));
         if (!van) return L.json(res, 404, { error: "no_van" });
-        if (pb.vanLink === "name") { const g = String(pb.g || "").replace(/[\u0000-\u001f]/g, "").trim().slice(0, 30); if (g) van.g = g; else delete van.g; changed = true; }
-        else {
+        {
           const old = van.k; delete van.k; await L.ensureVanCodes(trip); // a fresh code; the old one stops working at once (the van's own k is what counts)
           if (old) { try { await L.redis(["DEL", "vk:" + old]); } catch (e) { /* the index entry is harmless once van.k differs */ } }
           changed = true;
@@ -312,7 +311,7 @@ module.exports = async function handler(req, res) {
         }
       }
       if (changed) { trip.updatedAt = Date.now(); await saveTrip(trip); }
-      return L.json(res, 200, { ok: true, vans: trip.vans.map((x) => ({ id: x.id, label: x.label, g: x.g || "", k: x.k })) });
+      return L.json(res, 200, { ok: true, vans: trip.vans.map((x) => ({ id: x.id, label: x.label, k: x.k })) });
     }
     if (req.method === "POST" && pb.staffRestore === true) { // "สงวนคืน": hold seat 1 again where it is still free
       const t = L.tripId(pb.t);

@@ -61,7 +61,7 @@
     if (tdp[0]) g1.push(irow("ทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]));
     var ty = /^(\d{4})-/.exec(String(t.tripStart || t.startDate || "")); // add the Buddhist-era year only when the trip is not in the current year
     if (tdp[1]) g1.push(irow("วันที่", tdp[1] + (ty && +ty[1] !== new Date().getFullYear() ? " " + String((+ty[1] + 543) % 100).padStart(2, "0") : "")));
-    if (t.vk) g1.push(irow("รถของคุณ", "คัน " + t.vl + (t.vg ? " · " + t.vg : ""))); // a card for one van
+    if (t.vk) g1.push(irow("รถของคุณ", "คัน " + t.vl)); // a card for one van
     else if (n > 0) g1.push(irow("รถตู้", n + " คัน · " + (n * 10 - (t.staffSeat ? n : 0)) + " ที่นั่ง"));
     if (Number(t.limit) > 0) g1.push(irow("จำกัดที่นั่งต่อคน", Number(t.limit) + " ที่นั่ง"));
     if (g1.length) { gh("รายละเอียดทริป", true).forEach(function (x) { body.push(x); }); g1.forEach(function (r) { body.push(r); }); }

@@ -83,7 +83,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .vl .vn { flex: none; width: 40px; height: 40px; border-radius: 12px; background: #0b5f67; color: #fff; display: grid; place-items: center; font-weight: 700; }
 .vl .vt { flex: 1; min-width: 0; } .vl .vt b { display: block; overflow-wrap: anywhere; } .vl .vt span { display: block; font-size: 12px; line-height: 18px; color: var(--muted); }
 .vl .vx { border-top: 1px solid #e1ecee; padding: 12px 0; display: grid; gap: 8px; } .vl .vx .cd { font: 700 16px/24px var(--font-display); letter-spacing: 1px; color: #0b5f67; } .vl .vx .ur { font-size: 12px; line-height: 18px; color: var(--muted); overflow-wrap: anywhere; }
-.vl .vb { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .vl .vb button { min-height: 40px; border: 0; border-radius: 12px; background: #e3eef0; color: var(--ink); font: 600 14px/20px var(--font-display); cursor: pointer; }
+.vl .vb { display: grid; grid-template-columns: 1fr; gap: 8px; } .vl .vb button { min-height: 48px; border: 0; border-radius: 12px; background: #e3eef0; color: var(--ink); font: 600 14px/20px var(--font-display); cursor: pointer; }
 .vl input.gi { width: 100%; min-height: 40px; border: 1px solid #cfe0e2; border-radius: 12px; padding: 0 12px; font: inherit; }
 .vall { min-height: 48px; border: 0; border-radius: 12px; background: #0b5f67; color: #fff; font: 600 14px/20px var(--font-display); cursor: pointer; }
 .vline { min-height: 48px; border: 0; border-radius: 12px; background: #06c755; color: #fff; font: 600 14px/20px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
@@ -1071,14 +1071,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var vl = $("vanLinks"); vl.textContent = "";
     if (!vlVans.length || vlVans.some(function (v) { return !v.k; })) return;
     var all = document.createElement("button"); all.type = "button"; all.className = "vall"; all.textContent = "คัดลอกลิงก์ทุกคัน";
-    all.addEventListener("click", function () { copy((vlName ? vlName + "\n" : "") + vlVans.map(function (v) { return "คัน " + v.label + (v.g ? " " + v.g : "") + ": " + vlUrl(v); }).join("\n"), all); });
+    all.addEventListener("click", function () { copy((vlName ? vlName + "\n" : "") + vlVans.map(function (v) { return "คัน " + v.label + "" + ": " + vlUrl(v); }).join("\n"), all); });
     vl.appendChild(all);
-    $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((vlName ? vlName + " · " : "") + "ลิงก์จองรายคัน\n\n" + vlVans.map(function (v) { return "คัน " + v.label + (v.g ? " " + v.g : "") + "\n" + vlUrl(v); }).join("\n\n")); // the whole list as one text, for the organizer to pass on group by group
+    $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((vlName ? vlName + " · " : "") + "ลิงก์จองรายคัน\n\n" + vlVans.map(function (v) { return "คัน " + v.label + "" + "\n" + vlUrl(v); }).join("\n\n")); // the whole list as one text, for the organizer to pass on group by group
     vlVans.forEach(function (v) {
       var row = document.createElement("div"), open = vlOpen === v.id; row.className = "vl";
       var hd = document.createElement("div"); hd.className = "vr"; hd.setAttribute("role", "button"); hd.tabIndex = 0;
       var n = document.createElement("div"); n.className = "vn"; n.textContent = v.label;
-      var t = document.createElement("div"); t.className = "vt"; var b = document.createElement("b"); b.textContent = v.g || "คัน " + v.label; var sp = document.createElement("span"); sp.textContent = (vlPer[v.id] != null ? "จอง " + vlPer[v.id] + "/10" : "") + (open ? "" : (vlPer[v.id] != null ? " · " : "") + "ดูรหัส"); t.appendChild(b); t.appendChild(sp);
+      var t = document.createElement("div"); t.className = "vt"; var b = document.createElement("b"); b.textContent = "คัน " + v.label; var sp = document.createElement("span"); sp.textContent = (vlPer[v.id] != null ? "จอง " + vlPer[v.id] + "/10" : "") + (open ? "" : (vlPer[v.id] != null ? " · " : "") + "ดูรหัส"); t.appendChild(b); t.appendChild(sp);
       var cp = document.createElement("span"); cp.className = "cpbtn"; cp.setAttribute("role", "button"); cp.setAttribute("aria-label", "คัดลอกลิงก์คัน " + v.label); cp.innerHTML = CP_SVG;
       cp.addEventListener("click", function (e) { e.stopPropagation(); copy(vlUrl(v), cp); });
       hd.appendChild(n); hd.appendChild(t); hd.appendChild(cp);
@@ -1090,22 +1090,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var cd = document.createElement("div"); cd.className = "cd"; cd.textContent = vlCode(v);
         var ur = document.createElement("div"); ur.className = "ur"; ur.textContent = location.host + "/t/" + v.k;
         var bs = document.createElement("div"); bs.className = "vb";
-        var nm = document.createElement("button"); nm.type = "button"; nm.textContent = "เปลี่ยนชื่อกลุ่ม";
-        nm.addEventListener("click", function () {
-          x.textContent = ""; var gi = document.createElement("input"); gi.className = "gi"; gi.maxLength = 30; gi.value = v.g || ""; gi.placeholder = "ชื่อกลุ่ม (ไม่บังคับ)"; gi.setAttribute("aria-label", "ชื่อกลุ่มคัน " + v.label);
-          var sv = document.createElement("button"); sv.type = "button"; sv.className = "vall"; sv.textContent = "บันทึกชื่อกลุ่ม";
-          var save = function () { postJson({ t: vlTrip, vanLink: "name", v: v.id, g: gi.value }).then(function (d) { if (d && d.vans) { vlVans = d.vans; shareVans = d.vans; paintVanLinks(); toast("บันทึกชื่อกลุ่มแล้ว"); } else toast("บันทึกไม่สำเร็จ ลองอีกครั้ง"); }); };
-          sv.addEventListener("click", save); gi.addEventListener("keydown", function (e) { if (e.key === "Enter") save(); });
-          x.appendChild(gi); x.appendChild(sv); gi.focus();
-        });
         var rt = document.createElement("button"); rt.type = "button"; rt.textContent = "สร้างลิงก์ใหม่";
         rt.addEventListener("click", function () { vlRot = v.id; $("vcfT").textContent = "สร้างลิงก์ใหม่ให้คัน " + v.label + "?"; $("vcf").hidden = false; });
-        bs.appendChild(nm); bs.appendChild(rt); x.appendChild(cd); x.appendChild(ur);
+        bs.appendChild(rt); x.appendChild(cd); x.appendChild(ur);
         var sl = document.createElement("button"); sl.type = "button"; sl.className = "vline"; sl.innerHTML = LINE_SVG + "<span></span>"; sl.lastChild.textContent = "ส่งการ์ดคัน " + v.label + " ใน LINE";
         sl.addEventListener("click", function () { // a card for this van only (never the trip code); outside LINE, a text link to the van
-          var txt = (vlName ? vlName + "\n" : "") + "คัน " + v.label + (v.g ? " · " + v.g : "") + "\nจองที่นั่งได้ที่นี่\n" + vlUrl(v);
+          var txt = (vlName ? vlName + "\n" : "") + "คัน " + v.label + "" + "\nจองที่นั่งได้ที่นี่\n" + vlUrl(v);
           if (!window.VSBShare) { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(txt); return; }
-          VSBShare.send(Object.assign(tripCard(), { vk: v.k, vl: v.label, vg: v.g || "", vans: 1 })).then(function (sent) { if (!sent) location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(txt); });
+          VSBShare.send(Object.assign(tripCard(), { vk: v.k, vl: v.label, vans: 1 })).then(function (sent) { if (!sent) location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(txt); });
         });
         x.appendChild(sl); x.appendChild(bs); row.appendChild(x);
       }

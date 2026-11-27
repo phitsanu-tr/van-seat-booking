@@ -1601,7 +1601,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       }
       if (r.data && r.data.trip) {
         trip = r.data.trip;
-        if (K && r.data.nv > 1 && trip.vans[0]) { var hh = document.querySelector(".hero h1"), v0 = trip.vans[0]; vanTitle = "คัน " + v0.label + (v0.g ? " · " + v0.g : ""); } // a van link of a trip with several vans: say which van this is
+        if (K && r.data.nv > 1 && trip.vans[0]) { var hh = document.querySelector(".hero h1"), v0 = trip.vans[0]; vanTitle = "คัน " + v0.label + ""; } // a van link of a trip with several vans: say which van this is
         if (!curVan || !trip.vans.some(function (v) { return v.id === curVan; })) curVan = r.data.van || trip.vans[0].id;
       }
       counts = (r.data && r.data.counts) || counts;
