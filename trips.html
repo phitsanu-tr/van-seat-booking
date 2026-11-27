@@ -102,6 +102,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 @media (max-width: 340px) { .macts { grid-template-columns: minmax(0, 1fr); } }
 .macts .btn { height: 48px; gap: 8px; white-space: nowrap; font-family: var(--font-display); font-weight: 600; }
 .macts.multi #lineBtn { order: 2; }
+.mcard.vans #mSubW { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; color: #0b5f67; } #mIc { width: 20px; height: 20px; flex: none; }
 .mcard.org { border-color: #e6c36a; background: #fff4dc; } .mcard.org[hidden] { display: none; } .mcard.org .msub { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; color: #8a5a00; } .mcard.org .msub svg { width: 20px; height: 20px; flex: none; }
 .mcard.org .vr { padding: 0; } .mcard.org .vt { padding-left: 8px; } .mcard.org .vt b { display: block; }
 .macts .btn svg { width: 20px; height: 20px; flex: none; }
@@ -466,7 +467,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   <div class="modal" id="result" role="dialog" aria-modal="true" aria-labelledby="mState">
     <button class="mclose" id="closeX" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div id="mState"></div>
-    <div class="mcard"><div><div class="msub" id="mSub">แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง</div><div class="msub2" id="mSub2" hidden>ใช้ลิงก์เดิมได้เลย</div></div>
+    <div class="mcard" id="mCard"><div><div class="msub" id="mSubW"><svg id="mIc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.2A6.5 6.5 0 0 1 21.5 20"/></svg><span id="mSub">แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง</span></div><div class="msub2" id="mSub2" hidden>ใช้ลิงก์เดิมได้เลย</div></div>
     <div class="mlink" id="copyBox" role="button" tabindex="0" aria-label="คัดลอกลิงก์"><div class="url" id="shareUrl"></div><span class="cpbtn" id="copyShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span></div><div class="vlinks" id="vanLinks" hidden></div></div>
     <div class="mcard org" id="orgCard" hidden><div class="msub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>เฉพาะผู้จัด · เห็นทุกคัน</span></div><div class="vl"><div class="vr" id="orgRow" role="button" tabindex="0"><div class="vt"><b>ลิงก์รวม</b><span>ไม่ส่งให้ผู้จอง</span></div><span class="cpbtn" id="orgCp" role="button" aria-label="คัดลอกลิงก์รวม"></span></div></div></div>
     <div class="macts" id="macts">
@@ -1068,7 +1069,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     vl.hidden = known.length < 2; vl.textContent = "";
     multiShare = known.length > 1; $("lineBtn").querySelector("span").textContent = multiShare ? "ส่งลิงก์ทั้งหมด" : "แชร์ใน LINE"; placeShareBtns(multiShare);
     $("copyBox").style.display = known.length < 2 ? "" : "none"; // several vans: the whole-trip link moves to a small row under the vans (the sheet stays short)
-    $("mSub").textContent = known.length < 2 ? $("mSub").textContent : "ส่งลิงก์คันไหน ผู้จองเห็นเฉพาะคันนั้น";
+    $("mSub").textContent = known.length < 2 ? $("mSub").textContent : "ส่งให้ผู้จอง · เห็นเฉพาะคันนั้น"; $("mCard").classList.toggle("vans", known.length >= 2); $("mIc").toggleAttribute("hidden", known.length < 2);
     if (known.length < 2) return;
     vlVans = known.filter(function (v) { return v.k; }); vlOpen = "";
     if (vlVans.length === known.length) paintVanLinks();
@@ -1123,7 +1124,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     $("openShare").href = "/" + id + "/seats";
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์และรหัสทริป") + "</span>";
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
-    $("mSub").textContent = created === "saved" ? "ใช้ลิงก์หรือรหัสเดิมได้เลย" : "แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง"; $("mSub2").hidden = true;
+    $("mSub").textContent = created === "saved" ? "ใช้ลิงก์หรือรหัสเดิมได้เลย" : "แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง"; $("mSub2").hidden = true; $("mCard").classList.remove("vans"); $("mIc").setAttribute("hidden", "");
     drawVanLinks(id, name); // after the texts above: with several vans it rewrites the subtitle
     backToList = created === true || created === "saved";
     $("backdrop").hidden = false; document.body.style.overflow = "hidden";
