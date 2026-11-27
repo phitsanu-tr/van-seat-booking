@@ -29,15 +29,15 @@ module.exports = async function handler(req, res) {
     // a passenger sees other names only while finding their own; signed out or already in the queue: only their own
     let myN = 0; // seats this person already holds on the trip (tells "used the turn and booked" from "turn ended without a seat")
     if (user) { const refs = (await L.redis(["SMEMBERS", L.mySeatsKey(user.id)])) || []; myN = refs.filter((x) => String(x).indexOf(t + "|") === 0).length; }
-    // organizer: which finished names hold seats on this trip (their turn can't be handed back: the seat stays booked)
+    // organizer: which bound names hold seats on this trip (no "give the turn back" / "unlink" for them: the seat stays booked)
     const heldBy = {};
     const seatsOf = async (uid) => ((await L.redis(["SMEMBERS", L.mySeatsKey(uid)])) || []).filter((x) => String(x).indexOf(t + "|") === 0).length;
-    const fillHeld = async (q) => { if (!org) return; const us = q.items.filter((i) => i.done && i.u).map((i) => i.u); const ns = await Promise.all(us.map(seatsOf)); us.forEach((u, k) => { heldBy[u] = ns[k]; }); };
+    const fillHeld = async (q) => { if (!org) return; const us = q.items.filter((i) => i.u).map((i) => i.u); const ns = await Promise.all(us.map(seatsOf)); us.forEach((u, k) => { heldBy[u] = ns[k]; }); };
     const view = (q) => {
       const h = Q.turnOf(q), mine = user ? q.items.find((i) => i.u === user.id) : null;
       return {
         on: !!q.on, auto: !!q.auto, cap, role: role || undefined, turn: h ? h.id : null, mine: mine ? mine.id : null, me: L.publicUser(user), ended: L.tripEnded(trip), closed: !!L.bookingClosed(trip), ...(mine ? { seats: myN } : {}),
-        items: q.items.map((i) => Object.assign({ id: i.id, name: org || (user && !mine) || (mine && i === mine) ? i.name : "" }, i.done ? { done: 1 } : {}, i.done && i.u && heldBy[i.u] > 0 ? { hs: 1 } : {}, i.u ? { bound: 1 } : {}, i.ok ? { ok: 1 } : {},
+        items: q.items.map((i) => Object.assign({ id: i.id, name: org || (user && !mine) || (mine && i === mine) ? i.name : "" }, i.done ? { done: 1 } : {}, i.u && heldBy[i.u] > 0 ? { hs: 1 } : {}, i.u ? { bound: 1 } : {}, i.ok ? { ok: 1 } : {},
           user && i.u === user.id ? { m: 1 } : {}, org && i.u && i.ln ? { ln: String(i.ln), lp: String(i.lp || "") } : {})),
       };
     };
@@ -77,7 +77,10 @@ module.exports = async function handler(req, res) {
       if (i < 0 || j < 0 || j >= q.items.length) return false;
       const tmp = q.items[i]; q.items[i] = q.items[j]; q.items[j] = tmp;
     };
-    else if (a === "unbind") fn = (q) => { const r = row(q); if (!r || !r.u) return false; delete r.u; delete r.ln; delete r.lp; delete r.ok; };
+    else if (a === "unbind") {
+      { const { q: cur } = await Q.read(t); const r0 = cur.items.find((i) => i.id === id); if (r0 && r0.u && (await seatsOf(r0.u)) > 0) return L.json(res, 409, { error: "has_seats" }); }
+      fn = (q) => { const r = row(q); if (!r || !r.u) return false; delete r.u; delete r.ln; delete r.lp; delete r.ok; };
+    }
     else if (a === "okall") fn = (q) => { let n = 0; q.items.forEach((r) => { if (r.u && !r.ok && !r.done) { r.ok = 1; n++; } }); if (!n) return false; };
     else if (a === "ok") fn = (q) => { const r = row(q); if (!r || !r.u) return false; const v = body.value !== false; if (!!r.ok === v) return false; if (v) r.ok = 1; else delete r.ok; };
     else if (a === "done") {
