@@ -1891,7 +1891,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       ctx.lineTo(tx + 5, ty + 26); ctx.quadraticCurveTo(tx, ty + 26, tx, ty + 21); ctx.lineTo(tx, ty + 17); ctx.arc(tx, ty + 13, 4, Math.PI / 2, -Math.PI / 2, true); ctx.lineTo(tx, ty + 5); ctx.quadraticCurveTo(tx, ty, tx + 5, ty); ctx.stroke();
       ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(tx + 24, ty + 4); ctx.lineTo(tx + 24, ty + 22); ctx.stroke(); ctx.setLineDash([]);
     }
-    var codeT = TRIP.toUpperCase();
+    var codeT = K ? (K.slice(0, 4) + "-" + K.slice(4)).toUpperCase() : TRIP.toUpperCase(); // a van link: the van's own code, never the trip code (that one opens every van)
     ctx.textAlign = "left"; ctx.fillStyle = "#bfe9ed";
     if (false) { ctx.font = '600 34px ' + PF; ctx.fillStyle = "#ffffff"; ctx.fillText("VanTrip", X, 30 + 30); ctx.font = '400 26px ' + NF; ctx.fillStyle = "#bfe9ed";
       var lt = "SEAT PASS  " + codeT; ctx.textAlign = "right"; ctx.fillText(lt.split("").join(String.fromCharCode(8202)), X + IW, 30 + 29); ctx.textAlign = "left"; }
@@ -2066,7 +2066,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     ctx.fillStyle = "#ffffff"; ctx.font = '600 ' + FT + 'px Prompt, "Noto Sans Thai", sans-serif';
     ctx.fillText(withQr ? "สแกนเพื่อดูรายละเอียดทริป" : "ดูรายละเอียดทริปที่", tx0, b1);
     ctx.fillStyle = "#bfe9ed"; ctx.font = '400 ' + FU + 'px "Noto Sans Thai", sans-serif';
-    var su = withQr ? "รหัสทริป " + TRIP.toUpperCase() : shortUrl; // with the QR: the trip code (same as the header), nothing to type; without it: the link
+    var su = withQr ? (K ? "รหัสคัน " + codeT : "รหัสทริป " + TRIP.toUpperCase()) : shortUrl; // with the QR: the trip code (same as the header), nothing to type; without it: the link
     if (withQr) { ctx.fillStyle = "#fde9a6"; ctx.font = '700 ' + (FU + 4) + 'px "Noto Sans Thai", sans-serif'; }
     while (su.length > 8 && ctx.measureText(su).width > fw) su = su.slice(0, -2) + "…";
     ctx.fillText(su, tx0, b2);
