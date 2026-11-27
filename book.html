@@ -119,7 +119,7 @@ header.trip { display: block; }
 .ended b { font-family: var(--font-display); font-weight: 600; }
 .deck.qlock .seat.seat:not(.taken):not(.mine):not(.held) { opacity: .5; }
 #queueBar.qturn { background: #e3f4ec; }
-#queueBar.qrow{align-items:center;gap:8px;min-height:48px;padding:12px 16px;background:color-mix(in srgb,var(--mine) 14%,var(--surface));border:0}#queueBar.qrow svg{display:none}#queueBar.qrow>span{display:flex;gap:8px;align-items:center;flex:1;min-width:0}#queueBar.qrow b{font-weight:700}#queueBar.qrow .rt{flex:none;margin-left:auto;color:var(--mine);font-weight:600}#queueBar.qrow[role=link]{cursor:pointer}#queueBar.qrow.qturn{background:#e3f4ec}#queueBar.qrow.qturn b{color:#0b8457}#queueBar.qrow.qturn span{color:#0a5c3c}#queueBar.qamb{background:#fff4dc;color:#8a5a00}#queueBar.qamb b,#queueBar.qamb .rt{color:#8a5a00}
+#queueBar.qrow{align-items:center;gap:8px;min-height:48px;padding:12px 16px;background:color-mix(in srgb,var(--mine) 14%,var(--surface));border:0}#queueBar.qrow>svg{display:none}#queueBar.qrow svg{flex:none;width:24px;height:24px;margin-top:0;color:inherit}#queueBar.qrow .rt{display:flex}#queueBar.qrow{box-shadow:inset 0 0 0 1px #bfe0e3}#queueBar.qrow.qturn{box-shadow:inset 0 0 0 1px #b9e0cc}#queueBar.qrow.qdone{background:#eef0f2;color:#1b2227;box-shadow:inset 0 0 0 1px #dde3e7}#queueBar.qrow.qdone .rt{color:#5b6670}#queueBar.qrow>span{display:flex;gap:8px;align-items:center;flex:1;min-width:0}#queueBar.qrow b{font-weight:700}#queueBar.qrow .rt{flex:none;margin-left:auto;color:var(--mine);font-weight:600}#queueBar.qrow[role=link]{cursor:pointer}#queueBar.qrow.qturn{background:#e3f4ec}#queueBar.qrow.qturn b{color:#0b8457}#queueBar.qrow.qturn span{color:#0a5c3c}#queueBar.qamb{background:#fff4dc;color:#8a5a00;box-shadow:inset 0 0 0 1px #e7cf9a}#queueBar.qamb b,#queueBar.qamb .rt{color:#8a5a00}
 #queueBar.qcta{display:block;background:color-mix(in srgb,var(--mine) 14%,var(--surface));border:0;padding:16px}#queueBar.qcta svg{display:none}#queueBar.qcta b{display:block;font-size:16px;line-height:24px}#queueBar.qcta p{margin:0 0 12px}#queueBar.qcta a{display:flex;height:48px;align-items:center;justify-content:center;border-radius:12px;background:var(--mine);color:#fff;font:600 16px/24px var(--font-body);text-decoration:none}
 body.v-list #queueBar,body.v-info #queueBar{display:none!important}
 body:not(.v-info):not(.v-list) #queueBar.qcta{background:#fff4dc;box-shadow:inset 0 0 0 1px #e7cf9a}body:not(.v-info):not(.v-list) #queueBar.qcta b,body:not(.v-info):not(.v-list) #queueBar.qcta p{color:#8a5a00}#queueBar.qcta.qnudge{box-shadow:inset 0 0 0 1px #d9a441!important}#queueBar.qshake{animation:qshake .4s}@keyframes qshake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
@@ -757,22 +757,26 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   // locked: nothing to tap. A finished trip is locked for everyone; a closed one only for passengers (organizers still manage seats).
   // booking queue: free seats can't be taken until it is this person's turn
   function qBlocked() { return !!(loaded && qon && !isOwner && !closed && !ended && !(qs && qs.s === "turn")); }
+  var QSV = { chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-1a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v1"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a5 5 0 0 1 3.5 5v1"/>',
+    ok: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>', seat: '<path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"/><path d="M9.5 10l2 2 3.5-4"/>' };
+  function qsvg(path) { var w = document.createElement("span"); w.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + path + "</svg>"; return w.firstChild; }
   function renderQueueBar() {
     var bar = document.getElementById("queueBar"), tx = document.getElementById("queueTx"), s = qs && qs.s;
-    bar.classList.toggle("qturn", s === "turn"); tx.textContent = ""; bar.classList.remove("qcta", "qrow", "qamb");
+    bar.classList.toggle("qturn", s === "turn"); tx.textContent = ""; bar.classList.remove("qcta", "qrow", "qamb", "qdone");
     var link = el("a", null, "ดูคิว"); link.href = "/" + TRIP + "/queue";
     bar.classList.remove("qrow"); bar.onclick = null; bar.removeAttribute("role"); bar.removeAttribute("tabindex");
-    var goQ = function () { bar.classList.add("qrow"); bar.setAttribute("role", "link"); bar.tabIndex = 0; bar.onclick = function () { location.href = "/" + TRIP + "/queue"; }; bar.onkeydown = function (e) { if (e.key === "Enter") bar.onclick(); }; tx.appendChild(el("span", "rt", "›")); };
-    bar.classList.toggle("qamb", s === "wait" && !qs.ok);
+    var goQ = function () { bar.classList.add("qrow"); bar.setAttribute("role", "link"); bar.tabIndex = 0; bar.onclick = function () { location.href = "/" + TRIP + "/queue"; }; bar.onkeydown = function (e) { if (e.key === "Enter") bar.onclick(); }; var rt = el("span", "rt"); rt.innerHTML = QSV.chev; tx.appendChild(rt); };
+    bar.classList.toggle("qamb", s === "wait"); bar.classList.toggle("qdone", s === "done");
     if (s === "turn") {
-      bar.classList.add("qrow"); tx.appendChild(el("b", null, "ถึงคิวคุณแล้ว")); tx.appendChild(el("span", null, "เลือกที่นั่งได้เลย"));
+      bar.classList.add("qrow"); tx.appendChild(qsvg(QSV.ok)); tx.appendChild(el("b", null, "ถึงคิวคุณแล้ว")); tx.appendChild(el("span", null, "เลือกที่นั่งได้เลย"));
     } else if (s === "wait") {
       bar.classList.add("qrow");
-      if (qs.ok) { tx.appendChild(el("b", null, "อีก " + Math.max(1, qs.ahead) + " คน ถึงคิวคุณ")); }
-      else { tx.appendChild(el("b", null, "รออนุมัติชื่อ")); tx.appendChild(el("span", null, "จากผู้จัด")); }
+      if (qs.ok) { tx.appendChild(qsvg(QSV.users)); tx.appendChild(el("b", null, "อีก " + Math.max(1, qs.ahead) + " คิว ถึงคุณ")); }
+      else { tx.appendChild(qsvg(QSV.clock)); tx.appendChild(el("b", null, "รออนุมัติชื่อ")); tx.appendChild(el("span", null, "จากผู้จัด")); }
       goQ();
     } else if (s === "done") {
-      bar.classList.add("qrow"); tx.appendChild(el("b", null, "คุณจองแล้ว")); tx.appendChild(el("span", null, "ยกเลิกที่ที่นั่งของคุณ")); goQ();
+      bar.classList.add("qrow"); tx.appendChild(qsvg(QSV.seat)); tx.appendChild(el("b", null, "คุณจองแล้ว")); tx.appendChild(el("span", null, "ยกเลิกที่ที่นั่งของคุณ")); goQ();
     } else {
       bar.classList.add("qcta"); tx.appendChild(el("b", null, "จองที่นั่งตามลำดับคิว")); tx.appendChild(el("p", null, "เลือกชื่อของคุณก่อน แล้วรอถึงคิว")); var l2 = el("a", null, "เลือกชื่อของฉัน"); l2.href = "/" + TRIP + "/queue"; tx.appendChild(l2);
     }
@@ -820,11 +824,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         body.appendChild(head("ยังไม่ถึงคิวคุณ", "จองได้เมื่อถึงคิว"));
         var card = qCss(el("div"), "background:var(--tint,#e4f2f3);border-radius:16px;padding:14px 16px");
         var top = qCss(el("div"), "display:flex;align-items:baseline;justify-content:space-between");
-        top.appendChild(qCss(el("b", null, "อีก " + a + " คน"), "font:700 34px/1.1 var(--font-display);color:var(--mine)")); top.appendChild(qCss(el("span", null, "คุณคิวที่ " + (a + 1)), "font-size:14px;color:#0b5f67")); card.appendChild(top);
+        top.appendChild(qCss(el("b", null, "อีก " + a + " คิว"), "font:700 34px/1.1 var(--font-display);color:var(--mine)")); top.appendChild(qCss(el("span", null, "คุณคิวที่ " + (a + 1)), "font-size:14px;color:#0b5f67")); card.appendChild(top);
         var tl = qCss(el("div"), "display:flex;align-items:center;margin-top:14px");
-        if (a === 1) { [node("กำลังเลือก", "1", "cur"), line(), node("คุณ", "2", "me"), line(), node("รอคิว", "3", "wait")].forEach(function (x) { tl.appendChild(x); }); }
-        else if (a === 2) { [node("กำลังเลือก", "1", "cur"), line(), node("รอคิว", "2", "wait"), line(), node("คุณ", "3", "me")].forEach(function (x) { tl.appendChild(x); }); }
-        else { [node("กำลังเลือก", "1", "cur"), line(), node("รออีก " + (a - 1) + " คน", "…", "wait"), line(), node("คุณ", String(a + 1), "me")].forEach(function (x) { tl.appendChild(x); }); }
+        if (a === 1) { [node("กำลังจอง", "1", "cur"), line(), node("คุณ", "2", "me"), line(), node("รอคิว", "3", "wait")].forEach(function (x) { tl.appendChild(x); }); }
+        else if (a === 2) { [node("กำลังจอง", "1", "cur"), line(), node("รอคิว", "2", "wait"), line(), node("คุณ", "3", "me")].forEach(function (x) { tl.appendChild(x); }); }
+        else { [node("กำลังจอง", "1", "cur"), line(), node("รออีก " + (a - 1) + " คิว", "…", "wait"), line(), node("คุณ", String(a + 1), "me")].forEach(function (x) { tl.appendChild(x); }); }
         card.appendChild(tl); body.appendChild(card);
         if (qFriend.flag === false) {
           var w = qCss(el("div"), "background:#fff4dc;color:#8a5a00;border-radius:12px;padding:10px 12px;font-size:13px;display:flex;gap:10px;align-items:center;justify-content:space-between");
