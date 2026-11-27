@@ -12,6 +12,7 @@
     if (n === 1) return "เดย์ทริป · " + d1;
     return n + " วัน " + (n - 1) + " คืน · " + (a.getUTCMonth() === b.getUTCMonth() ? a.getUTCDate() + " – " + d2 : d1 + " – " + d2);
   }
+  function vanUrl(k) { return "https://liff.line.me/" + LIFF_ID + "/t/" + k; } // one van's own link: the card built for a van never carries the trip code
   function liffUrl(id, kind) { return "https://liff.line.me/" + LIFF_ID + "/" + id + (kind === "info" ? "" : "/seats"); } // /<id> is the trip details, /<id>/seats the seat map
   function shortY(iso) { // short() plus the Buddhist-era year when the date is not in the current year
     var m = /^(\d{4})-/.exec(String(iso || "")), d = short(iso);
@@ -52,7 +53,7 @@
         { type: "span", text: "VAN", color: "#ffffff" }, { type: "span", text: " " }, { type: "span", text: "TRIP", color: "#fde9a6" }] };
     var head = { type: "box", layout: "vertical", alignItems: "flex-start", backgroundColor: "#0b5f67", paddingAll: "14px", contents: [
       { type: "box", layout: "horizontal", spacing: "8px", alignItems: "center", width: "100%", contents: [ // brand at the left, the trip code (plain, upper case) at the right
-        brand].concat(t.id && !plain ? [txt(String(t.id).toUpperCase(), { size: "12px", color: "#bfe9ed", wrap: false, flex: 0, align: "end", gravity: "center" })] : []) }]
+        brand].concat(t.id && !plain && !t.vk ? [txt(String(t.id).toUpperCase(), { size: "12px", color: "#bfe9ed", wrap: false, flex: 0, align: "end", gravity: "center" })] : []) }]
       .concat(plain ? [] : [{ type: "separator", color: "#4f8a91", margin: "10px" }])
       .concat([txt(String(t.name || "ทริปรถตู้"), { weight: "bold", size: "20px", color: "#ffffff", margin: "8px", maxLines: 2 })]) };
     var tdp = String(t.tripDays || "").split(" · "), n = Number(t.vans) || 0, body = [], g1 = [];
@@ -60,7 +61,8 @@
     if (tdp[0]) g1.push(irow("ทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]));
     var ty = /^(\d{4})-/.exec(String(t.tripStart || t.startDate || "")); // add the Buddhist-era year only when the trip is not in the current year
     if (tdp[1]) g1.push(irow("วันที่", tdp[1] + (ty && +ty[1] !== new Date().getFullYear() ? " " + String((+ty[1] + 543) % 100).padStart(2, "0") : "")));
-    if (n > 0) g1.push(irow("รถตู้", n + " คัน · " + (n * 10 - (t.staffSeat ? n : 0)) + " ที่นั่ง"));
+    if (t.vk) g1.push(irow("รถของคุณ", "คัน " + t.vl + (t.vg ? " · " + t.vg : ""))); // a card for one van
+    else if (n > 0) g1.push(irow("รถตู้", n + " คัน · " + (n * 10 - (t.staffSeat ? n : 0)) + " ที่นั่ง"));
     if (Number(t.limit) > 0) g1.push(irow("จำกัดที่นั่งต่อคน", Number(t.limit) + " ที่นั่ง"));
     if (g1.length) { gh("รายละเอียดทริป", true).forEach(function (x) { body.push(x); }); g1.forEach(function (r) { body.push(r); }); }
     var hasTime = t.startDate || t.departTime || t.endDate || t.returnTime;
@@ -85,7 +87,7 @@
     return { type: "bubble", size: "mega", header: head,
       body: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "4px", paddingBottom: "8px", contents: body },
       footer: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "4px", contents: [{ type: "button", style: "primary", color: "#0b5f67", height: "sm",
-        action: kind === "info" ? { type: "uri", label: "ดูรายละเอียดทริป", uri: liffUrl(t.id, "info") } : { type: "uri", label: t.closed ? "ดูผังที่นั่ง" : "เลือกที่นั่ง", uri: liffUrl(t.id) } }] } };
+        action: kind === "info" ? { type: "uri", label: "ดูรายละเอียดทริป", uri: liffUrl(t.id, "info") } : t.vk ? { type: "uri", label: (t.closed ? "ดูผังที่นั่งคัน " : "จองที่นั่งคัน ") + t.vl, uri: vanUrl(t.vk) } : { type: "uri", label: t.closed ? "ดูผังที่นั่ง" : "เลือกที่นั่ง", uri: liffUrl(t.id) } }] } };
   }
   var ready = null;
   function ensure() { // the page may or may not have loaded/initialised the LIFF SDK already
@@ -109,11 +111,11 @@
         if (!liff.isInClient() || !liff.isLoggedIn() || !liff.isApiAvailable("shareTargetPicker")) return false;
       } catch (e) { return false; }
       function pick(plain) { // plain = the header without the hairline + code pill (fallback if LINE rejects the richer card)
-        return liff.shareTargetPicker([{ type: "flex", altText: "🚐 " + (t.name || "จองที่นั่งรถตู้") + (kind === "info" ? " · รายละเอียดทริป" : t.closed ? " · ดูผังที่นั่ง" : " · เลือกที่นั่ง"), contents: infoBubble(t, plain, kind) }])
+        return liff.shareTargetPicker([{ type: "flex", altText: "🚐 " + (t.name || "จองที่นั่งรถตู้") + (t.vk ? " · คัน " + t.vl : "") + (kind === "info" ? " · รายละเอียดทริป" : t.closed ? " · ดูผังที่นั่ง" : " · เลือกที่นั่ง"), contents: infoBubble(t, plain, kind) }])
           .then(function () { return true; }, function (e) { if (!plain) return pick(true); return false; });
       }
       return pick(false);
     }).catch(function () { return false; });
   }
-  window.VSBShare = { send: send, liffUrl: liffUrl, tripText: tripText };
+  window.VSBShare = { send: send, liffUrl: liffUrl, vanUrl: vanUrl, tripText: tripText };
 })();
