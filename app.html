@@ -1947,6 +1947,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       sh.appendChild(node("p", null, "ไฟล์หรือข้อความจะถูกตรวจให้ดูก่อน ยังไม่บันทึกจนกว่าจะกดยืนยัน · นำเข้าเพิ่มได้อย่างเดียว ไม่ลบหรือเปลี่ยนชื่อคนเดิม"));
       var prev = im.prev;
       if (!prev) {
+        if (st.trip.vans.length > 1) { // rows with no van of their own go to the van picked here
+          var vl = node("div", null, "แถวที่ไม่ระบุคัน จะเข้าคัน"); vl.style.cssText = "font:600 12px/16px var(--font-body);color:var(--muted);margin-bottom:-8px";
+          sh.appendChild(vl); sh.appendChild(vstrip(function (id) { st.van = id; draw(); }, st.van, function (v) { return Object.keys(st.roster[v.id] || {}).length + "/10"; }));
+        }
         var tabs = node("div", "rtabs");
         [["file", "ไฟล์ CSV"], ["paste", "วางข้อความ"]].forEach(function (tb) {
           var b = node("button", im.tab === tb[0] ? "on" : null, tb[1]); b.type = "button";
