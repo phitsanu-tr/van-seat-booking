@@ -1304,7 +1304,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function infoMode() { return pathView() === "info"; }
   var vanTitle = ""; // a van link of a trip with several vans: which van this is (shown above the seat map)
   function applyMode() {
-    var on = infoMode();
+    var on = infoMode(); var vbn = document.getElementById("vanBan"); if (vbn) vbn.hidden = !vanTitle || on;
     if (!on) { view = pathView() === "list" ? "list" : "map"; document.getElementById("sheetView").hidden = view !== "map"; document.getElementById("listView").hidden = view !== "list"; }
     document.body.classList.toggle("v-info", on);
     document.body.classList.toggle("v-list", !on && view === "list");
@@ -1490,7 +1490,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     plateEl.hidden = !(cur && cur.plate);
     lblEl.hidden = !multi;
     var vb = document.getElementById("vanBan"); // a van link: a bar under the tabs says which van this page is (on every tab)
-    vb.hidden = !vanTitle; vb.textContent = "";
+    vb.hidden = !vanTitle || infoMode(); vb.textContent = ""; // not on the trip details: those are the same for every van
     if (vanTitle) { vb.appendChild(el("b", null, vanTitle)); vb.appendChild(el("span", null, "จองได้เฉพาะคันนี้")); }
     tabsEl.textContent = "";
     tabsEl.hidden = trip.vans.length < 2;
