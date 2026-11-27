@@ -16,8 +16,8 @@ A again blocked 403 not_your_turn
 B books 200
 organizer always may 200
 queue off: seat_limit not queue error true
-passenger sees own status true other names hidden true
+booked passenger opening the queue link lands on the seat chart true other names hidden true
 organizer page has controls true switch true
-booking page shows queue bar true
+booked passenger: queue bar hidden, seats not dimmed true true
 manage sheet has the queue entry true
 ERR []

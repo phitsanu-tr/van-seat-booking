@@ -1480,9 +1480,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var box = document.getElementById("notice");
     document.getElementById("endedBar").hidden = !ended;
     document.getElementById("closedBar").hidden = !(loaded && closed && !ended && !isOwner);
-    document.getElementById("queueBar").hidden = !(loaded && qon && !closed && !ended && !isOwner);
+    document.getElementById("queueBar").hidden = !(loaded && qon && !closed && !ended && !isOwner) || !!(qs && qs.s === "done");
     renderQueueBar();
-    document.getElementById("deck").classList.toggle("qlock", qBlocked());
+    document.getElementById("deck").classList.toggle("qlock", qBlocked() && !(qs && qs.s === "done"));
     document.getElementById("deck").classList.toggle("isended", locked());
     box.textContent = "";
     if (locked() || !loaded || !trip) return;
