@@ -2,6 +2,8 @@
 //   GET  ?t=code                      -> { on, items, turn, mine, role }   (LINE name/photo of a claimed row: organizers only)
 //   POST {t, a: "on", value}          organizer: turn the queue on / off
 //        {t, a: "onall", value}       organizer: turn every van's queue on / off
+//        {t, a: "removemany", ids: [...]}   organizer: delete several names of this van
+//        {t, a: "movemany", ids: [...], v: <this van>, to: <van id>}   organizer: move names (not claimed ones) to the end of another van's queue
 //        {t, a: "autoall", value}     organizer: set the approval mode of every van (true = approved at once)
 //        {t, a: "auto", value}        organizer: true = "this is me" is approved at once (no organizer check)
 //        {t, a: "add", names: [..]}   organizer: add passengers at the end (one name per entry)
@@ -70,10 +72,10 @@ module.exports = async function handler(req, res) {
     if (L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
     if (await L.rateLimited(req, user, "queue:" + t, 120, 600)) return L.json(res, 429, { error: "too_many" });
     const a = String(body.a || ""), id = String(body.id || "");
-    const orgActs = ["on", "onall", "auto", "autoall", "okall", "add", "remove", "up", "down", "unbind", "reject", "ok", "done", "rename"];
+    const orgActs = ["on", "onall", "auto", "autoall", "removemany", "movemany", "okall", "add", "remove", "up", "down", "unbind", "reject", "ok", "done", "rename"];
     if (orgActs.includes(a) && !org) return L.json(res, 403, { error: "not_owner" });
     const row = (q) => q.items.find((i) => i.id === id);
-    let fn = null, rejUid = "", rejName = "";
+    let fn = null, rejUid = "", rejName = "", movedN = 0;
 
     if (a === "auto") fn = (q) => { const v = body.value === true; if (!!q.auto === v) return false; if (v) q.auto = 1; else delete q.auto; }; // true: "this is me" counts at once, no approval
     else if (a === "on") fn = (q) => { const v = body.value === true; if (q.on === v) return false; q.on = v; };
@@ -91,6 +93,21 @@ module.exports = async function handler(req, res) {
       const names = (Array.isArray(body.names) ? body.names : [body.name]).map((x) => L.cleanName(String(x == null ? "" : x).replace(/\s+/g, " ").trim()).text).filter((x) => x && L.hasBaseLetter(x) && !L.reservedName(x, true)).slice(0, Q.MAX_ITEMS);
       if (!names.length) return L.json(res, 400, { error: "bad_name" });
       fn = (q) => { if (q.items.length + names.length > cap) return { error: "queue_full", cap }; names.forEach((n) => q.items.push({ id: L.newId(6), name: n })); };
+    }
+    else if (a === "removemany") {
+      const ids = new Set((Array.isArray(body.ids) ? body.ids : []).map(String));
+      if (!ids.size) return L.json(res, 400, { error: "bad_name" });
+      fn = (q) => { const n = q.items.length; q.items = q.items.filter((i) => !ids.has(i.id)); if (q.items.length === n) return false; };
+    }
+    else if (a === "movemany") { // names nobody has claimed; they go to the end of the other van's queue, then leave this one
+      const ids = new Set((Array.isArray(body.ids) ? body.ids : []).map(String)), to = String(body.to || "");
+      if (!ids.size || to === vid || !(trip.vans || []).some((x) => x.id === to)) return L.json(res, 400, { error: "bad_action" });
+      const { q: cur } = await Q.read(trip, vid); const mv = cur.items.filter((i) => ids.has(i.id) && !i.u && !i.done);
+      if (!mv.length) return L.json(res, 409, { error: "nothing_to_move" });
+      const r1 = await Q.update(trip, to, (q) => { if (q.items.length + mv.length > cap) return { error: "queue_full", cap }; mv.forEach((i) => q.items.push({ id: L.newId(6), name: i.name })); });
+      if (r1.error) return L.json(res, r1.error === "busy" ? 409 : 400, { error: r1.error });
+      const gone = new Set(mv.map((i) => i.id)); movedN = mv.length;
+      fn = (q) => { const n = q.items.length; q.items = q.items.filter((i) => !gone.has(i.id)); if (q.items.length === n) return false; };
     }
     else if (a === "rename") {
       const nn = L.cleanName(String(body.name == null ? "" : body.name).replace(/\s+/g, " ").trim()).text;
@@ -142,7 +159,7 @@ module.exports = async function handler(req, res) {
       await L.notify(L.teamIds(trip), { k: "queue_claim", t, tn: trip.name, n: r ? r.name : "", v: vid, vl: van.label, mv: (trip._nv || trip.vans.length) > 1 ? 1 : undefined }, user.id);
     }
     await fillHeld(out.q);
-    return L.json(res, 200, Object.assign({ ok: true }, view(out.q), org ? { vans: await vsum() } : {}));
+    return L.json(res, 200, Object.assign({ ok: true }, movedN ? { moved: movedN } : {}, view(out.q), org ? { vans: await vsum() } : {}));
   } catch (e) {
     await L.errLog("queue", req, e);
     return L.json(res, 502, { error: "storage_error" });

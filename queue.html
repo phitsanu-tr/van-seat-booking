@@ -112,6 +112,13 @@ h1{font:700 26px/32px var(--font-display)}
 .afn{margin:0;font-size:14px;line-height:20px;color:var(--muted)}.abox .fnote{margin:0}
 .ig{border:1px solid #dde3e7;border-radius:16px;padding:12px 16px;margin-top:12px}.igh{display:flex;justify-content:space-between;gap:8px;font:600 14px/20px var(--font-body)}.igh span{color:var(--mine)}.ign{font-size:14px;line-height:20px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}.ig.wn{border-color:#e8c36a}.ig.wn .igh span{color:var(--warn)}
 .isel{width:100%;height:44px;margin-top:8px;border:1px solid #dde3e7;border-radius:12px;padding:0 12px;background:#fff;color:var(--ink);font:14px/20px var(--font-body)}.iw{margin-top:12px;background:var(--warnbg);color:var(--warn);border-radius:12px;padding:12px;font-size:14px;line-height:20px}
+.pillb{margin-left:8px;min-height:40px;padding:0 14px;border-radius:12px;border:1px solid #dde3e7;background:#fff;color:var(--mine);font:600 14px/20px var(--font-body)}
+.row.sr{cursor:pointer;margin:0 -16px;padding:10px 16px}.row.sr.sel{background:var(--tint)}.cb{flex:none;width:24px;height:24px;border-radius:8px;border:2px solid #8f9ca4;display:grid;place-items:center;color:#fff}.cb svg{width:16px;height:16px;opacity:0}.row.sel .cb{background:var(--mine);border-color:var(--mine)}.row.sel .cb svg{opacity:1}.card.selc{margin-bottom:96px}
+.sbar{position:fixed;z-index:15;left:max(0px,calc((100% - 460px) / 2));right:max(0px,calc((100% - 460px) / 2));bottom:0;background:#fff;border-top:1px solid #e8ecef;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.sbar .sa{flex:1;min-width:0;font:600 14px/20px var(--font-body)}.sbar .sa small{display:block;font-weight:400;color:var(--muted)}.sbar .sa.w{color:var(--red)}
+.sbar .sall{min-height:44px;padding:0;background:none;color:var(--mine);font:600 14px/20px var(--font-body)}
+.sbar .sb2{display:flex;gap:12px;width:100%}.sbar .sb2 button{flex:1;min-height:48px;border-radius:12px;background:#fff;font:600 14px/20px var(--font-body)}.sbar .mvb{border:1px solid var(--mine);color:var(--mine)}.sbar .dlb{border:1px solid var(--red);color:var(--red)}.sbar .dlb.arm{background:var(--red);color:#fff}.sbar .sb2 button:disabled{opacity:.4}
+.mvl{display:flex;flex-direction:column;gap:8px}.opt:disabled{opacity:.45;cursor:not-allowed}.mgo{min-height:48px;width:100%;border-radius:12px;background:var(--mine);color:#fff;font:600 16px/24px var(--font-body)}.mgo:disabled{opacity:.4}
 .psheet h3{font:600 19px/26px var(--font-display);margin:0;padding-right:40px}.psheet .px{position:absolute;right:8px;top:12px;width:44px;height:44px;background:none;color:var(--muted);font-size:20px;padding:0}
 .pair{display:flex;align-items:center;gap:12px;background:var(--tint);border-radius:16px;padding:14px}.pair .no{flex:0 0 40px;height:40px;line-height:40px;font-size:16px;background:#fff}.pair b{display:block;font-size:18px}.pair small{font-size:12.5px;color:#0b5f67}.psheet .warn{margin:0;padding:12px;border-radius:12px;font-size:14px;line-height:20px}.psheet .warn div{display:flex;gap:8px}.ch{display:flex;align-items:center;justify-content:space-between;height:48px}.ch b{font:600 16px/24px var(--font-display)}.ch span{color:var(--muted);font-size:14px;line-height:20px}.psheet .big{width:100%}
 .obar a.b.p{background:var(--mine);color:#fff}
@@ -227,6 +234,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var h = el("div", "chd2"), ic = el("span", "ic"); ic.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICN[icon] + '</svg>';
     h.appendChild(ic); h.appendChild(el("h2", null, title)); if (right) h.appendChild(el("span", "r", right)); return h;
   }
+  var selMode = false, selIds = {}, selArm = false, selT = 0, selV = "", mvSheet = false, mvTo = "";
   var allSheet = false, autoAsk = 0, autoNote = "", tab = "list", stripOpen = false, menuId = "", sheet = "", draft = "", sheetNew = false, editId = "";
   function fitSheet() { var sh = document.querySelector(".sheet"); if (!sh) return; var vv = window.visualViewport; sh.style.bottom = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) + "px" : "0px"; if (vv) sh.style.maxHeight = (vv.height - 36) + "px"; }
   if (window.visualViewport) { var fsRaf = 0; window.visualViewport.addEventListener("resize", function () { cancelAnimationFrame(fsRaf); fsRaf = requestAnimationFrame(fitSheet); }); }
@@ -234,6 +242,15 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function turnRow() { return D.items.filter(function (i) { return i.id === D.turn; })[0]; }
   function waitingRows() { return D.items.filter(function (i) { return i.bound && !i.ok && !i.done; }); }
   function rowEl(it, i, menu) {
+    if (menu && selMode) { // choose names: tick a row, the bar below acts on all ticked
+      var sr = el("div", "row sr" + (selIds[it.id] ? " sel" : "") + (it.done ? " done" : "")); sr.setAttribute("role", "checkbox"); sr.setAttribute("aria-checked", selIds[it.id] ? "true" : "false"); sr.tabIndex = 0;
+      var cb = el("span", "cb"); cb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>'; sr.appendChild(cb);
+      sr.appendChild(el("div", "no", String(i + 1)));
+      var snm = el("div", "nm"); snm.appendChild(el("b", null, it.name)); var ssm = el("small"); ssm.appendChild(el("span", null, it.bound ? "LINE: " + (it.ln || "") : "ยังไม่มีคนกดยืนยัน")); snm.appendChild(ssm); sr.appendChild(snm);
+      var tg = function () { if (selIds[it.id]) delete selIds[it.id]; else selIds[it.id] = 1; selArm = false; draw(); };
+      sr.addEventListener("click", tg); sr.addEventListener("keydown", function (e) { if (e.key === " " || e.key === "Enter") { e.preventDefault(); tg(); } });
+      return sr;
+    }
     var isT = D.turn === it.id, r = el("div", "row" + (it.done ? " done" : ""));
     r.appendChild(el("div", "no", String(i + 1)));
     var nm = el("div", "nm"); nm.appendChild(el("b", null, it.name));
@@ -302,15 +319,19 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (autoNote) { var inf = el("div", "info"); inf.appendChild(el("i", null, "i")); inf.appendChild(el("span", null, autoNote)); cv.appendChild(inf); }
       main.appendChild(cv);
     } else {
-      var cl2 = el("div", "card"); cl2.appendChild(chead("users", "รายชื่อผู้เข้าคิว", D.items.length + " / " + (D.cap || 80) + " คน"));
+      if (selV !== D.v) { selV = D.v; selMode = false; selIds = {}; selArm = false; }
+      Object.keys(selIds).forEach(function (k) { if (!D.items.some(function (x) { return x.id === k; })) delete selIds[k]; });
+      var cl2 = el("div", "card" + (selMode ? " selc" : "")), ch2 = chead("users", "รายชื่อผู้เข้าคิว", D.items.length + " / " + (D.cap || 80) + " คน"); cl2.appendChild(ch2);
+      if (D.items.length) { var sb0 = el("button", "pillb", selMode ? "เสร็จ" : "เลือก"); sb0.type = "button"; sb0.addEventListener("click", function () { selMode = !selMode; selIds = {}; selArm = false; menuId = ""; draw(); }); ch2.appendChild(sb0); }
       if (!D.items.length) cl2.appendChild(el("div", "empty", "ยังไม่มีรายชื่อ"));
       D.items.forEach(function (it, i) { cl2.appendChild(rowEl(it, i, true)); });
       var full = D.items.length >= (D.cap || 80); var al = el("button", "addlink", full ? "ครบจำนวนที่นั่งแล้ว (" + (D.cap || 80) + " ชื่อ)" : "＋ เพิ่มรายชื่อ"); al.type = "button"; al.disabled = full; al.addEventListener("click", function () { sheet = "add"; sheetNew = true; draw(); }); cl2.appendChild(al);
       cl2.appendChild(errBox); main.appendChild(cl2);
 
     }
+    if (tab === "list" && selMode) { drawSelBar(); } else {
     var bar = el("div", "obar one"); var bk = el("a", "b", "ย้อนกลับ"); bk.href = SEATS; bk.addEventListener("click", function (e) { try { if (history.length > 1) { e.preventDefault(); history.back(); } } catch (x) {} }); bar.appendChild(bk);
-    main.appendChild(bar);
+    main.appendChild(bar); }
     if (sheet === "edit") {
       var eit = D.items.filter(function (x) { return x.id === editId; })[0], efirst = sheetNew; sheetNew = false;
       if (!eit) { sheet = ""; } else {
@@ -415,7 +436,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (org) {
       if (h1) { h1.textContent = "คิวจองที่นั่ง"; h1.classList.toggle("hv", !!(D.vans && D.vans.length > 1));
         if (D.vans && D.vans.length > 1) { var al = el("button", "allv"); al.type = "button"; al.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>ทุกคัน'; al.addEventListener("click", function () { allSheet = true; draw(); }); h1.appendChild(al); } }
-      drawOrg(); if (allSheet) drawAllSheet(); fitMenu(); return;
+      drawOrg(); if (allSheet) drawAllSheet(); if (mvSheet && selMode) drawMoveSheet(); fitMenu(); return;
     }
     drawPax();
   }
@@ -495,6 +516,47 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   function doClaim(it) { busy = true; return call("claim", { id: it.id }).then(function () { busy = false; if (D && D.items.some(function (x) { return x.m; })) { justClaimed = !!D.auto; draw(); } }, function () { busy = false; }); }
   function openClaim(it, i) { paxSheet = { it: it, i: i }; draw(); }
+  function selList() { return D.items.filter(function (x) { return selIds[x.id]; }); }
+  function drawSelBar() {
+    var sel = selList(), k = sel.length, bound = sel.filter(function (x) { return x.bound; }).length, multi = !!(D.vans && D.vans.length > 1);
+    var bar = el("div", "sbar"), inf = el("div", "sa" + (selArm && bound ? " w" : ""));
+    inf.appendChild(document.createTextNode(selArm && bound ? "มี " + bound + " ชื่อที่ผูกไว้แล้ว ถูกลบด้วย" : k ? "เลือกแล้ว " + k + " ชื่อ" : "ยังไม่ได้เลือก"));
+    if (selArm && bound) inf.appendChild(el("small", null, "กู้คืนไม่ได้")); bar.appendChild(inf);
+    var all = el("button", "sall", k === D.items.length ? "ยกเลิกเลือกทั้งหมด" : "เลือกทั้งหมด"); all.type = "button";
+    all.addEventListener("click", function () { var full = k === D.items.length; selIds = {}; if (!full) D.items.forEach(function (x) { selIds[x.id] = 1; }); selArm = false; draw(); }); bar.appendChild(all);
+    var row = el("div", "sb2");
+    if (multi && !selArm) { var mv = el("button", "mvb", "ย้ายไปคันอื่น"); mv.type = "button"; mv.disabled = !k; mv.addEventListener("click", function () { mvTo = ""; mvSheet = true; draw(); }); row.appendChild(mv); }
+    var dl = el("button", "dlb" + (selArm ? " arm" : ""), selArm ? "กดอีกครั้งเพื่อลบ" : k ? "ลบ " + k + " ชื่อ" : "ลบ"); dl.type = "button"; dl.disabled = !k;
+    dl.addEventListener("click", function () {
+      if (busy || !k) return;
+      if (!selArm) { selArm = true; clearTimeout(selT); selT = setTimeout(function () { selArm = false; if (selMode) draw(); }, 4000); draw(); return; }
+      clearTimeout(selT); busy = true; var ids = sel.map(function (x) { return x.id; }), f = false;
+      call("removemany", { ids: ids }, function () { f = true; }).then(function () { busy = false; selArm = false; if (!f) { selMode = false; selIds = {}; draw(); showToast("ลบรายชื่อแล้ว " + ids.length + " ชื่อ"); } else draw(); }, function () { busy = false; draw(); });
+    });
+    row.appendChild(dl); bar.appendChild(row); main.appendChild(bar);
+  }
+  function drawMoveSheet() {
+    var dim = el("div", "dim up"); dim.addEventListener("click", function () { mvSheet = false; draw(); }); main.appendChild(dim);
+    var sh = el("div", "psheet"); sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "ย้ายรายชื่อ");
+    var sel = selList(), can = sel.filter(function (x) { return !x.bound && !x.done; }), skip = sel.length - can.length;
+    sh.appendChild(el("h3", null, "ย้าย " + sel.length + " ชื่อไปคัน"));
+    var xb = el("button", "px"); xb.type = "button"; xb.setAttribute("aria-label", "ปิด"); xb.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'; xb.addEventListener("click", function () { mvSheet = false; draw(); }); sh.appendChild(xb);
+    sh.appendChild(el("p", "afn", skip ? "ย้ายไม่ได้ " + skip + " ชื่อ เพราะมีคนผูกชื่อไว้หรือจบคิวแล้ว · จะย้าย " + can.length + " ชื่อ" : "ชื่อที่ย้ายจะไปต่อท้ายคิวของคันนั้น"));
+    var list = el("div", "mvl"); sh.appendChild(list);
+    var go = el("button", "mgo", can.length ? "ย้าย " + can.length + " ชื่อ" : "ย้ายไม่ได้"); go.type = "button"; go.disabled = true;
+    D.vans.filter(function (z) { return z.id !== D.v; }).forEach(function (z) {
+      var room = Math.max(0, (D.cap || 80) - (z.n || 0)), ok = can.length > 0 && room >= can.length;
+      var o = el("button", "opt" + (mvTo === z.id ? " on" : "")); o.type = "button"; o.disabled = !ok; o.setAttribute("role", "radio"); o.setAttribute("aria-checked", mvTo === z.id ? "true" : "false"); o.appendChild(el("i", "rd"));
+      var ww = el("span"); ww.appendChild(el("b", null, "คัน " + z.l)); ww.appendChild(el("small", null, (z.n || 0) + " คน · " + (ok ? "เหลือที่ " + room : "ที่ไม่พอ (เหลือ " + room + ")"))); o.appendChild(ww);
+      o.addEventListener("click", function () { mvTo = z.id; draw(); }); list.appendChild(o);
+    });
+    go.disabled = !mvTo || !can.length;
+    go.addEventListener("click", function () {
+      if (busy || !mvTo) return; busy = true; var to = mvTo, tl = (D.vans.filter(function (z) { return z.id === to; })[0] || {}).l, ids = sel.map(function (x) { return x.id; }), n = can.length, f = false;
+      call("movemany", { ids: ids, to: to }, function () { f = true; }).then(function () { busy = false; mvSheet = false; if (!f) { selMode = false; selIds = {}; selArm = false; delete VC[to]; draw(); showToast("ย้ายแล้ว " + n + " ชื่อไปคัน " + tl, skip ? "ย้ายไม่ได้ " + skip + " ชื่อ (มีคนผูกไว้)" : ""); } else draw(); }, function () { busy = false; draw(); });
+    });
+    sh.appendChild(go); main.appendChild(sh);
+  }
   function drawAllSheet() {
     var dim = el("div", "dim up"); dim.addEventListener("click", function () { allSheet = false; draw(); }); main.appendChild(dim);
     var sh = el("div", "psheet"); sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "ตั้งค่าทุกคัน");
