@@ -794,6 +794,28 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     bar.classList.remove("qnudge", "qshake"); void bar.offsetWidth; bar.classList.add("qnudge"); if (!calm) bar.classList.add("qshake");
     clearTimeout(nudgeT); nudgeT = setTimeout(function () { bar.classList.remove("qnudge", "qshake"); }, 2000);
   }
+  // organizer cancelled the last seat of a queued person: keep their name in the queue or remove it
+  function openQueueAsk(row, n) {
+    var bd = qCss(el("div"), "position:fixed;inset:0;z-index:50;background:rgba(10,24,28,.45);display:flex;align-items:flex-end;justify-content:center");
+    var sh = qCss(el("div"), "position:relative;background:var(--surface,#fff);width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:24px 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px");
+    sh.setAttribute("role", "dialog");
+    function close() { bd.remove(); }
+    sh.appendChild(qCss(el("b", null, "ยกเลิกที่นั่ง " + n + " ของ" + row.name + "แล้ว"), "display:block;font:600 19px/26px var(--font-display)"));
+    sh.appendChild(qCss(el("div", null, "ต้องการทำอะไรกับชื่อของ" + row.name + "ในคิว"), "font-size:14px;line-height:20px;color:var(--muted,#5f6b73)"));
+    var two = qCss(el("div"), "display:grid;grid-template-columns:1fr 1fr;gap:12px");
+    var keep = qCss(el("button", null, "เก็บไว้"), "height:48px;border:0;border-radius:12px;background:#eef1f3;color:var(--ink,#1b2227);font:600 16px var(--font-body);cursor:pointer"); keep.type = "button";
+    var del = qCss(el("button", null, "ลบออกจากคิว"), "height:48px;border:0;border-radius:12px;background:#b3261e;color:#fff;font:600 16px var(--font-body);cursor:pointer"); del.type = "button";
+    keep.addEventListener("click", close);
+    del.addEventListener("click", function () {
+      del.disabled = true; keep.disabled = true;
+      fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: TRIP, a: "remove", id: row.id }), cache: "no-store" })
+        .then(function (r) { close(); showToast(r.ok ? "ลบ" + row.name + "ออกจากคิวแล้ว" : "ลบออกจากคิวไม่สำเร็จ ลองอีกครั้งที่หน้าคิว", r.ok ? undefined : "error"); })
+        .catch(function () { close(); showToast("ลบออกจากคิวไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง", "error"); });
+    });
+    two.appendChild(keep); two.appendChild(del); sh.appendChild(two);
+    bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
+    bd.appendChild(sh); document.body.appendChild(bd);
+  }
   function openQueueSheet(n) {
     if (qSheet) qSheet.close();
     var bd = qCss(el("div"), "position:fixed;inset:0;z-index:50;background:rgba(10,24,28,.45);display:flex;align-items:flex-end;justify-content:center");
@@ -1640,6 +1662,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var r = await api("DELETE", { seat: n });
       if (r.ok) {
         showToast("ยกเลิกที่นั่ง " + n + " แล้ว");
+        if (r.data && r.data.qrow) openQueueAsk(r.data.qrow, n);
       } else {
         failMsg = errorText(r, "ยกเลิกไม่สำเร็จ ลองอีกครั้ง");
       }

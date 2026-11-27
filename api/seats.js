@@ -372,7 +372,16 @@ module.exports = async function handler(req, res) {
           } catch (e) { /* best effort */ }
         }
       }
-      return L.json(res, 200, { ok: true });
+      // the organizer cancelled the last seat of someone who is in the booking queue: tell the page so it can ask what to do with the name
+      let qrow = null;
+      if (Number(removed) === 1 && isOwner && prev.u && prev.u !== user.id && Q.flagOn()) {
+        try {
+          const { q } = await Q.read(t);
+          const r = q.on && q.items.find((i) => i.u === prev.u);
+          if (r) { const left = ((await L.redis(["SMEMBERS", L.mySeatsKey(prev.u)])) || []).filter((x) => String(x).indexOf(t + "|") === 0).length; if (!left) qrow = { id: r.id, name: r.name }; }
+        } catch (e) { /* best effort: the seat is already cancelled */ }
+      }
+      return L.json(res, 200, qrow ? { ok: true, qrow } : { ok: true });
     }
 
     res.setHeader("Allow", "GET, POST, PATCH, DELETE");
