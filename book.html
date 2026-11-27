@@ -1453,7 +1453,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (trip.tripDays) {
       var yy = ""; var t0 = parseD(trip.tripStart); if (t0) yy = " " + String(new Date(t0.y - 543, t0.mo, t0.d + Math.max(0, (Number(trip.tripN) || 1) - 1)).getFullYear() + 543).slice(-2);
       var tdp = trip.tripDays.split(" · ");
-      fmtRow = frow("รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]);
+      fmtRow = frow("รูปแบบทริป", tdp[0]);
       if (tdp[1]) dateRow = frow("วันที่จัดทริป", tdp[1] + yy);
     }
     var tot = trip.vans.length * TOTAL, booked = 0;
@@ -1916,7 +1916,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var t0 = parseD(trip.tripStart), yy = "";
     if (t0) yy = " " + String(new Date(t0.y - 543, t0.mo, t0.d + Math.max(0, (Number(trip.tripN) || 1) - 1)).getFullYear() + 543).slice(-2);
     var tdp = (trip.tripDays || "").split(" · "), rows = [];
-    if (trip.tripDays) { rows.push(["รูปแบบทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]]); if (tdp[1]) rows.push(["วันที่จัดทริป", tdp[1] + yy]); }
+    if (trip.tripDays) { rows.push(["รูปแบบทริป", tdp[0]]); if (tdp[1]) rows.push(["วันที่จัดทริป", tdp[1] + yy]); }
     if (trip.vans.length) rows.push(["รถตู้", trip.vans.length + " คัน · " + (trip.vans.length > 1 ? "คันละ " : "") + TOTAL + " ที่นั่ง"]);
     y += X; // every gap in the picture is X: sides, above each heading, under the map card
     // ---- travel schedule box

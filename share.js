@@ -59,7 +59,7 @@
       .concat(kind === "org" ? [txt("ลิงก์ผู้จัด · ดูทุกคัน · ห้ามส่งให้ผู้จอง", { size: "12px", color: "#ffe3a3", margin: "4px" })] : []) };
     var tdp = String(t.tripDays || "").split(" · "), n = Number(t.vans) || 0, body = [], g1 = [];
     if (t.organizer) g1.push(irow("ผู้จัด", t.organizer));
-    if (tdp[0]) g1.push(irow("ทริป", tdp[0] === "เดย์ทริป" ? "เดย์ทริป" : "ค้างคืน · " + tdp[0]));
+    if (tdp[0]) g1.push(irow("ทริป", tdp[0]));
     var ty = /^(\d{4})-/.exec(String(t.tripStart || t.startDate || "")); // add the Buddhist-era year only when the trip is not in the current year
     if (tdp[1]) g1.push(irow("วันที่", tdp[1] + (ty && +ty[1] !== new Date().getFullYear() ? " " + String((+ty[1] + 543) % 100).padStart(2, "0") : "")));
     if (t.vk) g1.push(irow("รถของคุณ", "คัน " + t.vl)); // a card for one van

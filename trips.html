@@ -1435,7 +1435,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var n = Number($("tripN").value) || 0, ts = $("tripStart").value, lastD = "";
     if (n > 1 && /^\d{4}-\d{2}-\d{2}$/.test(ts)) lastD = new Date(Date.parse(ts + "T00:00:00Z") + (n - 1) * 86400000).toISOString().slice(0, 10);
     [["#", "รายละเอียดทริป"], ["ชื่อทริป", $("name").value.trim()], ["ผู้จัด / บริษัททัวร์", $("organizer").value.trim()],
-     ["รูปแบบทริป", n === 1 ? "เดย์ทริป · ไป-กลับวันเดียว" : n > 1 ? "ค้างคืน · " + n + " วัน " + (n - 1) + " คืน" : ""],
+     ["รูปแบบทริป", n === 1 ? "เดย์ทริป" : n > 1 ? n + " วัน " + (n - 1) + " คืน" : ""],
      ["วันที่จัดทริป", lastD ? dayS(ts) + " – " + dayS(lastD) : dayS(ts)],
      ["#", "กำหนดการเดินทาง"], ["เดินทางไป", leg(sd, $("departTime").value, 1)],
      ["เดินทางกลับ", (ed || $("returnTime").value) ? leg(ed || sd, $("returnTime").value, 1) : ""],
