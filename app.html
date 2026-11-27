@@ -1067,7 +1067,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var vc = node("span", "vchip"); vc.insertAdjacentHTML("beforeend", VAN_SVG); vc.appendChild(document.createTextNode("รถตู้ " + x.vans + " คัน")); sub.appendChild(vc); hd.appendChild(sub);
     hd.appendChild(routeBox(x, true)); c.appendChild(hd);
     var bx = node("div", "qbox" + (turn ? " go" : pend ? " pend" : "")), l1 = node("div", "ql");
-    l1.appendChild(node("b", null, turn ? "ถึงคิวคุณแล้ว" : pend ? "รออนุมัติชื่อจากผู้จัด" : "อีก " + Math.max(1, x.ahead) + " คน ถึงคิวคุณ"));
+    l1.appendChild(node("b", null, turn ? "ถึงคิวคุณแล้ว" : pend ? "รออนุมัติชื่อจากผู้จัด" : "อีก " + Math.max(1, x.ahead) + " คิว ถึงคุณ"));
     if (!turn) l1.appendChild(node("span", null, "ดูคิว ›")); bx.appendChild(l1);
     if (turn) bx.appendChild(node("p", null, "คุณคิวที่ " + x.qpos + (x.limit > 0 ? " · จองได้ " + x.limit + " ที่นั่ง" : "")));
     else if (pend) bx.appendChild(node("p", null, "ผู้จัดตรวจชื่อแล้ว เราจะแจ้งทาง LINE"));
@@ -1075,7 +1075,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var pb = node("div", "qpb"), segs = Math.min(Math.max(1, x.ahead) + 1, 8);
       for (var i = 0; i < segs; i++) pb.appendChild(node("i", i === 0 ? "d" : i === segs - 1 ? "m" : ""));
       bx.appendChild(pb);
-      var pf = node("div", "qpf"); pf.appendChild(node("span", null, x.qturn ? "กำลังจอง: คิวที่ " + x.qturn : "ยังไม่เริ่มจอง")); pf.appendChild(node("span", null, "คุณคิวที่ " + x.qpos)); bx.appendChild(pf);
+      var pf = node("div", "qpf"); pf.appendChild(node("span", null, x.qturn ? "คิวที่ " + x.qturn + " กำลังจอง" : "ยังไม่เริ่มจอง")); pf.appendChild(node("span", null, "คุณคิวที่ " + x.qpos)); bx.appendChild(pf);
     }
     c.appendChild(bx);
     if (turn) {

@@ -353,18 +353,19 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       card = el("div", "qcard"); var t0 = el("div", "qt"); t0.appendChild(el("b", "qn", "จองเสร็จแล้ว")); card.appendChild(t0);
     } else if (isTurn) {
       card = el("div", "qcard ok"); var sn1 = el("div", "qsent"); sn1.appendChild(el("b", null, "ถึงคิวคุณแล้ว")); card.appendChild(sn1);
-      card.appendChild(qbar(2, 2)); var pf1 = el("div", "qpf"); pf1.appendChild(el("span", null, "กำลังจอง: คิวที่ " + pos)); pf1.appendChild(el("span", null, "คุณคิวที่ " + pos)); card.appendChild(pf1);
+      card.appendChild(qbar(2, 2)); var pf1 = el("div", "qpf"); pf1.appendChild(el("span", null, "กำลังจอง")); pf1.appendChild(el("span", null, "คุณคิวที่ " + pos)); card.appendChild(pf1);
       card.appendChild(qin(QI_OK, "เลือกที่นั่งแล้วกดจองได้เลย"));
     } else if (!mine.ok) {
       main.appendChild(el("p", "sub", "ผู้จัดกำลังตรวจชื่อของคุณ"));
       card = el("div", "qcard pend"); var t2 = el("div", "qt"); t2.appendChild(el("b", "qn", "รออนุมัติ")); t2.appendChild(el("span", "qs", "คิวที่ " + pos)); card.appendChild(t2); card.appendChild(el("div", "qs2", "อนุมัติแล้วจะเข้าคิวและได้รับแจ้งเตือนทาง LINE"));
     } else {
+      var fu = 0; for (var fi = 0; fi < pos - 1; fi++) { if (!D.items[fi].done) { fu = fi + 1; break; } }
       var a = Math.max(1, ahead), tr = D.turn ? D.items.findIndex(function (x) { return x.id === D.turn; }) + 1 : 0;
       card = el("div", "qcard");
-      var sn = el("div", "qsent"); sn.appendChild(el("b", null, "อีก " + a + " คน")); sn.appendChild(document.createTextNode(" ถึงคิวคุณ")); card.appendChild(sn);
+      var sn = el("div", "qsent"); sn.appendChild(el("b", null, "อีก " + a + " คิว")); sn.appendChild(document.createTextNode(" ถึงคุณ")); card.appendChild(sn);
       var pb = el("div", "qpb"), segs = Math.min(a + 1, 8); for (var si = 0; si < segs; si++) pb.appendChild(el("i", si === 0 ? "d" : si === segs - 1 ? "m" : "")); card.appendChild(pb);
-      var pf = el("div", "qpf"); pf.appendChild(el("span", null, tr ? "กำลังจอง: คิวที่ " + tr : "ยังไม่เริ่มจอง")); pf.appendChild(el("span", null, "คุณคิวที่ " + pos)); card.appendChild(pf);
-      card.appendChild(qin(QI_BELL, "ไม่ต้องเฝ้าหน้านี้ จะแจ้งเตือนเมื่อถึงคิวคุณ"));
+      var pf = el("div", "qpf"); pf.appendChild(el("span", null, tr ? "คิวที่ " + tr + " กำลังจอง" : fu ? "รอคิวที่ " + fu + " เริ่มจอง" : "ยังไม่เริ่มจอง")); pf.appendChild(el("span", null, "คุณคิวที่ " + pos)); card.appendChild(pf);
+      card.appendChild(qin(QI_BELL, "ไม่ต้องเฝ้าหน้านี้ เราจะแจ้งเตือนให้"));
     }
     main.appendChild(card);
     var who = el("div", "who"); var av = el(D.me.pic ? "img" : "span", "av"); if (D.me.pic) { av.src = D.me.pic; av.alt = ""; } who.appendChild(av);
