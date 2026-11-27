@@ -105,7 +105,8 @@ header.trip { display: block; }
 .deck { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px -10px rgba(20,40,50,.18); }
 .tlbl { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 16px 0; font-size: 14px; color: var(--muted); line-height: 20px}
 .tlbl .tl { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 600; }
-.tlbl .tl svg { color: var(--mine); flex: none; }
+.tlbl .tl { color: var(--ink); font-size: 16px; line-height: 24px; }
+.tlbl .tl .tlt { flex: none; width: 32px; height: 32px; border-radius: 50%; background: #e3eef0; color: #0b5f67; display: grid; place-items: center; }
 .deck .tabs { display: grid; grid-template-columns: repeat(var(--vn, 4), minmax(0, 1fr)); gap: 4px; margin: 12px 16px 16px; padding: 4px; border-radius: 16px; background: #e8ecef; overflow: visible; }
 .deck .tabs .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; height: 56px; min-height: 56px; padding: 0 4px; border: 0 !important; border-radius: 12px; background: transparent; color: #5f6b73; white-space: nowrap; }
 .deck .tabs .tab .tn { max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 16px; line-height: 24px; font-weight: 600; }
@@ -580,7 +581,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   <div class="nebox" id="neBox" role="alert"><div class="nei" aria-hidden="true">!</div><h2>เชื่อมต่อไม่ได้</h2><p>ตรวจสัญญาณอินเทอร์เน็ตแล้วลองใหม่ ข้อมูลที่นั่งยังไม่ถูกโหลด</p><button type="button" id="neRetry">ลองใหม่</button></div>
 
   <section class="deck" id="deck">
-  <div class="tlbl" id="tabLbl" hidden><span class="tl"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16V8a2 2 0 012-2h9l5 4.5V16a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><circle cx="8" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg>เลือกรถตู้</span></div>
+  <div class="tlbl" id="tabLbl" hidden><span class="tl"><span class="tlt"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="15" rx="3"/><path d="M4 11h16M8 15h.01M16 15h.01M7 18v2M17 18v2M9 6.5h6"/></svg></span>เลือกรถตู้</span></div>
   <div class="tabs" id="tabs" role="tablist" aria-label="เลือกคันรถ" hidden></div>
 
 
