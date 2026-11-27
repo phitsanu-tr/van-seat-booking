@@ -352,15 +352,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       main.appendChild(el("p", "sub", "ต้องการยกเลิก แตะที่นั่งของคุณในผังแล้วกดขอยกเลิก"));
       card = el("div", "qcard"); var t0 = el("div", "qt"); t0.appendChild(el("b", "qn", "จองเสร็จแล้ว")); card.appendChild(t0);
     } else if (isTurn) {
-      main.appendChild(el("p", "sub", "ถึงเวลาจองของคุณ"));
       card = el("div", "qcard ok"); var sn1 = el("div", "qsent"); sn1.appendChild(el("b", null, "ถึงคิวคุณแล้ว")); card.appendChild(sn1);
-      card.appendChild(qbar(2, 2)); var pf1 = el("div", "qpf"); pf1.appendChild(el("span", null, "ถึงตาคุณ")); pf1.appendChild(el("span", null, "คุณคิวที่ " + pos)); card.appendChild(pf1);
-      card.appendChild(qin(QI_OK, "ถึงตาคุณแล้ว เลือกที่นั่งได้เลย"));
+      card.appendChild(qbar(2, 2)); var pf1 = el("div", "qpf"); pf1.appendChild(el("span", null, "กำลังจอง: คิวที่ " + pos)); pf1.appendChild(el("span", null, "คุณคิวที่ " + pos)); card.appendChild(pf1);
+      card.appendChild(qin(QI_OK, "เลือกที่นั่งแล้วกดจองได้เลย"));
     } else if (!mine.ok) {
       main.appendChild(el("p", "sub", "ผู้จัดกำลังตรวจชื่อของคุณ"));
       card = el("div", "qcard pend"); var t2 = el("div", "qt"); t2.appendChild(el("b", "qn", "รออนุมัติ")); t2.appendChild(el("span", "qs", "คิวที่ " + pos)); card.appendChild(t2); card.appendChild(el("div", "qs2", "อนุมัติแล้วจะเข้าคิวและได้รับแจ้งเตือนทาง LINE"));
     } else {
-      main.appendChild(el("p", "sub", "จองที่นั่งได้เมื่อถึงคิว"));
       var a = Math.max(1, ahead), tr = D.turn ? D.items.findIndex(function (x) { return x.id === D.turn; }) + 1 : 0;
       card = el("div", "qcard");
       var sn = el("div", "qsent"); sn.appendChild(el("b", null, "อีก " + a + " คน")); sn.appendChild(document.createTextNode(" ถึงคิวคุณ")); card.appendChild(sn);
