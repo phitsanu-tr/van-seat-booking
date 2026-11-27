@@ -21,8 +21,8 @@ const LAUNCH_GIFT_DAYS = 90; // accounts that already organized trips before pac
 
 const TIERS = {
   free: { name: "Free", trips: 2, vans: 1, helpers: 0, rounds: 1 },         // trips = new trips per calendar month
-  standard: { name: "Standard", trips: 20, vans: 5, helpers: 2, rounds: 0 },
-  premium: { name: "Premium", trips: 0, vans: 10, helpers: 5, rounds: 0 }, // 0 = no limit (trips: up to SPAM_CAP a month)
+  standard: { name: "Standard", trips: 20, vans: 3, helpers: 2, rounds: 0 },
+  premium: { name: "Premium", trips: 0, vans: 5, helpers: 5, rounds: 0 }, // 0 = no limit (trips: up to SPAM_CAP a month)
 };
 // while packages are off: the limits the app always had
 const LEGACY = { name: "", trips: 0, vans: 5, helpers: 2, rounds: 0 };
