@@ -50,8 +50,8 @@ module.exports = async function handler(req, res) {
       const counts = {};
       trip.vans.forEach((x, i) => { counts[x.id] = Number(out[i + 2]) || 0; });
       const held = []; (out[1] || []).forEach((h, i) => { if (h && !seats[i + 1]) held.push(i + 1); }); // free seats someone is signing in to book
-      let qon = false, qs, qv; if (Q.flagOn()) { try { const qa = await Q.readAll(trip), qq = (qa.find((x) => x.id === van.id) || { q: { on: false, items: [] } }).q; qon = !!qq.on; if (qon && !isOwner) qs = Q.stateOf(qq, user); qv = {}; qa.forEach((x) => { if (x.q.on) qv[x.id] = 1; }); } catch (e) { /* the page still works */ } } // booking queue switched on for this trip
-      return L.json(res, 200, { qon: qon || undefined, qs, qv: qv && trip.vans.length > 1 ? qv : undefined, trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip), closed });
+      let qon = false, qs, qv, qmv; if (Q.flagOn()) { try { const qa = await Q.readAll(trip), qq = (qa.find((x) => x.id === van.id) || { q: { on: false, items: [] } }).q; qon = !!qq.on; if (qon && !isOwner) qs = Q.stateOf(qq, user); qv = {}; qa.forEach((x) => { if (x.q.on) qv[x.id] = 1; if (user && x.q.on && x.q.items.some((i) => i.u === user.id && !i.done)) qmv = x.id; }); } catch (e) { /* the page still works */ } } // booking queue switched on for this trip
+      return L.json(res, 200, { qon: qon || undefined, qs, qv: qv && trip.vans.length > 1 ? qv : undefined, qmv: trip.vans.length > 1 ? qmv : undefined, trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip), closed });
     }
 
     if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });

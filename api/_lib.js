@@ -366,9 +366,9 @@ async function pushAllowed(uids, k) {
 // Notices that also go out as a LINE message (each one counts toward the official account's monthly message quota, so only what matters).
 const LIFF_ID = "2012285472-FvtYKx00";
 function lineText(it) {
-  const tn = String(it.tn || "ทริป"), link = it.t ? "\n👇\nhttps://liff.line.me/" + LIFF_ID + "/" + it.t + "/seats" : "";
+  const tn = String(it.tn || "ทริป"), link = it.t ? "\n👇\nhttps://liff.line.me/" + LIFF_ID + "/" + it.t + "/seats" + (it.mv && it.v ? "?v=" + encodeURIComponent(it.v) : "") : "";
   switch (it.k) {
-    case "queue_turn": return "🚐 ถึงคิวจองที่นั่งของคุณแล้ว\n" + tn + "\nเลือกที่นั่งได้เลย" + link;
+    case "queue_turn": return "🚐 ถึงคิวจองที่นั่งของคุณแล้ว\n" + tn + (it.mv ? " · คัน " + String(it.vl || "") : "") + "\nเลือกที่นั่งได้เลย" + link;
     case "trip_changed": return "🚐 ทริปมีการเปลี่ยนแปลง\n" + tn + "\nดูรายละเอียดที่ลิงก์นี้" + link;
     case "broadcast": return "🚐 แจ้งจากผู้จัดทริป\n" + tn + "\n" + String(it.m || "").slice(0, 120) + link;
     case "trip_deleted": return "🚐 ทริปถูกยกเลิกโดยผู้จัด\n" + tn + (it.why ? "\nเหตุผล: " + String(it.why).slice(0, 120) : "");
