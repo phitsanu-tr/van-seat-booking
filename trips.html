@@ -1131,13 +1131,19 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var id = vlRot; $("vcf").hidden = true;
     postJson({ t: vlTrip, vanLink: "rotate", v: id }).then(function (d) { if (d && d.vans) { vlVans = d.vans; shareVans = d.vans; paintVanLinks(); var v = d.vans.filter(function (x) { return x.id === id; })[0]; toast("สร้างลิงก์ใหม่ของคัน " + (v ? v.label : "") + " แล้ว ส่งลิงก์ใหม่ให้กลุ่มนั้น"); } else toast("สร้างลิงก์ไม่สำเร็จ ลองอีกครั้ง"); });
   });
+  var orgText = "";
+  $("orgSend").addEventListener("click", function (e) { // a card for the organizer team in LINE; outside LINE the text link opens as before
+    if (!window.VSBShare || !shown) return;
+    e.preventDefault();
+    VSBShare.send(tripCard(), "org").then(function (sent) { if (!sent) window.open(orgText, "_blank", "noopener"); });
+  });
   function showResult(id, created, name) {
     shown = { id: id }; goList = created === true || created === "saved"; shTab = "p";
     var share = shareLink = link("/" + id + "/seats");
     urlBox($("shareUrl"), id, location.host + "/" + id + "/seats");
     $("orgCode").textContent = (function (c) { c = String(c).toUpperCase(); return c.length > 4 ? c.slice(0, 4) + "-" + c.slice(4) : c; })(id);
     $("openShare").href = "/" + id + "/seats";
-    $("orgSend").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + " · " : "") + "ลิงก์ผู้จัด (ดูทุกคัน) · ห้ามส่งให้ผู้จอง\n" + share);
+    orgText = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + " · " : "") + "ลิงก์ผู้จัด (ดูทุกคัน) · ห้ามส่งให้ผู้จอง\n" + share); $("orgSend").href = orgText;
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์และรหัสทริป") + "</span>";
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
     $("mSub").textContent = created === "saved" ? "ใช้ลิงก์หรือรหัสเดิมได้เลย" : "แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง"; $("mSub2").hidden = true; $("mCard").classList.remove("vans"); $("mIc").setAttribute("hidden", "");

@@ -51,10 +51,10 @@
     var brand = plain ? txt("VAN TRIP", { size: "14px", weight: "bold", color: "#ffffff", wrap: false, flex: 1, gravity: "center" })
       : { type: "text", wrap: false, flex: 1, gravity: "center", size: "14px", weight: "bold", contents: [ // same wordmark as the poster: VAN white, TRIP pastel yellow
         { type: "span", text: "VAN", color: "#ffffff" }, { type: "span", text: " " }, { type: "span", text: "TRIP", color: "#fde9a6" }] };
-    var head = { type: "box", layout: "vertical", alignItems: "flex-start", backgroundColor: "#0b5f67", paddingAll: "14px", contents: [
+    var head = { type: "box", layout: "vertical", alignItems: "flex-start", backgroundColor: kind === "org" ? "#7a4f00" : "#0b5f67", paddingAll: "14px", contents: [
       { type: "box", layout: "horizontal", spacing: "8px", alignItems: "center", width: "100%", contents: [ // brand at the left, the trip code (plain, upper case) at the right
-        brand].concat(t.id && !plain && !t.vk ? [txt(String(t.id).toUpperCase(), { size: "12px", color: "#bfe9ed", wrap: false, flex: 0, align: "end", gravity: "center" })] : []) }]
-      .concat(plain ? [] : [{ type: "separator", color: "#4f8a91", margin: "10px" }])
+        brand].concat(kind === "org" ? [txt("ผู้จัด · ดูทุกคัน", { size: "12px", color: "#ffe3a3", wrap: false, flex: 0, align: "end", gravity: "center" })] : t.id && !plain && !t.vk ? [txt(String(t.id).toUpperCase(), { size: "12px", color: "#bfe9ed", wrap: false, flex: 0, align: "end", gravity: "center" })] : []) }]
+      .concat(plain ? [] : [{ type: "separator", color: kind === "org" ? "#b8893a" : "#4f8a91", margin: "10px" }])
       .concat([txt(String(t.name || "ทริปรถตู้"), { weight: "bold", size: "20px", color: "#ffffff", margin: "8px", maxLines: 2 })]) };
     var tdp = String(t.tripDays || "").split(" · "), n = Number(t.vans) || 0, body = [], g1 = [];
     if (t.organizer) g1.push(irow("ผู้จัด", t.organizer));
@@ -86,8 +86,8 @@
     }
     return { type: "bubble", size: "mega", header: head,
       body: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "4px", paddingBottom: "8px", contents: body },
-      footer: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "4px", contents: [{ type: "button", style: "primary", color: "#0b5f67", height: "sm",
-        action: kind === "info" ? { type: "uri", label: "ดูรายละเอียดทริป", uri: liffUrl(t.id, "info") } : t.vk ? { type: "uri", label: (t.closed ? "ดูผังที่นั่งคัน " : "จองที่นั่งคัน ") + t.vl, uri: vanUrl(t.vk) } : { type: "uri", label: t.closed ? "ดูผังที่นั่ง" : "เลือกที่นั่ง", uri: liffUrl(t.id) } }] } };
+      footer: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "4px", contents: [{ type: "button", style: "primary", color: kind === "org" ? "#8a5a00" : "#0b5f67", height: "sm",
+        action: kind === "org" ? { type: "uri", label: "เปิดหน้าผู้จัด", uri: liffUrl(t.id) } : kind === "info" ? { type: "uri", label: "ดูรายละเอียดทริป", uri: liffUrl(t.id, "info") } : t.vk ? { type: "uri", label: (t.closed ? "ดูผังที่นั่งคัน " : "จองที่นั่งคัน ") + t.vl, uri: vanUrl(t.vk) } : { type: "uri", label: t.closed ? "ดูผังที่นั่ง" : "เลือกที่นั่ง", uri: liffUrl(t.id) } }] } };
   }
   var ready = null;
   function ensure() { // the page may or may not have loaded/initialised the LIFF SDK already
@@ -111,7 +111,7 @@
         if (!liff.isInClient() || !liff.isLoggedIn() || !liff.isApiAvailable("shareTargetPicker")) return false;
       } catch (e) { return false; }
       function pick(plain) { // plain = the header without the hairline + code pill (fallback if LINE rejects the richer card)
-        return liff.shareTargetPicker([{ type: "flex", altText: "🚐 " + (t.name || "จองที่นั่งรถตู้") + (t.vk ? " · คัน " + t.vl : "") + (kind === "info" ? " · รายละเอียดทริป" : t.closed ? " · ดูผังที่นั่ง" : " · เลือกที่นั่ง"), contents: infoBubble(t, plain, kind) }])
+        return liff.shareTargetPicker([{ type: "flex", altText: "🚐 " + (t.name || "จองที่นั่งรถตู้") + (t.vk ? " · คัน " + t.vl : "") + (kind === "org" ? " · ลิงก์ผู้จัด (ดูทุกคัน)" : kind === "info" ? " · รายละเอียดทริป" : t.closed ? " · ดูผังที่นั่ง" : " · เลือกที่นั่ง"), contents: infoBubble(t, plain, kind) }])
           .then(function () { return true; }, function (e) { if (!plain) return pick(true); return false; });
       }
       return pick(false);
