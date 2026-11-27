@@ -100,7 +100,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .macts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
 @media (max-width: 340px) { .macts { grid-template-columns: minmax(0, 1fr); } }
 .macts .btn { height: 48px; gap: 8px; white-space: nowrap; font-family: var(--font-display); font-weight: 600; }
-.mcard > .btn, .mcard.org > .btn { height: 48px; gap: 8px; white-space: nowrap; font-family: var(--font-display); font-weight: 600; } .mcard > .btn svg { width: 20px; height: 20px; flex: none; }
+.macts.multi #lineBtn { order: 2; }
 .mcard.org { border-color: #e6c36a; background: #fff4dc; } .mcard.org[hidden] { display: none; } .mcard.org .msub { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; color: #8a5a00; } .mcard.org .msub svg { width: 20px; height: 20px; flex: none; }
 .mcard.org .vr { padding: 8px 0; } .mcard.org .vt b { display: block; }
 .macts .btn svg { width: 20px; height: 20px; flex: none; }
@@ -1057,10 +1057,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var vlVans = [], vlOpen = "", vlPer = {}, vlTrip = "", vlName = "", vlRot = "";
   function vlUrl(v) { return link("/t/" + v.k); }
   function vlCode(v) { return v.k.slice(0, 4).toUpperCase() + "-" + v.k.slice(4).toUpperCase(); }
-  function placeShareBtns(multi) { // several vans: the send button closes the vans card, the trip link and "open" sit in their own organizer card; one van: the two buttons stay in their row
-    var ma = $("macts"), oc = $("orgCard");
-    if (multi) { $("vanLinks").parentNode.appendChild($("lineBtn")); oc.appendChild($("openShare")); oc.hidden = false; ma.hidden = true; }
-    else { ma.appendChild($("lineBtn")); ma.appendChild($("openShare")); oc.hidden = true; ma.hidden = false; }
+  function placeShareBtns(multi) { // several vans: the organizer link sits in its own amber card above the two buttons (grey "open" left, green send right); one van: no organizer card
+    $("orgCard").hidden = !multi; $("macts").classList.toggle("multi", multi);
   }
   function drawVanLinks(id, name) {
     var vl = $("vanLinks"); vlTrip = id; vlName = name || "";
