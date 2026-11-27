@@ -55,8 +55,7 @@
       { type: "box", layout: "horizontal", spacing: "8px", alignItems: "center", width: "100%", contents: [ // brand at the left, the trip code (plain, upper case) at the right
         brand].concat((t.id || t.vk) && !plain ? [txt((t.vk && kind !== "org" ? "VT" + String(t.vk) : kind === "org" ? "OG" + String(t.id) : String(t.id)).toUpperCase(), { size: "12px", color: kind === "org" ? "#ffe2bd" : "#bfe9ed", wrap: false, flex: 0, align: "end", gravity: "center" })] : []) }]
       .concat(plain ? [] : [{ type: "separator", color: kind === "org" ? "#f0a560" : "#4f8a91", margin: "10px" }])
-      .concat([txt(String(t.name || "ทริปรถตู้"), { weight: "bold", size: "20px", color: "#ffffff", margin: "8px", maxLines: 2 })])
-      .concat(kind === "org" ? [txt("ลิงก์ผู้จัด · ดูทุกคัน · ห้ามส่งให้ผู้จอง", { size: "12px", color: "#fff3df", margin: "4px" })] : []) };
+      .concat([txt(String(t.name || "ทริปรถตู้"), { weight: "bold", size: "20px", color: "#ffffff", margin: "8px", maxLines: 2 })]) };
     var tdp = String(t.tripDays || "").split(" · "), n = Number(t.vans) || 0, body = [], g1 = [];
     if (t.organizer) g1.push(irow("ผู้จัด", t.organizer));
     if (tdp[0]) g1.push(irow("ทริป", tdp[0]));
@@ -84,6 +83,11 @@
           txt(t.meetPoint, { size: "14px", weight: "bold", color: TXT })] });
       }
       body.push(Object.assign({ type: "box", layout: "vertical", margin: "8px", cornerRadius: "12px", contents: card }, plain ? { backgroundColor: "#f6f8f9" } : { backgroundColor: "#ffffff", borderWidth: "1px", borderColor: "#dfe5e8" })); // plain = fallback look if LINE rejects the richer card
+    }
+    if (kind === "org") { // the warning sits on top of the details, so the header stays the same as the passenger card
+      if (body[0]) body[0].margin = "12px";
+      body.unshift({ type: "box", layout: "vertical", margin: "8px", paddingAll: "8px", cornerRadius: "10px", backgroundColor: "#fff3df", borderWidth: "1px", borderColor: "#f3c690",
+        contents: [txt("ลิงก์ผู้จัด · ดูทุกคัน · ห้ามส่งให้ผู้จอง", { size: "12px", weight: "bold", color: "#9a4a07" })] });
     }
     return { type: "bubble", size: "mega", header: head,
       body: { type: "box", layout: "vertical", paddingAll: "12px", paddingTop: "4px", paddingBottom: "8px", contents: body },
