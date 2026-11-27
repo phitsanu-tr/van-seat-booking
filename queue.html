@@ -365,8 +365,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       card = el("div", "qcard");
       var sn = el("div", "qsent"); sn.appendChild(el("b", null, "อีก " + a + " คน")); sn.appendChild(document.createTextNode(" ถึงคิวคุณ")); card.appendChild(sn);
       var pb = el("div", "qpb"), segs = Math.min(a + 1, 8); for (var si = 0; si < segs; si++) pb.appendChild(el("i", si === 0 ? "d" : si === segs - 1 ? "m" : "")); card.appendChild(pb);
-      var pf = el("div", "qpf"); pf.appendChild(el("span", null, tr ? "กำลังเลือก: คิวที่ " + tr : "รอเริ่มคิว")); pf.appendChild(el("span", null, "คุณคิวที่ " + pos)); card.appendChild(pf);
-      card.appendChild(qin(QI_BELL, "ปิดหน้านี้ได้ เราจะแจ้งเมื่อถึงคิว"));
+      var pf = el("div", "qpf"); pf.appendChild(el("span", null, tr ? "กำลังจอง: คิวที่ " + tr : "ยังไม่เริ่มจอง")); pf.appendChild(el("span", null, "คุณคิวที่ " + pos)); card.appendChild(pf);
+      card.appendChild(qin(QI_BELL, "ไม่ต้องเฝ้าหน้านี้ จะแจ้งเตือนเมื่อถึงคิวคุณ"));
     }
     main.appendChild(card);
     var who = el("div", "who"); var av = el(D.me.pic ? "img" : "span", "av"); if (D.me.pic) { av.src = D.me.pic; av.alt = ""; } who.appendChild(av);

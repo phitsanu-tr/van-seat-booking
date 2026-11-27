@@ -1075,7 +1075,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var pb = node("div", "qpb"), segs = Math.min(Math.max(1, x.ahead) + 1, 8);
       for (var i = 0; i < segs; i++) pb.appendChild(node("i", i === 0 ? "d" : i === segs - 1 ? "m" : ""));
       bx.appendChild(pb);
-      var pf = node("div", "qpf"); pf.appendChild(node("span", null, x.qturn ? "กำลังเลือก: คิวที่ " + x.qturn : "รอเริ่มคิว")); pf.appendChild(node("span", null, "คุณคิวที่ " + x.qpos)); bx.appendChild(pf);
+      var pf = node("div", "qpf"); pf.appendChild(node("span", null, x.qturn ? "กำลังจอง: คิวที่ " + x.qturn : "ยังไม่เริ่มจอง")); pf.appendChild(node("span", null, "คุณคิวที่ " + x.qpos)); bx.appendChild(pf);
     }
     c.appendChild(bx);
     if (turn) {
