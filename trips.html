@@ -77,6 +77,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .msub2 { font-size: 14px; line-height: 20px; color: var(--muted); }
 .msub { font: 700 16px/24px var(--font-display); color: var(--ink); overflow-wrap: anywhere; min-width: 0; }
 .mlink { cursor: pointer; display: flex; align-items: center; gap: 12px; border-top: 1px solid #cfe0e2; padding-top: 12px; -webkit-tap-highlight-color: transparent; }
+.vlinks { display: grid; gap: 8px; } .vlinks[hidden] { display: none; } .vlinks .vl { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 12px; border: 1px solid #cfe0e2; border-radius: 12px; background: #fff; cursor: pointer; font-size: 14px; line-height: 20px; -webkit-tap-highlight-color: transparent; } .vlinks .vl b { flex: 1; min-width: 0; } .vlinks .vl .cpbtn { flex: none; }
 .mlink .url { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .url .code { display: block; font: 700 26px/32px var(--font-display); letter-spacing: .08em; color: #0b5f67; overflow: hidden; white-space: nowrap; }
 .url .sub { display: block; font-size: 14px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 20px}
@@ -448,7 +449,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <button class="mclose" id="closeX" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div id="mState"></div>
     <div class="mcard"><div><div class="msub" id="mSub">แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง</div><div class="msub2" id="mSub2" hidden>ใช้ลิงก์เดิมได้เลย</div></div>
-    <div class="mlink" id="copyBox" role="button" tabindex="0" aria-label="คัดลอกลิงก์"><div class="url" id="shareUrl"></div><span class="cpbtn" id="copyShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span></div></div>
+    <div class="mlink" id="copyBox" role="button" tabindex="0" aria-label="คัดลอกลิงก์"><div class="url" id="shareUrl"></div><span class="cpbtn" id="copyShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span></div><div class="vlinks" id="vanLinks" hidden></div></div>
     <div class="macts">
       <a class="btn line" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span>แชร์ใน LINE</span></a>
       <a class="btn plain" id="openShare" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span>เปิดหน้าจอง</span></a>
@@ -1020,7 +1021,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 
   function link(path) { return "https://liff.line.me/2012285472-FvtYKx00" + path; } // LIFF link: opens inside LINE and signs in by itself
   var shown = null; // {id} of the trip whose link the sheet shows
-  var shareLink = "";
+  var shareLink = "", shareVans = [];
   var OK_DOT = '<span class="okdot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 8"/></svg></span>';
   var SHARE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
   // created: true = just created · "saved" = just saved · false = "แชร์ลิงก์" on the edit page
@@ -1035,6 +1036,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var share = shareLink = link("/" + id + "/seats");
     urlBox($("shareUrl"), id, location.host + "/" + id + "/seats");
     $("openShare").href = "/" + id + "/seats";
+    var vl = $("vanLinks"), vs = shareVans.length ? shareVans : rows.filter(function (r) { return r.id; }); vl.textContent = ""; vl.hidden = vs.length < 2;
+    if (vs.length > 1) vs.forEach(function (v) { // several vans: a link for each van, so people are sent straight to theirs
+      var url = link("/" + id + "/seats?v=" + encodeURIComponent(v.id)), row = document.createElement("div"), b = document.createElement("b"), bt = document.createElement("span");
+      row.className = "vl"; row.setAttribute("role", "button"); row.tabIndex = 0; b.textContent = "ลิงก์คัน " + v.label; bt.className = "cpbtn"; bt.innerHTML = $("copyShare").innerHTML;
+      row.appendChild(b); row.appendChild(bt); row.addEventListener("click", function () { copy(url, bt); });
+      row.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); copy(url, bt); } }); vl.appendChild(row);
+    });
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์และรหัสทริป") + "</span>";
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + "\n" : "") + "จองที่นั่งรถตู้ได้ที่นี่\n" + share);
     $("mSub").textContent = created === "saved" ? "ใช้ลิงก์หรือรหัสเดิมได้เลย" : "แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง"; $("mSub2").hidden = true;
@@ -1227,6 +1235,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         else toast(ERR[data.error] || "บันทึกไม่สำเร็จ ลองอีกครั้ง");
         return;
       }
+      if (data.trip && data.trip.vans) shareVans = data.trip.vans;
       dirty = false; closedAtLoad = !!(data.trip && data.trip.closed === true); if (editing && data.trip) revAtLoad = data.trip.rev || 0;
       if (editing) {
         rows = data.trip.vans.map(function (v) { return { id: v.id, label: v.label, plate: v.plate || "" }; }); renderVans();

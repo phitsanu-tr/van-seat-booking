@@ -1060,11 +1060,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
 
   function queueCard(x) { // same card as "my trips" (name, organizer, days, van chip, route box) with the queue status in place of the seat bar
-    var turn = x.qs === "turn", pend = !turn && !x.ok, go = "/" + x.id + (turn ? "/seats" : "/queue");
+    var turn = x.qs === "turn", pend = !turn && !x.ok, vq = x.qv && x.vans > 1 ? "?v=" + encodeURIComponent(x.qv) : "", go = "/" + x.id + (turn ? "/seats" : "/queue") + vq;
     var c = node("div", "card qw"); tapCard(c, go);
     var hd = node("div", "chead"), r1 = node("div", "row1"); r1.appendChild(node("div", "t", x.name)); hd.appendChild(r1);
     var p = statusPill(x), sub = node("div", "org"); if (x.organizer) sub.appendChild(node("span", null, x.organizer)); if (p) sub.appendChild(p);
-    var vc = node("span", "vchip"); vc.insertAdjacentHTML("beforeend", VAN_SVG); vc.appendChild(document.createTextNode("รถตู้ " + x.vans + " คัน")); sub.appendChild(vc); hd.appendChild(sub);
+    var vc = node("span", "vchip"); vc.insertAdjacentHTML("beforeend", VAN_SVG); vc.appendChild(document.createTextNode(x.vans > 1 && x.qvl ? "คัน " + x.qvl + " จาก " + x.vans : "รถตู้ " + x.vans + " คัน")); sub.appendChild(vc); hd.appendChild(sub);
     hd.appendChild(routeBox(x, true)); c.appendChild(hd);
     var bx = node("div", "qbox" + (turn ? " go" : pend ? " pend" : "")), l1 = node("div", "ql");
     l1.appendChild(node("b", null, turn ? "ถึงคิวคุณแล้ว" : pend ? "รออนุมัติชื่อจากผู้จัด" : "อีก " + Math.max(1, x.ahead) + " คิว ถึงคุณ"));
@@ -1080,7 +1080,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     c.appendChild(bx);
     if (turn) {
       var acts = node("div", "acts"), v = node("a", "ab", "ดูคิว"), g = node("a", "ab pr", "ไปเลือกที่นั่ง");
-      v.href = "/" + x.id + "/queue"; g.href = go; acts.appendChild(v); acts.appendChild(g); c.appendChild(acts);
+      v.href = "/" + x.id + "/queue" + vq; g.href = go; acts.appendChild(v); acts.appendChild(g); c.appendChild(acts);
     }
     return c;
   }
