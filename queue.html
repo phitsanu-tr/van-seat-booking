@@ -162,7 +162,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       .catch(function () { if (onFail) onFail(); flash("เชื่อมต่อไม่ได้"); });
   }
   var errBox = null;
-  var MIP = { edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>', up: '<path d="M12 19V5"/><path d="M6 11l6-6 6 6"/>', down: '<path d="M12 5v14"/><path d="M6 13l6 6 6-6"/>', skip: '<path d="M5 5l9 7-9 7z"/><path d="M19 5v14"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>', unlink: '<path d="M10 14a4 4 0 0 0 5.7 0l2.6-2.6a4 4 0 0 0-5.7-5.7L11.5 6.8"/><path d="M14 10a4 4 0 0 0-5.7 0l-2.6 2.6a4 4 0 0 0 5.7 5.7l1.1-1.1"/><path d="M4 4l16 16"/>', trash: '<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/>' };
+  var MIP = { reject: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>', edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>', up: '<path d="M12 19V5"/><path d="M6 11l6-6 6 6"/>', down: '<path d="M12 5v14"/><path d="M6 13l6 6 6-6"/>', skip: '<path d="M5 5l9 7-9 7z"/><path d="M19 5v14"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>', unlink: '<path d="M10 14a4 4 0 0 0 5.7 0l2.6-2.6a4 4 0 0 0-5.7-5.7L11.5 6.8"/><path d="M14 10a4 4 0 0 0-5.7 0l-2.6 2.6a4 4 0 0 0 5.7 5.7l1.1-1.1"/><path d="M4 4l16 16"/>', trash: '<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/>' };
   function MI(k) { return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (MIP[k] || "") + '</svg>'; }
   var toastT = null;
   function showToast(t) { var n = document.getElementById("toast"); if (!n) { n = el("div"); n.id = "toast"; n.className = "toast"; n.setAttribute("role", "status"); document.body.appendChild(n); } n.textContent = ""; n.appendChild(el("i", "tick")); n.appendChild(document.createTextNode(t)); n.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { n.hidden = true; }, 2500); }
@@ -202,7 +202,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (menuId === it.id) {
         var m = el("div", "menu"); m.setAttribute("role", "menu");
         var add = function (t, cls, fn, ik) { var b = el("button", cls || "", ""); b.innerHTML = MI(ik); b.appendChild(el("span", null, t)); b.type = "button"; b.addEventListener("click", function (e) { e.stopPropagation(); menuId = ""; if (busy) return; busy = true; fn().then(function () { busy = false; draw(); }, function () { busy = false; draw(); }); }); m.appendChild(b); };
-        if (it.bound && !it.ok && !it.done) add("ไม่อนุมัติ", "rj", function () { return call("reject", { id: it.id }, function () {}).then(function () { showToast("ไม่อนุมัติชื่อ " + it.name + " แล้ว"); }); }, "unlink");
+        if (it.bound && !it.ok && !it.done) add("ไม่อนุมัติ", "rj", function () { return call("reject", { id: it.id }, function () {}).then(function () { showToast("ไม่อนุมัติชื่อ " + it.name + " แล้ว"); }); }, "reject");
         add("แก้ชื่อ", "", function () { editId = it.id; sheet = "edit"; sheetNew = true; return Promise.resolve(); }, "edit");
         if (i > 0) add("เลื่อนขึ้น", "", function () { return call("up", { id: it.id }); }, "up");
         if (i < D.items.length - 1) add("เลื่อนลง", "", function () { return call("down", { id: it.id }); }, "down");
