@@ -247,7 +247,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (autoNote) { var inf = el("div", "info"); inf.appendChild(el("i", null, "i")); inf.appendChild(el("span", null, autoNote)); cv.appendChild(inf); }
       main.appendChild(cv);
     } else {
-      var cl2 = el("div", "card"); cl2.appendChild(chead("users", "ลำดับคิว", D.items.length + " / " + (D.cap || 80) + " คน"));
+      var cl2 = el("div", "card"); cl2.appendChild(chead("users", "รายชื่อผู้เข้าคิว", D.items.length + " / " + (D.cap || 80) + " คน"));
       if (!D.items.length) cl2.appendChild(el("div", "empty", "ยังไม่มีรายชื่อ"));
       D.items.forEach(function (it, i) { cl2.appendChild(rowEl(it, i, true)); });
       var full = D.items.length >= (D.cap || 80); var al = el("button", "addlink", full ? "ครบจำนวนที่นั่งแล้ว (" + (D.cap || 80) + " ชื่อ)" : "＋ เพิ่มรายชื่อ"); al.type = "button"; al.disabled = full; al.addEventListener("click", function () { sheet = "add"; sheetNew = true; draw(); }); cl2.appendChild(al);
