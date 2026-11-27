@@ -206,7 +206,7 @@ module.exports = async function handler(req, res) {
     if (goneTrips.length) clean.push(["SREM", L.myTripsKey(user.id)].concat(goneTrips));
     if (clean.length) { try { await L.pipeline(clean); } catch (e) { /* best effort */ } }
 
-    const myTrips = owned.map((id) => Object.assign(summary(trips[id], perVan[id] || {}), { role: L.roleOf(trips[id], user), helpers: (trips[id].helpers || []).length, plus: !!trips[id].plus }));
+    const myTrips = owned.map((id) => Object.assign(summary(trips[id], perVan[id] || {}), { role: L.roleOf(trips[id], user), helpers: (trips[id].helpers || []).length, plus: !!trips[id].plus, vl: trips[id].vans.map((v) => ({ id: v.id, label: v.label, k: v.k, n: (perVan[id] || {})[v.id] || 0 })) }));
     const mySeats = Object.keys(mine).map((id) => {
       const t = trips[id];
       const list = mine[id].sort((a, b) => a.s - b.s).map((x) => {

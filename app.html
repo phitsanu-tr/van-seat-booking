@@ -302,6 +302,12 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .acts .ab { gap: 8px; }
 .acts.a3 .ab { white-space: nowrap; min-width: 0; padding: 0 8px; } @media (max-width: 359px) { .acts.a3 { gap: 6px; } .acts.a3 .ab { gap: 4px; padding: 0 4px; } .acts.a3 .ab svg { width: 14px; height: 14px; } }
 .ab.mgo { color: var(--ink); }
+.sheet.shr { gap: 0; } .shr .mhead { padding-bottom: 12px; }
+.shr .gl { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--muted); padding-top: 8px; } .shr .gl ~ .gl { border-top: 1px solid #e8ecef; margin-top: 8px; padding-top: 16px; }
+.shrow2 { display: flex; align-items: center; gap: 12px; height: 64px; cursor: pointer; } .shrow2 > div { flex: 1; min-width: 0; } .shrow2 b { display: block; font-size: 16px; line-height: 24px; color: var(--ink); } .shrow2 small { display: block; font-size: 12px; line-height: 16px; color: var(--muted); }
+.shrow2 .chm { flex: none; width: 40px; height: 40px; border-radius: 50%; background: #e3eef0; color: #0b5f67; display: grid; place-items: center; font-weight: 700; font-size: 16px; }
+.shrow2 .chb { flex: none; display: flex; align-items: center; gap: 4px; height: 40px; padding: 0 12px; border: 0; border-radius: 12px; background: #e1f0ef; color: #0b5f67; font: 600 14px/20px var(--font-body); cursor: pointer; }
+.shrow2 .chb svg { width: 20px; height: 20px; flex: none; } .shrow2.o .chm { background: #fdf0dd; color: #b45309; } .shrow2.o .chb { background: #fdf0dd; color: #b45309; }
 .mhead { display: flex; align-items: flex-start; gap: 8px; }
 .mhead h3 { flex: 1; min-width: 0; }
 .mx { flex: none; width: 44px; height: 44px; margin: -8px -8px 0 0; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 12px; }
@@ -959,11 +965,32 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }).catch(function () { sub.classList.remove("sk"); sub.style.width = ""; sub.textContent = "โหลดข้อมูลไม่สำเร็จ ลองอีกครั้ง"; });
   }
 
-  function shareTrip(x) {
-    VSBShare.send(x).then(function (sent) { if (!sent) shareTripText(x); });
+  function shareVan(x, v) { // one van's card: its own link, so a passenger lands on that van's seat map
+    VSBShare.send(v ? Object.assign({}, x, { vk: v.k, vl: v.label, vans: 1 }) : x).then(function (sent) { if (!sent) shareTripText(x, v); });
   }
-  function shareTripText(x) { // fallback: where the card picker is not available, a text message with the LIFF link
-    var u = VSBShare.liffUrl(x.id), L = ["🚐 " + (x.name || "จองที่นั่งรถตู้"), ""], dr = dateRange(x.startDate, x.endDate);
+  function shareTrip(x) {
+    var vl = x.vl || [], owner = x.role !== "helper";
+    if (!vl.length || (vl.length === 1 && !owner)) { shareVan(x, vl[0]); return; } // nothing to choose
+    var bd = node("div", "bd"), sh = node("div", "sheet shr"); bd.appendChild(sh);
+    var close = function () { bd.remove(); };
+    bd.addEventListener("click", function (e) { if (e.target === bd) close(); });
+    document.body.appendChild(bd);
+    sheetHead(sh, x.closed ? "แชร์ผังที่นั่ง" : "แชร์ทริป", close);
+    function row(cls, mark, t, sub, btn, fn) {
+      var r = node("div", "shrow2 " + cls), m = node("span", "chm"), tx = node("div"), b = node("button", "chb"); b.type = "button"; b.insertAdjacentHTML("beforeend", MG.share); b.appendChild(document.createTextNode(btn));
+      if (mark.charAt(0) === "<") m.innerHTML = mark; else m.textContent = mark; tx.appendChild(node("b", null, t)); tx.appendChild(node("small", null, sub)); r.appendChild(m); r.appendChild(tx); r.appendChild(b);
+      r.addEventListener("click", fn); return r;
+    }
+    sh.appendChild(node("div", "gl", vl.length > 1 ? "ส่งให้ผู้โดยสาร · เลือกคัน" : "ส่งให้ผู้โดยสาร"));
+    vl.forEach(function (v) { sh.appendChild(row("", v.label, "คัน " + v.label, "จองแล้ว " + v.n + "/" + 10, "แชร์", function () { close(); shareVan(x, v); })); });
+    if (owner) {
+      var left = Math.max(0, 2 - (x.helpers || 0));
+      sh.appendChild(node("div", "gl", "ทีมผู้จัด"));
+      sh.appendChild(row("o", '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-4 3-6 6.5-6s6 2 6.5 6M17 4.5a3.5 3.5 0 010 7M21.5 20c-.3-2.6-1.6-4.4-3.5-5.2"/></svg>', "ผู้ช่วยจัดทริป", left ? "เชิญเพื่อนมาช่วยดูทริป · เชิญได้อีก " + left + " คน" : "ผู้ช่วยครบ 2 คนแล้ว", left ? "เชิญ" : "จัดการ", function () { close(); openTeam(x); }));
+    }
+  }
+  function shareTripText(x, v) { // fallback: where the card picker is not available, a text message with the LIFF link
+    var u = v ? "https://liff.line.me/2012285472-FvtYKx00/t/" + v.k + "/seats" : VSBShare.liffUrl(x.id), L = ["🚐 " + (x.name || "จองที่นั่งรถตู้"), ""], dr = dateRange(x.startDate, x.endDate);
     if (dr) L.push("📅 " + dr);
     var tm = x.departTime ? x.departTime : "";
     if (tm && x.meetPoint) L.push("📍 " + tm + " - " + x.meetPoint); else if (tm) L.push("⏰ " + tm); else if (x.meetPoint) L.push("📍 " + x.meetPoint);
