@@ -112,10 +112,6 @@ header.trip { display: block; }
 .deck .tabs .tab small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; margin-left: 0; opacity: 1; font-size: 12px; line-height: 16px; font-weight: 400; color: #8a959c; }
 .deck .tabs .tab[aria-selected="true"] { background: var(--surface); color: var(--mine); box-shadow: 0 1px 3px rgba(0, 0, 0, .15); }
 .deck .tabs .tab[aria-selected="true"] small { color: #5f6b73; }
-.deck .tabs.one { display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 12px; background: #f1f6f7; }
-.deck .tabs.one .ic { flex: none; width: 32px; height: 32px; border-radius: 50%; background: #e3eef0; color: #0b5f67; display: grid; place-items: center; font: 700 16px/24px var(--font-display); }
-.deck .tabs.one .nm { min-width: 0; } .deck .tabs.one .nm b { display: block; font: 600 16px/24px var(--font-display); color: var(--ink); } .deck .tabs.one .nm span { display: block; font-size: 12px; line-height: 16px; color: #5f6b73; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.deck .tabs.one .fr { margin-left: auto; font: 600 14px/20px var(--font-display); color: #0b5f67; white-space: nowrap; }
 .deck .tabs .tab:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 .deck .sheet { border: 0; border-radius: 0; }
 .vban { display: flex; align-items: center; gap: 8px; min-height: 48px; margin-top: 16px; padding: 0 16px; border-radius: 12px; background: #0b5f67; color: #fff; font-size: 14px; line-height: 20px; }
@@ -1530,22 +1526,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     plateEl.textContent = "";
     if (cur && cur.plate) { plateEl.appendChild(document.createTextNode("ทะเบียน ")); plateEl.appendChild(el("b", null, cur.plate)); }
     plateEl.hidden = !(cur && cur.plate);
-    lblEl.hidden = false; lblEl.querySelector(".tl").lastChild.textContent = multi ? "เลือกรถตู้" : "รถตู้";
+    lblEl.hidden = !multi;
     var vb = document.getElementById("vanBan"); // a van link: a bar under the tabs says which van this page is (on every tab)
     vb.hidden = !vanTitle || infoMode(); vb.textContent = ""; // not on the trip details: those are the same for every van
     if (vanTitle) { vb.appendChild(el("b", null, vanTitle)); vb.appendChild(el("span", null, "จองได้เฉพาะคันนี้")); }
     tabsEl.textContent = "";
-    tabsEl.hidden = !trip.vans.length; tabsEl.classList.toggle("one", !multi); tabsEl.style.setProperty("--vn", String(Math.min(trip.vans.length, 4)));
-    if (!multi && trip.vans.length) { // one van: a card row that says which van this is (nothing to choose)
-      var v1 = trip.vans[0], c1 = counts[v1.id], nm1 = /^คัน/.test(v1.label) ? v1.label : "คัน " + v1.label;
-      tabsEl.removeAttribute("role"); tabsEl.setAttribute("aria-label", "รถตู้");
-      tabsEl.appendChild(el("span", "ic", String(v1.label).replace(/^คัน\s*/, "").slice(0, 1)));
-      var nb = el("div", "nm"); nb.appendChild(el("b", null, nm1)); if (v1.plate) nb.appendChild(el("span", null, "ทะเบียน " + v1.plate)); tabsEl.appendChild(nb);
-      if (c1 != null) tabsEl.appendChild(el("span", "fr", c1 >= TOTAL ? "เต็ม" : "ว่าง " + (TOTAL - c1)));
-      plateEl.hidden = true;
-      return;
-    }
-    tabsEl.setAttribute("role", "tablist"); tabsEl.setAttribute("aria-label", "เลือกคันรถ");
+    tabsEl.hidden = trip.vans.length < 2; tabsEl.style.setProperty("--vn", String(Math.min(trip.vans.length, 4)));
     trip.vans.forEach(function (v) {
       var b = el("button", "tab");
       b.type = "button"; b.setAttribute("role", "tab");
