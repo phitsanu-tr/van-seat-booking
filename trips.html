@@ -1535,6 +1535,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     function u() { var n = inp.value.length; c.textContent = n + "/" + f[1]; c.classList.toggle("low", f[1] - n < 5); }
     inp.addEventListener("input", u); CNT.push(u); u();
   });
+  var LOADFAIL = false;
   async function init() {
     if (!editing) { // creating a trip needs a LINE account: signed out -> the sign-in screen, which comes back here
       try {
@@ -1546,19 +1547,19 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         }
       } catch (e) {}
     }
-    if (editing) $("edSk").hidden = false; else $("formMain").hidden = false; // edit: skeleton until the trip is loaded, then the whole form appears at once
+    LOADFAIL = false; if (editing) $("edSk").hidden = false; else $("formMain").hidden = false; // edit: skeleton until the trip is loaded, then the whole form appears at once
     if (editing) {
       document.querySelector(".hero").classList.add("is-edit"); $("title").textContent = "แก้ไขทริป"; document.title = "แก้ไขทริป";
       $("submit").textContent = "บันทึก";
       try {
         var res = await fetch("/api/trip?t=" + encodeURIComponent(T), { cache: "no-store" });
         var data = await res.json();
-        if (!res.ok && res.status === 403) { // sign in first; signed in as someone else -> say so (no redirect loop)
+        if (!res.ok && (res.status === 403 || res.status === 401)) { LOADFAIL = true; // sign in first; signed in as someone else -> say so (no redirect loop)
           var who2 = null; try { who2 = (await (await fetch("/api/auth?me=1", { cache: "no-store" })).json()).user; } catch (e) {}
           if (!who2) { location.replace("/api/auth?start=1&r=" + encodeURIComponent("/" + T + "/edit")); return; }
           toast("ทริปนี้อยู่ในบัญชี LINE อื่น เข้าสู่ระบบด้วยบัญชีที่สร้างทริป", true); $("submit").disabled = true; return;
         }
-        if (!res.ok) { toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
+        if (!res.ok) { LOADFAIL = true; toast(ERR[data.error] || "โหลดข้อมูลไม่สำเร็จ", true); $("submit").disabled = true; return; }
         var t = data.trip; staffGapL = data.staffGaps || [];
         $("name").value = t.name; $("organizer").value = t.organizer || ""; tdSet(t.tripN, t.tripStart); $("startDate").value = t.startDate || "";
         $("endDate").value = t.endDate || ""; $("departTime").value = t.departTime || ""; $("departTime").dataset.keep = (t.departTime || "") + "|" + (t.startDate || ""); $("returnTime").value = t.returnTime || ""; $("meetPoint").value = t.meetPoint || ""; $("staffSeat").checked = !!t.staffSeat; $("staffName").value = t.staffName || "STAFF"; staffUi();
@@ -1572,7 +1573,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         document.addEventListener("visibilitychange", syncClosed); window.addEventListener("pageshow", function (e) { if (e.persisted) syncClosed(); });
         if (data.limits && data.limits.on) { PL = { on: true, tier: data.limits.tier, vans: data.limits.vans, plus: !!data.limits.plus, passes: 0, trips: data.limits.trips }; if (PL.plus) passNote(); }
         if (PL.on && t.role === "owner" && !PL.plus) fetch("/api/pay", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.plan) { PL.passes = d.plan.passes; PL.passPrice = ((d.catalog || []).filter(function (c) { return c.sku === "pass"; })[0] || {}).amount; } }).catch(function () {});
-      } catch (x) { toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
+      } catch (x) { if (editing) LOADFAIL = true; toast("เชื่อมต่อไม่ได้ ลองรีเฟรชหน้า", true); }
     } else {
       rows = [{ id: "", label: "A" }];
       if (COPY) await copyFrom(COPY);
@@ -1598,7 +1599,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     setStep(1);
     if (!editing) armBack();
   }
-  init().then(function () {}, function () {}).then(function () { $("edSk").hidden = true; $("formMain").hidden = false; });
+  init().then(function () {}, function () {}).then(function () { $("edSk").hidden = true; if (!LOADFAIL) $("formMain").hidden = false; });
 })();
 </script>
 <script src="/tabbar.js" data-tab="trips"></script>
