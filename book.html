@@ -770,6 +770,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (h) h.textContent = "ลิงก์นี้ใช้ไม่ได้แล้ว";
     if (p) { p.textContent = "ลิงก์อาจถูกเปลี่ยนโดยผู้จัด หรือพิมพ์รหัสไม่ครบ"; p.appendChild(document.createElement("br")); p.appendChild(document.createTextNode("ขอลิงก์ใหม่จากผู้จัดทริปของคุณ")); }
   }
+  function organizerOnly() { // the trip-wide link of a trip with several vans, opened by someone who is not on the organizer team
+    var h = document.querySelector("#nfBox h2"), p = document.querySelector("#nfBox p");
+    if (h) h.textContent = "ลิงก์นี้สำหรับผู้จัด";
+    if (p) { p.textContent = "ขอลิงก์รถตู้ของคุณจากผู้จัดทริป แล้วเปิดจากลิงก์นั้น"; var a = document.createElement("a"); a.href = "/trips"; a.className = "nfgo"; a.textContent = "เข้าสู่ระบบผู้จัด"; a.style.cssText = "display:flex;align-items:center;justify-content:center;min-height:48px;margin-top:16px;border-radius:12px;background:var(--mine);color:var(--mine-ink,#fff);font-weight:600;text-decoration:none;padding:0 16px"; p.appendChild(a); }
+  }
   function qLink() { return K ? "/t/" + K + "/queue" : "/" + TRIP + "/queue" + (trip && trip.vans && trip.vans.length > 1 && curVan ? "?v=" + encodeURIComponent(curVan) : ""); }
   function qBlocked() { return !!(loaded && !isOwner && !closed && !ended && ((qon && !(qs && qs.s === "turn")) || wrongVan())); }
   var QSV = { chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
@@ -1595,6 +1600,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!r.ok) {
         loadError = errorText(r, "โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า");
         skOff(true);
+        if (r.status === 403 && r.data && r.data.error === "organizer_only") { organizerOnly(); document.body.classList.add("nf"); document.title = "VanTrip"; return; }
         if (r.status === 404 && r.data && (r.data.error === "no_trip" || r.data.error === "bad_link")) { if (r.data.error === "bad_link") badLink(); document.body.classList.add("nf"); document.title = "VanTrip"; return; }
         if (!loaded) { if (r.status >= 500 || r.status === 0) showNet(true); renderAll(); }
         return;

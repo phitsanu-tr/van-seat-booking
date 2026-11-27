@@ -34,6 +34,8 @@ module.exports = async function handler(req, res) {
     const user = await L.currentUser(req);
     const role = L.roleOf(trip, user);
     const isOwner = !!role; // organizer: the owner or a helper (both manage seats)
+    // the trip-wide link (/<trip>/seats) shows every van: for a trip with several vans only the organizer team (checked by LINE account) may use it; passengers use their van's own link
+    if (!kRaw && !isOwner && trip.vans.length > 1 && (req.method === "GET" || req.method === "POST")) return L.json(res, 403, { error: "organizer_only" });
     const closed = L.bookingClosed(trip); // passengers can't book, hold or cancel; organizers can
 
     if (req.method === "GET") {

@@ -211,7 +211,7 @@ module.exports = async function handler(req, res) {
       const t = trips[id];
       const list = mine[id].sort((a, b) => a.s - b.s).map((x) => {
         const van = t.vans.find((v) => v.id === x.v);
-        return { van: x.v, vanLabel: van ? van.label : x.v, plate: van && van.plate ? van.plate : "", seat: x.s, name: x.name, at: x.at };
+        return { van: x.v, vanLabel: van ? van.label : x.v, plate: van && van.plate ? van.plate : "", seat: x.s, name: x.name, at: x.at, vk: van && t.vans.length > 1 ? van.k : undefined }; // vk: the passenger's own van link (a trip with several vans has no open trip-wide link)
       });
       return Object.assign(summary(t, {}), { seats: list });
     });

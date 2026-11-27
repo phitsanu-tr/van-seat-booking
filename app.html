@@ -1147,7 +1147,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   function ticket(x, past) {
     var c = node("div", "card tk" + (past ? " dim" : "")), l = node("div", "l");
-    tapCard(c, "/" + x.id + (x.seats && x.seats[0] ? "?v=" + encodeURIComponent(x.seats[0].van) : ""));
+    tapCard(c, x.seats && x.seats[0] && x.seats[0].vk ? "/t/" + x.seats[0].vk : "/" + x.id + (x.seats && x.seats[0] ? "?v=" + encodeURIComponent(x.seats[0].van) : ""));
     var tg = past ? null : noteTag(x.id); if (tg) l.appendChild(tg);
     l.appendChild(node("div", "t", x.name));
     if (past) {
@@ -1165,7 +1165,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (!past && x.closed) { var cn = node("div", "cnote"); cn.innerHTML = LOCK_SVG; cn.appendChild(node("span", null, "ปิดรับจองแล้ว · ยกเลิกเองไม่ได้ ติดต่อผู้จัดทริปถ้าต้องการเปลี่ยน")); l.appendChild(cn); }
     var vans = []; x.seats.forEach(function (s) { if (vans.indexOf(s.vanLabel) < 0) vans.push(s.vanLabel); });
     if (!past) {
-      var acts = node("div", "acts"), view = node("a", "ab tl", "ดูผังที่นั่ง"); view.href = "/" + x.id + "?v=" + encodeURIComponent(x.seats[0].van);
+      var acts = node("div", "acts"), view = node("a", "ab tl", "ดูผังที่นั่ง"); view.href = x.seats[0].vk ? "/t/" + x.seats[0].vk : "/" + x.id + "?v=" + encodeURIComponent(x.seats[0].van);
       acts.className = "acts am2";
       var more = node("button", "ab more", "⋯"); more.type = "button"; more.setAttribute("aria-label", "เมนูเพิ่มเติม"); more.setAttribute("aria-haspopup", "menu");
       more.addEventListener("click", function (e) { e.stopPropagation(); openMenu(more, [
@@ -2154,7 +2154,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var card=el("div","nx"),k=el("div","k","ทริปถัดไป · "+(n<=0?"วันนี้":"อีก "+n+" วัน"));
       var sb=el("div","sb");var nums=sr.map(function(s){return s.seat;});sb.appendChild(document.createTextNode(nums.length>2?nums.slice(0,2).join(", ")+" +"+(nums.length-2):nums.join(", ")));if(nums.length>1)sb.classList.add("many");var vl=sr[0].vanLabel||"";sb.appendChild(el("small",null,/^คัน/.test(vl)?vl:("คัน "+vl).trim()));
       var m=el("div","m");m.appendChild(el("span",null,[fmt(x.startDate),tm(x.departTime)].filter(Boolean).join(" · ")));
-      var bt=el("div","bt2");var a1=el("a","w","ดูผังที่นั่ง");a1.href="/"+encodeURIComponent(x.id)+"?v="+encodeURIComponent(sr[0].van);var a2=el("a",null,"รายละเอียด");a2.href="/seats";a2.addEventListener("click",function(e){e.preventDefault();setTab("seats");});bt.appendChild(a1);bt.appendChild(a2);
+      var bt=el("div","bt2");var a1=el("a","w","ดูผังที่นั่ง");a1.href=sr[0].vk?"/t/"+sr[0].vk:"/"+encodeURIComponent(x.id)+"?v="+encodeURIComponent(sr[0].van);var a2=el("a",null,"รายละเอียด");a2.href="/seats";a2.addEventListener("click",function(e){e.preventDefault();setTab("seats");});bt.appendChild(a1);bt.appendChild(a2);
       card.appendChild(k);card.appendChild(el("h3",null,x.name||"จองที่นั่งรถตู้"));card.appendChild(m);card.appendChild(sb);card.appendChild(bt);
       nx.appendChild(card);
     }
