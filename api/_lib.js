@@ -332,6 +332,11 @@ async function rateLimited(req, user, scope, max, windowSec) {
     return Number(out[0]) > max;
   } catch (e) { return false; }
 }
+// Guessing van / trip codes: every wrong code counts against the caller's network; past GUESS_MAX misses in GUESS_WIN seconds even a right code is refused until the window ends.
+const GUESS_MAX = 30, GUESS_WIN = 600;
+function guessKey(req) { return "rl:badk:ip:" + clientIp(req) + ":" + Math.floor(Date.now() / 1000 / GUESS_WIN); }
+async function guessBlocked(req) { try { return Number(await redis(["GET", guessKey(req)])) >= GUESS_MAX; } catch (e) { return false; } }
+async function guessMiss(req) { try { const k = guessKey(req); await pipeline([["INCR", k], ["EXPIRE", k, String(GUESS_WIN * 2)]]); } catch (e) { /* best effort */ } }
 // Daily, anonymous usage counters: stat:<YYYY-MM-DD> (Thai time) -> {login, trip_new, seat_book, ...}.
 // Totals only, never who. Best effort: a failed count never breaks the request that triggered it.
 function statDay(offsetDays) { return new Date(Date.now() + 7 * 3600 * 1000 - (offsetDays || 0) * 86400 * 1000).toISOString().slice(0, 10); }
@@ -445,6 +450,7 @@ const DEFAULT_MAX_PER_PERSON = 4;
 function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); return Number.isInteger(n) && n >= 0 && n <= 50 ? n : DEFAULT_MAX_PER_PERSON; }
 
 module.exports = {
+  guessBlocked, guessMiss,
   vkOf,
   lineText, linePush, PUSH_KINDS, pushOffKey,
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, tooBig, json,

@@ -23,7 +23,8 @@ module.exports = async function handler(req, res) {
     let t = L.tripId((req.query && req.query.t) || body.t), trip, wantV;
     const kRaw = (req.query && req.query.k) || body.k;
     if (kRaw) { // a van link: that van only
-      const sc = await L.scopeOf(kRaw); if (!sc) return L.json(res, 404, { error: "bad_link" });
+      if (await L.guessBlocked(req)) return L.json(res, 429, { error: "too_many" });
+      const sc = await L.scopeOf(kRaw); if (!sc) { await L.guessMiss(req); return L.json(res, 404, { error: "bad_link" }); }
       trip = sc.trip; t = trip.id; wantV = sc.van.id;
     } else {
       trip = t && (await L.loadTrip(t));

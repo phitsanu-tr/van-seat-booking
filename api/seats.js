@@ -20,12 +20,14 @@ module.exports = async function handler(req, res) {
     let t = L.tripId((req.query && req.query.t) || body.t), trip, wanted;
     const kRaw = (req.query && req.query.k) || body.k;
     if (kRaw) { // a van link: the code alone decides trip and van; the other vans never leave the server
-      const sc = await L.scopeOf(kRaw); if (!sc) return L.json(res, 404, { error: "bad_link" });
+      if (await L.guessBlocked(req)) return L.json(res, 429, { error: "too_many" });
+      const sc = await L.scopeOf(kRaw); if (!sc) { await L.guessMiss(req); return L.json(res, 404, { error: "bad_link" }); }
       trip = sc.trip; t = trip.id; wanted = sc.van.id;
     } else {
       if (!t) return L.json(res, 404, { error: "no_trip" });
+      if (await L.guessBlocked(req)) return L.json(res, 429, { error: "too_many" });
       trip = await L.loadTrip(t);
-      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      if (!trip) { await L.guessMiss(req); return L.json(res, 404, { error: "no_trip" }); }
       wanted = String((req.query && req.query.v) || body.v || trip.vans[0].id);
     }
     const van = trip.vans.find((x) => x.id === wanted);
