@@ -109,6 +109,9 @@ h1{font:700 26px/32px var(--font-display)}
 .arw{display:flex;align-items:center;justify-content:space-between;gap:12px}.arw b{display:block;font:600 16px/24px var(--font-body)}.arw small{display:block;font-size:14px;line-height:20px;color:var(--muted)}
 .opt small{display:block;font-size:14px;line-height:20px;color:var(--muted)}.opt b{display:block;font-size:16px;line-height:24px}
 .mixn{display:flex;gap:8px;background:var(--warnbg);color:var(--warn);border-radius:12px;padding:12px;font-size:14px;line-height:20px}.mixn i{flex:none;width:20px;height:20px;border-radius:50%;background:currentColor;font-style:normal;text-align:center;font-size:13px;line-height:20px}.mixn i{color:var(--warn)}.mixn i::first-line{color:#fff}
+.afn{margin:0;font-size:14px;line-height:20px;color:var(--muted)}.abox .fnote{margin:0}
+.ig{border:1px solid #dde3e7;border-radius:16px;padding:12px 16px;margin-top:12px}.igh{display:flex;justify-content:space-between;gap:8px;font:600 14px/20px var(--font-body)}.igh span{color:var(--mine)}.ign{font-size:14px;line-height:20px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}.ig.wn{border-color:#e8c36a}.ig.wn .igh span{color:var(--warn)}
+.isel{width:100%;height:44px;margin-top:8px;border:1px solid #dde3e7;border-radius:12px;padding:0 12px;background:#fff;color:var(--ink);font:14px/20px var(--font-body)}.iw{margin-top:12px;background:var(--warnbg);color:var(--warn);border-radius:12px;padding:12px;font-size:14px;line-height:20px}
 .psheet h3{font:600 19px/26px var(--font-display);margin:0;padding-right:40px}.psheet .px{position:absolute;right:8px;top:12px;width:44px;height:44px;background:none;color:var(--muted);font-size:20px;padding:0}
 .pair{display:flex;align-items:center;gap:12px;background:var(--tint);border-radius:16px;padding:14px}.pair .no{flex:0 0 40px;height:40px;line-height:40px;font-size:16px;background:#fff}.pair b{display:block;font-size:18px}.pair small{font-size:12.5px;color:#0b5f67}.psheet .warn{margin:0;padding:12px;border-radius:12px;font-size:14px;line-height:20px}.psheet .warn div{display:flex;gap:8px}.ch{display:flex;align-items:center;justify-content:space-between;height:48px}.ch b{font:600 16px/24px var(--font-display)}.ch span{color:var(--muted);font-size:14px;line-height:20px}.psheet .big{width:100%}
 .obar a.b.p{background:var(--mine);color:#fff}
@@ -168,16 +171,28 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var V = (location.search.match(/[?&]v=([a-z0-9]+)/) || [])[1] || ""; // which van's queue is open
   var main = document.getElementById("main"), D = null, busy = false; var draft = ""; // the names being typed survive a redraw
   function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; }
-  function namesFromCsv(text) { // names from a CSV: the column headed ชื่อ… / name, else the first column
+  function csvTable(text) { // names from a CSV: the column headed ชื่อ… / name, else the first column
     var rows = String(text).replace(/^\uFEFF/, "").split(/\r?\n/).filter(function (l) { return l.trim(); }).map(function (l) {
       var out = [], cur = "", q = false;
       for (var i = 0; i < l.length; i++) { var c = l[i]; if (q) { if (c === '"') { if (l[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; } else if (c === '"') q = true; else if (c === "," || c === ";" || c === "\t") { out.push(cur); cur = ""; } else cur += c; }
       out.push(cur); return out.map(function (x) { return x.trim(); });
     });
-    if (!rows.length) return [];
-    var col = 0, hi = rows[0].findIndex(function (h) { return /^ชื่อ/.test(h) || /^name/i.test(h); });
-    if (hi >= 0) { col = hi; rows.shift(); }
-    return rows.map(function (r) { return r[col] || ""; }).filter(Boolean);
+    return rows;
+  }
+  function csvEntries(text) { // {list: [{n: name, v: van text}], van: the file has a คัน / van column}
+    var rows = csvTable(text); if (!rows.length) return { list: [], van: false };
+    var hi = rows[0].findIndex(function (h) { return /^ชื่อ/.test(h) || /^name/i.test(h); }), vi = rows[0].findIndex(function (h) { return /^คัน/.test(h) || /^van/i.test(h); });
+    var col = hi >= 0 ? hi : vi === 0 ? 1 : 0; if (hi >= 0 || vi >= 0) rows.shift();
+    return { van: vi >= 0, list: rows.map(function (r) { return { n: r[col] || "", v: vi >= 0 ? r[vi] || "" : "" }; }).filter(function (x) { return x.n; }) };
+  }
+  function namesFromCsv(text) { return csvEntries(text).list.map(function (x) { return x.n; }); }
+  function vnorm(x) { return String(x || "").replace(/^\s*คัน\s*/, "").trim().toLowerCase(); }
+  var imp = null; // a CSV for several vans, waiting to be checked: {g: {vanId: [names]}, u: [names with no van], uv: van for those}
+  function readCsvFile(f) { return f.arrayBuffer().then(function (buf) { try { return new TextDecoder("utf-8", { fatal: true }).decode(buf); } catch (e1) { try { return new TextDecoder("windows-874").decode(buf); } catch (e2) { return new TextDecoder("utf-8").decode(buf); } } }); }
+  function startImport(ent) { // sort the rows of the file into the vans; the rest go to the van that is open
+    imp = { g: {}, u: [], uv: V || (D.vans[0] || {}).id };
+    ent.list.forEach(function (x) { var hit = ent.van && x.v ? D.vans.filter(function (z) { return vnorm(z.l) === vnorm(x.v); })[0] : null; if (hit) (imp.g[hit.id] = imp.g[hit.id] || []).push(x.n); else imp.u.push(x.n); });
+    allSheet = false; sheet = "imp"; sheetNew = true; draw();
   }
   function btn(txt, cls, fn) { var b = el("button", cls || "", txt); b.type = "button"; b.addEventListener("click", function () { if (busy) return; busy = true; fn().then(function () { busy = false; }, function () { busy = false; }); }); return b; }
   var MSG = { has_seats: "คนนี้จองที่นั่งไว้ ทำรายการนี้ไม่ได้ ยกเลิกที่นั่งก่อน", login_required: "ต้องเข้าสู่ระบบก่อน", already_claimed: "คุณยืนยันชื่อไปแล้ว", row_taken: "ชื่อนี้มีคนกดยืนยันแล้ว", queue_full: "เกินจำนวนที่นั่งรวมของทริป", bad_name: "ชื่อไม่ถูกต้อง", not_your_turn: "ยังไม่ถึงคิวของคุณ", busy: "ลองอีกครั้ง", ended: "ทริปจบแล้ว", not_owner: "เฉพาะผู้จัดทริป" };
@@ -200,7 +215,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     D.vans.forEach(function (x) { if (VC[x.id]) return; fetch("/api/queue?t=" + encodeURIComponent(T) + "&v=" + encodeURIComponent(x.id), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) { if (j && j.items && j.v && !VC[j.v]) VC[j.v] = j; }).catch(function () {}); });
   }
   function load() {
-    if (busy || sheet === "add" || sheet === "edit" || document.activeElement && document.activeElement.tagName === "TEXTAREA") return Promise.resolve(); // an action is on its way, or the person is typing: do not redraw under them
+    if (busy || sheet === "add" || sheet === "edit" || sheet === "imp" || document.activeElement && document.activeElement.tagName === "TEXTAREA") return Promise.resolve(); // an action is on its way, or the person is typing: do not redraw under them
     return fetch("/api/queue?" + (K ? "k=" + K : "t=" + encodeURIComponent(T) + (V ? "&v=" + encodeURIComponent(V) : "")), { cache: "no-store" }).then(function (r) {
       if (r.status === 404) { return r.json().then(function (j) { D = { off: j && j.error }; draw(); }); }
       return r.json().then(function (j) { var sj = JSON.stringify(j); if (D && sj === lastJ) return; lastJ = sj; D = j; if (j && j.v) { V = j.v; VC[j.v] = j; } draw(); warm(); });
@@ -326,6 +341,38 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       atw.appendChild(btn("อนุมัติ " + an + " คน", "b p", function () { autoAsk = 0; autoNote = "มีผลกับคนเข้าคิวใหม่ · ถอนด้วย “ปลดชื่อ”"; var of = false; return call("okall", null, function () { of = true; }).then(function () { draw(); if (!of) showToast("อนุมัติ " + an + " คนแล้ว"); }); })); ash.appendChild(atw);
       main.appendChild(ash);
     }
+    if (sheet === "imp" && imp) {
+      var ifirst = sheetNew; sheetNew = false;
+      var idim = el("div", "dim" + (ifirst ? "" : " up")); idim.addEventListener("click", function () { imp = null; closeSheet(); }); main.appendChild(idim);
+      var ish = el("div", "sheet" + (ifirst ? "" : " up")); ish.setAttribute("role", "dialog"); ish.setAttribute("aria-label", "นำเข้ารายชื่อ");
+      var cap0 = D.cap || 80, plan = [], total = 0, all = 0, cutAll = 0;
+      D.vans.forEach(function (z) {
+        var nm = (imp.g[z.id] || []).concat(z.id === imp.uv ? imp.u : []); if (!nm.length) return;
+        var room = Math.max(0, cap0 - (z.n || 0)), take = nm.slice(0, room), cut = nm.length - take.length;
+        plan.push({ z: z, take: take, cut: cut, room: room }); total += take.length; all += nm.length; cutAll += cut;
+      });
+      var itb = el("div", "stb nb"); var icn = el("button", "tx", "ยกเลิก"); icn.type = "button"; icn.addEventListener("click", function () { imp = null; closeSheet(); }); itb.appendChild(icn); itb.appendChild(el("b", null, "นำเข้ารายชื่อ"));
+      var igo = btn(total ? "เพิ่ม " + total + " คน" : "เพิ่ม", "go", function () {
+        if (!total) return Promise.resolve(); var fail = "";
+        return plan.reduce(function (pr, pl) { return pr.then(function () { if (!pl.take.length) return; return fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: T, a: "add", v: pl.z.id, names: pl.take }) }).then(function (r) { return r.json().then(function (j) { if (!r.ok) fail = MSG[j && j.error] || "ทำไม่สำเร็จ"; }); }); }); }, Promise.resolve()).catch(function () { fail = "เชื่อมต่อไม่ได้"; }).then(function () {
+          imp = null; sheet = ""; document.body.classList.remove("sheeton"); VC = {}; warmed = false; lastJ = ""; busy = false; draw(); if (fail) flash(fail); return load();
+        });
+      });
+      if (!total) igo.disabled = true; itb.appendChild(igo); ish.appendChild(itb);
+      var ibd = el("div", "sbd"); ibd.appendChild(el("p", "note", "ไฟล์ " + (imp.u.length + Object.keys(imp.g).reduce(function (a, k) { return a + imp.g[k].length; }, 0)) + " ชื่อ · ตรวจแล้วกด เพิ่ม"));
+      plan.forEach(function (pl) {
+        var g = el("div", "ig" + (pl.cut ? " wn" : "")), gh = el("div", "igh"); gh.appendChild(el("b", null, "คัน " + pl.z.l)); gh.appendChild(el("span", null, pl.cut ? (pl.take.length + pl.cut) + " → " + pl.take.length + " คน" : pl.take.length + " คน")); g.appendChild(gh);
+        g.appendChild(el("div", "ign", pl.cut ? "คันนี้เหลือที่ " + pl.room + " ตัดรายชื่อ " + pl.cut + " คนท้ายออก" : pl.take.slice(0, 3).join(", ") + (pl.take.length > 3 ? " +" + (pl.take.length - 3) : ""))); ibd.appendChild(g);
+      });
+      if (imp.u.length) {
+        var ug = el("div", "ig wn"), uh = el("div", "igh"); uh.appendChild(el("b", null, "ไม่ระบุคัน")); uh.appendChild(el("span", null, imp.u.length + " คน")); ug.appendChild(uh); ug.appendChild(el("div", "ign", "เข้าคัน"));
+        var us = el("select", "isel"); us.setAttribute("aria-label", "คันของรายชื่อที่ไม่ระบุคัน"); D.vans.forEach(function (z) { var o = el("option", null, "คัน " + z.l); o.value = z.id; if (z.id === imp.uv) o.selected = true; us.appendChild(o); });
+        us.addEventListener("change", function () { imp.uv = us.value; draw(); }); ug.appendChild(us); ibd.appendChild(ug);
+      }
+      if (cutAll) ibd.appendChild(el("div", "iw", cutAll + " ชื่อไม่ถูกเพิ่ม เพราะคันนั้นเต็ม"));
+      ish.appendChild(ibd); main.appendChild(ish); document.body.classList.add("sheeton"); fitSheet();
+      if (ifirst) { requestAnimationFrame(function () { requestAnimationFrame(function () { ish.classList.add("up"); idim.classList.add("up"); }); }); }
+    }
     if (sheet === "add") {
       var first = sheetNew; sheetNew = false;
       var dim = el("div", "dim" + (first ? "" : " up")); dim.addEventListener("click", function () { closeSheet(); }); main.appendChild(dim);
@@ -345,6 +392,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var f = fi.files && fi.files[0]; fi.value = ""; if (!f) return;
         var txt = "";
         try { var buf = await f.arrayBuffer(); try { txt = new TextDecoder("utf-8", { fatal: true }).decode(buf); } catch (e1) { try { txt = new TextDecoder("windows-874").decode(buf); } catch (e2) { txt = new TextDecoder("utf-8").decode(buf); } } } catch (e) { fnote.textContent = "อ่านไฟล์ไม่ได้ ลองใหม่อีกครั้ง"; fnote.hidden = false; return; }
+        var ent = csvEntries(txt); if (ent.van && !K && D.vans && D.vans.length > 1 && ent.list.length) { startImport(ent); return; }
         var got = namesFromCsv(txt), before = names().length;
         if (!got.length) { fnote.textContent = "ไม่พบชื่อในไฟล์ (ใส่ชื่อไว้ในคอลัมน์แรก หรือคอลัมน์ที่หัวว่า ชื่อ)"; fnote.hidden = false; return; }
         ta.value = (ta.value.replace(/\s+$/, "") + (ta.value.trim() ? "\n" : "") + got.join("\n")); clamp(); draft = ta.value; upd();
@@ -469,7 +517,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     }
     b2.appendChild(aopt(auN === 0, "ผู้จัดอนุมัติ", "ผู้จัดตรวจสอบชื่อก่อน จึงจะใช้สิทธิ์ได้", false));
     b2.appendChild(aopt(auN === n, "อนุมัติทันที", "ใช้สิทธิ์ได้ทันที เหมาะกับกลุ่มคนสนิท", true));
-    sh.appendChild(b2); main.appendChild(sh);
+    sh.appendChild(b2);
+    var b3 = el("div", "abox"); b3.appendChild(head("users", "รายชื่อ")); b3.appendChild(el("p", "afn", "นำเข้ารายชื่อหลายคันจากไฟล์ CSV เดียว (ใส่คอลัมน์ “คัน” เพื่อแยกคัน)"));
+    var fi3 = el("input"); fi3.type = "file"; fi3.accept = ".csv,text/csv,text/plain"; fi3.hidden = true;
+    var fb3 = el("button", "fbtn"); fb3.type = "button"; fb3.style.marginTop = "0"; fb3.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V9M7 13l5-5 5 5M5 4h14"/></svg>นำเข้าจากไฟล์ CSV'; fb3.addEventListener("click", function () { fi3.click(); });
+    var fn3 = el("p", "fnote"); fn3.hidden = true;
+    fi3.addEventListener("change", function () { var f = fi3.files && fi3.files[0]; fi3.value = ""; if (!f) return; readCsvFile(f).then(function (txt) { var ent = csvEntries(txt); if (!ent.list.length) { fn3.textContent = "ไม่พบชื่อในไฟล์ (ใส่ชื่อไว้ในคอลัมน์แรก หรือคอลัมน์ที่หัวว่า ชื่อ)"; fn3.hidden = false; return; } startImport(ent); }, function () { fn3.textContent = "อ่านไฟล์ไม่ได้ ลองใหม่อีกครั้ง"; fn3.hidden = false; }); });
+    b3.appendChild(fb3); b3.appendChild(fi3); b3.appendChild(fn3); sh.appendChild(b3); main.appendChild(sh);
   }
   function drawClaimSheet() {
     var it = paxSheet.it, i = paxSheet.i;
