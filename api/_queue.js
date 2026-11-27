@@ -56,9 +56,6 @@ async function update(trip, v, fn) {
 async function gate(trip, v, user, isOwner) {
   if (!flagOn() || isOwner) return null;
   const all = await readAll(trip), van = vanOf(trip, v);
-  // a name claimed in another van's queue ties this person to that van: they may only book there
-  const other = user && all.find((x) => x.id !== van.id && x.q.on && x.q.items.some((i) => i.u === user.id && !i.done));
-  if (other) return { error: "wrong_van", v: other.id, vl: other.label };
   const q = (all.find((x) => x.id === van.id) || { q: { on: false, items: [] } }).q;
   if (!q.on) return null;
   const h = turnOf(q);

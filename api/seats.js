@@ -35,7 +35,12 @@ module.exports = async function handler(req, res) {
     const role = L.roleOf(trip, user);
     const isOwner = !!role; // organizer: the owner or a helper (both manage seats)
     // the trip-wide link (/<trip>/seats) shows every van: for a trip with several vans only the organizer team (checked by LINE account) may use it; passengers use their van's own link
-    if (!kRaw && !isOwner && trip.vans.length > 1 && (req.method === "GET" || req.method === "POST")) return L.json(res, 403, { error: "organizer_only" });
+    if (!kRaw && !isOwner && trip.vans.length > 1 && req.method === "POST") return L.json(res, 403, { error: "organizer_only" });
+    if (!kRaw && !isOwner && trip.vans.length > 1 && req.method === "GET") { // passengers may read the trip details (counts only); the seat map and names need their van's link
+      const cn = await L.pipeline(trip.vans.map((x) => ["HLEN", L.seatsKey(t, x.id)])), counts = {};
+      trip.vans.forEach((x, i) => { counts[x.id] = Number(cn[i]) || 0; });
+      return L.json(res, 200, { locked: 1, trip: L.publicTrip(trip), van: trip.vans[0].id, seats: {}, counts, held: [], ended: L.tripEnded(trip), me: L.publicUser(user), owner: false, limit: L.maxPerPerson(trip), closed: L.bookingClosed(trip) });
+    }
     const closed = L.bookingClosed(trip); // passengers can't book, hold or cancel; organizers can
 
     if (req.method === "GET") {
@@ -58,8 +63,8 @@ module.exports = async function handler(req, res) {
       const counts = {};
       trip.vans.forEach((x, i) => { counts[x.id] = Number(out[i + 2]) || 0; });
       const held = []; (out[1] || []).forEach((h, i) => { if (h && !seats[i + 1]) held.push(i + 1); }); // free seats someone is signing in to book
-      let qon = false, qs, qv, qmv; if (Q.flagOn()) { try { const qa = await Q.readAll(trip), qq = (qa.find((x) => x.id === van.id) || { q: { on: false, items: [] } }).q; qon = !!qq.on; if (qon && !isOwner) qs = Q.stateOf(qq, user); qv = {}; qa.forEach((x) => { if (x.q.on) qv[x.id] = 1; if (user && x.q.on && x.q.items.some((i) => i.u === user.id && !i.done)) qmv = x.id; }); } catch (e) { /* the page still works */ } } // booking queue switched on for this trip
-      return L.json(res, 200, { nv: trip._nv > 1 ? trip._nv : undefined, qon: qon || undefined, qs, qv: qv && trip.vans.length > 1 ? qv : undefined, qmv: trip.vans.length > 1 ? qmv : undefined, trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip), closed });
+      let qon = false, qs, qv; if (Q.flagOn()) { try { const qa = await Q.readAll(trip), qq = (qa.find((x) => x.id === van.id) || { q: { on: false, items: [] } }).q; qon = !!qq.on; if (qon && !isOwner) qs = Q.stateOf(qq, user); qv = {}; qa.forEach((x) => { if (x.q.on) qv[x.id] = 1; }); } catch (e) { /* the page still works */ } } // booking queue switched on for this trip
+      return L.json(res, 200, { nv: trip._nv > 1 ? trip._nv : undefined, qon: qon || undefined, qs, qv: qv && trip.vans.length > 1 ? qv : undefined, trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip), closed });
     }
 
     if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });

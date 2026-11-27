@@ -761,10 +761,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   setTimeout(function () { skOff(true); if (!loaded) showNet(true); }, 8000);
   document.getElementById("neRetry").addEventListener("click", function () { showNet(false); document.body.classList.add("sk"); setTimeout(function () { skOff(true); if (!loaded) showNet(true); }, 8000); refresh(true); });
   var selected = null, message = "", shown = false, confirming = false, lastSnapshot = "", wasFree = false; // wasFree: the seat was free when this dialog opened
-  var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false, closed = false, qon = false, qs = null, qmv = "", qvs = null; // qmv: the van where this person claimed a queue name (they may book only there); qvs: which vans have a queue on
+  var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false, closed = false, qon = false, qs = null, qvs = null;
   // locked: nothing to tap. A finished trip is locked for everyone; a closed one only for passengers (organizers still manage seats).
   // booking queue: free seats can't be taken until it is this person's turn
-  function wrongVan() { return !!(loaded && !isOwner && !closed && !ended && qmv && qmv !== curVan); } // a name claimed in another van's queue ties this person to that van
   function badLink() { // a van link that was replaced, or mistyped: say so without revealing which trip or van exists
     var h = document.querySelector("#nfBox h2"), p = document.querySelector("#nfBox p");
     if (h) h.textContent = "ลิงก์นี้ใช้ไม่ได้แล้ว";
@@ -776,7 +775,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (p) { p.textContent = "ขอลิงก์รถตู้ของคุณจากผู้จัดทริป แล้วเปิดจากลิงก์นั้น"; var a = document.createElement("a"); a.href = "/trips"; a.className = "nfgo"; a.textContent = "เข้าสู่ระบบผู้จัด"; a.style.cssText = "display:flex;align-items:center;justify-content:center;min-height:48px;margin-top:16px;border-radius:12px;background:var(--mine);color:var(--mine-ink,#fff);font-weight:600;text-decoration:none;padding:0 16px"; p.appendChild(a); }
   }
   function qLink() { return K ? "/t/" + K + "/queue" : "/" + TRIP + "/queue" + (trip && trip.vans && trip.vans.length > 1 && curVan ? "?v=" + encodeURIComponent(curVan) : ""); }
-  function qBlocked() { return !!(loaded && !isOwner && !closed && !ended && ((qon && !(qs && qs.s === "turn")) || wrongVan())); }
+  function qBlocked() { return !!(loaded && !isOwner && !closed && !ended && (qon && !(qs && qs.s === "turn"))); }
   var QSV = { chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
     clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-1a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v1"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a5 5 0 0 1 3.5 5v1"/>',
     ok: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>', seat: '<path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"/><path d="M9.5 10l2 2 3.5-4"/>' };
@@ -788,13 +787,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     bar.classList.remove("qrow"); bar.onclick = null; bar.removeAttribute("role"); bar.removeAttribute("tabindex");
     var goQ = function () { bar.classList.add("qrow"); bar.setAttribute("role", "link"); bar.tabIndex = 0; bar.onclick = function () { location.href = qLink(); }; bar.onkeydown = function (e) { if (e.key === "Enter") bar.onclick(); }; var rt = el("span", "rt"); rt.innerHTML = QSV.chev; tx.appendChild(rt); };
     bar.classList.toggle("qamb", s === "wait"); bar.classList.toggle("qdone", s === "done");
-    if (wrongVan()) { // this person's name is in another van's queue: say so, and offer the way there
-      var wv = trip.vans.filter(function (x) { return x.id === qmv; })[0], wl = wv ? wv.label : "";
-      bar.classList.add("qrow", "qamb"); bar.classList.remove("qturn"); tx.appendChild(qsvg(QSV.users)); tx.appendChild(el("b", null, "คุณอยู่คิวคัน " + wl)); tx.appendChild(el("span", null, "จองได้เฉพาะคันนั้น"));
-      bar.setAttribute("role", "link"); bar.tabIndex = 0; bar.onclick = function () { switchVan(qmv); }; bar.onkeydown = function (e) { if (e.key === "Enter") bar.onclick(); };
-      var wrt = el("span", "rt"); wrt.appendChild(document.createTextNode("ไปคัน " + wl)); wrt.appendChild(qsvg(QSV.chev)); tx.appendChild(wrt);
-      return;
-    }
     if (s === "turn") {
       bar.classList.add("qrow"); tx.appendChild(qsvg(QSV.ok)); tx.appendChild(el("b", null, "ถึงคิวคุณแล้ว")); tx.appendChild(el("span", null, "เลือกที่นั่งได้เลย"));
     } else if (s === "wait") {
@@ -990,7 +982,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (code === "name_chars") return "ใช้ได้เฉพาะภาษาไทยและอังกฤษ";
     if (code === "name_reserved") return "ใช้ชื่อนี้ไม่ได้ ลองชื่ออื่น";
     if (code === "ended") return "ทริปนี้สิ้นสุดแล้ว ปิดรับจอง";
-    if (code === "wrong_van") return "ชื่อของคุณอยู่คัน " + ((r.data && r.data.vl) || "อื่น") + " จองได้เฉพาะคันนั้น";
     if (code === "not_your_turn") return "ยังไม่ถึงคิวของคุณ ดูลำดับคิวได้ที่แถบด้านบน";
     if (code === "closed") return "ปิดรับจองแล้ว ติดต่อผู้จัดทริปถ้าต้องการเปลี่ยน";
     if (code === "login_required") return "เข้าสู่ระบบด้วย LINE ก่อน";
@@ -1334,7 +1325,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (loaded) skOff();
     }).catch(function () { mineLoaded = false; mineDone = true; if (trip) renderTrip(); if (loaded) skOff(); });
   }
-  function goView(name, push) { // name: "info" (/<id>), "seats" (/<id>/seats) or "list" (/<id>/list)
+  var LOCKED = false; // set when the page was opened with a trip-wide link of a trip with several vans
+  function goView(name, push) {
+    if (LOCKED && name !== "info") { location.href = basePath() + "/" + name; return; } // a full load shows the "ask the organizer for your van link" page // name: "info" (/<id>), "seats" (/<id>/seats) or "list" (/<id>/list)
     try { history[push ? "pushState" : "replaceState"]({ vsb: 1 }, "", basePath() + (name === "info" ? "" : "/" + name) + location.search); } catch (e) {}
     applyMode(); if (push) window.scrollTo(0, 0);
   }
@@ -1534,9 +1527,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var box = document.getElementById("notice");
     document.getElementById("endedBar").hidden = !ended;
     document.getElementById("closedBar").hidden = !(loaded && closed && !ended && !isOwner);
-    document.getElementById("queueBar").hidden = !(loaded && (qon || wrongVan()) && !closed && !ended && !isOwner) || (!wrongVan() && !!(qs && qs.s === "done"));
+    document.getElementById("queueBar").hidden = !(loaded && qon && !closed && !ended && !isOwner) || !!(qs && qs.s === "done");
     renderQueueBar();
-    document.getElementById("deck").classList.toggle("qlock", qBlocked() && (wrongVan() || !(qs && qs.s === "done")));
+    document.getElementById("deck").classList.toggle("qlock", qBlocked() && !(qs && qs.s === "done"));
     document.getElementById("deck").classList.toggle("isended", locked());
     box.textContent = "";
     if (locked() || !loaded || !trip) return;
@@ -1605,6 +1598,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         if (!loaded) { if (r.status >= 500 || r.status === 0) showNet(true); renderAll(); }
         return;
       }
+      if (r.data && r.data.locked) { // several vans, no van link: only the trip details are open; the seat map and names need the van's own link
+        LOCKED = true;
+        if (pathView() !== "info") { organizerOnly(); document.body.classList.add("nf"); document.title = "VanTrip"; return; }
+      }
       if (r.data && r.data.trip) {
         trip = r.data.trip;
         if (K && r.data.nv > 1 && trip.vans[0]) { var hh = document.querySelector(".hero h1"), v0 = trip.vans[0]; vanTitle = "คัน " + v0.label + ""; } // a van link of a trip with several vans: say which van this is
@@ -1613,7 +1610,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       counts = (r.data && r.data.counts) || counts;
       var hw = JSON.stringify(held); held = {}; ((r.data && r.data.held) || []).forEach(function (k) { held[k] = 1; });
       if (JSON.stringify(held) !== hw) force = true;
-      ended = !!(r.data && r.data.ended); closed = !!(r.data && r.data.closed); qon = !!(r.data && r.data.qon); qs = (r.data && r.data.qs) || null; qmv = (r.data && r.data.qmv) || ""; qvs = (r.data && r.data.qv) || null;
+      ended = !!(r.data && r.data.ended); closed = !!(r.data && r.data.closed); qon = !!(r.data && r.data.qon); qs = (r.data && r.data.qs) || null; qvs = (r.data && r.data.qv) || null;
       var meWas = JSON.stringify(me); me = (r.data && r.data.me) || null; isOwner = !!(r.data && r.data.owner); seatLimit = Number(r.data && r.data.limit) || 0;
       if (JSON.stringify(me) !== meWas || !loaded) renderAcct();
       var next = {};
