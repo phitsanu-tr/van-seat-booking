@@ -308,6 +308,12 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 .shrow2 .chm { flex: none; width: 40px; height: 40px; border-radius: 50%; background: #e3eef0; color: #0b5f67; display: grid; place-items: center; font-weight: 700; font-size: 16px; }
 .shrow2 .chb { flex: none; display: flex; align-items: center; gap: 4px; height: 40px; padding: 0 12px; border: 0; border-radius: 12px; background: #e1f0ef; color: #0b5f67; font: 600 14px/20px var(--font-body); cursor: pointer; }
 .shrow2 .chb svg { width: 20px; height: 20px; flex: none; } .shrow2.o .chm { background: #fdf0dd; color: #b45309; } .shrow2.o .chb { background: #fdf0dd; color: #b45309; }
+.vstrip { display: grid; grid-template-columns: repeat(var(--vn, 4), minmax(0, 1fr)); gap: 8px; }
+.vstrip button { height: 56px; padding: 0; border-radius: 12px; border: 1px solid #dde3e7; background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: inherit; cursor: pointer; }
+.vstrip button b { font: 600 16px/24px var(--font-display); color: var(--ink); } .vstrip button span { font-size: 12px; line-height: 16px; color: var(--muted); }
+.vstrip button.on { background: var(--amber-tint); border-color: var(--amber); } .vstrip button.on b { color: var(--amber); }
+.rempty { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 24px 0; text-align: center; font-size: 14px; line-height: 20px; color: var(--muted); } .rempty span { font-size: 12px; line-height: 16px; }
+.round { padding: 12px; } .round .rcount { flex: none; font: 600 24px/32px var(--font-display); color: #1f7a3f; } .round .rcount i { font: 400 12px/16px var(--font-body); color: var(--muted); font-style: normal; }
 .mhead { display: flex; align-items: flex-start; gap: 8px; }
 .mhead h3 { flex: 1; min-width: 0; }
 .mx { flex: none; width: 44px; height: 44px; margin: -8px -8px 0 0; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 12px; }
@@ -805,7 +811,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     seats: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h3v3H8zM13 7h3v3h-3zM8 14h3v3H8zM13 14h3v3h-3z"/></svg>',
     pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10-10-4-4L4 16v4zM13.5 6.5l4 4"/></svg>',
     team: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>',
-    dup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a8 8 0 0 1 14-4l2 2M20 4v5h-5M20 13a8 8 0 0 1-14 4l-2-2M4 20v-5h5"/></svg>'
+    dup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a8 8 0 0 1 14-4l2 2M20 4v5h-5M20 13a8 8 0 0 1-14 4l-2-2M4 20v-5h5"/></svg>',
+    dl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>',
+    ul: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V9M7 13l5-5 5 5M5 4h14"/></svg>',
   };
   var KEY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l3 3"/></svg>';
   function openCode() { // seats tab, nothing booked yet: type a trip code or paste a link (same rules as the home code box)
@@ -853,6 +861,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     bl.querySelector("svg").outerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/></svg>';
     item(g1b, "pen", "แก้ไขทริป", "", "", "/" + x.id + "/edit");
     item(g1b, "team", x.role === "helper" ? "ทีมผู้จัด" : "ผู้ช่วยจัดทริป", "", x.role === "helper" ? "" : (x.helpers || 0) + "/2", function () { shut(); openTeam(x); });
+    item(g1b, "dl", "ดาวน์โหลดรายชื่อ", "", "", function () { shut(); openDownload(x); });
+    if (!x.ended) item(g1b, "ul", "นำเข้ารายชื่อ", "", "", function () { shut(); openRoster(x, "seats", "import"); });
     if (x.qf) item(g1b, "queue", "คิวจองตามลำดับ", "", "", "/" + x.id + "/queue").querySelector("svg").outerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6h10M10 12h10M10 18h10"/><path d="M4 5l1.5-1v5M3.5 14.5c0-1 2.5-1 2.5.2 0 1.2-2.5 2-2.5 3.3h2.7"/></svg>';
     item(g1b, "dup", "สร้างทริปซ้ำ", "", "", "/new?copy=" + encodeURIComponent(x.id));
     var lk = item(g2, "share", x.closed ? "เปิดรับจอง" : "ปิดรับจอง", x.closed ? "op" : "dg lk", null, async function (btn) {
@@ -876,6 +886,35 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     lk.querySelector("svg").outerHTML = x.closed ? OPEN_SVG : LOCK_SVG;
     sh.appendChild(g1); sh.appendChild(g1b); sh.appendChild(g2);
     document.body.appendChild(bd);
+  }
+
+  async function rosterViaBrowser(x, csv) { // inside LINE (LIFF) files can't be downloaded or printed: ask for a 10-minute link and let LINE open it in the real browser
+    var r = null;
+    try { r = await (await fetch("/api/roster", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ t: x.id }) })).json(); } catch (e) { r = null; }
+    if (!r || !r.k) { toast("สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง", true); return; }
+    var url = location.origin + "/api/roster?k=" + r.k + (csv ? "&csv=1" : "");
+    try { liff.openWindow({ url: url, external: true }); toast(csv ? "เปิดในเบราว์เซอร์แล้ว ไฟล์จะดาวน์โหลดที่นั่น" : "เปิดหน้าพิมพ์ในเบราว์เซอร์แล้ว"); }
+    catch (e) { toast("เปิดเบราว์เซอร์ไม่ได้ ลองเปิดแอปใน Safari/Chrome", true); }
+  }
+  function openDownload(x) { // roster file of the whole trip (every van): print / PDF or Excel
+    var bd = node("div", "bd"), sh = node("div", "sheet"); bd.appendChild(sh);
+    var shut = function () { bd.remove(); };
+    bd.addEventListener("click", function (e) { if (e.target === bd) shut(); });
+    sheetHead(sh, "ดาวน์โหลดรายชื่อ", shut); sh.style.gap = "12px";
+    sh.appendChild(node("p", "msub", "ทุกคันในทริปนี้")); sh.lastChild.style.margin = "0";
+    var g = node("div", "agrp");
+    function it(svgPath, label, csv) {
+      var b = node("button", "acti mgb"); b.type = "button";
+      b.insertAdjacentHTML("beforeend", '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + svgPath + '</svg>'); b.appendChild(node("span", null, label));
+      b.addEventListener("click", async function () {
+        shut(); var inLiff = false; try { inLiff = !!(window.liff && liff.isInClient && liff.isInClient()); } catch (e) { inLiff = false; }
+        if (inLiff) return rosterViaBrowser(x, csv);
+        try { var d = await getRoster(x.id); if (csv) downloadCSV(d.trip, d.roster || {}); else printRoster(d.trip, d.roster || {}); } catch (e) { toast("โหลดรายชื่อไม่สำเร็จ", true); }
+      });
+      g.appendChild(b);
+    }
+    it(MI.doc, "หน้าพิมพ์ / PDF", false); it(MI.dl, "ไฟล์ Excel (CSV)", true);
+    sh.appendChild(g); document.body.appendChild(bd);
   }
 
   function openSendList(x) { // paste-ready roster for the LINE group: copy it or open LINE's share picker
@@ -1350,10 +1389,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   function getRoster(id) { return fetch("/api/trip?t=" + encodeURIComponent(id) + "&roster=1", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("load")); }); }
   function prefetchRoster(id) { if (!ROSTER_PRE[id] || Date.now() - ROSTER_PRE[id].at > 3000) ROSTER_PRE[id] = { p: getRoster(id), at: Date.now() }; }
-  function openRoster(x, tabOpt) {
+  function openRoster(x, tabOpt, startMode) {
     var st = { trip: null, roster: {}, van: "", mode: "list", tab: "seats", boardView: "cur", pending: 0, sel: null, ended: false, busy: false };
     if (daysTo(x.startDate) === 0) st.tab = "board"; // trip day: open on check-in
     if (tabOpt) st.tab = tabOpt;
+    if (startMode === "import") { st.imp = { tab: "file", rows: null, prev: null, text: "", err: "" }; st.mode = "import"; }
     var bd = node("div", "bd"), sh = node("div", "sheet tall"); bd.appendChild(sh); // fixed height: switching tabs or vans doesn't make the sheet jump
     var close = function () { clearInterval(st.timer); bd.remove(); load(); };
     // check-in tab: other organizers tick people too, so the list refreshes while it is open
@@ -1393,6 +1433,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       draw();
     }
     function vanLabel(id) { var v = st.trip && st.trip.vans.filter(function (q) { return q.id === id; })[0]; return v ? v.label : id; }
+    function vstrip(onPick, cur, sub) { // the vans in one row (same look as the booking page): letter + a short count
+      var row = node("div", "vstrip"); row.style.setProperty("--vn", Math.min(st.trip.vans.length, 5));
+      st.trip.vans.forEach(function (v) {
+        var b = node("button", v.id === cur ? "on" : null); b.type = "button"; b.setAttribute("aria-pressed", v.id === cur ? "true" : "false"); b.setAttribute("aria-label", "คัน " + v.label);
+        b.appendChild(node("b", null, v.label)); b.appendChild(node("span", null, sub(v))); b.addEventListener("click", function () { onPick(v.id); }); row.appendChild(b);
+      });
+      return row;
+    }
     function chips(onPick, cur) {
       var row = node("div", "vchips");
       st.trip.vans.forEach(function (v) {
@@ -1426,37 +1474,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       });
       sh.appendChild(tabs);
       if (st.tab === "board") return drawBoard();
-      var tools = node("div", "rtools"), cpb = node("button", null); cpb.type = "button"; cpb.innerHTML = COPY_SVG; cpb.appendChild(document.createTextNode("คัดลอก"));
-      cpb.addEventListener("click", function () { copyText(rosterText(st.trip, st.roster, !st.closed && !st.ended), "คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย"); });
-      tools.appendChild(cpb);
-      var dlb = node("button", null); dlb.type = "button"; dlb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MI.dl + '</svg>'; dlb.appendChild(document.createTextNode("ดาวน์โหลด")); dlb.setAttribute("aria-haspopup", "menu");
-      // Inside LINE (LIFF) the app can't open print windows or download files, so it asks the server for a
-      // 10-minute link and has LINE open it in the real browser instead.
-      async function viaBrowser(csv) {
-        var r = null;
-        try { r = await (await fetch("/api/roster", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ t: x.id }) })).json(); } catch (e) { r = null; }
-        if (!r || !r.k) { toast("สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง", true); return; }
-        var url = location.origin + "/api/roster?k=" + r.k + (csv ? "&csv=1" : "");
-        try { liff.openWindow({ url: url, external: true }); toast(csv ? "เปิดในเบราว์เซอร์แล้ว ไฟล์จะดาวน์โหลดที่นั่น" : "เปิดหน้าพิมพ์ในเบราว์เซอร์แล้ว"); }
-        catch (e) { toast("เปิดเบราว์เซอร์ไม่ได้ ลองเปิดแอปใน Safari/Chrome", true); }
-      }
-      var inLiff = false; try { inLiff = !!(window.liff && liff.isInClient && liff.isInClient()); } catch (e) { inLiff = false; }
-      dlb.addEventListener("click", function (e) { e.stopPropagation(); openMenu(dlb, [
-        ["หน้าพิมพ์ / PDF", "doc", "", function () { if (inLiff) viaBrowser(false); else printRoster(st.trip, st.roster); }],
-        ["ไฟล์ Excel (CSV)", "dl", "", function () { if (inLiff) viaBrowser(true); else downloadCSV(st.trip, st.roster); }],
-      ]); });
-      tools.appendChild(dlb);
-      if (!st.ended) {
-        var imb = node("button", null); imb.type = "button"; imb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>'; imb.appendChild(document.createTextNode("นำเข้า"));
-        imb.addEventListener("click", function () { st.imp = { tab: "file", rows: null, prev: null, text: "", err: "" }; st.mode = "import"; draw(); });
-        tools.appendChild(imb);
-      }
-      tools.style.gridTemplateColumns = st.ended ? "1fr 1fr" : "1fr 1fr 1fr"; // close/reopen lives in the ⋯ manage menu
-      sh.appendChild(tools);
+      var copyList = function () { copyText(rosterText(st.trip, st.roster, !st.closed && !st.ended), "คัดลอกรายชื่อแล้ว วางในกลุ่ม LINE ได้เลย"); };
       if (st.closed && !st.ended) { var cn = node("div", "cnote"); cn.innerHTML = LOCK_SVG; cn.appendChild(node("span", null, "ปิดรับจองอยู่ · ผู้จองจองหรือยกเลิกเองไม่ได้ คุณยังจัดการที่นั่งด้านล่างได้")); sh.appendChild(cn); }
-      if (st.trip.vans.length > 1) sh.appendChild(chips(function (id) { st.van = id; draw(); }, st.van));
+      if (st.trip.vans.length > 1) sh.appendChild(vstrip(function (id) { st.van = id; draw(); }, st.van, function (v) { return Object.keys(st.roster[v.id] || {}).length + "/10"; }));
       var seats = st.roster[st.van] || {}, nums = Object.keys(seats).map(Number).sort(function (a, b) { return a - b; });
-      if (!nums.length) sh.appendChild(node("div", "empty", "คัน " + vanLabel(st.van) + " ยังไม่มีผู้จอง"));
+      if (!nums.length) { var em = node("div", "rempty"); em.appendChild(node("b", null, "คัน " + vanLabel(st.van) + " ยังไม่มีผู้จอง")); em.appendChild(node("span", null, "ว่าง 10 ที่นั่ง")); sh.appendChild(em); }
       else {
         function seatMenu(n, s) { // the ⋯ menu of one booking: note, rename, move, cancel
           var bd2 = node("div", "bd"), m = node("div", "sheet"); bd2.appendChild(m);
@@ -1491,7 +1513,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         });
         sh.appendChild(list);
       }
-      sh.appendChild(node("div", "rfree", "ว่าง " + (10 - nums.length) + " ที่นั่ง"));
+      if (nums.length) sh.appendChild(node("div", "rfree", "ว่าง " + (10 - nums.length) + " ที่นั่ง"));
+      footer("คัดลอกรายชื่อ", copyList);
     }
     var TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
     function everyone() { // [{v, n, s}] across all vans, by van then seat
@@ -1801,18 +1824,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       rt.appendChild(document.createTextNode(b.cur.at ? "เริ่ม " + stamp(b.cur.at) + (b.cur.by ? " โดย " + b.cur.by : "") : "แตะชื่อเมื่อขึ้นรถแล้ว"));
       var pen = node("button", "rpen"); pen.type = "button"; pen.innerHTML = PEN_SVG; pen.setAttribute("aria-label", b.cur.name ? "แก้ชื่อรอบ" : "ตั้งชื่อรอบ");
       pen.addEventListener("click", function () { roundDialog("name"); });
-      rtop.appendChild(rnum); rtop.appendChild(rt); rtop.appendChild(pen); rh.appendChild(rtop);
-      var pg = node("div", "bprog"), pl = node("div", "pl"), right = node("span"); right.appendChild(node("b", null, String(inN))); right.appendChild(document.createTextNode(" / " + all.length + " ขึ้นรถแล้ว"));
-      pl.appendChild(node("span", null, multi ? "ทั้งทริป" : st.trip.departTime ? "ออก " + st.trip.departTime : "")); pl.appendChild(right); pg.appendChild(pl);
-      var bar = node("div", "bar"), bi = node("i"); bi.style.width = (all.length ? Math.round(inN / all.length * 100) : 0) + "%"; bar.appendChild(bi); pg.appendChild(bar); rh.appendChild(pg); sh.appendChild(rh);
-      if (multi) {
-        var row = node("div", "vchips");
-        st.trip.vans.forEach(function (v) {
-          var vs = st.roster[v.id] || {}, ks = Object.keys(vs), on = ks.filter(function (k) { return vs[k].c; }).length;
-          var bb = node("button", v.id === st.van ? "on" : null, "คัน " + v.label + " · " + on + "/" + ks.length); bb.type = "button"; bb.addEventListener("click", function () { st.van = v.id; draw(); }); row.appendChild(bb);
-        });
-        sh.appendChild(row);
-      }
+      var cnt = node("span", "rcount"); cnt.appendChild(node("b", null, String(inN))); cnt.appendChild(node("i", null, "/" + all.length)); cnt.setAttribute("aria-label", inN + " จาก " + all.length + " ขึ้นรถแล้ว");
+      rtop.appendChild(rnum); rtop.appendChild(rt); rtop.appendChild(cnt); rtop.appendChild(pen); rh.appendChild(rtop); sh.appendChild(rh);
+      if (multi) sh.appendChild(vstrip(function (id) { st.van = id; draw(); }, st.van, function (v) { var vs = st.roster[v.id] || {}, ks = Object.keys(vs); return ks.filter(function (k) { return vs[k].c; }).length + "/" + ks.length; }));
       var seats = st.roster[st.van] || {}, nums = Object.keys(seats).map(Number).sort(function (a, c) { return a - c; });
       var missing = nums.filter(function (n) { return !seats[n].c; });
       if (nums.length) {
@@ -1823,7 +1837,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         } else ms.textContent = (multi ? "คัน " + vanLabel(st.van) + " " : "") + "ขึ้นรถครบแล้ว ✓";
         sh.appendChild(ms);
       }
-      if (!nums.length) sh.appendChild(node("div", "empty", "คัน " + vanLabel(st.van) + " ยังไม่มีผู้จอง"));
+      if (!nums.length) { var em2 = node("div", "rempty"); em2.appendChild(node("b", null, "คัน " + vanLabel(st.van) + " ยังไม่มีผู้จอง")); sh.appendChild(em2); }
       else {
         var list = node("div", "rlist");
         nums.forEach(function (n) {

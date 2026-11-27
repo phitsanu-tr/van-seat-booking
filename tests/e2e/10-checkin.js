@@ -28,7 +28,7 @@ log('tabs',await A.$$eval('.rtabs button',e=>e.map(x=>x.textContent)));
 // --- check-in tab, two organizers at once
 await Bo.goto(B+'/trips?f='+Date.now());await Bo.waitForTimeout(1200);await Bo.click('.ros3');await Bo.waitForTimeout(800);await Bo.click('.rtabs button:nth-child(2)');await Bo.waitForTimeout(600);
 await A.click('.rtabs button:nth-child(2)');await A.waitForTimeout(600);
-const prog=p=>p.$eval('.bprog .pl span:last-child',e=>e.textContent);
+const prog=p=>p.$eval('.round .rcount',e=>e.textContent);
 log('board start A',await prog(A),'miss',await A.textContent('.miss'));
 await A.click('.sheet .rrow.ck:has-text("ฉิน")');await A.waitForTimeout(700);
 log('A after tick',await prog(A),'row in',await A.$$eval('.sheet .rrow.in',e=>e.length),'server',!!(await roster()).v1['5'].c);

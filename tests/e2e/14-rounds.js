@@ -14,7 +14,7 @@ const head=p=>p.$eval('.round',e=>e.querySelector('.n').textContent+' | '+e.quer
 await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);await A.click('.ros3');await A.waitForTimeout(800);await A.click('.rtabs button:nth-child(2)');await A.waitForTimeout(600);
 log('start',await head(A),'history button',await A.$$eval('.sheet .hist',e=>e.length),'new round button',(await A.textContent('.sheet .rnew')).trim());
 await A.click('.sheet .rrow.ck:has-text("แพทสอง")');await A.waitForTimeout(500);await A.click('.sheet .rrow.ck:has-text("แพท") >> nth=0');await A.waitForTimeout(700);
-log('ticked',await A.$eval('.bprog .pl span:last-child',e=>e.textContent));
+log('ticked',await A.$eval('.round .rcount',e=>e.textContent));
 await A.click('.round .rpen');await A.waitForTimeout(400);log('name dialog',await A.textContent('.bd:last-of-type h3'));
 await A.click('.bd:last-of-type .vchips button:has-text("เที่ยวไป")');await A.click('.bd:last-of-type .b-danger');await A.waitForTimeout(1000);
 log('named',await head(A),'toast',await A.textContent('#toast'));
@@ -23,7 +23,7 @@ await A.click('.sheet .rnew');await A.waitForTimeout(400);
 log('new dialog',await A.textContent('.bd:last-of-type h3'),'|',await A.textContent('.bd:last-of-type p'),'| button',await A.textContent('.bd:last-of-type .b-danger'));
 await A.screenshot({path:S+'/round_dialog.png'});
 await A.click('.bd:last-of-type .vchips button:has-text("เที่ยวกลับ")');await A.click('.bd:last-of-type .b-danger');await A.waitForTimeout(1200);
-log('round 2',await head(A),'toast',await A.textContent('#toast'),'ticked now',await A.$eval('.bprog .pl span:last-child',e=>e.textContent));
+log('round 2',await head(A),'toast',await A.textContent('#toast'),'ticked now',await A.$eval('.round .rcount',e=>e.textContent));
 let d=await full();
 log('server cur',JSON.stringify({i:d.board.cur.i,name:d.board.cur.name,by:d.board.cur.by}),'hist',JSON.stringify(d.board.hist.map(h=>({i:h.i,name:h.name,n:h.n,total:h.total,miss:h.miss,by:h.by,times:!!(h.start&&h.end)}))));
 log('ticks cleared',Object.values(d.roster).flatMap(v=>Object.values(v)).filter(s=>s.c).length);
