@@ -1045,6 +1045,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       .then(function (sent) { if (!sent) location.href = href; });
   });
   // several vans: one compact row per van (tap for its code), copy-all, a group name and a new link for each
+  var CP_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
   var vlVans = [], vlOpen = "", vlPer = {}, vlTrip = "", vlName = "", vlRot = "";
   function vlUrl(v) { return link("/t/" + v.k); }
   function vlCode(v) { return v.k.slice(0, 4).toUpperCase() + "-" + v.k.slice(4).toUpperCase(); }
@@ -1072,7 +1073,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var hd = document.createElement("div"); hd.className = "vr"; hd.setAttribute("role", "button"); hd.tabIndex = 0;
       var n = document.createElement("div"); n.className = "vn"; n.textContent = v.label;
       var t = document.createElement("div"); t.className = "vt"; var b = document.createElement("b"); b.textContent = v.g || "คัน " + v.label; var sp = document.createElement("span"); sp.textContent = (vlPer[v.id] != null ? "จอง " + vlPer[v.id] + "/10" : "") + (open ? "" : (vlPer[v.id] != null ? " · " : "") + "ดูรหัส"); t.appendChild(b); t.appendChild(sp);
-      var cp = document.createElement("span"); cp.className = "cpbtn"; cp.setAttribute("role", "button"); cp.setAttribute("aria-label", "คัดลอกลิงก์คัน " + v.label); cp.innerHTML = $("copyShare").innerHTML;
+      var cp = document.createElement("span"); cp.className = "cpbtn"; cp.setAttribute("role", "button"); cp.setAttribute("aria-label", "คัดลอกลิงก์คัน " + v.label); cp.innerHTML = CP_SVG;
       cp.addEventListener("click", function (e) { e.stopPropagation(); copy(vlUrl(v), cp); });
       hd.appendChild(n); hd.appendChild(t); hd.appendChild(cp);
       var tog = function () { vlOpen = open ? "" : v.id; paintVanLinks(); };
@@ -1099,7 +1100,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     });
     var tl = document.createElement("div"); tl.className = "vl"; var tr = document.createElement("div"); tr.className = "vr"; tr.setAttribute("role", "button"); tr.tabIndex = 0;
     var tt = document.createElement("div"); tt.className = "vt"; var tb = document.createElement("b"); tb.textContent = "ลิงก์รวมของผู้จัด"; var ts = document.createElement("span"); ts.textContent = "เห็นทุกคัน · ไม่ส่งให้ผู้จอง"; tt.appendChild(tb); tt.appendChild(ts);
-    var tc = document.createElement("span"); tc.className = "cpbtn"; tc.setAttribute("role", "button"); tc.setAttribute("aria-label", "คัดลอกลิงก์รวม"); tc.innerHTML = $("copyShare").innerHTML;
+    var tc = document.createElement("span"); tc.className = "cpbtn"; tc.setAttribute("role", "button"); tc.setAttribute("aria-label", "คัดลอกลิงก์รวม"); tc.innerHTML = CP_SVG;
     tr.appendChild(tt); tr.appendChild(tc); tl.appendChild(tr); vl.appendChild(tl);
     var cpAll = function () { copy(shareLink, tc); }; tr.addEventListener("click", cpAll); tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); cpAll(); } });
   }
@@ -1171,6 +1172,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     function flash(ok) {
       var o = btn.innerHTML; btn.classList.toggle("ok", ok);
       if (!ok) { toast("คัดลอกไม่สำเร็จ ลองใหม่อีกครั้ง"); return; }
+      if (btn.classList.contains("vall")) { btn.textContent = "คัดลอกแล้ว"; setTimeout(function () { btn.textContent = o; btn.classList.remove("ok"); }, 1600); return; } // a text button: say so in words, not with the small icon
       btn.innerHTML = CHECK;
       setTimeout(function () { btn.innerHTML = o; btn.classList.remove("ok"); btn.style.width = ""; }, 1600);
     }
