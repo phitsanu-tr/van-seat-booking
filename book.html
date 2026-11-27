@@ -1542,7 +1542,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var c = counts[v.id];
       b.appendChild(el("span", "tn", v.label));
       b.setAttribute("aria-label", "รถตู้ " + v.label + (c != null ? " " + (c >= TOTAL ? "เต็ม" : "ว่าง " + (TOTAL - c) + " ที่นั่ง") : ""));
-      if (c != null) b.appendChild(el("small", null, (c >= TOTAL ? "เต็ม" : "ว่าง " + (TOTAL - c)) + (qvs && qvs[v.id] ? " · คิว" : "")));
+      if (c != null) b.appendChild(el("small", null, (c >= TOTAL ? "เต็ม" : "ว่าง " + (TOTAL - c))));
       b.addEventListener("click", function () { switchVan(v.id); });
       tabsEl.appendChild(b);
     });
