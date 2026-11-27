@@ -461,7 +461,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     swb.addEventListener("click", function () { if (busy) return; busy = true; var v = !allOn; call("onall", { value: v }).then(function () { busy = false; draw(); }, function () { busy = false; }); });
     rw.appendChild(swb); b1.appendChild(rw); sh.appendChild(b1);
     var b2 = el("div", "abox"); b2.appendChild(head("check", "การยืนยันผู้เข้าคิว"));
-    if (auN && auN < n) { var mn = el("div", "mixn"); mn.appendChild(el("i", null, "i")); mn.appendChild(el("span", null, "ตอนนี้แต่ละคันตั้งไม่เหมือนกัน เลือกด้านล่างเพื่อให้เหมือนกันทุกคัน")); b2.appendChild(mn); }
     function aopt(on, title, sub2, val) {
       var o = el("button", "opt" + (on ? " on" : "")); o.type = "button"; o.setAttribute("role", "radio"); o.setAttribute("aria-checked", on ? "true" : "false"); o.appendChild(el("i", "rd"));
       var ww = el("span"); var bb = el("b", null, title); if (val === false) bb.appendChild(el("em", "tag", "แนะนำ")); ww.appendChild(bb); ww.appendChild(el("small", null, sub2)); o.appendChild(ww);
