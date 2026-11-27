@@ -86,7 +86,6 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .vl .vb { display: grid; grid-template-columns: 5fr 6fr; gap: 8px; } .vl .vb button { min-width: 0; padding: 0 4px; white-space: nowrap; min-height: 48px; border: 0; border-radius: 12px; background: #e3eef0; color: var(--ink); font: 600 14px/20px var(--font-display); cursor: pointer; }
 .vl input.gi { width: 100%; min-height: 40px; border: 1px solid #cfe0e2; border-radius: 12px; padding: 0 12px; font: inherit; }
 .vl .vb .vline { background: #06c755; color: #fff; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; } .vl .vb .vline svg { width: 16px; height: 16px; flex: none; } @media (max-width: 340px) { .vl .vb .vline svg { display: none; } }
-.vall { min-height: 48px; border: 0; border-radius: 12px; background: #0b5f67; color: #fff; font: 600 14px/20px var(--font-display); cursor: pointer; }
 .vline { min-height: 48px; border: 0; border-radius: 12px; background: #06c755; color: #fff; font: 600 14px/20px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
 .vcf { position: fixed; inset: 0; z-index: 60; background: rgba(5, 20, 22, .5); display: flex; align-items: flex-end; justify-content: center; } .vcf[hidden] { display: none; }
 .vcf .sh { width: 100%; max-width: 480px; background: #fff; border-radius: 24px 24px 0 0; padding: 24px 16px; padding-bottom: max(24px, env(safe-area-inset-bottom, 0px)); display: grid; gap: 12px; }
@@ -101,6 +100,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .macts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
 @media (max-width: 340px) { .macts { grid-template-columns: minmax(0, 1fr); } }
 .macts .btn { height: 48px; gap: 8px; white-space: nowrap; font-family: var(--font-display); font-weight: 600; }
+.macts.multi #lineBtn { order: 2; } /* several vans: grey "open" on the left, green send on the right (like the buttons in a van row) */
 .macts .btn svg { width: 20px; height: 20px; flex: none; }
 .macts .btn.line { font-size: 16px; padding: 0 8px; line-height: 24px}
 .macts .btn.plain { font-size: 14px; padding: 0 8px; background: #f1f4f6; border-color: transparent; line-height: 20px}
@@ -1058,7 +1058,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var vl = $("vanLinks"); vlTrip = id; vlName = name || "";
     var known = (shareVans.length ? shareVans : rows.filter(function (r) { return r.id; }));
     vl.hidden = known.length < 2; vl.textContent = "";
-    multiShare = known.length > 1; $("lineBtn").querySelector("span").textContent = multiShare ? "ส่งทุกคัน" : "แชร์ใน LINE";
+    multiShare = known.length > 1; $("lineBtn").querySelector("span").textContent = multiShare ? "ส่งลิงก์ทั้งหมด" : "แชร์ใน LINE"; document.querySelector(".macts").classList.toggle("multi", multiShare);
     $("copyBox").style.display = known.length < 2 ? "" : "none"; // several vans: the whole-trip link moves to a small row under the vans (the sheet stays short)
     $("mSub").textContent = known.length < 2 ? $("mSub").textContent : "ส่งลิงก์คันไหน ผู้จองเห็นเฉพาะคันนั้น";
     if (known.length < 2) return;
@@ -1071,9 +1071,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function paintVanLinks() {
     var vl = $("vanLinks"); vl.textContent = "";
     if (!vlVans.length || vlVans.some(function (v) { return !v.k; })) return;
-    var all = document.createElement("button"); all.type = "button"; all.className = "vall"; all.textContent = "คัดลอกลิงก์ทุกคัน";
-    all.addEventListener("click", function () { copy((vlName ? vlName + "\n" : "") + vlVans.map(function (v) { return "คัน " + v.label + "" + ": " + vlUrl(v); }).join("\n"), all); });
-    vl.appendChild(all);
     $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent((vlName ? vlName + " · " : "") + "ลิงก์จองรายคัน\n\n" + vlVans.map(function (v) { return "คัน " + v.label + "" + "\n" + vlUrl(v); }).join("\n\n")); // the whole list as one text, for the organizer to pass on group by group
     vlVans.forEach(function (v) {
       var row = document.createElement("div"), open = vlOpen === v.id; row.className = "vl";
@@ -1177,7 +1174,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     function flash(ok) {
       var o = btn.innerHTML; btn.classList.toggle("ok", ok);
       if (!ok) { toast("คัดลอกไม่สำเร็จ ลองใหม่อีกครั้ง"); return; }
-      if (btn.classList.contains("vall")) { btn.textContent = "คัดลอกแล้ว"; setTimeout(function () { btn.textContent = o; btn.classList.remove("ok"); }, 1600); return; } // a text button: say so in words, not with the small icon
       btn.innerHTML = CHECK;
       setTimeout(function () { btn.innerHTML = o; btn.classList.remove("ok"); btn.style.width = ""; }, 1600);
     }
