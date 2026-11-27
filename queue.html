@@ -355,7 +355,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var igo = btn(total ? "เพิ่ม " + total + " คน" : "เพิ่ม", "go", function () {
         if (!total) return Promise.resolve(); var fail = "";
         return plan.reduce(function (pr, pl) { return pr.then(function () { if (!pl.take.length) return; return fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: T, a: "add", v: pl.z.id, names: pl.take }) }).then(function (r) { return r.json().then(function (j) { if (!r.ok) fail = MSG[j && j.error] || "ทำไม่สำเร็จ"; }); }); }); }, Promise.resolve()).catch(function () { fail = "เชื่อมต่อไม่ได้"; }).then(function () {
-          imp = null; sheet = ""; document.body.classList.remove("sheeton"); VC = {}; warmed = false; lastJ = ""; busy = false; draw(); if (fail) flash(fail); return load();
+          imp = null; sheet = ""; document.body.classList.remove("sheeton"); VC = {}; warmed = false; lastJ = ""; busy = false; draw(); if (fail) flash(fail); else showToast("เพิ่มรายชื่อแล้ว " + total + " คน", cutAll ? "ตัดออก " + cutAll + " คน เพราะคันเต็ม" : ""); return load();
         });
       });
       if (!total) igo.disabled = true; itb.appendChild(igo); ish.appendChild(itb);
