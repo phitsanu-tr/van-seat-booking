@@ -1065,7 +1065,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var CP_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
   var vlVans = [], vlOpen = "", vlPer = {}, vlTrip = "", vlName = "", vlRot = "";
   function vlUrl(v) { return link("/t/" + v.k); }
-  function vlCode(v) { return v.k.slice(0, 4).toUpperCase() + "-" + v.k.slice(4).toUpperCase(); }
+  function vlCode(v) { return "VT" + v.k.toUpperCase(); }
   function placeShareBtns(multi) { // several vans: the organizer link sits in its own amber card above the two buttons (grey "open" left, green send right); one van: no organizer card
     multiShare = multi; applyShareTab();
   }
@@ -1141,7 +1141,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     shown = { id: id }; goList = created === true || created === "saved"; shTab = "p";
     var share = shareLink = link("/" + id + "/seats");
     urlBox($("shareUrl"), id, location.host + "/" + id + "/seats");
-    $("orgCode").textContent = (function (c) { c = String(c).toUpperCase(); return c.length > 4 ? c.slice(0, 4) + "-" + c.slice(4) : c; })(id);
+    $("orgCode").textContent = "OG" + String(id).toUpperCase();
     $("openShare").href = "/" + id + "/seats";
     orgText = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + " · " : "") + "ลิงก์ผู้จัด (ดูทุกคัน) · ห้ามส่งให้ผู้จอง\n" + share); $("orgSend").href = orgText;
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์และรหัสทริป") + "</span>";

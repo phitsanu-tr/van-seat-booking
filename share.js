@@ -53,7 +53,7 @@
         { type: "span", text: "VAN", color: "#ffffff" }, { type: "span", text: " " }, { type: "span", text: "TRIP", color: "#fde9a6" }] };
     var head = { type: "box", layout: "vertical", alignItems: "flex-start", backgroundColor: kind === "org" ? "#7a4f00" : "#0b5f67", paddingAll: "14px", contents: [
       { type: "box", layout: "horizontal", spacing: "8px", alignItems: "center", width: "100%", contents: [ // brand at the left, the trip code (plain, upper case) at the right
-        brand].concat(t.id && !plain && (!t.vk || kind === "org") ? [txt(String(t.id).toUpperCase(), { size: "12px", color: "#bfe9ed", wrap: false, flex: 0, align: "end", gravity: "center" })] : []) }]
+        brand].concat((t.id || t.vk) && !plain ? [txt((t.vk && kind !== "org" ? "VT" + String(t.vk) : kind === "org" ? "OG" + String(t.id) : String(t.id)).toUpperCase(), { size: "12px", color: "#bfe9ed", wrap: false, flex: 0, align: "end", gravity: "center" })] : []) }]
       .concat(plain ? [] : [{ type: "separator", color: kind === "org" ? "#b8893a" : "#4f8a91", margin: "10px" }])
       .concat([txt(String(t.name || "ทริปรถตู้"), { weight: "bold", size: "20px", color: "#ffffff", margin: "8px", maxLines: 2 })])
       .concat(kind === "org" ? [txt("ลิงก์ผู้จัด · ดูทุกคัน · ห้ามส่งให้ผู้จอง", { size: "12px", color: "#ffe3a3", margin: "4px" })] : []) };

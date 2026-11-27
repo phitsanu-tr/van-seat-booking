@@ -815,7 +815,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var er = node("div", "herr"); er.setAttribute("role", "alert"); er.hidden = true; sh.appendChild(er);
     function bad(t) { er.textContent = t; er.hidden = !t; if (t) inp.setAttribute("aria-invalid", "true"); else inp.removeAttribute("aria-invalid"); }
     inp.addEventListener("input", function () { bad(""); });
-    f.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.parse(inp.value); if (!id) { bad(inp.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); inp.focus(); return; } location.href = "/" + id + "/seats"; });
+    f.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.dest(inp.value); if (!id) { bad(inp.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); inp.focus(); return; } location.href = id; });
     document.body.appendChild(bd); setTimeout(function () { inp.focus(); }, 50);
   }
   var TC = {}; try { TC = JSON.parse(sessionStorage.getItem("vsb_tc") || "{}") || {}; } catch (e) { TC = {}; }
@@ -2192,13 +2192,19 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     else { var sg = v.split("#")[0].split("?")[0].split("/"); v = ""; for (var si = 0; si < sg.length; si++) if (/^[a-hj-km-np-z2-9]{6,8}$/.test(sg[si])) { v = sg[si]; break; } } // the code may be followed by /seats, /list or /edit
     return /^[a-hj-km-np-z2-9]{6,8}$/.test(v) ? v : "";
   }
-    return { render: render, parse: parse };
+    function dest(v) {
+      var s = String(v || "").trim().toLowerCase(), c = s.replace(/[\s-]/g, ""), m;
+      if ((m = /\/t\/([a-hj-km-np-z2-9]{8})(?:[\/?#]|$)/.exec(s)) || (m = /^vt([a-hj-km-np-z2-9]{8})$/.exec(c))) return "/t/" + m[1] + "/seats"; // a van code or van link opens that van
+      if ((m = /^og([a-hj-km-np-z2-9]{8})$/.exec(c))) return "/" + m[1] + "/seats"; // an organizer code opens the trip
+      var id = parse(s); return id ? "/" + id + "/seats" : "";
+    }
+    return { render: render, parse: parse, dest: dest };
   })();
   (function () { // trip-code box on the home tab
     var form = $("hCodeForm"), input = $("hCode"), err = $("hErr");
     var ERR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>';
     function showErr(t) { err.textContent = ""; if (t) { err.insertAdjacentHTML("beforeend", ERR_ICON); var sp = document.createElement("span"); sp.textContent = t; err.appendChild(sp); } err.hidden = !t; if (t) input.setAttribute("aria-invalid", "true"); else input.removeAttribute("aria-invalid"); }
-    form.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.parse(input.value); if (!id) { showErr(input.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); input.focus(); return; } location.href = "/" + id + "/seats"; });
+    form.addEventListener("submit", function (e) { e.preventDefault(); var id = HM.dest(input.value); if (!id) { showErr(input.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); input.focus(); return; } location.href = id; });
     input.addEventListener("input", function () { showErr(""); });
   })();
   var wantAcct = false, loadedAt = 0, acctView = "";

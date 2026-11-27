@@ -179,6 +179,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     else { var sg = v.split("#")[0].split("?")[0].split("/"); v = ""; for (var si = 0; si < sg.length; si++) if (/^[a-hj-km-np-z2-9]{6,8}$/.test(sg[si])) { v = sg[si]; break; } } // the code may be followed by /seats, /list or /edit
     return /^[a-hj-km-np-z2-9]{6,8}$/.test(v) ? v : "";
   }
+  function dest(v) { // where a typed or pasted code / link goes: a van code (VT + 8) or a van link opens that van, an organizer code (OG + 8) or a trip code opens the trip
+    var s = String(v || "").trim().toLowerCase(), c = s.replace(/[\s-]/g, ""), m;
+    if ((m = /\/t\/([a-hj-km-np-z2-9]{8})(?:[\/?#]|$)/.exec(s)) || (m = /^vt([a-hj-km-np-z2-9]{8})$/.exec(c))) return "/t/" + m[1] + "/seats";
+    if ((m = /^og([a-hj-km-np-z2-9]{8})$/.exec(c))) return "/" + m[1] + "/seats";
+    var id = parse(s); return id ? "/" + id + "/seats" : "";
+  }
   var ERR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>';
   function showErr(t) {
     err.textContent = "";
@@ -188,9 +194,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   form.addEventListener("submit", function (e) {
     e.preventDefault();
-    var id = parse(input.value);
+    var id = dest(input.value);
     if (!id) { showErr(input.value.trim() ? "รหัสทริป หรือลิงก์ไม่ถูกต้อง" : "ใส่รหัสทริป หรือวางลิงก์ก่อน"); input.focus(); return; }
-    location.href = "/" + id + "/seats";
+    location.href = id;
   });
   input.addEventListener("input", function () { showErr(""); });
 })();

@@ -1894,7 +1894,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       ctx.lineTo(tx + 5, ty + 26); ctx.quadraticCurveTo(tx, ty + 26, tx, ty + 21); ctx.lineTo(tx, ty + 17); ctx.arc(tx, ty + 13, 4, Math.PI / 2, -Math.PI / 2, true); ctx.lineTo(tx, ty + 5); ctx.quadraticCurveTo(tx, ty, tx + 5, ty); ctx.stroke();
       ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(tx + 24, ty + 4); ctx.lineTo(tx + 24, ty + 22); ctx.stroke(); ctx.setLineDash([]);
     }
-    var codeT = K ? (K.slice(0, 4) + "-" + K.slice(4)).toUpperCase() : TRIP.toUpperCase(); // a van link: the van's own code, never the trip code (that one opens every van)
+    var codeT = K ? ("VT" + K).toUpperCase() : TRIP.toUpperCase(); // a van link: the van's own code, never the trip code (that one opens every van)
     ctx.textAlign = "left"; ctx.fillStyle = "#bfe9ed";
     if (false) { ctx.font = '600 34px ' + PF; ctx.fillStyle = "#ffffff"; ctx.fillText("VanTrip", X, 30 + 30); ctx.font = '400 26px ' + NF; ctx.fillStyle = "#bfe9ed";
       var lt = "SEAT PASS  " + codeT; ctx.textAlign = "right"; ctx.fillText(lt.split("").join(String.fromCharCode(8202)), X + IW, 30 + 29); ctx.textAlign = "left"; }
