@@ -4,7 +4,7 @@
 <script>try{if(/\bLine\//i.test(navigator.userAgent))document.documentElement.classList.add("in-line")}catch(e){}</script>
 <meta charset="utf-8">
 <link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>VanTrip</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@400;500;600;700&display=swap">
@@ -19,7 +19,7 @@ button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every
   --amber: #b86e00; --amber-tint: #fdf0dd; --danger: #b3261e; --green: #068c3f;
   --font-display: "Prompt", "Noto Sans Thai", system-ui, sans-serif; --font-body: "Noto Sans Thai", system-ui, sans-serif; color-scheme: light;
 }
-html { touch-action: manipulation; }
+html { touch-action: pan-x pan-y; }
 body { margin: 0; background: #fff; color: var(--ink); font: 14px/20px var(--font-body); -webkit-tap-highlight-color: transparent; }
 main { max-width: 460px; margin: 0 auto; padding: 20px 16px 0; display: flex; flex-direction: column; gap: 16px; }
 .back { align-self: flex-start; display: inline-flex; align-items: center; gap: 2px; color: var(--deep); font: 600 16px/24px var(--font-display); text-decoration: none; }

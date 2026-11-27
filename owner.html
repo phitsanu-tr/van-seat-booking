@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <style>
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; }</style>
+button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: pan-x pan-y; }</style>
 <script>/* no pinch zoom */["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener("touchmove",function(e){if(e.touches.length>1&&e.scale&&e.scale!==1)e.preventDefault()},{passive:false});</script>
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">

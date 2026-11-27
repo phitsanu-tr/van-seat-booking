@@ -4,9 +4,9 @@
 <script>try{if(!window.__go&&localStorage.getItem("vsb_in")==="1"&&!localStorage.getItem("vsb_gone")&&localStorage.getItem("vsb_tb"))document.documentElement.classList.add("vt-known")}catch(e){}try{document.documentElement.classList.add("vt-t-"+({"/trips":"trips","/seats":"seats","/profile":"acct","/notify":"notif"}[location.pathname]||"home"))}catch(e){}</script>
 <meta charset="utf-8">
 <link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <style>
-button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: manipulation; }
+button { padding-top: 0; padding-bottom: 0; } /* drop the browser's 1px so every size stays even */html { touch-action: pan-x pan-y; }
 /* app (signed in): page title + bell on top, 4-tab bar at the bottom, the same in LINE and in any browser */
 .tabbar{transform:translateZ(0);will-change:transform;position:fixed;left:0;right:0;bottom:0;height:auto;padding-top:8px;padding-bottom:max(8px,env(safe-area-inset-bottom));background:#fff;display:none;justify-content:space-around;align-items:flex-start;z-index:15;box-shadow:0 -2px 8px rgba(0,0,0,.04)} /* 56px bar + bottom gap (8px, or the iPhone home bar) */
 body.signed .tabbar,html.vt-known .tabbar{display:flex}
