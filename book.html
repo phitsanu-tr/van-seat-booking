@@ -773,43 +773,47 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     return "";
   }
   function nfForm(ph) {
-    var f = nfEl("form", "display:flex;gap:8px;margin-top:12px;text-align:left"), inp = nfEl("input", "flex:1;min-width:0;height:48px;border:1.5px solid #dde3e7;border-radius:12px;padding:0 12px;font:inherit;font-size:16px;background:#fff");
+    var f = nfEl("form", "display:flex;gap:8px;margin-top:12px;text-align:left"), inp = nfEl("input", "flex:1;min-width:0;height:48px;border:1.5px solid #dde3e7;border-radius:12px;padding:0 13px;font:inherit;font-size:16px;background:#fff");
     inp.type = "text"; inp.placeholder = ph; inp.autocapitalize = "characters"; inp.autocomplete = "off"; inp.spellcheck = false; inp.setAttribute("aria-label", ph);
-    var go = nfEl("button", "flex:none;width:48px;height:48px;border:0;border-radius:12px;background:var(--mine);color:#fff;font-size:24px;line-height:24px;cursor:pointer", "›"); go.type = "submit"; go.setAttribute("aria-label", "ไป");
+    var go = nfEl("button", "flex:none;width:48px;height:48px;border:0;border-radius:12px;background:#0b5f67;color:#fff;font-size:24px;line-height:24px;cursor:pointer", "›"); go.type = "submit"; go.setAttribute("aria-label", "ไป");
     var er = nfEl("div", "color:#b3261e;font-size:13px;margin-top:6px;text-align:left"); er.hidden = true;
     f.appendChild(inp); f.appendChild(go);
     f.addEventListener("submit", function (e) { e.preventDefault(); var d = nfCodeDest(inp.value); if (!d) { er.textContent = inp.value.trim() ? "รหัสไม่ถูกต้อง ตรวจรหัสที่ผู้จัดส่งให้อีกครั้ง" : "ใส่รหัสรถตู้ก่อน"; er.hidden = false; inp.focus(); return; } location.href = d; });
-    var w = document.createElement("div"); w.appendChild(f); w.appendChild(er); return w;
+    var w = nfEl("div", "width:100%"); w.appendChild(f); w.appendChild(er); return w;
   }
   function nfBtn(text, href, quiet) {
-    var a = nfEl("a", "display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:12px;margin-top:12px;font-weight:600;text-decoration:none;" + (quiet ? "background:#e3eef0;color:var(--mine)" : "background:var(--mine);color:#fff"), text); a.href = href; return a;
+    var a = nfEl("a", "display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:12px;margin-top:10px;padding:0 16px;font-size:15px;font-weight:700;text-decoration:none;" + (quiet ? "background:#e3eef0;color:#0b5f67" : "background:#0b5f67;color:#fff"), text); a.href = href; return a;
   }
   function nfStep(n, html) {
-    var r = nfEl("div", "display:flex;gap:10px;align-items:flex-start;text-align:left;margin-top:10px"), b = nfEl("div", "flex:none;width:24px;height:24px;border-radius:50%;background:#e3eef0;color:var(--mine);font-weight:700;font-size:13px;line-height:24px;text-align:center", String(n));
-    var t = nfEl("div", "font-size:14px;line-height:1.5"); t.innerHTML = html; r.appendChild(b); r.appendChild(t); return r;
+    var r = nfEl("div", "display:flex;gap:10px;align-items:flex-start;text-align:left;margin-top:10px"), b = nfEl("div", "flex:none;width:24px;height:24px;border-radius:50%;background:#e3eef0;color:#0b5f67;font-weight:700;font-size:13px;line-height:24px;text-align:center", String(n));
+    var t = nfEl("div", "font-size:14px;line-height:1.5;color:#1b1f22"); t.innerHTML = html; r.appendChild(b); r.appendChild(t); return r;
   }
-  function nfFill(title, intro) { Array.prototype.forEach.call(document.querySelectorAll("#nfBox a"), function (x) { x.remove(); }); var h = document.querySelector("#nfBox h2"), p = document.querySelector("#nfBox p"); if (h) h.textContent = title; if (p) { p.textContent = intro || ""; p.style.display = intro ? "" : "none"; } return document.getElementById("nfBox"); }
+  function nfFill(title, intro, icon) { var box = document.getElementById("nfBox"); Array.prototype.forEach.call(box.querySelectorAll("a,form,.nfx"), function (x) { x.remove(); });
+    box.style.cssText = "gap:0;padding:18px 16px;align-items:stretch"; var v = box.querySelector(".nfv"); if (v) v.style.display = "none";
+    var h = box.querySelector("h2"), p = box.querySelector("p"); if (h) { h.textContent = title; h.style.cssText = "margin:0;font:700 18px/26px var(--font-display);color:#1b1f22"; } if (p) { p.textContent = intro || ""; p.style.cssText = "margin:6px 0 0;font-size:14px;line-height:21px;color:#5d6b73"; }
+    if (icon) { var c = nfEl("div", "width:56px;height:56px;border-radius:50%;background:#d9730d;color:#fff;font:700 28px/56px sans-serif;margin:0 auto 10px", "!"); c.className = "nfx"; box.insertBefore(c, h); } return box; }
   function badLink() { // a van link that was replaced, or mistyped: say so without revealing which trip or van exists
-    var box = nfFill("ลิงก์นี้ใช้ไม่ได้แล้ว", "ผู้จัดอาจเปลี่ยนลิงก์ของรถตู้คันนี้ ขอลิงก์ใหม่จากผู้จัดที่ส่งให้คุณ");
+    var box = nfFill("ลิงก์นี้ใช้ไม่ได้แล้ว", "ผู้จัดอาจเปลี่ยนลิงก์ของรถตู้คันนี้ ขอลิงก์ใหม่จากผู้จัดที่ส่งให้คุณ", true);
     box.appendChild(nfForm("มีรหัสใหม่? ใส่รหัส VT…"));
     box.appendChild(nfBtn("ดูที่นั่งที่ฉันจองไว้", "/seats"));
-    box.appendChild(nfEl("div", "margin-top:10px;font-size:13px;color:var(--muted,#5d6b73);line-height:1.5", "จองไว้แล้ว ที่นั่งของคุณยังอยู่ ดูได้ที่นี่โดยไม่ต้องใช้ลิงก์"));
+    box.appendChild(nfEl("div", "margin-top:6px;font-size:13px;color:#5d6b73;line-height:1.5;text-align:center", "จองไว้แล้ว ที่นั่งของคุณยังอยู่ ดูได้ที่นี่ไม่ต้องใช้ลิงก์"));
   }
   function organizerOnly(t) { // the trip-wide link, opened by someone who is not on the organizer team
-    var box = nfFill("เลือกรถตู้ของคุณ", "ทริปนี้มีลิงก์แยกตามรถตู้ ใช้ลิงก์ของคันที่คุณอยู่");
+    var box = nfFill("เลือกรถตู้ของคุณ", "ทริปนี้มีหลายคัน แต่ละคันมีลิงก์ของตัวเอง");
     if (t && t.name) {
       var d = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(t.startDate || "")), ds = d ? (+d[3]) + " " + THMON[+d[2] - 1] + " " + String((+d[1] + 543) % 100).padStart(2, "0") : "";
-      var tb = nfEl("div", "text-align:left;background:#f1f6f7;border-radius:12px;padding:10px 12px;margin:0 0 12px");
+      var tb = nfEl("div", "text-align:left;background:#f1f6f7;border-radius:12px;padding:10px 12px;margin:0 0 14px");
+      tb.className = "nfx";
       tb.appendChild(nfEl("div", "font-size:12px;color:#5d6b73", "ทริป")); tb.appendChild(nfEl("div", "font-weight:700;font-size:16px", t.name));
       var sub = [t.organizer ? "ผู้จัด · " + t.organizer : "", ds].filter(Boolean).join(" · "); if (sub) tb.appendChild(nfEl("div", "font-size:12px;color:#5d6b73;margin-top:2px", sub));
       box.insertBefore(tb, box.querySelector("h2"));
     }
-    box.appendChild(nfStep(1, "ถามผู้จัดว่าคุณอยู่รถตู้คันไหน"));
+    box.appendChild(nfStep(1, "ถามผู้จัดว่าคุณอยู่คันไหน"));
     box.appendChild(nfStep(2, "ขอลิงก์รถตู้ หรือรหัส <b>VT…</b> ในกลุ่ม LINE ของทริป"));
     box.appendChild(nfStep(3, "แตะลิงก์ หรือใส่รหัสด้านล่าง"));
-    box.appendChild(nfForm("ใส่รหัสรถตู้ VT…"));
+    box.appendChild(nfForm("ใส่รหัสรถตู้ เช่น VTKRUCP8P3"));
     if (t && t.name) box.appendChild(nfBtn("ดูข้อมูลทริป", basePath(), true));
-    var og = nfEl("div", "margin-top:14px;font-size:13px;color:#5d6b73", "เป็นผู้จัดทริปนี้? "), a = nfEl("a", "display:inline;background:none;box-shadow:none;border:0;min-height:0;height:auto;padding:0;margin:0;color:var(--mine);font-weight:600;text-decoration:underline", "เข้าสู่ระบบผู้จัด"); a.href = "/trips"; og.appendChild(a); box.appendChild(og);
+    var og = nfEl("div", "margin-top:14px;font-size:12px;color:#5d6b73;text-align:center", "เป็นผู้จัดทริปนี้? "), a = nfEl("a", "display:inline;background:none;box-shadow:none;border:0;min-height:0;height:auto;padding:0;margin:0;color:#0b5f67;font-weight:400;text-decoration:underline", "เข้าสู่ระบบผู้จัด"); a.href = "/trips"; og.appendChild(a); box.appendChild(og);
   }
   function qLink() { return K ? "/t/" + K + "/queue" : "/" + TRIP + "/queue" + (trip && trip.vans && trip.vans.length > 1 && curVan ? "?v=" + encodeURIComponent(curVan) : ""); }
   function qBlocked() { return !!(loaded && !isOwner && !closed && !ended && (qon && !(qs && qs.s === "turn"))); }
