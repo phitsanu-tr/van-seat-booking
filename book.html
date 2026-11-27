@@ -117,6 +117,8 @@ header.trip { display: block; }
 .deck .sheet { border: 0; border-radius: 0; }
 .deck .dv { height: 0; border: 0; border-top: 1px solid #e8ecef; margin: 0 16px; }
 .vban { display: flex; align-items: center; gap: 8px; min-height: 48px; margin-top: 16px; padding: 0 16px; border-radius: 12px; background: #0b5f67; color: #fff; font-size: 14px; line-height: 20px; }
+.vpill { margin-left: auto; flex: none; background: #e1f0ef; color: #0b5f67; border-radius: 999px; padding: 4px 10px; font-size: 12px; line-height: 16px; font-weight: 600; }
+.tlbl .tl { min-width: 0; }
 .vban[hidden] { display: none; } .vban b { font-family: var(--font-display); font-weight: 600; min-width: 0; overflow-wrap: anywhere; } .vban span { margin-left: auto; flex: none; font-size: 12px; line-height: 18px; color: #bfe9ed; }
 .ended { display: flex; gap: 12px; align-items: flex-start; margin-top: 12px; padding: 12px 16px; border-radius: 16px; background: color-mix(in srgb, var(--ink) 6%, var(--surface)); border: 1px solid var(--line); font-size: 14px; line-height: 20px; }
 .ended svg { flex: none; width: 16px; height: 16px; margin-top: 4px; color: var(--mine); }
@@ -1352,7 +1354,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function infoMode() { return pathView() === "info"; }
   var vanTitle = ""; // a van link of a trip with several vans: which van this is (shown above the seat map)
   function applyMode() {
-    var on = infoMode(); var vbn = document.getElementById("vanBan"); if (vbn) vbn.hidden = !vanTitle || on;
+    var on = infoMode(); var vbn = document.getElementById("vanBan"); if (vbn) vbn.hidden = true;
     if (!on) { view = pathView() === "list" ? "list" : "map"; document.getElementById("sheetView").hidden = view !== "map"; document.getElementById("listView").hidden = view !== "list"; }
     document.body.classList.toggle("v-info", on);
     document.body.classList.toggle("v-list", !on && view === "list");
@@ -1538,12 +1540,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     plateEl.textContent = "";
     if (cur && cur.plate) { plateEl.appendChild(document.createTextNode("ทะเบียน ")); plateEl.appendChild(el("b", null, cur.plate)); }
     plateEl.hidden = !(cur && cur.plate);
-    lblEl.hidden = !multi;
+    lblEl.hidden = !multi && !vanTitle; // a van link of a many-van trip: the same card header, with a pill saying this page books only this van
+    lblEl.querySelector(".tl").lastChild.textContent = vanTitle ? vanTitle.replace(/^คัน\s*/, "รถตู้ ") : "เลือกรถตู้";
+    Array.prototype.forEach.call(lblEl.querySelectorAll(".vpill"), function (x) { x.remove(); });
+    if (vanTitle) lblEl.appendChild(el("span", "vpill", "จองได้คันนี้เท่านั้น"));
     var vb = document.getElementById("vanBan"); // a van link: a bar under the tabs says which van this page is (on every tab)
-    vb.hidden = !vanTitle || infoMode(); vb.textContent = ""; // not on the trip details: those are the same for every van
-    if (vanTitle) { vb.appendChild(el("b", null, vanTitle)); vb.appendChild(el("span", null, "จองได้เฉพาะคันนี้")); }
+    vb.hidden = true; vb.textContent = "";
     tabsEl.textContent = "";
-    tabsEl.hidden = trip.vans.length < 2; document.getElementById("tabDv").hidden = trip.vans.length < 2; tabsEl.style.setProperty("--vn", String(Math.min(trip.vans.length, 5)));
+    tabsEl.hidden = trip.vans.length < 2; document.getElementById("tabDv").hidden = trip.vans.length < 2 && !vanTitle; document.getElementById("tabDv").style.marginTop = trip.vans.length < 2 ? "12px" : ""; tabsEl.style.setProperty("--vn", String(Math.min(trip.vans.length, 5)));
     trip.vans.forEach(function (v) {
       var b = el("button", "tab");
       b.type = "button"; b.setAttribute("role", "tab");
