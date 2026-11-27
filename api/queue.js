@@ -2,6 +2,7 @@
 //   GET  ?t=code                      -> { on, items, turn, mine, role }   (LINE name/photo of a claimed row: organizers only)
 //   POST {t, a: "on", value}          organizer: turn the queue on / off
 //        {t, a: "onall", value}       organizer: turn every van's queue on / off
+//        {t, a: "autoall", value}     organizer: set the approval mode of every van (true = approved at once)
 //        {t, a: "auto", value}        organizer: true = "this is me" is approved at once (no organizer check)
 //        {t, a: "add", names: [..]}   organizer: add passengers at the end (one name per entry)
 //        {t, a: "remove" | "up" | "down" | "unbind", id}   organizer
@@ -39,7 +40,7 @@ module.exports = async function handler(req, res) {
     const cap = Math.min(Q.MAX_ITEMS, L.TOTAL_SEATS); // one name per seat of this van
     const myE = Q.myEntry(trip, vid);
     // organizer: the state of every van's queue (for the van tabs)
-    const vsum = async () => (await Q.readAll(trip)).map((x) => ({ id: x.id, l: x.label, on: x.q.on ? 1 : 0, n: x.q.items.filter((i) => !i.done).length, w: x.q.items.filter((i) => i.u && !i.ok && !i.done).length }));
+    const vsum = async () => (await Q.readAll(trip)).map((x) => ({ id: x.id, l: x.label, on: x.q.on ? 1 : 0, au: x.q.auto ? 1 : 0, n: x.q.items.filter((i) => !i.done).length, w: x.q.items.filter((i) => i.u && !i.ok && !i.done).length }));
 
     // a passenger sees other names only while finding their own; signed out or already in the queue: only their own
     let myN = 0; // seats this person already holds on the trip (tells "used the turn and booked" from "turn ended without a seat")
@@ -69,7 +70,7 @@ module.exports = async function handler(req, res) {
     if (L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });
     if (await L.rateLimited(req, user, "queue:" + t, 120, 600)) return L.json(res, 429, { error: "too_many" });
     const a = String(body.a || ""), id = String(body.id || "");
-    const orgActs = ["on", "onall", "auto", "okall", "add", "remove", "up", "down", "unbind", "reject", "ok", "done", "rename"];
+    const orgActs = ["on", "onall", "auto", "autoall", "okall", "add", "remove", "up", "down", "unbind", "reject", "ok", "done", "rename"];
     if (orgActs.includes(a) && !org) return L.json(res, 403, { error: "not_owner" });
     const row = (q) => q.items.find((i) => i.id === id);
     let fn = null, rejUid = "", rejName = "";
@@ -79,6 +80,11 @@ module.exports = async function handler(req, res) {
     else if (a === "onall") { // every van at once
       const v = body.value === true;
       for (const x of trip.vans || []) { const r = await Q.update(trip, x.id, (q) => { if (!!q.on === v) return false; q.on = v; }); if (r.error) return L.json(res, 409, { error: r.error }); }
+      fn = () => false;
+    }
+    else if (a === "autoall") { // every van's approval mode at once
+      const v = body.value === true;
+      for (const x of trip.vans || []) { const r = await Q.update(trip, x.id, (q) => { if (!!q.auto === v) return false; if (v) q.auto = 1; else delete q.auto; }); if (r.error) return L.json(res, 409, { error: r.error }); }
       fn = () => false;
     }
     else if (a === "add") {
