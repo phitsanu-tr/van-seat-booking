@@ -241,7 +241,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       sg.appendChild(opt(!D.auto, "ผู้จัดอนุมัติ", "ผู้จัดตรวจชื่อและรูป LINE ก่อน จึงจะใช้สิทธิ์ได้", false));
       sg.appendChild(opt(!!D.auto, "อนุมัติทันที", "ใช้สิทธิ์ได้เลยโดยไม่ต้องรอ เหมาะกับกลุ่มคนสนิท · ปลดชื่อได้ภายหลัง", true));
       cv.appendChild(sg);
-      cv.appendChild(el("p", "setnote", D.auto ? "คนที่เข้าคิวจากนี้ใช้สิทธิ์ได้ทันที ผู้จัดยังใช้ “ปลดชื่อ” ที่แถวของเขาได้ภายหลัง" : "คนที่เข้าคิวและอนุมัติไปแล้วยังใช้สิทธิ์ได้ตามเดิม ใช้ “ปลดชื่อ” ที่แถวของเขาถ้าต้องการถอน"));
+      cv.appendChild(el("p", "setnote", D.auto ? "คนเข้าคิวใหม่ใช้สิทธิ์ได้ทันที · ถอนด้วย “ปลดชื่อ”" : "คนที่อนุมัติแล้วยังใช้สิทธิ์ได้ · ถอนด้วย “ปลดชื่อ”"));
       main.appendChild(cv);
     } else {
       var cl2 = el("div", "card"); cl2.appendChild(chead("users", "ลำดับคิว", D.items.length + " / " + (D.cap || 80) + " คน"));
