@@ -1627,6 +1627,23 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 
   function renderAll() { renderTrip(); renderNotice(); renderGrid(); renderPanel(); renderList(); }
 
+  function seatsFrom(src) {
+    var next = {}; src = src || {};
+    Object.keys(src).forEach(function (k) {
+      var n = Number(k);
+      if (n >= 1 && n <= TOTAL && src[k] && src[k].name) next[n] = { name: String(src[k].name), at: src[k].at, m: !!src[k].m, a: !!src[k].a, ln: src[k].ln ? String(src[k].ln) : "", lp: /^https:\/\//.test(src[k].lp || "") ? String(src[k].lp) : "" };
+    });
+    return next;
+  }
+  var warmed = false;
+  function warmVans() { // the organizer on the trip link: fetch the other vans' seats quietly, so a tab tap draws at once
+    if (warmed || K || !trip || !trip.vans || trip.vans.length < 2) return;
+    warmed = true;
+    trip.vans.forEach(function (v) {
+      if (v.id === curVan || vanCache[v.id]) return;
+      fetch(API + "?t=" + encodeURIComponent(TRIP) + "&v=" + encodeURIComponent(v.id), { cache: "no-store" }).then(function (res) { return res.ok ? res.json() : null; }).then(function (d) { if (d && d.seats && !vanCache[v.id] && v.id !== curVan) vanCache[v.id] = seatsFrom(d.seats); }).catch(function () {});
+    });
+  }
   async function refresh(force) {
     if (pending > 0) return;
     try {
@@ -1656,19 +1673,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       ended = !!(r.data && r.data.ended); closed = !!(r.data && r.data.closed); qon = !!(r.data && r.data.qon); qs = (r.data && r.data.qs) || null; qvs = (r.data && r.data.qv) || null;
       var meWas = JSON.stringify(me); me = (r.data && r.data.me) || null; isOwner = !!(r.data && r.data.owner); seatLimit = Number(r.data && r.data.limit) || 0;
       if (JSON.stringify(me) !== meWas || !loaded) renderAcct();
-      var next = {};
-      var src = (r.data && r.data.seats) || {};
-      Object.keys(src).forEach(function (k) {
-        var n = Number(k);
-        if (n >= 1 && n <= TOTAL && src[k] && src[k].name) next[n] = { name: String(src[k].name), at: src[k].at, m: !!src[k].m, a: !!src[k].a, ln: src[k].ln ? String(src[k].ln) : "", lp: /^https:\/\//.test(src[k].lp || "") ? String(src[k].lp) : "" };
-      });
+      var next = seatsFrom(r.data && r.data.seats);
       var snap = JSON.stringify(next);
       var changed = snap !== lastSnapshot || !loaded || JSON.stringify(counts) !== lastCounts || JSON.stringify(trip) + ended + closed !== lastTrip;
       var ibNow = r.data && r.data.ib;
       if (bellOn && ((loaded && lastTrip && JSON.stringify(trip) + ended + closed !== lastTrip) || (ibNow !== undefined && lastIb !== null && ibNow !== lastIb))) VSBBell.load(); // new notification (or the trip changed)
       if (ibNow !== undefined) lastIb = ibNow;
       lastCounts = JSON.stringify(counts); lastTrip = JSON.stringify(trip) + ended + closed;
-      seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff(); showNet(false);
+      seats = next; lastSnapshot = snap; loaded = true; loadError = ""; skOff(); showNet(false); warmVans();
       if (locked() && selected !== null) { selected = null; message = ""; confirming = false; renaming = false; force = true; } // closed while the dialog was open
       if (changed || force) renderAll();
       if (wantSeat) { var ws = wantSeat; wantSeat = 0; if (!seats[ws] && !locked() && !qBlocked()) openSeat(ws); }
