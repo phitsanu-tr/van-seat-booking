@@ -464,7 +464,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (auN && auN < n) { var mn = el("div", "mixn"); mn.appendChild(el("i", null, "i")); mn.appendChild(el("span", null, "ตอนนี้แต่ละคันตั้งไม่เหมือนกัน เลือกด้านล่างเพื่อให้เหมือนกันทุกคัน")); b2.appendChild(mn); }
     function aopt(on, title, sub2, val) {
       var o = el("button", "opt" + (on ? " on" : "")); o.type = "button"; o.setAttribute("role", "radio"); o.setAttribute("aria-checked", on ? "true" : "false"); o.appendChild(el("i", "rd"));
-      var ww = el("span"); ww.appendChild(el("b", null, title)); ww.appendChild(el("small", null, sub2)); o.appendChild(ww);
+      var ww = el("span"); var bb = el("b", null, title); if (val === false) bb.appendChild(el("em", "tag", "แนะนำ")); ww.appendChild(bb); ww.appendChild(el("small", null, sub2)); o.appendChild(ww);
       o.addEventListener("click", function () { if (busy || on) return; busy = true; call("autoall", { value: val }).then(function () { busy = false; draw(); showToast(val ? "เปลี่ยนเป็นอนุมัติทันทีทุกคันแล้ว" : "เปลี่ยนเป็นผู้จัดอนุมัติทุกคันแล้ว"); }, function () { busy = false; }); });
       return o;
     }
