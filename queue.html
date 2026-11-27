@@ -157,14 +157,16 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 </div>
 <script>
 (function () {
-  var T = (location.pathname.match(/^\/([a-z0-9]+)\/queue/) || [])[1] || "";
+  var K = (location.pathname.match(/^\/t\/([a-hj-km-np-z2-9]{8})\/queue/) || [])[1] || ""; // a van link: this page shows that van's queue only
+  var T = K ? "" : (location.pathname.match(/^\/([a-z0-9]+)\/queue/) || [])[1] || "";
+  var SEATS = K ? "/t/" + K : "/" + T + "/seats";
   var V = (location.search.match(/[?&]v=([a-z0-9]+)/) || [])[1] || ""; // which van's queue is open
   var main = document.getElementById("main"), D = null, busy = false; var draft = ""; // the names being typed survive a redraw
   function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; }
   function btn(txt, cls, fn) { var b = el("button", cls || "", txt); b.type = "button"; b.addEventListener("click", function () { if (busy) return; busy = true; fn().then(function () { busy = false; }, function () { busy = false; }); }); return b; }
   var MSG = { has_seats: "คนนี้จองที่นั่งไว้ ทำรายการนี้ไม่ได้ ยกเลิกที่นั่งก่อน", login_required: "ต้องเข้าสู่ระบบก่อน", already_claimed: "คุณยืนยันชื่อไปแล้ว", row_taken: "ชื่อนี้มีคนกดยืนยันแล้ว", queue_full: "เกินจำนวนที่นั่งรวมของทริป", bad_name: "ชื่อไม่ถูกต้อง", not_your_turn: "ยังไม่ถึงคิวของคุณ", busy: "ลองอีกครั้ง", ended: "ทริปจบแล้ว", not_owner: "เฉพาะผู้จัดทริป" };
   function call(a, extra, onFail) {
-    return fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ t: T, a: a, v: V || undefined }, extra || {})) })
+    return fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ t: T, k: K || undefined, a: a, v: K ? undefined : V || undefined }, extra || {})) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (o) { if (o.ok && o.j && o.j.items) { D = o.j; if (D.v) V = D.v; draw(); } else { if (onFail) onFail(); flash((MSG[o.j && o.j.error]) || "ทำไม่สำเร็จ"); } })
       .catch(function () { if (onFail) onFail(); flash("เชื่อมต่อไม่ได้"); });
@@ -178,7 +180,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var lastJ = "";
   function load() {
     if (busy || sheet === "add" || sheet === "edit" || document.activeElement && document.activeElement.tagName === "TEXTAREA") return Promise.resolve(); // an action is on its way, or the person is typing: do not redraw under them
-    return fetch("/api/queue?t=" + encodeURIComponent(T) + (V ? "&v=" + encodeURIComponent(V) : ""), { cache: "no-store" }).then(function (r) {
+    return fetch("/api/queue?" + (K ? "k=" + K : "t=" + encodeURIComponent(T) + (V ? "&v=" + encodeURIComponent(V) : "")), { cache: "no-store" }).then(function (r) {
       if (r.status === 404) { return r.json().then(function (j) { D = { off: j && j.error }; draw(); }); }
       return r.json().then(function (j) { var sj = JSON.stringify(j); if (D && sj === lastJ) return; lastJ = sj; D = j; if (j && j.v) V = j.v; draw(); });
     }).catch(function () {});
@@ -266,7 +268,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       cl2.appendChild(errBox); main.appendChild(cl2);
 
     }
-    var bar = el("div", "obar one"); var bk = el("a", "b", "ย้อนกลับ"); bk.href = "/" + T + "/seats"; bk.addEventListener("click", function (e) { try { if (history.length > 1) { e.preventDefault(); history.back(); } } catch (x) {} }); bar.appendChild(bk);
+    var bar = el("div", "obar one"); var bk = el("a", "b", "ย้อนกลับ"); bk.href = SEATS; bk.addEventListener("click", function (e) { try { if (history.length > 1) { e.preventDefault(); history.back(); } } catch (x) {} }); bar.appendChild(bk);
     main.appendChild(bar);
     if (sheet === "edit") {
       var eit = D.items.filter(function (x) { return x.id === editId; })[0], efirst = sheetNew; sheetNew = false;
@@ -322,7 +324,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     main.textContent = "";
     if (!D) return;
     var h0 = document.querySelector("h1"); if (h0) { h0.classList.remove("pend"); if (D.off) h0.textContent = "คิวจองที่นั่ง"; }
-    if (D.off) { var c0 = el("div", "card"); c0.appendChild(el("p", "empty", D.off === "no_trip" ? "ไม่พบทริปนี้" : "ยังไม่เปิดใช้คิวจอง")); main.appendChild(c0); return; }
+    if (D.off) { var c0 = el("div", "card"); c0.appendChild(el("p", "empty", D.off === "no_trip" ? "ไม่พบทริปนี้" : D.off === "bad_link" ? "ลิงก์นี้ใช้ไม่ได้แล้ว ขอลิงก์ใหม่จากผู้จัดทริปของคุณ" : "ยังไม่เปิดใช้คิวจอง")); main.appendChild(c0); return; }
     var org = !!D.role, signedIn = !!D.me;
     document.body.classList.toggle("org", org);
     errBox = el("div", "err"); errBox.hidden = true; errBox.setAttribute("role", "alert");
@@ -336,7 +338,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   // passenger view: the full list only while finding your own name; once claimed, only your own status
   var justClaimed = false, paxSheet = null;
-  function backBar(btns) { var bar = el("div", "obar" + (!btns || btns.length === 1 ? " one" : "")); if (btns) btns.forEach(function (b) { bar.appendChild(b); }); else { var bk = el("a", "b", "ย้อนกลับ"); bk.href = "/" + T + "/seats"; bk.addEventListener("click", function (e) { try { if (history.length > 1) { e.preventDefault(); history.back(); } } catch (x) {} }); bar.appendChild(bk); } main.appendChild(bar); }
+  function backBar(btns) { var bar = el("div", "obar" + (!btns || btns.length === 1 ? " one" : "")); if (btns) btns.forEach(function (b) { bar.appendChild(b); }); else { var bk = el("a", "b", "ย้อนกลับ"); bk.href = SEATS; bk.addEventListener("click", function (e) { try { if (history.length > 1) { e.preventDefault(); history.back(); } } catch (x) {} }); bar.appendChild(bk); } main.appendChild(bar); }
   function tlNode(label, num, kind) { var d = el("div", "nd " + kind); d.appendChild(el("i", null, num)); d.appendChild(document.createTextNode(label)); return d; }
   var QI_BELL = "M6 17V11a6 6 0 0 1 12 0v6l2 2H4zM10 21h4", QI_OK = "M5 12l5 5 9-10", QI_WARN = "M12 3l10 18H2zM12 10v5M12 18v.5";
   function qin(path, text) { var r = el("div", "qin"); r.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + path + '"/></svg>'; r.appendChild(el("span", null, text)); return r; }
@@ -347,7 +349,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (!D.on) {
       if (h1) h1.textContent = "คิวจองที่นั่ง";
       var c1 = el("div", "card"); c1.appendChild(el("h2", null, "ทริปนี้ยังไม่เปิดคิว")); c1.appendChild(el("p", "note", "จองที่นั่งได้ตามปกติ")); main.appendChild(c1);
-      var g1 = el("a", "b p", "ไปเลือกที่นั่ง"); g1.href = "/" + T + "/seats"; backBar([g1]); return;
+      var g1 = el("a", "b p", "ไปเลือกที่นั่ง"); g1.href = SEATS; backBar([g1]); return;
     }
     if (!signedIn) {
       if (h1) h1.textContent = "คิวจองที่นั่ง";
@@ -380,7 +382,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (mine.done && !(D.seats > 0)) {
       card = el("div", "qcard am"); var t0b = el("div", "qsent"); t0b.appendChild(el("b", null, "จบคิวแล้ว")); card.appendChild(t0b); card.appendChild(qin(QI_WARN, "คุณยังไม่ได้เลือกที่นั่ง ติดต่อผู้จัดถ้าต้องการจองต่อ"));
     } else if (mine.done) { // booked: the seat chart is the place to see it and to cancel
-      location.replace("/" + T + "/seats"); return;
+      location.replace(SEATS); return;
     } else if (isTurn) {
       card = el("div", "qcard ok"); var sn1 = el("div", "qsent"); sn1.appendChild(el("b", null, "ถึงคิวคุณแล้ว")); card.appendChild(sn1);
       card.appendChild(qbar(2, 2)); var pf1 = el("div", "qpf"); pf1.appendChild(el("span", null, "กำลังจอง")); pf1.appendChild(el("span", null, "คุณคิวที่ " + pos)); card.appendChild(pf1);
@@ -403,9 +405,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (!mine.done) { var nb = btn("ไม่ใช่ฉัน", "nm2", function () { return call("unclaim"); }); who.appendChild(nb); }
     main.appendChild(who); main.appendChild(errBox);
     if (isTurn) {
-      var go = el("a", "b p", "ไปเลือกที่นั่ง"); go.href = "/" + T + "/seats";
+      var go = el("a", "b p", "ไปเลือกที่นั่ง"); go.href = SEATS;
       backBar([go]);
-    } else if (mine.done) { var sg = el("a", "b p", "ดูผังที่นั่ง"); sg.href = "/" + T + "/seats"; backBar([sg]); }
+    } else if (mine.done) { var sg = el("a", "b p", "ดูผังที่นั่ง"); sg.href = SEATS; backBar([sg]); }
     else backBar(null);
   }
   function doClaim(it) { busy = true; return call("claim", { id: it.id }).then(function () { busy = false; if (D && D.items.some(function (x) { return x.m; })) { justClaimed = !!D.auto; draw(); } }, function () { busy = false; }); }

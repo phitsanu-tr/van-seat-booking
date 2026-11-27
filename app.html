@@ -510,8 +510,8 @@ body.signed .top .bell-wrap { display: none; } /* bell lives in the bottom bar (
 /* LINE opens liff.line.me/<id>/<trip> as <endpoint>?liff.state=/<trip>; on the home pages send it straight to that trip's booking page */
 (function(){try{var q=new URLSearchParams(location.search),s=q.get("liff.state");
 if(!s&&location.hash.indexOf("liff.state=")>=0)s=decodeURIComponent(location.hash.split("liff.state=")[1].split("&")[0]);
-var m=s&&/^\/?([a-hj-km-np-z2-9]{6,8})(?:[\/?#].*)?$/.exec(s);
-if(m){window.__go=m[1];window.__goH=(/^\/?[a-hj-km-np-z2-9]{6,8}(\/(?:seats|list))(?:[?#]|$)/.exec(s)||[])[1]||"";document.documentElement.className+=" golnk";document.addEventListener("DOMContentLoaded",function(){var d=document.createElement("div");d.id="golnk";d.innerHTML='<b>Van<u>Trip</u></b><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>กำลังเปิดผังที่นั่ง…<a href="">โหลดนานไป? แตะที่นี่</a>';document.documentElement.appendChild(d)});}}catch(e){}})();
+var m=s&&/^\/?(t\/[a-hj-km-np-z2-9]{8}|[a-hj-km-np-z2-9]{6,8})(?:[\/?#].*)?$/.exec(s);
+if(m){window.__go=m[1];window.__goH=(/^\/?(?:t\/[a-hj-km-np-z2-9]{8}|[a-hj-km-np-z2-9]{6,8})(\/(?:seats|list|queue))(?:[?#]|$)/.exec(s)||[])[1]||"";document.documentElement.className+=" golnk";document.addEventListener("DOMContentLoaded",function(){var d=document.createElement("div");d.id="golnk";d.innerHTML='<b>Van<u>Trip</u></b><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>กำลังเปิดผังที่นั่ง…<a href="">โหลดนานไป? แตะที่นี่</a>';document.documentElement.appendChild(d)});}}catch(e){}})();
 </script>
 <style>html.golnk body{visibility:hidden}#golnk{position:fixed;inset:0;z-index:2147483646;background:#eef1f3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:40px;box-sizing:border-box;color:#5b6b70;font:600 16px/24px "Noto Sans Thai",system-ui,sans-serif}#golnk b{font:600 20px/24px "Prompt","Noto Sans Thai",system-ui,sans-serif;color:#0b5f67;margin-bottom:24px}#golnk div{display:grid;grid-template-columns:repeat(4,36px);gap:8px;margin-bottom:16px}#golnk u{text-decoration:none;color:#1b1f22}#golnk i{height:36px;background:#cdd7db;border-radius:8px;animation:golnk 1.2s ease-in-out infinite}#golnk a{position:absolute;bottom:56px;font:600 14px/20px "Noto Sans Thai",system-ui,sans-serif;color:#0b5f67;padding:8px 16px;border:1px solid #0b5f67;border-radius:20px;text-decoration:none;opacity:0;visibility:hidden;animation:golnka .3s 8s forwards}@keyframes golnk{50%{opacity:.5}}@keyframes golnka{to{opacity:1;visibility:visible}}</style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -1060,7 +1060,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
 
   function queueCard(x) { // same card as "my trips" (name, organizer, days, van chip, route box) with the queue status in place of the seat bar
-    var turn = x.qs === "turn", pend = !turn && !x.ok, vq = x.qv && x.vans > 1 ? "?v=" + encodeURIComponent(x.qv) : "", go = "/" + x.id + (turn ? "/seats" : "/queue") + vq;
+    var turn = x.qs === "turn", pend = !turn && !x.ok, vq = "", go = x.qk ? "/t/" + x.qk + (turn ? "" : "/queue") : "/" + x.id + (turn ? "/seats" : "/queue");
     var c = node("div", "card qw"); tapCard(c, go);
     var hd = node("div", "chead"), r1 = node("div", "row1"); r1.appendChild(node("div", "t", x.name)); hd.appendChild(r1);
     var p = statusPill(x), sub = node("div", "org"); if (x.organizer) sub.appendChild(node("span", null, x.organizer)); if (p) sub.appendChild(p);
@@ -1080,7 +1080,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     c.appendChild(bx);
     if (turn) {
       var acts = node("div", "acts"), v = node("a", "ab", "ดูคิว"), g = node("a", "ab pr", "ไปเลือกที่นั่ง");
-      v.href = "/" + x.id + "/queue" + vq; g.href = go; acts.appendChild(v); acts.appendChild(g); c.appendChild(acts);
+      v.href = x.qk ? "/t/" + x.qk + "/queue" : "/" + x.id + "/queue"; g.href = go; acts.appendChild(v); acts.appendChild(g); c.appendChild(acts);
     }
     return c;
   }

@@ -176,7 +176,11 @@ function isManager(trip, user) { return !!L.roleOf(trip, user); }
 function isOwner(trip, user) { return L.roleOf(trip, user) === "owner"; }
 function deny(res, user) { return user ? L.json(res, 403, { error: "not_owner" }) : L.json(res, 401, { error: "login_required" }); }
 async function limitsOf(trip) { return P.limitsFor(trip && trip.owner ? await P.getPlan(trip.owner) : null, trip); } // the owner's package decides
-function tripSummary(trip, user) { return Object.assign(L.publicTrip(trip), { mine: isOwner(trip, user), role: L.roleOf(trip, user), closedNow: L.bookingClosed(trip) }); }
+function tripSummary(trip, user) {
+  const out = Object.assign(L.publicTrip(trip), { mine: isOwner(trip, user), role: L.roleOf(trip, user), closedNow: L.bookingClosed(trip) });
+  if (out.role) out.vans = trip.vans.map((v) => Object.assign({}, out.vans.find((x) => x.id === v.id), v.k ? { k: v.k } : {})); // only the organizer team gets the van link codes
+  return out;
+}
 // what the managers see about the team: names only (account ids never leave the server)
 function team(trip, user) {
   const role = L.roleOf(trip, user);
@@ -289,6 +293,27 @@ module.exports = async function handler(req, res) {
       await L.logEvent(t, { e: "board_reset", n: user.name, u: user.id, by: L.roleOf(trip, user), at: Date.now() });
       return L.json(res, 200, { ok: true, board: next.board });
     }
+    if (req.method === "POST" && (pb.vanLink === "rotate" || pb.vanLink === "name" || pb.vanLink === "ensure")) { // the share sheet: new link for one van, a group name for it, or fill in missing codes
+      const t = L.tripId(pb.t);
+      const trip = t ? await L.loadTrip(t) : null;
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      if (!isManager(trip, user)) return deny(res, user);
+      if (await L.rateLimited(req, user, "vlink", 60, 3600)) return L.json(res, 429, { error: "too_many" });
+      let changed = await L.ensureVanCodes(trip);
+      if (pb.vanLink !== "ensure") {
+        const van = trip.vans.find((x) => x.id === String(pb.v || ""));
+        if (!van) return L.json(res, 404, { error: "no_van" });
+        if (pb.vanLink === "name") { const g = String(pb.g || "").replace(/[\u0000-\u001f]/g, "").trim().slice(0, 30); if (g) van.g = g; else delete van.g; changed = true; }
+        else {
+          const old = van.k; delete van.k; await L.ensureVanCodes(trip); // a fresh code; the old one stops working at once (the van's own k is what counts)
+          if (old) { try { await L.redis(["DEL", "vk:" + old]); } catch (e) { /* the index entry is harmless once van.k differs */ } }
+          changed = true;
+          await L.logEvent(t, { e: "vanlink", v: van.id, n: user.name, u: user.id, by: L.roleOf(trip, user), at: Date.now() });
+        }
+      }
+      if (changed) { trip.updatedAt = Date.now(); await saveTrip(trip); }
+      return L.json(res, 200, { ok: true, vans: trip.vans.map((x) => ({ id: x.id, label: x.label, g: x.g || "", k: x.k })) });
+    }
     if (req.method === "POST" && pb.staffRestore === true) { // "สงวนคืน": hold seat 1 again where it is still free
       const t = L.tripId(pb.t);
       const trip = t ? await L.loadTrip(t) : null;
@@ -399,6 +424,7 @@ module.exports = async function handler(req, res) {
       const now = Date.now();
       const trip = Object.assign({ id, schemaVersion: 1, createdAt: now, updatedAt: now, owner: user.id, ownerName: user.name }, c.value, plus ? { plus: true } : {}, qm ? { qm } : {}, !plus && P.horizon(plan) ? { hz: P.horizon(plan) } : {});
       trip.vans = assignVanIds(trip.vans, []);
+      try { await L.ensureVanCodes(trip); } catch (e) { /* codes are filled in later by the share sheet */ }
       const ok = await L.redis(["SET", L.tripKey(id), JSON.stringify(trip), "NX"]);
       if (ok !== "OK") { if (qm) await refundQuota(user, qm); if (plus) await P.refundPass(user.id); return L.json(res, 502, { error: "storage_error" }); }
       try { await L.redis(["SADD", "tripidx", L.tripKey(id)]); } catch (e) { /* owner list falls back to the scan */ }
@@ -502,7 +528,8 @@ module.exports = async function handler(req, res) {
         if (mx && c.value.startDate > mx) return L.json(res, 402, { error: "plan_date", max: mx, passes: plan.passes, tier: plan.tier });
       }
       const oldIds = trip.vans.map((v) => v.id);
-      const next = assignVanIds(c.value.vans.map((v) => ({ id: oldIds.includes(v.id) ? v.id : "", label: v.label, plate: v.plate })), oldIds);
+      const next = assignVanIds(c.value.vans.map((v) => ({ id: oldIds.includes(v.id) ? v.id : "", label: v.label, plate: v.plate, k: (trip.vans.find((o) => o.id === v.id) || {}).k, g: (trip.vans.find((o) => o.id === v.id) || {}).g })), oldIds);
+      try { await L.ensureVanCodes({ id: t, vans: next }); } catch (e) { /* codes are filled in later by the share sheet */ }
       const kept = new Set(next.map((v) => v.id));
       const removed = oldIds.filter((id) => !kept.has(id));
       const updated = Object.assign({}, trip, c.value, { vans: next, schemaVersion: 1, updatedAt: Date.now(), rev: (trip.rev || 0) + 1 });

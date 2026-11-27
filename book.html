@@ -669,7 +669,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var params = new URLSearchParams(location.search);
   var pathId = /^\/([a-hj-km-np-z2-9]{6,8})(?:\/(?:seats|list))?\/?$/.exec(location.pathname);
   function basePath() { return location.pathname.replace(/\/(?:seats|list)\/?$/, "").replace(/\/+$/, ""); } // /<id>: the trip page without its /seats or /list suffix
+  var kM = /^\/t\/([a-hj-km-np-z2-9]{8})(?:\/(?:seats|list))?\/?$/.exec(location.pathname), K = kM ? kM[1] : ""; // a van link /t/<code>: this page shows that van only
   var TRIP = (params.get("t") || (pathId && pathId[1]) || "").toLowerCase(); // no trip code -> the "trip not found" page
+  var KBAD = false;
+  if (K) { // the code alone decides trip and van (the server also checks it on every call); ask once which trip it is before the page starts
+    TRIP = ""; try { var xk = new XMLHttpRequest(); xk.open("GET", "/api/seats?k=" + K, false); xk.send(); if (xk.status === 200) { var dk = JSON.parse(xk.responseText); TRIP = dk.trip.id; params.set("v", dk.van); } else KBAD = true; } catch (e) { KBAD = true; }
+  }
   var trip = null;           // trip details from the server
   var curVan = params.get("v") || "";
   var vanCache = {};         // van id -> last seats seen
@@ -686,7 +691,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function retryBox() { // not signed in: in LINE the automatic sign-in failed (retry); in a browser, open the link in LINE
     var w = el("div", "lgin"), b = el("a", "lgbtn");
     if (IN_LINE) { b.href = "javascript:void(0)"; b.appendChild(document.createTextNode("เข้าสู่ระบบไม่สำเร็จ · ลองใหม่")); b.addEventListener("click", function () { try { sessionStorage.removeItem("vsb_liff"); } catch (e) {} location.reload(); }); }
-    else { b.href = "https://liff.line.me/2012285472-FvtYKx00/" + TRIP + (curVan ? "?v=" + encodeURIComponent(curVan) : ""); b.appendChild(el("i", null, "LINE")); b.appendChild(document.createTextNode("เปิดใน LINE เพื่อจองที่นั่ง")); }
+    else { b.href = "https://liff.line.me/2012285472-FvtYKx00/" + (K ? "t/" + K : TRIP + (curVan ? "?v=" + encodeURIComponent(curVan) : "")); b.appendChild(el("i", null, "LINE")); b.appendChild(document.createTextNode("เปิดใน LINE เพื่อจองที่นั่ง")); }
     w.appendChild(b); return w;
   }
   // star ("บันทึกทริป"): keeps the trip in my seats; the last few opened trips are remembered on this device too
@@ -757,7 +762,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   // locked: nothing to tap. A finished trip is locked for everyone; a closed one only for passengers (organizers still manage seats).
   // booking queue: free seats can't be taken until it is this person's turn
   function wrongVan() { return !!(loaded && !isOwner && !closed && !ended && qmv && qmv !== curVan); } // a name claimed in another van's queue ties this person to that van
-  function qLink() { return "/" + TRIP + "/queue" + (trip && trip.vans && trip.vans.length > 1 && curVan ? "?v=" + encodeURIComponent(curVan) : ""); }
+  function badLink() { // a van link that was replaced, or mistyped: say so without revealing which trip or van exists
+    var h = document.querySelector("#nfBox h2"), p = document.querySelector("#nfBox p");
+    if (h) h.textContent = "ลิงก์นี้ใช้ไม่ได้แล้ว";
+    if (p) { p.textContent = "ลิงก์อาจถูกเปลี่ยนโดยผู้จัด หรือพิมพ์รหัสไม่ครบ"; p.appendChild(document.createElement("br")); p.appendChild(document.createTextNode("ขอลิงก์ใหม่จากผู้จัดทริปของคุณ")); }
+  }
+  function qLink() { return K ? "/t/" + K + "/queue" : "/" + TRIP + "/queue" + (trip && trip.vans && trip.vans.length > 1 && curVan ? "?v=" + encodeURIComponent(curVan) : ""); }
   function qBlocked() { return !!(loaded && !isOwner && !closed && !ended && ((qon && !(qs && qs.s === "turn")) || wrongVan())); }
   var QSV = { chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
     clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-1a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v1"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a5 5 0 0 1 3.5 5v1"/>',
@@ -817,7 +827,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     keep.addEventListener("click", close);
     del.addEventListener("click", function () {
       del.disabled = true; keep.disabled = true;
-      fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: TRIP, v: curVan || undefined, a: "remove", id: row.id }), cache: "no-store" })
+      fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(K ? { k: K, a: "remove", id: row.id } : { t: TRIP, v: curVan || undefined, a: "remove", id: row.id }), cache: "no-store" })
         .then(function (r) { close(); showToast(r.ok ? "ลบ" + row.name + "ออกจากคิวแล้ว" : "ลบออกจากคิวไม่สำเร็จ ลองอีกครั้งที่หน้าคิว", r.ok ? undefined : "error"); })
         .catch(function () { close(); showToast("ลบออกจากคิวไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง", "error"); });
     });
@@ -950,8 +960,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function mine(n) { var s = seats[n]; return !!(s && (s.m || (extMine[n] !== undefined && extMine[n] === s.at))); }
 
   async function api(method, body) {
-    var url = API + "?t=" + encodeURIComponent(TRIP) + (curVan ? "&v=" + encodeURIComponent(curVan) : "");
-    if (body) body = Object.assign({ t: TRIP, v: curVan }, body);
+    var url = API + (K ? "?k=" + K : "?t=" + encodeURIComponent(TRIP) + (curVan ? "&v=" + encodeURIComponent(curVan) : ""));
+    if (body) body = Object.assign(K ? { k: K } : { t: TRIP, v: curVan }, body);
     var res = await fetch(url, {
       method: method,
       headers: { "Content-Type": "application/json" },
@@ -1289,8 +1299,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   // /<id> = trip details, /<id>/seats = seat map, /<id>/list = names. Going from the details to the map pushes (back returns to the details); map <-> names just replaces the address.
   var mineLine = "", mineLoaded = false, mineDone = false, wasInfo = false; // mineDone: the first answer to "which seats are mine" has arrived (the skeleton page stays up for it on the details page)
   function infoMode() { return pathView() === "info"; }
+  var vanTitle = ""; // a van link of a trip with several vans: the seat map and names pages are headed with the van; the trip details keep their own title
+  function applyHero() { var hh = document.querySelector(".hero h1"); if (hh) hh.textContent = vanTitle && !infoMode() ? vanTitle : "รายละเอียดทริป"; }
   function applyMode() {
-    var on = infoMode();
+    var on = infoMode(); applyHero();
     if (!on) { view = pathView() === "list" ? "list" : "map"; document.getElementById("sheetView").hidden = view !== "map"; document.getElementById("listView").hidden = view !== "list"; }
     document.body.classList.toggle("v-info", on);
     document.body.classList.toggle("v-list", !on && view === "list");
@@ -1578,12 +1590,13 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!r.ok) {
         loadError = errorText(r, "โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า");
         skOff(true);
-        if (r.status === 404 && r.data && r.data.error === "no_trip") { document.body.classList.add("nf"); document.title = "VanTrip"; return; }
+        if (r.status === 404 && r.data && (r.data.error === "no_trip" || r.data.error === "bad_link")) { if (r.data.error === "bad_link") badLink(); document.body.classList.add("nf"); document.title = "VanTrip"; return; }
         if (!loaded) { if (r.status >= 500 || r.status === 0) showNet(true); renderAll(); }
         return;
       }
       if (r.data && r.data.trip) {
         trip = r.data.trip;
+        if (K && r.data.nv > 1 && trip.vans[0]) { var hh = document.querySelector(".hero h1"), v0 = trip.vans[0]; vanTitle = "คัน " + v0.label + (v0.g ? " · " + v0.g : ""); applyHero(); } // a van link of a trip with several vans: say which van this is
         if (!curVan || !trip.vans.some(function (v) { return v.id === curVan; })) curVan = r.data.van || trip.vans[0].id;
       }
       counts = (r.data && r.data.counts) || counts;

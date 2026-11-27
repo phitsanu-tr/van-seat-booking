@@ -17,11 +17,17 @@ module.exports = async function handler(req, res) {
   if (L.crossSite(req)) return L.json(res, 403, { error: "cross_site" });
   try {
     const body = req.method === "GET" ? {} : L.readBody(req);
-    const t = L.tripId((req.query && req.query.t) || body.t);
-    if (!t) return L.json(res, 404, { error: "no_trip" });
-    const trip = await L.loadTrip(t);
-    if (!trip) return L.json(res, 404, { error: "no_trip" });
-    const wanted = String((req.query && req.query.v) || body.v || trip.vans[0].id);
+    let t = L.tripId((req.query && req.query.t) || body.t), trip, wanted;
+    const kRaw = (req.query && req.query.k) || body.k;
+    if (kRaw) { // a van link: the code alone decides trip and van; the other vans never leave the server
+      const sc = await L.scopeOf(kRaw); if (!sc) return L.json(res, 404, { error: "bad_link" });
+      trip = sc.trip; t = trip.id; wanted = sc.van.id;
+    } else {
+      if (!t) return L.json(res, 404, { error: "no_trip" });
+      trip = await L.loadTrip(t);
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      wanted = String((req.query && req.query.v) || body.v || trip.vans[0].id);
+    }
     const van = trip.vans.find((x) => x.id === wanted);
     if (!van) return L.json(res, 404, { error: "no_van" });
     const key = L.seatsKey(t, van.id);
@@ -51,7 +57,7 @@ module.exports = async function handler(req, res) {
       trip.vans.forEach((x, i) => { counts[x.id] = Number(out[i + 2]) || 0; });
       const held = []; (out[1] || []).forEach((h, i) => { if (h && !seats[i + 1]) held.push(i + 1); }); // free seats someone is signing in to book
       let qon = false, qs, qv, qmv; if (Q.flagOn()) { try { const qa = await Q.readAll(trip), qq = (qa.find((x) => x.id === van.id) || { q: { on: false, items: [] } }).q; qon = !!qq.on; if (qon && !isOwner) qs = Q.stateOf(qq, user); qv = {}; qa.forEach((x) => { if (x.q.on) qv[x.id] = 1; if (user && x.q.on && x.q.items.some((i) => i.u === user.id && !i.done)) qmv = x.id; }); } catch (e) { /* the page still works */ } } // booking queue switched on for this trip
-      return L.json(res, 200, { qon: qon || undefined, qs, qv: qv && trip.vans.length > 1 ? qv : undefined, qmv: trip.vans.length > 1 ? qmv : undefined, trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip), closed });
+      return L.json(res, 200, { nv: trip._nv > 1 ? trip._nv : undefined, qon: qon || undefined, qs, qv: qv && trip.vans.length > 1 ? qv : undefined, qmv: trip.vans.length > 1 ? qmv : undefined, trip: L.publicTrip(trip), van: van.id, seats, counts, ended: L.tripEnded(trip), me: L.publicUser(user), owner: isOwner, held, ib: user ? Number(out[2 + trip.vans.length]) || 0 : undefined, limit: L.maxPerPerson(trip), closed });
     }
 
     if ((req.method === "POST" || req.method === "DELETE") && L.tripEnded(trip)) return L.json(res, 403, { error: "ended" });

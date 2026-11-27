@@ -79,6 +79,28 @@ async function loadTrip(t) {
   return null;
 }
 
+// Van link codes: every van has its own secret code (van.k, 8 characters, no look-alikes). A link /t/<code> shows that van only:
+// the server finds trip and van from the code and never sends the other vans. The index key "vk:<code>" holds "<trip>|<van id>";
+// the van's own k is the source of truth, so an old or stray index entry never opens anything.
+const VK_ALPHA = "abcdefghjkmnpqrstuvwxyz23456789";
+function newVanCode() { const b = require("crypto").randomBytes(8); let s = ""; for (let i = 0; i < 8; i++) s += VK_ALPHA[b[i] % VK_ALPHA.length]; return s; }
+function vanCode(k) { const x = String(k || "").toLowerCase().replace(/[\s-]/g, ""); return /^[a-hj-km-np-z2-9]{8}$/.test(x) ? x : ""; }
+async function scopeOf(k) { // -> { trip (only this van), van, full } or null
+  const c = vanCode(k); if (!c) return null;
+  const idx = await redis(["GET", "vk:" + c]); if (!idx) return null;
+  const [t, vid] = String(idx).split("|"); const trip = t && (await loadTrip(t)); if (!trip) return null;
+  const van = (trip.vans || []).find((x) => x.id === vid); if (!van || van.k !== c) return null;
+  return { trip: Object.assign({}, trip, { vans: [van], _nv: trip.vans.length }), van, full: trip };
+}
+// gives the vans that have no code one, and records it in the index; true when the trip changed (the caller saves it)
+async function ensureVanCodes(trip) {
+  let changed = false;
+  for (const v of trip.vans || []) {
+    if (v.k) continue;
+    for (let i = 0; i < 5; i++) { const c = newVanCode(); if (await redis(["SET", "vk:" + c, trip.id + "|" + v.id, "NX"])) { v.k = c; changed = true; break; } }
+  }
+  return changed;
+}
 // "2 วัน 1 คืน · 15 – 16 ม.ค." / "เดย์ทริป · 15 ม.ค." from the trip's day count and first day (same wording on every screen and in the share card)
 const TH_MON_S = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 function tripDaysText(n, start) {
@@ -91,7 +113,8 @@ function tripDaysText(n, start) {
   return n + " วัน " + (n - 1) + " คืน · " + range;
 }
 function publicTrip(trip) {
-  const { owner, ownerName, helpers, invite, board, ...rest } = trip; // never send account ids (owner, helpers) or the invite code to passengers
+  const { owner, ownerName, helpers, invite, board, _nv, ...rest } = trip; // never send account ids (owner, helpers) or the invite code to passengers
+  if (rest.vans) rest.vans = rest.vans.map(({ k, ...v }) => v); // nor a van's link code
   rest.tripDays = tripDaysText(trip.tripN, trip.tripStart);
   return rest;
 }
@@ -422,6 +445,6 @@ function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); retur
 module.exports = {
   lineText, linePush, PUSH_KINDS, pushOffKey,
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, tooBig, json,
-  audit, ledger, errLog, seal, open, statDay, bump, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripDaysText, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
+  newVanCode, vanCode, scopeOf, ensureVanCodes, audit, ledger, errLog, seal, open, statDay, bump, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripDaysText, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,
   SESSION_DAYS, MY_DAYS, cookies, cookieStr, isHttps, currentUser, publicUser, crossSite, clientIp, rateLimited, myTripsKey, mySeatsKey, myQueueKey, mySavedKey, MAX_HELPERS, roleOf, INBOX_MAX, INBOX_DAYS, inboxKey, inboxReadKey, inboxAllKey, inboxVerKey, notify, linePush, tripBookers, teamIds, vanLabel, DEFAULT_MAX_PER_PERSON, maxPerPerson,
 };

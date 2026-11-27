@@ -44,6 +44,18 @@
       "destination": "/book.html"
     },
     {
+      "source": "/t/:k([a-hj-km-np-z2-9]{8})",
+      "destination": "/book.html"
+    },
+    {
+      "source": "/t/:k([a-hj-km-np-z2-9]{8})/:v(seats|list)",
+      "destination": "/book.html"
+    },
+    {
+      "source": "/t/:k([a-hj-km-np-z2-9]{8})/queue",
+      "destination": "/queue.html"
+    },
+    {
       "source": "/:t([a-hj-km-np-z2-9]{6,8})/queue",
       "destination": "/queue.html"
     },

@@ -20,10 +20,16 @@ module.exports = async function handler(req, res) {
   if (L.crossSite(req)) return L.json(res, 403, { error: "cross_site" });
   try {
     const body = req.method === "GET" ? {} : L.readBody(req);
-    const t = L.tripId((req.query && req.query.t) || body.t);
-    const trip = t && (await L.loadTrip(t));
-    if (!trip) return L.json(res, 404, { error: "no_trip" });
-    const wantV = String((req.query && req.query.v) || body.v || "");
+    let t = L.tripId((req.query && req.query.t) || body.t), trip, wantV;
+    const kRaw = (req.query && req.query.k) || body.k;
+    if (kRaw) { // a van link: that van only
+      const sc = await L.scopeOf(kRaw); if (!sc) return L.json(res, 404, { error: "bad_link" });
+      trip = sc.trip; t = trip.id; wantV = sc.van.id;
+    } else {
+      trip = t && (await L.loadTrip(t));
+      if (!trip) return L.json(res, 404, { error: "no_trip" });
+      wantV = String((req.query && req.query.v) || body.v || "");
+    }
     if (wantV && !(trip.vans || []).some((x) => x.id === wantV)) return L.json(res, 404, { error: "no_van" });
     const van = Q.vanOf(trip, wantV), vid = van.id; // every van of the trip has its own queue
     const user = await L.currentUser(req);
@@ -121,11 +127,11 @@ module.exports = async function handler(req, res) {
     if (a === "unclaim" && out.changed) { try { await L.redis(["SREM", L.myQueueKey(user.id), myE]); } catch (e) { /* best effort */ } }
     if (a === "reject" && out.changed && rejUid) {
       try { await L.redis(["SREM", L.myQueueKey(rejUid), myE]); } catch (e) { /* best effort */ }
-      await L.notify([rejUid], { k: "queue_no", t, tn: trip.name, n: rejName, v: vid, vl: van.label, mv: trip.vans.length > 1 ? 1 : undefined }, user.id);
+      await L.notify([rejUid], { k: "queue_no", t, tn: trip.name, n: rejName, v: vid, vl: van.label, mv: (trip._nv || trip.vans.length) > 1 ? 1 : undefined }, user.id);
     }
     if (a === "claim" && out.changed && !out.q.auto) { // tell the organizer team that someone is waiting for approval
       const r = out.q.items.find((i) => i.u === user.id);
-      await L.notify(L.teamIds(trip), { k: "queue_claim", t, tn: trip.name, n: r ? r.name : "", v: vid, vl: van.label, mv: trip.vans.length > 1 ? 1 : undefined }, user.id);
+      await L.notify(L.teamIds(trip), { k: "queue_claim", t, tn: trip.name, n: r ? r.name : "", v: vid, vl: van.label, mv: (trip._nv || trip.vans.length) > 1 ? 1 : undefined }, user.id);
     }
     await fillHeld(out.q);
     return L.json(res, 200, Object.assign({ ok: true }, view(out.q), org ? { vans: await vsum() } : {}));
