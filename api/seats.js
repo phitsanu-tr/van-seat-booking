@@ -111,7 +111,7 @@ module.exports = async function handler(req, res) {
         if (tries >= 3) return L.json(res, 409, { error: "busy" });
       }
       if (a === "ask" && !had) await L.notify(L.teamIds(trip), { k: "cancel_req", t, tn: trip.name, v: van.id, vl: van.label, s: seat, n: String(rec.name || ""), why: reason }, user.id);
-      if (a === "deny" && had && rec.u) await L.notify([rec.u], { k: "creq_no", t, tn: trip.name, vl: van.label, s: seat, by: role });
+      if (a === "deny" && had && rec.u) await L.notify([rec.u], { k: "creq_no", t, tn: trip.name, vl: van.label, s: seat, by: role, vk: L.vkOf(trip, van) });
       return L.json(res, 200, { ok: true, cr: rec.cr || null });
     }
 
@@ -179,7 +179,7 @@ module.exports = async function handler(req, res) {
         if (tries >= 3) return L.json(res, 409, { error: "busy" });
       }
       await L.logEvent(t, { e: "rename", v: van.id, s: seat, n: name, on: old, u: user.id, by: isOwner && rec.u !== user.id ? role : undefined, at: Date.now() });
-      if (rec.u && rec.u !== user.id) await L.notify([rec.u], { k: "seat_renamed", t, tn: trip.name, vl: van.label, s: seat, o: old, n: name, by: role });
+      if (rec.u && rec.u !== user.id) await L.notify([rec.u], { k: "seat_renamed", t, tn: trip.name, vl: van.label, s: seat, o: old, n: name, by: role, vk: L.vkOf(trip, van) });
       return L.json(res, 200, { ok: true, name, at: rec.at });
     }
 
@@ -295,8 +295,8 @@ module.exports = async function handler(req, res) {
       if (cmds.length) { try { await L.pipeline(cmds); } catch (e) { /* the move is done; the "my seats" index is best effort */ } }
       const exp = L.expireAtFor(trip);
       if (exp && exp > Math.floor(Date.now() / 1000)) { try { await L.redis(["EXPIREAT", tk, String(exp)]); } catch (e) { /* best effort */ } }
-      await L.notify(a.u ? [a.u] : [], { k: "seat_moved", t, tn: trip.name, fvl: fromVan.label, fs, tvl: toVan.label, ts, by: role }, user.id);
-      if (b && b.u) await L.notify([b.u], { k: "seat_moved", t, tn: trip.name, fvl: toVan.label, fs: ts, tvl: fromVan.label, ts: fs, by: role }, user.id);
+      await L.notify(a.u ? [a.u] : [], { k: "seat_moved", t, tn: trip.name, fvl: fromVan.label, fs, tvl: toVan.label, ts, by: role, vk: L.vkOf(trip, toVan) }, user.id);
+      if (b && b.u) await L.notify([b.u], { k: "seat_moved", t, tn: trip.name, fvl: toVan.label, fs: ts, tvl: fromVan.label, ts: fs, by: role, vk: L.vkOf(trip, fromVan) }, user.id);
       await L.logEvent(t, { e: b ? "swap" : "move", v: fromVan.id, s: fs, tv: toVan.id, ts, n: a.name, n2: b ? b.name : undefined, u: user.id, by: role, at: Date.now() });
       return L.json(res, 200, { ok: true, swapped: !!b });
     }
@@ -370,7 +370,7 @@ module.exports = async function handler(req, res) {
       if (Number(removed) === 1) {
         L.bump("seat_cancel");
         if (prev.u) { try { await L.redis(["SREM", L.mySeatsKey(prev.u), t + "|" + van.id + "|" + seat]); } catch (e) { /* best effort */ } }
-        if (prev.u && prev.u !== user.id) await L.notify([prev.u], { k: prev.cr ? "creq_ok" : "seat_cancelled", t, tn: trip.name, vl: van.label, s: seat, by: role });
+        if (prev.u && prev.u !== user.id) await L.notify([prev.u], { k: prev.cr ? "creq_ok" : "seat_cancelled", t, tn: trip.name, vl: van.label, s: seat, by: role, vk: L.vkOf(trip, van) });
         await L.logEvent(t, { e: "cancel", v: van.id, s: seat, n: String(prev.name || ""), u: user.id, ou: prev.u, by: isOwner && user.id !== prev.u ? role : undefined, at: Date.now() });
         if (prev.st === 1 && trip.staffSeat) { // the last team seat 1 cancelled: the trip's switch turns itself off
           try {

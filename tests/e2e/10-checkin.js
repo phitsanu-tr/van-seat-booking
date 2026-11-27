@@ -3,18 +3,18 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function user(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2,hasTouch:true,permissions:['clipboard-read','clipboard-write']});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),Bo=await user('Bob'),P=await user('Pat'),Q=await user('Qin'),R=await user('Rin');
-const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(10),meetPoint:'จุดนัดพบ',name:'เขาใหญ่ชิล ๆ',startDate:HLP.day(10),departTime:'07:00',vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(10),meetPoint:'จุดนัดพบ',name:'เขาใหญ่ชิล ๆ',startDate:HLP.day(10),departTime:'07:00',vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;const TK=(await (await A.request.get(B+'/api/trip?t='+ID)).json()).trip.vans;const VK={v1:TK[0].k,v2:TK[1].k};
 const inv=await (await A.request.post(B+'/api/trip',{data:{t:ID,invite:true}})).json();await Bo.request.post(B+'/api/trip',{data:{join:inv.invite.code}});
-await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'แพท'}});
-await Q.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:5,name:'ฉิน'}});
-await R.request.post(B+'/api/seats?t='+ID+'&v=v2',{data:{seat:2,name:'ริน'}});
+await P.request.post(B+'/api/seats?k='+VK.v1,{data:{seat:3,name:'แพท'}});
+await Q.request.post(B+'/api/seats?k='+VK.v1,{data:{seat:5,name:'ฉิน'}});
+await R.request.post(B+'/api/seats?k='+VK.v2,{data:{seat:2,name:'ริน'}});
 const patch=(p,v,d)=>p.request.fetch(B+'/api/seats?t='+ID+'&v='+v,{method:'PATCH',data:d});
 const roster=async()=>(await (await A.request.get(B+'/api/trip?t='+ID+'&roster=1')).json()).roster;
 // --- API rules
 log('paid tick is no longer accepted',(await patch(A,'v1',{seat:3,paid:true})).status());
 log('passenger marks boarded',(await patch(Q,'v1',{seat:5,board:true})).status());
 log('helper marks Rin boarded',(await patch(Bo,'v2',{seat:2,board:true})).status());
-const pub=await (await Q.request.get(B+'/api/seats?t='+ID+'&v=v1')).json();
+const pub=await (await Q.request.get(B+'/api/seats?k='+VK.v1)).json();
 log('public seat fields',JSON.stringify(Object.values(pub.seats).map(s=>Object.keys(s).sort().join(','))));
 let ro=await roster();log('roster flags',JSON.stringify({p3:ro.v1['3'].p||0,c2:!!ro.v2['2'].c}));
 await patch(A,'v1',{seat:3,board:true});

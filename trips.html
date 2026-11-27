@@ -99,7 +99,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .cpbtn svg { width: 20px; height: 20px; }
 .cpbtn.ok { color: var(--mine); }
 .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: #e8eef0; border-radius: 12px; } .seg[hidden], .mcard[hidden], .macts .btn[hidden] { display: none; }
-.seg button { height: 40px; border: 0; border-radius: 8px; background: none; display: flex; align-items: center; justify-content: center; gap: 8px; font: 600 14px/20px var(--font-display); color: var(--muted); cursor: pointer; -webkit-tap-highlight-color: transparent; } .seg button svg { width: 16px; height: 16px; flex: none; }
+.seg button { height: 48px; border: 0; border-radius: 8px; background: none; display: flex; align-items: center; justify-content: center; gap: 8px; font: 600 14px/20px var(--font-display); color: var(--muted); cursor: pointer; -webkit-tap-highlight-color: transparent; } .seg button svg { width: 16px; height: 16px; flex: none; }
 .seg button[aria-selected="true"] { background: #fff; color: #0b5f67; box-shadow: 0 1px 3px rgba(0,0,0,.15); } .seg #tabO[aria-selected="true"] { color: #8a5a00; }
 .macts.multi { grid-template-columns: minmax(0, 1fr); } .macts.multi.org { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } @media (max-width: 340px) { .macts.multi.org { grid-template-columns: minmax(0, 1fr); } }
 .macts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
@@ -1135,7 +1135,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     shown = { id: id }; goList = created === true || created === "saved"; shTab = "p";
     var share = shareLink = link("/" + id + "/seats");
     urlBox($("shareUrl"), id, location.host + "/" + id + "/seats");
-    $("orgCode").textContent = String(id).toUpperCase();
+    $("orgCode").textContent = (function (c) { c = String(c).toUpperCase(); return c.length > 4 ? c.slice(0, 4) + "-" + c.slice(4) : c; })(id);
     $("openShare").href = "/" + id + "/seats";
     $("orgSend").href = "https://line.me/R/msg/text/?" + encodeURIComponent((name ? name + " · " : "") + "ลิงก์ผู้จัด (ดูทุกคัน) · ห้ามส่งให้ผู้จอง\n" + share);
     $("mState").innerHTML = (created ? OK_DOT : SHARE_IC) + "<span>" + (created === "saved" ? "แก้ไขทริปแล้ว" : created ? "สร้างทริปแล้ว" : "ลิงก์และรหัสทริป") + "</span>";

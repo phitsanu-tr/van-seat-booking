@@ -3,19 +3,19 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function user(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),P=await user('Pat'),Q=await user('Qin');
-const tr=await (await A.request.post(B+'/api/trip',{data:{name:'เขาใหญ่ชิล ๆ',startDate:HLP.day(50),departTime:'07:00',tripN:1,tripStart:HLP.day(50),meetPoint:'BTS หมอชิต',vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:{name:'เขาใหญ่ชิล ๆ',startDate:HLP.day(50),departTime:'07:00',tripN:1,tripStart:HLP.day(50),meetPoint:'BTS หมอชิต',vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;const TK=(await (await A.request.get(B+'/api/trip?t='+ID)).json()).trip.vans;const VK={v1:TK[0].k,v2:TK[1].k};
 const put=t=>A.request.fetch(B+'/api/trip',{method:'PUT',data:{t:ID,name:'เขาใหญ่ชิล ๆ',startDate:HLP.day(50),departTime:t,tripN:1,tripStart:HLP.day(50),meetPoint:'BTS หมอชิต',vans:[{id:'v1',label:'1'},{id:'v2',label:'2'}]}});
 const inbox=async p=>{const d=await (await p.request.get(B+'/api/me?inbox=1')).json();return d.unread+'/'+d.items.length};
-await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'แพท'}});
-await P.request.post(B+'/api/seats?t='+ID+'&v=v2',{data:{seat:5,name:'แพทสอง'}});
-await Q.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:6,name:'ฉิน'}});
+await P.request.post(B+'/api/seats?k='+VK.v1,{data:{seat:3,name:'แพท'}});
+await P.request.post(B+'/api/seats?k='+VK.v2,{data:{seat:5,name:'แพทสอง'}});
+await Q.request.post(B+'/api/seats?k='+VK.v1,{data:{seat:6,name:'ฉิน'}});
 // 1) read state: mark read, a new notify arrives, old stays read, list not rewritten
 await put('07:30');log('P before read',await inbox(P));
 await P.request.post(B+'/api/me',{data:{read:'all'}});log('P after read all',await inbox(P));
 await put('08:00');log('P after new notify',await inbox(P),'(expect 1 unread of 2)');
 await P.request.post(B+'/api/me',{data:{read:{t:ID}}});log('P after read trip',await inbox(P));
 // 3) bell updates on an open booking page without reload
-await Q.goto(B+'/'+ID+'/seats?v=v1');await Q.waitForTimeout(1500);
+await Q.goto(B+'/t/'+VK.v1+'/seats');await Q.waitForTimeout(1500);
 log('no bell on booking page',await Q.locator('.vb-bell').count()===0);
 await Q.request.post(B+'/api/me',{data:{read:'all'}});
 await Q.reload();await Q.waitForTimeout(1500);log('banner hidden after read+reload',await Q.isHidden('#chgBan'));await Q.mouse.move(100,300);
@@ -34,7 +34,7 @@ await P.click('.spick button:nth-child(2)');await P.waitForTimeout(200);log('pre
 await P.fill('.sheet .nin','แพท2!@#abc');log('cleaned',await P.inputValue('.sheet .nin'),'count',await P.textContent('.nwrap .cnt'));
 await P.fill('.sheet .nin','แพทใหม่');await P.screenshot({path:S+'/r2.png'});
 await P.click('.sheet .b-danger');await P.waitForTimeout(1200);log('toast',await P.textContent('#toast'));
-const seats=await (await P.request.get(B+'/api/seats?t='+ID+'&v=v2')).json();log('server v2 s5',JSON.stringify(seats.seats['5']&&seats.seats['5'].name||seats.seats));
+const seats=await (await P.request.get(B+'/api/seats?k='+VK.v2)).json();log('server v2 s5',JSON.stringify(seats.seats['5']&&seats.seats['5'].name||seats.seats));
 log('menu closes on outside click');await P.click('.ab.more');await P.waitForTimeout(200);await P.keyboard.press('Escape');await P.waitForTimeout(200);log(' open after Esc',await P.$$eval('.pmenu',e=>e.length));await P.click('.ab.more');await P.waitForTimeout(200);await P.click('.ab.more');await P.waitForTimeout(200);log(' open after toggling',await P.$$eval('.pmenu',e=>e.length));
 await P.click('.ab.more');await P.waitForTimeout(200);await P.click('.pmenu .dgr');await P.waitForTimeout(400);log('cancel sheet opens',await P.isVisible('.sheet'));await P.screenshot({path:S+'/r3.png'});
 await Q.goto(B+'/seats?f='+Date.now());await Q.waitForTimeout(1500);await Q.click('.ab.more');await Q.click('.pmenu button:first-child');await Q.waitForTimeout(400);

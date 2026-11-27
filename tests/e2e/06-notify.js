@@ -3,9 +3,9 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function user(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),Bh=await user('Bob'),P=await user('Pat'),Q=await user('Qin');
-const tr=await (await A.request.post(B+'/api/trip',{data:{name:'น้ำตกสายรุ้งละอองดาว',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'21:00',tripN:2,tripStart:HLP.day(20),meetPoint:'BTS หมอชิต',vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:{name:'น้ำตกสายรุ้งละอองดาว',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'21:00',tripN:2,tripStart:HLP.day(20),meetPoint:'BTS หมอชิต',vans:[{label:'1'},{label:'2'}]}})).json();const ID=tr.id;const TK=(await (await A.request.get(B+'/api/trip?t='+ID)).json()).trip.vans;
 const inv=await (await A.request.post(B+'/api/trip',{data:{t:ID,invite:true}})).json();await Bh.request.post(B+'/api/trip',{data:{join:inv.invite.code}});
-await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'แพท'}});await Q.request.post(B+'/api/seats?t='+ID+'&v=v2',{data:{seat:1,name:'ฉิน'}});
+await P.request.post(B+'/api/seats?k='+TK[0].k,{data:{seat:3,name:'แพท'}});await Q.request.post(B+'/api/seats?k='+TK[1].k,{data:{seat:1,name:'ฉิน'}});
 const put=await A.request.fetch(B+'/api/trip',{method:'PUT',data:{t:ID,name:'น้ำตกสายรุ้งละอองดาว',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'20:30',tripN:2,tripStart:HLP.day(20),meetPoint:'BTS หมอชิต',vans:[{id:'v1',label:'1'},{id:'v2',label:'2'}]}});log('put',put.status());
 await Bh.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{move:{fromVan:'v1',fromSeat:3,toVan:'v2',toSeat:5}}});
 await A.request.fetch(B+'/api/seats?t='+ID+'&v=v2',{method:'PATCH',data:{seat:1,name:'ฉินนี่'}});
@@ -14,7 +14,7 @@ log('A',await inbox(A));log('B',await inbox(Bh));log('P',await inbox(P));log('Q'
 // P: app tags
 await P.goto(B+'/seats?f='+Date.now());await P.waitForTimeout(1500);log('P tags',await P.$$eval('.ntag',e=>e.map(x=>x.textContent)),'badge',await P.textContent('.vb-n'));await P.screenshot({path:S+'/n1.png'});
 // P booking page
-await P.goto(B+'/'+ID+'/seats?v=v2');await P.waitForTimeout(1600);log('banner',(await P.textContent('#chgBan')).replace(/\s+/g,' '),'chg dd',await P.$$eval('.facts .bx.chg, .facts .fv.chg',e=>e.map(x=>(x.querySelector('.bt')||x).textContent)));await P.screenshot({path:S+'/n2.png'});
+await P.goto(B+'/t/'+TK[1].k+'/seats');await P.waitForTimeout(1600);log('banner',(await P.textContent('#chgBan')).replace(/\s+/g,' '),'chg dd',await P.$$eval('.facts .bx.chg, .facts .fv.chg',e=>e.map(x=>(x.querySelector('.bt')||x).textContent)));await P.screenshot({path:S+'/n2.png'});
 log('no bell button on booking page',await P.locator('.vb-bell').count()===0);
 await P.click('#chgBan .cx');await P.waitForTimeout(500);log('after x: banner hidden',await P.isHidden('#chgBan'),'server',await inbox(P));
 // A cancels Q, then deletes trip

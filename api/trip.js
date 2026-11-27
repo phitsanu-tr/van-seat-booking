@@ -177,6 +177,19 @@ function isManager(trip, user) { return !!L.roleOf(trip, user); }
 function isOwner(trip, user) { return L.roleOf(trip, user) === "owner"; }
 function deny(res, user) { return user ? L.json(res, 403, { error: "not_owner" }) : L.json(res, 401, { error: "login_required" }); }
 async function limitsOf(trip) { return P.limitsFor(trip && trip.owner ? await P.getPlan(trip.owner) : null, trip); } // the owner's package decides
+// Send one notice to passengers and the organizer team. With several vans each passenger's notice carries their own van's link code (the trip-wide link is for the organizer team only); the team keeps the trip link.
+async function notifyByVan(trip, bookers, uids, item, except) {
+  const all = Array.from(new Set(uids)), team = new Set(L.teamIds(trip)), done = new Set();
+  if ((trip.vans || []).length > 1) {
+    for (const v of trip.vans) {
+      const mine = (bookers[v.id] || []).filter((u) => all.includes(u) && !team.has(u) && !done.has(u));
+      mine.forEach((u) => done.add(u));
+      if (mine.length) await L.notify(mine, Object.assign({}, item, { vk: L.vkOf(trip, v) }), except);
+    }
+  }
+  const rest = all.filter((u) => !done.has(u));
+  if (rest.length) await L.notify(rest, item, except);
+}
 function tripSummary(trip, user) {
   const out = Object.assign(L.publicTrip(trip), { mine: isOwner(trip, user), role: L.roleOf(trip, user), closedNow: L.bookingClosed(trip) });
   if (out.role) out.vans = trip.vans.map((v) => Object.assign({}, out.vans.find((x) => x.id === v.id), v.k ? { k: v.k } : {})); // only the organizer team gets the van link codes
@@ -252,7 +265,7 @@ module.exports = async function handler(req, res) {
       if (used > BCAST_MAX) { await L.redis(["DECR", ck]); return L.json(res, 429, { error: "bcast_limit", max: BCAST_MAX }); }
       const bk = await L.tripBookers(trip), ppl = Array.from(new Set([].concat(...Object.values(bk)))).filter((u) => u !== user.id);
       await L.audit({ e: "trip_broadcast", u: user.id, t, tn: trip.name, n: ppl.length });
-      await L.notify(ppl, { k: "broadcast", t, tn: trip.name, m: msg, by: user.name }, user.id);
+      await notifyByVan(trip, bk, ppl, { k: "broadcast", t, tn: trip.name, m: msg, by: user.name }, user.id);
       return L.json(res, 200, { ok: true, sent: ppl.length, used, max: BCAST_MAX });
     }
     if (req.method === "POST" && (pb.resetBoard === true || typeof pb.boardName === "string")) {
@@ -557,7 +570,7 @@ module.exports = async function handler(req, res) {
       const gone = new Set();
       removed.forEach((id) => { (bookers[id] || []).forEach((u) => gone.add(u)); });
       if (gone.size) await L.notify(Array.from(gone), { k: "van_removed", t, tn: updated.name, vl: L.vanLabel(trip, removed[0]), by }, user.id);
-      if (ch.length) await L.notify([].concat(...next.map((v) => bookers[v.id] || []), L.teamIds(updated)), { k: "trip_changed", t, tn: updated.name, ch, by }, user.id);
+      if (ch.length) await notifyByVan(updated, bookers, [].concat(...next.map((v) => bookers[v.id] || []), L.teamIds(updated)), { k: "trip_changed", t, tn: updated.name, ch, by }, user.id);
       let gapsNow; try { gapsNow = updated.staffSeat ? (await staffGaps(updated)).map((v) => v.label) : undefined; } catch (e) { /* shown next load */ }
       L.audit({ e: "trip_edit", u: user.id, t, tn: updated.name, rev: updated.rev });
       return L.json(res, 200, { ok: true, trip: tripSummary(updated, user), staffSkipped: staffSkipped.length ? staffSkipped : undefined, staffGaps: gapsNow });

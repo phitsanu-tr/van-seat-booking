@@ -128,7 +128,7 @@ module.exports = async function handler(req, res) {
     if (a === "unclaim" && out.changed) { try { await L.redis(["SREM", L.myQueueKey(user.id), myE]); } catch (e) { /* best effort */ } }
     if (a === "reject" && out.changed && rejUid) {
       try { await L.redis(["SREM", L.myQueueKey(rejUid), myE]); } catch (e) { /* best effort */ }
-      await L.notify([rejUid], { k: "queue_no", t, tn: trip.name, n: rejName, v: vid, vl: van.label, mv: (trip._nv || trip.vans.length) > 1 ? 1 : undefined }, user.id);
+      await L.notify([rejUid], { k: "queue_no", t, tn: trip.name, n: rejName, v: vid, vl: van.label, mv: (trip._nv || trip.vans.length) > 1 ? 1 : undefined, vk: L.vkOf(trip, van) }, user.id);
     }
     if (a === "claim" && out.changed && !out.q.auto) { // tell the organizer team that someone is waiting for approval
       const r = out.q.items.find((i) => i.u === user.id);

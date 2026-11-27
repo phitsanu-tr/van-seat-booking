@@ -388,6 +388,8 @@ async function pushAllowed(uids, k) {
 }
 // Notices that also go out as a LINE message (each one counts toward the official account's monthly message quota, so only what matters).
 const LIFF_ID = "2012285472-FvtYKx00";
+// the van link code to put in a passenger notice (several vans only): the trip-wide link is for the organizer team
+function vkOf(trip, van) { return van && van.k && (trip._nv || (trip.vans || []).length) > 1 ? van.k : undefined; }
 function lineText(it) {
   const tn = String(it.tn || "ทริป"), link = it.vk ? "\n👇\nhttps://liff.line.me/" + LIFF_ID + "/t/" + it.vk + "/seats" : it.t ? "\n👇\nhttps://liff.line.me/" + LIFF_ID + "/" + it.t + "/seats" + (it.mv && it.v ? "?v=" + encodeURIComponent(it.v) : "") : "";
   switch (it.k) {
@@ -443,6 +445,7 @@ const DEFAULT_MAX_PER_PERSON = 4;
 function maxPerPerson(trip) { const n = Number(trip && trip.maxPerPerson); return Number.isInteger(n) && n >= 0 && n <= 50 ? n : DEFAULT_MAX_PER_PERSON; }
 
 module.exports = {
+  vkOf,
   lineText, linePush, PUSH_KINDS, pushOffKey,
   TOTAL_SEATS, CLOSE_AT_RE, bookingClosed, REST_URL, REST_TOKEN, pipeline, redis, hcas, readBody, tooBig, json,
   newVanCode, vanCode, scopeOf, ensureVanCodes, audit, ledger, errLog, seal, open, statDay, bump, tripId, tripKey, seatsKey, logKey, logEvent, RETENTION_DAYS, expireAtFor, expiryCommands, applyExpiry, loadTrip, publicTrip, tripDaysText, tripEnded, parseSeat, cleanName, hasBaseLetter, reservedName, NAME_MAX, newId, crypto,

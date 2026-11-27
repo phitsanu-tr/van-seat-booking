@@ -199,7 +199,7 @@
         b.addEventListener("click", function () {
           B.read({ id: it.id });
           if (/^plan_/.test(it.k)) location.href = "/plans";
-          else if (it.t && !(it.k in linkable) && location.pathname !== "/" + it.t) location.href = "/" + it.t + (it.mv && it.v ? "?v=" + encodeURIComponent(it.v) : ""); else { stay(); }
+          else if (it.t && !(it.k in linkable) && location.pathname !== "/" + it.t) location.href = it.vk ? "/t/" + it.vk : "/" + it.t + (it.mv && it.v ? "?v=" + encodeURIComponent(it.v) : ""); else { stay(); }
         });
         box.appendChild(b);
         if (it.k === "cancel_req") box.appendChild(creqActs(it));
