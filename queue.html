@@ -456,7 +456,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     function head(icon, title) { var h = el("div", "ah"), ic = el("span", "aic"); ic.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICN[icon] + '</svg>'; h.appendChild(ic); h.appendChild(el("b", null, title)); return h; }
     var b1 = el("div", "abox"); b1.appendChild(head("users", "คิว"));
     var rw = el("div", "arw"), tx = el("span"); tx.appendChild(el("b", null, allOn ? "เปิดคิวทุกคัน" : "ปิดคิวทุกคัน"));
-    tx.appendChild(el("small", null, allOn ? "ผู้จองต้องรอถึงคิวก่อนเลือกที่นั่ง" : onN ? "เปิดอยู่ " + onN + " จาก " + n + " คัน · กดเพื่อเปิดทุกคัน" : "ทุกคนจองได้ตามปกติ")); rw.appendChild(tx);
+    tx.appendChild(el("small", null, allOn ? "ผู้จองต้องรอถึงคิว · ผู้จัดจองได้เสมอ" : onN ? "เปิดอยู่ " + onN + " จาก " + n + " คัน · กดเพื่อเปิดทุกคัน" : "ทุกคนจองได้ตามปกติ")); rw.appendChild(tx);
     var swb = el("button", "swt"); swb.type = "button"; swb.setAttribute("role", "switch"); swb.setAttribute("aria-checked", allOn ? "true" : "false"); swb.setAttribute("aria-label", "เปิดหรือปิดคิวทุกคัน");
     swb.addEventListener("click", function () { if (busy) return; busy = true; var v = !allOn; call("onall", { value: v }).then(function () { busy = false; draw(); }, function () { busy = false; }); });
     rw.appendChild(swb); b1.appendChild(rw); sh.appendChild(b1);
