@@ -80,7 +80,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .vlinks { display: grid; gap: 8px; } .vlinks[hidden] { display: none; }
 .vl { background: #fff; border: 1px solid #cfe0e2; border-radius: 12px; padding: 0 12px; }
 .vl .vr { display: flex; align-items: center; gap: 12px; min-height: 56px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.vl .vn { flex: none; width: 40px; height: 40px; border-radius: 12px; background: #0b5f67; color: #fff; display: grid; place-items: center; font-weight: 700; }
+.vl .vn { flex: none; width: 48px; height: 48px; border-radius: 12px; background: #0b5f67; color: #fff; display: grid; place-items: center; align-content: center; text-align: center; } .vl .vn b { font: 700 20px/22px var(--font-display); } .vl .vn small { font: 500 12px/14px var(--font-display); opacity: .9; }
 .vl .vt { flex: 1; min-width: 0; } .vl .vt b { display: block; overflow-wrap: anywhere; } .vl .vt b .cc { display: block; white-space: nowrap; font: 700 12px/18px var(--font-display); letter-spacing: .5px; color: #0b5f67; } .vl .vt span { display: block; font-size: 12px; line-height: 18px; color: var(--muted); }
 .vl .vx { border-top: 1px solid #e1ecee; padding: 12px 0; display: grid; gap: 8px; } .vl .vx .cd { font: 700 16px/24px var(--font-display); letter-spacing: 1px; color: #0b5f67; } .vl .vx .ur { font-size: 12px; line-height: 18px; color: var(--muted); overflow-wrap: anywhere; }
 .vl .vb { display: grid; grid-template-columns: 5fr 6fr; gap: 8px; } .vl .vb button { min-width: 0; padding: 0 4px; white-space: nowrap; min-height: 48px; border: 0; border-radius: 12px; background: #e3eef0; color: var(--ink); font: 600 14px/20px var(--font-display); cursor: pointer; }
@@ -1081,7 +1081,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     vlVans.forEach(function (v) {
       var row = document.createElement("div"), open = vlOpen === v.id; row.className = "vl";
       var hd = document.createElement("div"); hd.className = "vr"; hd.setAttribute("role", "button"); hd.tabIndex = 0;
-      var n = document.createElement("div"); n.className = "vn"; n.textContent = v.label;
+      var n = document.createElement("div"); n.className = "vn"; var nb = document.createElement("b"); nb.textContent = v.label; var ns = document.createElement("small"); ns.textContent = "รถตู้"; n.appendChild(nb); n.appendChild(ns);
       var t = document.createElement("div"); t.className = "vt"; var b = document.createElement("b"); b.textContent = "ลิงก์คัน " + v.label; var cc = document.createElement("span"); cc.className = "cc"; cc.textContent = vlCode(v); b.appendChild(cc); var sp = document.createElement("span"); sp.hidden = true; t.appendChild(b); t.appendChild(sp);
       var cp = document.createElement("span"); cp.className = "cpbtn"; cp.setAttribute("role", "button"); cp.setAttribute("aria-label", "คัดลอกลิงก์คัน " + v.label); cp.innerHTML = CP_SVG;
       cp.addEventListener("click", function (e) { e.stopPropagation(); copy(vlUrl(v), cp); });
