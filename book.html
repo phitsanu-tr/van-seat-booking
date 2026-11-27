@@ -106,13 +106,13 @@ header.trip { display: block; }
 .tlbl { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 16px 0; font-size: 14px; color: var(--muted); line-height: 20px}
 .tlbl .tl { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 600; }
 .tlbl .tl svg { color: var(--mine); flex: none; }
-.deck .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; overflow: visible; padding: 12px 16px 16px; background: linear-gradient(color-mix(in srgb, var(--line) 60%, transparent), color-mix(in srgb, var(--line) 60%, transparent)) 16px 100% / calc(100% - 32px) 1px no-repeat; }
-.deck .tabs .tab { flex-direction: column; gap: 0; line-height: 20px; min-height: 52px; padding-block: 8px; }
-.deck .tabs .tab small { margin-left: 0; font-size: 12px; line-height: 16px}
-.deck .tabs .tab .tn { font-size: 16px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; line-height: 24px}
-.deck .tabs .tab { flex: none; width: calc((100% - 20px) / 3); }
-@media (max-width: 350px) { .deck .tabs .tab small { font-size: 12px; line-height: 16px} .deck .tabs { gap: 8px; padding-inline: 12px; } .deck .tabs .tab { width: calc((100% - 16px) / 3); } }
-.deck .tabs .tab { padding: 0 8px; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
+.deck .tabs { display: grid; grid-template-columns: repeat(var(--vn, 4), minmax(0, 1fr)); gap: 4px; margin: 12px 16px 16px; padding: 4px; border-radius: 16px; background: #e8ecef; overflow: visible; }
+.deck .tabs .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; height: 56px; min-height: 56px; padding: 0 4px; border: 0 !important; border-radius: 12px; background: transparent; color: #5f6b73; white-space: nowrap; }
+.deck .tabs .tab .tn { max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 16px; line-height: 24px; font-weight: 600; }
+.deck .tabs .tab small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; margin-left: 0; opacity: 1; font-size: 12px; line-height: 16px; font-weight: 400; color: #8a959c; }
+.deck .tabs .tab[aria-selected="true"] { background: var(--surface); color: var(--mine); box-shadow: 0 1px 3px rgba(0, 0, 0, .15); }
+.deck .tabs .tab[aria-selected="true"] small { color: #5f6b73; }
+.deck .tabs .tab:focus-visible { outline: 2px solid var(--mine); outline-offset: 2px; }
 .deck .sheet { border: 0; border-radius: 0; }
 .vban { display: flex; align-items: center; gap: 8px; min-height: 48px; margin-top: 16px; padding: 0 16px; border-radius: 12px; background: #0b5f67; color: #fff; font-size: 14px; line-height: 20px; }
 .vban[hidden] { display: none; } .vban b { font-family: var(--font-display); font-weight: 600; min-width: 0; overflow-wrap: anywhere; } .vban span { margin-left: auto; flex: none; font-size: 12px; line-height: 18px; color: #bfe9ed; }
@@ -490,7 +490,6 @@ body.v-info #deck, body.v-info .hero .org, body.v-list .hero .org { display: non
 .facts .nnote { display: flex; align-items: center; gap: 8px; margin-top: -4px; padding: 8px 12px; background: #fdf0dd; color: #8a5300; font-size: 14px; line-height: 20px; }
 .facts .nnote svg { width: 16px; height: 16px; flex: none; color: inherit; margin-top: 0; }
 .vb-bell { border-color: #e8ecef!important; }
-.deck .tabs { gap: 12px; }
 .tab { border-color: #e8ecef!important; }
 .tab[aria-selected="true"] { border-color: var(--mine)!important; }
 .modal { padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px)); gap: 16px; }
@@ -1532,7 +1531,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     vb.hidden = !vanTitle || infoMode(); vb.textContent = ""; // not on the trip details: those are the same for every van
     if (vanTitle) { vb.appendChild(el("b", null, vanTitle)); vb.appendChild(el("span", null, "จองได้เฉพาะคันนี้")); }
     tabsEl.textContent = "";
-    tabsEl.hidden = trip.vans.length < 2;
+    tabsEl.hidden = trip.vans.length < 2; tabsEl.style.setProperty("--vn", String(Math.min(trip.vans.length, 4)));
     trip.vans.forEach(function (v) {
       var b = el("button", "tab");
       b.type = "button"; b.setAttribute("role", "tab");
@@ -1540,7 +1539,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var c = counts[v.id];
       b.appendChild(el("span", "tn", v.label));
       b.setAttribute("aria-label", "รถตู้ " + v.label + (c != null ? " " + (c >= TOTAL ? "เต็ม" : "ว่าง " + (TOTAL - c) + " ที่นั่ง") : ""));
-      if (c != null) b.appendChild(el("small", null, (c >= TOTAL ? "เต็ม" : "ที่นั่งว่าง " + (TOTAL - c)) + (qvs && qvs[v.id] ? " · คิว" : "")));
+      if (c != null) b.appendChild(el("small", null, (c >= TOTAL ? "เต็ม" : "ว่าง " + (TOTAL - c)) + (qvs && qvs[v.id] ? " · คิว" : "")));
       b.addEventListener("click", function () { switchVan(v.id); });
       tabsEl.appendChild(b);
     });

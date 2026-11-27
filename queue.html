@@ -237,7 +237,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     if (multi) { // one queue per van: tabs to pick the van, and "all vans" to switch them together
       var vt = el("div", "vt"); vt.setAttribute("role", "tablist");
       D.vans.forEach(function (x) { var on = x.id === D.v; var b = el("button", (on ? "on " : "") + (x.w ? "w " : x.on ? "" : "off"), ""); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", on ? "true" : "false");
-        b.appendChild(document.createTextNode(vlab(x.l))); b.appendChild(el("small", null, x.w ? "รอ " + x.w : !x.on ? "ปิด" : x.n + " คน"));
+        b.appendChild(document.createTextNode(vlab(x.l))); b.appendChild(el("small", null, x.w ? "รอ " + x.w : !x.on ? "ปิดคิว" : x.n + " คน"));
         b.addEventListener("click", function () { if (on || busy) return; V = x.id; menuId = ""; lastJ = ""; try { history.replaceState(null, "", "?v=" + encodeURIComponent(x.id)); } catch (e) {} load(); }); vt.appendChild(b); });
       main.appendChild(vt);
     }
