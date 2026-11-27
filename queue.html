@@ -78,6 +78,7 @@ textarea{width:100%;min-height:92px;border:1.5px solid var(--line);border-radius
 .stb{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:12px 12px 8px;border-bottom:1px solid #e8ecef;flex:none}.stb b{font:600 17px/24px var(--font-display);text-align:center}
 .stb .tx{justify-self:start;background:none;color:var(--muted);font:600 16px var(--font-body);min-height:44px;padding:0 6px}
 .stb .go{justify-self:end;min-height:40px;padding:0 14px;border-radius:10px;font:700 15px var(--font-body);background:var(--mine);color:#fff}.stb .go:disabled{opacity:1;background:#e3e7ea;color:var(--muted)}
+.fbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;margin-top:12px;border:0;border-radius:12px;background:#e1f0ef;color:#0b5f67;font:600 14px/20px var(--font-body);cursor:pointer;flex:none}.fbtn svg{width:20px;height:20px;flex:none}.fnote{margin:8px 0 0;font-size:12px;line-height:16px;color:var(--muted)}
 .sbd{flex:1;display:flex;flex-direction:column;min-height:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}.sbd .note{margin:0 0 8px;font-size:13px;color:var(--muted)}
 .ed{flex:none;flex:0 1 250px;height:250px;display:flex;min-height:120px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.ed:focus-within{border-color:var(--mine)}
 .gu{flex:none;width:34px;background:var(--tint);color:var(--mine);font:700 13px/28px var(--font-body);text-align:center;padding:12px 0;overflow:hidden;white-space:pre}
@@ -163,6 +164,17 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var V = (location.search.match(/[?&]v=([a-z0-9]+)/) || [])[1] || ""; // which van's queue is open
   var main = document.getElementById("main"), D = null, busy = false; var draft = ""; // the names being typed survive a redraw
   function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; }
+  function namesFromCsv(text) { // names from a CSV: the column headed ชื่อ… / name, else the first column
+    var rows = String(text).replace(/^\uFEFF/, "").split(/\r?\n/).filter(function (l) { return l.trim(); }).map(function (l) {
+      var out = [], cur = "", q = false;
+      for (var i = 0; i < l.length; i++) { var c = l[i]; if (q) { if (c === '"') { if (l[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; } else if (c === '"') q = true; else if (c === "," || c === ";" || c === "\t") { out.push(cur); cur = ""; } else cur += c; }
+      out.push(cur); return out.map(function (x) { return x.trim(); });
+    });
+    if (!rows.length) return [];
+    var col = 0, hi = rows[0].findIndex(function (h) { return /^ชื่อ/.test(h) || /^name/i.test(h); });
+    if (hi >= 0) { col = hi; rows.shift(); }
+    return rows.map(function (r) { return r[col] || ""; }).filter(Boolean);
+  }
   function btn(txt, cls, fn) { var b = el("button", cls || "", txt); b.type = "button"; b.addEventListener("click", function () { if (busy) return; busy = true; fn().then(function () { busy = false; }, function () { busy = false; }); }); return b; }
   var MSG = { has_seats: "คนนี้จองที่นั่งไว้ ทำรายการนี้ไม่ได้ ยกเลิกที่นั่งก่อน", login_required: "ต้องเข้าสู่ระบบก่อน", already_claimed: "คุณยืนยันชื่อไปแล้ว", row_taken: "ชื่อนี้มีคนกดยืนยันแล้ว", queue_full: "เกินจำนวนที่นั่งรวมของทริป", bad_name: "ชื่อไม่ถูกต้อง", not_your_turn: "ยังไม่ถึงคิวของคุณ", busy: "ลองอีกครั้ง", ended: "ทริปจบแล้ว", not_owner: "เฉพาะผู้จัดทริป" };
   function call(a, extra, onFail) {
@@ -310,11 +322,20 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       var addB = btn("เพิ่ม", "go", function () { var nm = names(); if (!nm.length) return Promise.resolve(); draft = ""; sheet = ""; document.body.classList.remove("sheeton"); return call("add", { names: nm }).then(function () { draw(); }); }); tbr.appendChild(addB); sh.appendChild(tbr);
       var bd = el("div", "sbd"); bd.appendChild(el("p", "note", "บรรทัดละ 1 คน เลขสีเขียวคือลำดับคิวที่จะได้"));
       var ed = el("div", "ed"), gu = el("div", "gu"), ta = el("textarea"); ta.value = draft; ta.setAttribute("wrap", "off"); ta.placeholder = "พิมพ์ชื่อบรรทัดละ 1 คน"; ta.setAttribute("aria-label", "รายชื่อ");
-      var full = el("span", "edfull", "ครบ " + (D.cap || 80) + " คนแล้ว"), toast = el("div", "edtoast"); full.hidden = true; toast.hidden = true; ed.appendChild(gu); ed.appendChild(ta); ed.appendChild(full); ed.appendChild(toast); bd.appendChild(ed); var ct = el("div", "sct"); bd.appendChild(ct); sh.appendChild(bd);
+      var full = el("span", "edfull", "ครบ " + (D.cap || 80) + " คนแล้ว"), toast = el("div", "edtoast"); full.hidden = true; toast.hidden = true; ed.appendChild(gu); ed.appendChild(ta); ed.appendChild(full); ed.appendChild(toast); bd.appendChild(ed); var ct = el("div", "sct"); bd.appendChild(ct); var fi = el("input"); fi.type = "file"; fi.accept = ".csv,text/csv,text/plain"; fi.hidden = true; var fb = el("button", "fbtn"); fb.type = "button"; fb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V9M7 13l5-5 5 5M5 4h14"/></svg>'; fb.appendChild(document.createTextNode("นำเข้าจากไฟล์ CSV")); fb.addEventListener("click", function () { fi.click(); }); bd.appendChild(fb); bd.appendChild(fi); var fnote = el("p", "fnote"); fnote.hidden = true; bd.appendChild(fnote); sh.appendChild(bd);
       var room = Math.max(0, (D.cap || 80) - base);
       var upd = function () { var n = names().length, g = [], c = base; draft.split("\n").forEach(function (x) { g.push(x.trim() ? String(++c) : ""); }); gu.textContent = g.join("\n"); gu.scrollTop = ta.scrollTop; full.hidden = !(room > 0 && n >= room); ct.textContent = n ? "จะเพิ่ม " + n + " คน · เหลือที่อีก " + (room - n) : "เหลือที่อีก " + room + " คน"; addB.textContent = n ? "เพิ่ม " + n + " คน" : "เพิ่ม"; addB.disabled = !n; };
       var tt = 0; var clamp = function () { var out = [], cnt = 0, cut = 0, ch = false; ta.value.split("\n").forEach(function (l) { if (l.trim()) { if (cnt >= room) { cut++; ch = true; return; } cnt++; out.push(l); } else if (cnt >= room) { ch = true; } else out.push(l); }); if (ch) { ta.value = out.join("\n"); ta.selectionStart = ta.selectionEnd = ta.value.length; } if (cut) { toast.textContent = "ใส่ได้ " + room + " ชื่อ · ตัดชื่อที่เกินออก " + cut + " ชื่อ"; toast.hidden = false; clearTimeout(tt); tt = setTimeout(function () { toast.hidden = true; }, 4000); } };
       ta.addEventListener("input", function () { clamp(); draft = ta.value; upd(); }); ta.addEventListener("scroll", function () { gu.scrollTop = ta.scrollTop; }); upd();
+      fi.addEventListener("change", async function () { // a CSV: the names go into the box below the ones already typed; nothing is saved until "เพิ่ม"
+        var f = fi.files && fi.files[0]; fi.value = ""; if (!f) return;
+        var txt = "";
+        try { var buf = await f.arrayBuffer(); try { txt = new TextDecoder("utf-8", { fatal: true }).decode(buf); } catch (e1) { try { txt = new TextDecoder("windows-874").decode(buf); } catch (e2) { txt = new TextDecoder("utf-8").decode(buf); } } } catch (e) { fnote.textContent = "อ่านไฟล์ไม่ได้ ลองใหม่อีกครั้ง"; fnote.hidden = false; return; }
+        var got = namesFromCsv(txt), before = names().length;
+        if (!got.length) { fnote.textContent = "ไม่พบชื่อในไฟล์ (ใส่ชื่อไว้ในคอลัมน์แรก หรือคอลัมน์ที่หัวว่า ชื่อ)"; fnote.hidden = false; return; }
+        ta.value = (ta.value.replace(/\s+$/, "") + (ta.value.trim() ? "\n" : "") + got.join("\n")); clamp(); draft = ta.value; upd();
+        var added = names().length - before; fnote.textContent = "เพิ่มจากไฟล์ " + added + " คน" + (added < got.length ? " (ตัดที่เกินจำนวนที่รับได้ " + (got.length - added) + " คน)" : "") + " · ตรวจแล้วกด เพิ่ม"; fnote.hidden = false;
+      });
       main.appendChild(sh); document.body.classList.add("sheeton"); fitSheet();
       if (first) { requestAnimationFrame(function () { requestAnimationFrame(function () { sh.classList.add("up"); dim.classList.add("up"); ta.focus({ preventScroll: true }); }); }); }
     }
