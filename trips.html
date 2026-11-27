@@ -83,13 +83,14 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .vl .vn { flex: none; width: 40px; height: 40px; border-radius: 12px; background: #0b5f67; color: #fff; display: grid; place-items: center; font-weight: 700; }
 .vl .vt { flex: 1; min-width: 0; } .vl .vt b { display: block; overflow-wrap: anywhere; } .vl .vt span { display: block; font-size: 12px; line-height: 18px; color: var(--muted); }
 .vl .vx { border-top: 1px solid #e1ecee; padding: 12px 0; display: grid; gap: 8px; } .vl .vx .cd { font: 700 16px/24px var(--font-display); letter-spacing: 1px; color: #0b5f67; } .vl .vx .ur { font-size: 12px; line-height: 18px; color: var(--muted); overflow-wrap: anywhere; }
-.vl .vb { display: grid; grid-template-columns: 1fr; gap: 8px; } .vl .vb button { min-height: 48px; border: 0; border-radius: 12px; background: #e3eef0; color: var(--ink); font: 600 14px/20px var(--font-display); cursor: pointer; }
+.vl .vb { display: grid; grid-template-columns: 5fr 6fr; gap: 8px; } .vl .vb button { min-width: 0; padding: 0 4px; white-space: nowrap; min-height: 48px; border: 0; border-radius: 12px; background: #e3eef0; color: var(--ink); font: 600 14px/20px var(--font-display); cursor: pointer; }
 .vl input.gi { width: 100%; min-height: 40px; border: 1px solid #cfe0e2; border-radius: 12px; padding: 0 12px; font: inherit; }
+.vl .vb .vline { background: #06c755; color: #fff; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; } .vl .vb .vline svg { width: 16px; height: 16px; flex: none; } @media (max-width: 340px) { .vl .vb .vline svg { display: none; } }
 .vall { min-height: 48px; border: 0; border-radius: 12px; background: #0b5f67; color: #fff; font: 600 14px/20px var(--font-display); cursor: pointer; }
 .vline { min-height: 48px; border: 0; border-radius: 12px; background: #06c755; color: #fff; font: 600 14px/20px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
 .vcf { position: fixed; inset: 0; z-index: 60; background: rgba(5, 20, 22, .5); display: flex; align-items: flex-end; justify-content: center; } .vcf[hidden] { display: none; }
 .vcf .sh { width: 100%; max-width: 480px; background: #fff; border-radius: 24px 24px 0 0; padding: 24px 16px; padding-bottom: max(24px, env(safe-area-inset-bottom, 0px)); display: grid; gap: 12px; }
-.vcf h2 { font: 700 16px/24px var(--font-display); margin: 0; } .vcf p { margin: 0; color: var(--muted); }
+.vcf .vcb { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .vcf h2 { font: 700 16px/24px var(--font-display); margin: 0; } .vcf p { margin: 0; color: var(--muted); }
 .vcf button { min-height: 48px; border: 0; border-radius: 12px; font: 600 14px/20px var(--font-display); cursor: pointer; background: #e3eef0; color: var(--ink); } .vcf button.red { background: #c0314a; color: #fff; }
 .mlink .url { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .url .code { display: block; font: 700 26px/32px var(--font-display); letter-spacing: .08em; color: #0b5f67; overflow: hidden; white-space: nowrap; }
@@ -455,7 +456,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 </main>
 
 <div class="toast" id="toast" role="alert" hidden></div>
-<div class="vcf" id="vcf" hidden role="dialog" aria-modal="true"><div class="sh"><h2 id="vcfT">สร้างลิงก์ใหม่?</h2><p>ลิงก์เดิมของคันนี้จะใช้ไม่ได้ทันที คนที่จองไว้แล้วไม่หาย ต้องส่งลิงก์ใหม่ให้กลุ่มนี้เท่านั้น คันอื่นไม่กระทบ</p><button type="button" class="red" id="vcfYes">สร้างลิงก์ใหม่</button><button type="button" id="vcfNo">ไม่เปลี่ยน</button></div></div>
+<div class="vcf" id="vcf" hidden role="dialog" aria-modal="true"><div class="sh"><h2 id="vcfT">เปลี่ยนลิงก์?</h2><p id="vcfP">ลิงก์เดิมจะใช้ไม่ได้ทันที</p><div class="vcb"><button type="button" id="vcfNo">ยกเลิก</button><button type="button" class="red" id="vcfYes">เปลี่ยนลิงก์</button></div></div></div>
 <footer class="vfoot"></footer><script src="/footer.js"></script>
 
 <div class="backdrop" id="backdrop" hidden>
@@ -1090,16 +1091,16 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         var cd = document.createElement("div"); cd.className = "cd"; cd.textContent = vlCode(v);
         var ur = document.createElement("div"); ur.className = "ur"; ur.textContent = location.host + "/t/" + v.k;
         var bs = document.createElement("div"); bs.className = "vb";
-        var rt = document.createElement("button"); rt.type = "button"; rt.textContent = "สร้างลิงก์ใหม่";
-        rt.addEventListener("click", function () { vlRot = v.id; $("vcfT").textContent = "สร้างลิงก์ใหม่ให้คัน " + v.label + "?"; $("vcf").hidden = false; });
+        var rt = document.createElement("button"); rt.type = "button"; rt.textContent = "เปลี่ยนลิงก์";
+        rt.addEventListener("click", function () { vlRot = v.id; $("vcfT").textContent = "เปลี่ยนลิงก์คัน " + v.label + "?"; $("vcfP").textContent = "ลิงก์เดิมของคัน " + v.label + " จะใช้ไม่ได้ทันที คนที่จองไว้แล้วไม่หาย ต้องส่งลิงก์ใหม่ให้ผู้จองคันนี้อีกครั้ง คันอื่นไม่กระทบ"; $("vcf").hidden = false; });
         bs.appendChild(rt); x.appendChild(cd); x.appendChild(ur);
-        var sl = document.createElement("button"); sl.type = "button"; sl.className = "vline"; sl.innerHTML = LINE_SVG + "<span></span>"; sl.lastChild.textContent = "ส่งการ์ดคัน " + v.label + " ใน LINE";
+        var sl = document.createElement("button"); sl.type = "button"; sl.className = "vline"; sl.innerHTML = LINE_SVG + "<span></span>"; sl.lastChild.textContent = "ส่งการ์ด LINE";
         sl.addEventListener("click", function () { // a card for this van only (never the trip code); outside LINE, a text link to the van
           var txt = (vlName ? vlName + "\n" : "") + "คัน " + v.label + "" + "\nจองที่นั่งได้ที่นี่\n" + vlUrl(v);
           if (!window.VSBShare) { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(txt); return; }
           VSBShare.send(Object.assign(tripCard(), { vk: v.k, vl: v.label, vans: 1 })).then(function (sent) { if (!sent) location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(txt); });
         });
-        x.appendChild(sl); x.appendChild(bs); row.appendChild(x);
+        bs.appendChild(sl); x.appendChild(bs); row.appendChild(x);
       }
       vl.appendChild(row);
     });
