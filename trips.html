@@ -82,11 +82,11 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .vl .vr { display: flex; align-items: center; gap: 12px; min-height: 48px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .vl .vn { flex: none; width: 48px; height: 48px; border-radius: 12px; background: #0b5f67; color: #fff; display: grid; place-items: center; align-content: center; text-align: center; } .vl .vn b { font: 700 20px/22px var(--font-display); } .vl .vn small { font: 500 12px/14px var(--font-display); opacity: .9; }
 .vl .vt { flex: 1; min-width: 0; } .vl .vt b { display: block; overflow-wrap: anywhere; } .vl .vt b .cc { display: block; white-space: nowrap; font: 700 12px/18px var(--font-display); letter-spacing: .5px; color: #0b5f67; } .vl .vt span { display: block; font-size: 12px; line-height: 18px; color: var(--muted); }
-.vl .vt b.cd { font: 700 14px/16px var(--font-display); letter-spacing: .5px; color: #0b5f67; white-space: nowrap; } .vl .vt .hint { white-space: nowrap; line-height: 16px; }
-.vl .vx { border-top: 1px solid #e1ecee; margin-top: 4px; padding: 8px 0 0; display: grid; gap: 8px; } .vl .vx .cd { font: 700 16px/24px var(--font-display); letter-spacing: 1px; color: #0b5f67; } .vl .vx .ur { font-size: 12px; line-height: 18px; color: var(--muted); overflow-wrap: anywhere; }
-.vl .vb { display: grid; grid-template-columns: 5fr 6fr; gap: 8px; } .vl .vb button { min-width: 0; padding: 0 4px; white-space: nowrap; min-height: 48px; border: 0; border-radius: 12px; background: #e3eef0; color: var(--ink); font: 600 14px/20px var(--font-display); cursor: pointer; }
+.vl .vt b.cd { font: 700 14px/16px var(--font-display); letter-spacing: .5px; color: #0b5f67; white-space: nowrap; } .vl .vt .hint { white-space: nowrap; line-height: 16px; } .vlinks { grid-template-columns: minmax(0, 1fr); } @media (max-width: 340px) { .vl .vt .hint { font-size: 0; } .vl .vt .hint::after { content: "แตะเพื่อส่ง"; font-size: 12px; line-height: 16px; } }
+.vl .cpbtn { width: 48px; height: 48px; } .vl .vx { border-top: 1px solid #e1ecee; margin-top: 4px; padding: 4px 0 0; display: grid; gap: 8px; } .vl .vx .cd { font: 700 16px/24px var(--font-display); letter-spacing: 1px; color: #0b5f67; } .vl .vx .ur { font-size: 12px; line-height: 18px; color: var(--muted); overflow-wrap: anywhere; }
+.vl .vb { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .vl .vb button { min-width: 0; padding: 0 4px; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 48px; border: 0; border-radius: 12px; background: #e3eef0; color: var(--ink); font: 600 14px/20px var(--font-display); cursor: pointer; }
 .vl input.gi { width: 100%; min-height: 40px; border: 1px solid #cfe0e2; border-radius: 12px; padding: 0 12px; font: inherit; }
-.vl .vb .vline { background: #06c755; color: #fff; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; } .vl .vb .vline svg { width: 16px; height: 16px; flex: none; } @media (max-width: 340px) { .vl .vb .vline svg { display: none; } }
+.vl .vb .vline { background: #06c755; color: #fff; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; } .vl .vb .vline svg { width: 16px; height: 16px; flex: none; } .vl .vb button svg { width: 16px; height: 16px; flex: none; } @media (max-width: 340px) { .vl .vb button svg { display: none; } }
 .vline { min-height: 48px; border: 0; border-radius: 12px; background: #06c755; color: #fff; font: 600 14px/20px var(--font-display); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
 .vcf { position: fixed; inset: 0; z-index: 60; background: rgba(5, 20, 22, .5); display: flex; align-items: flex-end; justify-content: center; } .vcf[hidden] { display: none; }
 .vcf .sh { width: 100%; max-width: 480px; background: #fff; border-radius: 24px 24px 0 0; padding: 24px 16px; padding-bottom: max(24px, env(safe-area-inset-bottom, 0px)); display: grid; gap: 12px; }
@@ -1053,6 +1053,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       .then(function (sent) { if (!sent) location.href = href; });
   });
   // several vans: one compact row per van (tap for its code), copy-all, a group name and a new link for each
+  var RF_SVG = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-3M4 4v4h4M4 13a8 8 0 0 0 14.9 3M20 20v-4h-4"/></svg>';
   var LINE_SVG = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg>';
   var CP_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
   var vlVans = [], vlOpen = "", vlPer = {}, vlTrip = "", vlName = "", vlRot = "";
@@ -1093,10 +1094,10 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (open) {
         var x = document.createElement("div"); x.className = "vx";
         var bs = document.createElement("div"); bs.className = "vb";
-        var rt = document.createElement("button"); rt.type = "button"; rt.textContent = "เปลี่ยนลิงก์";
+        var rt = document.createElement("button"); rt.type = "button"; rt.innerHTML = RF_SVG + "<span></span>"; rt.lastChild.textContent = "เปลี่ยนลิงก์";
         rt.addEventListener("click", function () { vlRot = v.id; $("vcfT").textContent = "เปลี่ยนลิงก์คัน " + v.label + "?"; $("vcfP").textContent = "ลิงก์เดิมของคัน " + v.label + " จะใช้ไม่ได้ทันที คนที่จองไว้แล้วไม่หาย ต้องส่งลิงก์ใหม่ให้ผู้จองคันนี้อีกครั้ง คันอื่นไม่กระทบ"; $("vcf").hidden = false; });
         bs.appendChild(rt);
-        var sl = document.createElement("button"); sl.type = "button"; sl.className = "vline"; sl.innerHTML = LINE_SVG + "<span></span>"; sl.lastChild.textContent = "ส่งการ์ด LINE";
+        var sl = document.createElement("button"); sl.type = "button"; sl.className = "vline"; sl.innerHTML = LINE_SVG + "<span></span>"; sl.lastChild.textContent = "ส่งลิงก์นี้";
         sl.addEventListener("click", function () { // a card for this van only (never the trip code); outside LINE, a text link to the van
           var txt = (vlName ? vlName + "\n" : "") + "คัน " + v.label + "" + "\nจองที่นั่งได้ที่นี่\n" + vlUrl(v);
           if (!window.VSBShare) { location.href = "https://line.me/R/msg/text/?" + encodeURIComponent(txt); return; }
