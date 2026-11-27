@@ -107,7 +107,7 @@ header.trip { display: block; }
 .tlbl .tl { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 600; }
 .tlbl .tl { color: var(--ink); font-size: 16px; line-height: 24px; }
 .tlbl .tl .tlt { flex: none; width: 32px; height: 32px; border-radius: 50%; background: #e3eef0; color: #0b5f67; display: grid; place-items: center; }
-.deck .tabs { display: grid; grid-template-columns: repeat(var(--vn, 4), minmax(0, 1fr)); gap: 4px; margin: 12px 16px 16px; padding: 4px; border-radius: 16px; background: #e8ecef; overflow: visible; }
+.deck .tabs { display: grid; grid-template-columns: repeat(var(--vn, 5), minmax(0, 1fr)); gap: 4px; margin: 12px 16px 16px; padding: 4px; border-radius: 16px; background: #e8ecef; overflow: visible; }
 .deck .tabs .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; height: 56px; min-height: 56px; padding: 0 4px; border: 0 !important; border-radius: 12px; background: transparent; color: #5f6b73; white-space: nowrap; }
 .deck .tabs .tab .tn { max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 16px; line-height: 24px; font-weight: 600; }
 .deck .tabs .tab small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; margin-left: 0; opacity: 1; font-size: 12px; line-height: 16px; font-weight: 400; color: #8a959c; }
@@ -1534,7 +1534,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     vb.hidden = !vanTitle || infoMode(); vb.textContent = ""; // not on the trip details: those are the same for every van
     if (vanTitle) { vb.appendChild(el("b", null, vanTitle)); vb.appendChild(el("span", null, "จองได้เฉพาะคันนี้")); }
     tabsEl.textContent = "";
-    tabsEl.hidden = trip.vans.length < 2; document.getElementById("tabDv").hidden = trip.vans.length < 2; tabsEl.style.setProperty("--vn", String(Math.min(trip.vans.length, 4)));
+    tabsEl.hidden = trip.vans.length < 2; document.getElementById("tabDv").hidden = trip.vans.length < 2; tabsEl.style.setProperty("--vn", String(Math.min(trip.vans.length, 5)));
     trip.vans.forEach(function (v) {
       var b = el("button", "tab");
       b.type = "button"; b.setAttribute("role", "tab");
