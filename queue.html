@@ -210,8 +210,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         add("แก้ชื่อ", "", function () { editId = it.id; sheet = "edit"; sheetNew = true; return Promise.resolve(); }, "edit");
         if (i > 0) add("เลื่อนขึ้น", "", function () { return call("up", { id: it.id }); }, "up");
         if (i < D.items.length - 1) add("เลื่อนลง", "", function () { return call("down", { id: it.id }); }, "down");
-        if (it.bound && !it.hs) add("ปลดชื่อ", "", function () { return call("unbind", { id: it.id }); }, "unlink");
         if (!(it.done && it.hs)) add(it.done ? "คืนคิว" : isT ? "จบคิว" : "ข้ามคิว", "", function () { var df = false, msg = it.done ? "คืนคิวแล้ว" : isT ? "จบคิวแล้ว · เรียกคนถัดไป" : "ข้ามคิวแล้ว"; return call("done", { id: it.id, value: !it.done }, function () { df = true; }).then(function () { if (!df) showToast(msg); }); }, it.done ? "undo" : isT ? "check" : "skip");
+        if (it.bound && !it.hs) add("ปลดชื่อ", "", function () { return call("unbind", { id: it.id }); }, "unlink");
         var rmb = el("button", "rm", ""); rmb.type = "button"; var rmL = el("span", null, "ลบ"); rmb.innerHTML = MI("trash"); rmb.appendChild(rmL); var rmT = null, rmN = 0;
         var rmStop = function () { clearInterval(rmT); rmT = null; rmb.classList.remove("armed"); rmL.textContent = "ลบ"; };
         rmb.addEventListener("click", function (e) { e.stopPropagation(); if (busy) return;
