@@ -100,7 +100,9 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .macts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
 @media (max-width: 340px) { .macts { grid-template-columns: minmax(0, 1fr); } }
 .macts .btn { height: 48px; gap: 8px; white-space: nowrap; font-family: var(--font-display); font-weight: 600; }
-.macts.multi #lineBtn { order: 2; } /* several vans: grey "open" on the left, green send on the right (like the buttons in a van row) */
+.mcard > .btn, .mcard.org > .btn { height: 48px; gap: 8px; white-space: nowrap; font-family: var(--font-display); font-weight: 600; } .mcard > .btn svg { width: 20px; height: 20px; flex: none; }
+.mcard.org { border-color: #e6c36a; background: #fff4dc; } .mcard.org[hidden] { display: none; } .mcard.org .msub { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; color: #8a5a00; } .mcard.org .msub svg { width: 20px; height: 20px; flex: none; }
+.mcard.org .vr { padding: 8px 0; } .mcard.org .vt b { display: block; }
 .macts .btn svg { width: 20px; height: 20px; flex: none; }
 .macts .btn.line { font-size: 16px; padding: 0 8px; line-height: 24px}
 .macts .btn.plain { font-size: 14px; padding: 0 8px; background: #f1f4f6; border-color: transparent; line-height: 20px}
@@ -465,7 +467,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     <div id="mState"></div>
     <div class="mcard"><div><div class="msub" id="mSub">แชร์ลิงก์หรือรหัสให้ผู้ร่วมทริปจองที่นั่ง</div><div class="msub2" id="mSub2" hidden>ใช้ลิงก์เดิมได้เลย</div></div>
     <div class="mlink" id="copyBox" role="button" tabindex="0" aria-label="คัดลอกลิงก์"><div class="url" id="shareUrl"></div><span class="cpbtn" id="copyShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span></div><div class="vlinks" id="vanLinks" hidden></div></div>
-    <div class="macts">
+    <div class="mcard org" id="orgCard" hidden><div class="msub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>เฉพาะผู้จัด · เห็นทุกคัน</span></div><div class="vl"><div class="vr" id="orgRow" role="button" tabindex="0"><div class="vt"><b>ลิงก์รวม</b><span>ไม่ส่งให้ผู้จอง</span></div><span class="cpbtn" id="orgCp" role="button" aria-label="คัดลอกลิงก์รวม"></span></div></div></div>
+    <div class="macts" id="macts">
       <a class="btn line" id="lineBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg><span>แชร์ใน LINE</span></a>
       <a class="btn plain" id="openShare" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span>เปิดหน้าจอง</span></a>
     </div>
@@ -1054,11 +1057,16 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var vlVans = [], vlOpen = "", vlPer = {}, vlTrip = "", vlName = "", vlRot = "";
   function vlUrl(v) { return link("/t/" + v.k); }
   function vlCode(v) { return v.k.slice(0, 4).toUpperCase() + "-" + v.k.slice(4).toUpperCase(); }
+  function placeShareBtns(multi) { // several vans: the send button closes the vans card, the trip link and "open" sit in their own organizer card; one van: the two buttons stay in their row
+    var ma = $("macts"), oc = $("orgCard");
+    if (multi) { $("vanLinks").parentNode.appendChild($("lineBtn")); oc.appendChild($("openShare")); oc.hidden = false; ma.hidden = true; }
+    else { ma.appendChild($("lineBtn")); ma.appendChild($("openShare")); oc.hidden = true; ma.hidden = false; }
+  }
   function drawVanLinks(id, name) {
     var vl = $("vanLinks"); vlTrip = id; vlName = name || "";
     var known = (shareVans.length ? shareVans : rows.filter(function (r) { return r.id; }));
     vl.hidden = known.length < 2; vl.textContent = "";
-    multiShare = known.length > 1; $("lineBtn").querySelector("span").textContent = multiShare ? "ส่งลิงก์ทั้งหมด" : "แชร์ใน LINE"; document.querySelector(".macts").classList.toggle("multi", multiShare);
+    multiShare = known.length > 1; $("lineBtn").querySelector("span").textContent = multiShare ? "ส่งลิงก์ทั้งหมด" : "แชร์ใน LINE"; placeShareBtns(multiShare);
     $("copyBox").style.display = known.length < 2 ? "" : "none"; // several vans: the whole-trip link moves to a small row under the vans (the sheet stays short)
     $("mSub").textContent = known.length < 2 ? $("mSub").textContent : "ส่งลิงก์คันไหน ผู้จองเห็นเฉพาะคันนั้น";
     if (known.length < 2) return;
@@ -1100,12 +1108,9 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       }
       vl.appendChild(row);
     });
-    var tl = document.createElement("div"); tl.className = "vl"; var tr = document.createElement("div"); tr.className = "vr"; tr.setAttribute("role", "button"); tr.tabIndex = 0;
-    var tt = document.createElement("div"); tt.className = "vt"; var tb = document.createElement("b"); tb.textContent = "ลิงก์รวมของผู้จัด"; var ts = document.createElement("span"); ts.textContent = "เห็นทุกคัน · ไม่ส่งให้ผู้จอง"; tt.appendChild(tb); tt.appendChild(ts);
-    var tc = document.createElement("span"); tc.className = "cpbtn"; tc.setAttribute("role", "button"); tc.setAttribute("aria-label", "คัดลอกลิงก์รวม"); tc.innerHTML = CP_SVG;
-    tr.appendChild(tt); tr.appendChild(tc); tl.appendChild(tr); vl.appendChild(tl);
-    var cpAll = function () { copy(shareLink, tc); }; tr.addEventListener("click", cpAll); tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); cpAll(); } });
   }
+  $("orgCp").innerHTML = CP_SVG;
+  (function () { var r = $("orgRow"), go = function () { copy(shareLink, $("orgCp")); }; r.addEventListener("click", go); r.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }); })();
   $("vcfNo").addEventListener("click", function () { $("vcf").hidden = true; });
   $("vcf").addEventListener("click", function (e) { if (e.target === $("vcf")) $("vcf").hidden = true; });
   $("vcfYes").addEventListener("click", function () {
