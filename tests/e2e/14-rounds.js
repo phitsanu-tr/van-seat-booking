@@ -4,10 +4,10 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 async function user(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2,permissions:['clipboard-read','clipboard-write']});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),Bo=await user('Bob'),P=await user('Pat'),Q=await user('Qin');
 const base={name:'เขาใหญ่ชิล ๆ',tripN:2,tripStart:HLP.day(10),meetPoint:'จุดนัดพบ',startDate:HLP.day(10),endDate:HLP.day(11),departTime:'07:00',vans:[{label:'1'},{label:'2'}]};
-const tr=await (await A.request.post(B+'/api/trip',{data:base})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:base})).json();const ID=tr.id;const VKS=(await (await A.request.get(B+'/api/trip?t='+ID)).json()).trip.vans.map(v=>v.k);
 const inv=await (await A.request.post(B+'/api/trip',{data:{t:ID,invite:true}})).json();await Bo.request.post(B+'/api/trip',{data:{join:inv.invite.code}});
-await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:3,name:'แพท'}});await P.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:4,name:'แพทสอง'}});
-await Q.request.post(B+'/api/seats?t='+ID+'&v=v2',{data:{seat:5,name:'ฉิน'}});
+await P.request.post(B+'/api/seats?k='+VKS[0],{data:{seat:3,name:'แพท'}});await P.request.post(B+'/api/seats?k='+VKS[0],{data:{seat:4,name:'แพทสอง'}});
+await Q.request.post(B+'/api/seats?k='+VKS[1],{data:{seat:5,name:'ฉิน'}});
 const full=async()=>await (await A.request.get(B+'/api/trip?t='+ID+'&roster=1')).json();
 const head=p=>p.$eval('.round',e=>e.querySelector('.n').textContent+' | '+e.querySelector('b').textContent);
 // --- round 1
@@ -28,7 +28,7 @@ let d=await full();
 log('server cur',JSON.stringify({i:d.board.cur.i,name:d.board.cur.name,by:d.board.cur.by}),'hist',JSON.stringify(d.board.hist.map(h=>({i:h.i,name:h.name,n:h.n,total:h.total,miss:h.miss,by:h.by,times:!!(h.start&&h.end)}))));
 log('ticks cleared',Object.values(d.roster).flatMap(v=>Object.values(v)).filter(s=>s.c).length);
 // --- privacy: passengers never get trip.board
-const pub=await (await P.request.get(B+'/api/seats?t='+ID+'&v=v1')).json();log('passenger trip has board',('board' in pub.trip),'passenger roster',(await P.request.get(B+'/api/trip?t='+ID+'&roster=1')).status());
+const pub=await (await P.request.get(B+'/api/seats?k='+VKS[0])).json();log('passenger trip has board',('board' in pub.trip),'passenger roster',(await P.request.get(B+'/api/trip?t='+ID+'&roster=1')).status());
 // --- helper sees the same round
 await Bo.goto(B+'/trips?f='+Date.now());await Bo.waitForTimeout(1200);await Bo.click('.ros3');await Bo.waitForTimeout(800);await Bo.click('.rtabs button:nth-child(2)');await Bo.waitForTimeout(600);log('helper sees',await head(Bo));
 // --- history view

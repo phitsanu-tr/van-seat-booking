@@ -44,7 +44,7 @@ async function update(trip, v, fn) {
       const exp = L.expireAtFor(trip);
       if (exp && exp > Math.floor(Date.now() / 1000)) { try { await L.redis(["EXPIREAT", qKey(trip.id), String(exp)]); } catch (e) { /* best effort */ } }
       if (turnUid) {
-        await L.notify([turnUid], { k: "queue_turn", t: trip.id, tn: trip.name, v: van.id, vl: van.label, mv: (trip._nv || trip.vans.length) > 1 ? 1 : undefined, vk: trip.vans.length > 1 ? van.k : undefined });
+        await L.notify([turnUid], { k: "queue_turn", t: trip.id, tn: trip.name, v: van.id, vl: van.label, mv: (trip._nv || trip.vans.length) > 1 ? 1 : undefined, vk: van.k });
       }
       return { q, ok: true, changed: true };
     }

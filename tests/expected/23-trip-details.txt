@@ -13,5 +13,5 @@ organizer first visit {"suffix":"/seats","info":false,"tab":"swMap","deck":true,
 link with ?v {"suffix":"/seats","info":false,"tab":"swMap","deck":true,"facts":false}
 holds a seat {"suffix":"/seats","info":false,"tab":"swMap","deck":true,"facts":false}
 cards [ 'card tk tap' ]
-after card tap /<id> {"suffix":"","info":true,"tab":"swInfo","deck":false,"facts":true}
+after card tap /t/<id> {"suffix":"","info":true,"tab":"swInfo","deck":false,"facts":true}
 ERR []

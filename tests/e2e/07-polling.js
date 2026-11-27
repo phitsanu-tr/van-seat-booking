@@ -3,10 +3,10 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 (async()=>{const b=await chromium.launch(HLP.launchOpts);
 async function ctx(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));return p;}
 const A=await ctx('Ann');await A.goto(B+'/api/auth?start=1&as=Ann&r=%2F');
-const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(45),meetPoint:'จุดนัดพบ',name:'ทดสอบกัน',startDate:HLP.day(45),vans:[{label:'1'}]}})).json();const ID=tr.id;
+const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(45),meetPoint:'จุดนัดพบ',name:'ทดสอบกัน',startDate:HLP.day(45),vans:[{label:'1'}]}})).json();const ID=tr.id;const VK=((await (await A.request.get(B+'/api/trip?t='+ID)).json()).trip.vans[0]||{}).k;
 // two anonymous phones, same network (same IP here) — holds are placed through the API now (hc = browser id)
-const hold=async(hc,seat)=>await fetch(B+'/api/seats?t='+ID+'&v=v1',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({hold:seat,hc})});
-const held=async()=>JSON.stringify((await (await fetch(B+'/api/seats?t='+ID+'&v=v1')).json()).held);
+const hold=async(hc,seat)=>await fetch(B+'/api/seats?k='+VK,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({hold:seat,hc})});
+const held=async()=>JSON.stringify((await (await fetch(B+'/api/seats?k='+VK)).json()).held);
 await hold('aaaaaaaaaaaaaaaa',2);await hold('bbbbbbbbbbbbbbbb',5);
 log('held after two phones on one network',await held());
 // the same phone holds another seat -> its old hold is released
@@ -14,7 +14,7 @@ await hold('aaaaaaaaaaaaaaaa',7);
 log('held after phone 1 picks another seat',await held());
 // polling backoff with a fake clock
 const C=await ctx('poll');await C.clock.install();let n=0;C.on('request',r=>{if(r.url().includes('/api/seats?'))n++;});
-await C.goto(B+'/'+ID+'/seats');await C.waitForTimeout(800);n=0;
+await C.goto(B+'/t/'+VK+'/seats');await C.waitForTimeout(800);n=0;
 await C.clock.runFor(60000);log('active 1 min polls',n);n=0;
 await C.clock.runFor(120000);n=0;await C.clock.runFor(240000);log('idle 3-7 min polls (expect ~8)',n);n=0;
 await C.clock.runFor(600000);n=0;await C.clock.runFor(300000);log('idle >10 min, 5 min polls (expect ~5)',n);n=0;

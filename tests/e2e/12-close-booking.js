@@ -5,11 +5,11 @@ const bkk=m=>new Date(Date.now()+7*3600e3+m*60e3).toISOString().slice(0,16); // 
 async function user(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2,hasTouch:true});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),P=await user('Pat'),Q=await user('Qin');
 const base={name:'ทริปปิดจอง',startDate:HLP.day(20),endDate:HLP.day(21),departTime:'07:00',returnTime:'17:00',tripN:2,tripStart:HLP.day(20),meetPoint:'BTS หมอชิต',vans:[{label:'1'}]};
-const tr=await (await A.request.post(B+'/api/trip',{data:base})).json();const ID=tr.id;
-const seats=(p,m,d)=>p.request.fetch(B+'/api/seats?t='+ID+'&v=v1',{method:m,data:d});
+const tr=await (await A.request.post(B+'/api/trip',{data:base})).json();const ID=tr.id;const VK=((await (await A.request.get(B+'/api/trip?t='+ID)).json()).trip.vans[0]).k;
+const seats=(p,m,d)=>p.request.fetch(B+'/api/seats?k='+VK,{method:m,data:d});
 const st=async r=>r.status()+(r.status()>=400?' '+((await r.json().catch(()=>({}))).error||''):'');
 const put=d=>A.request.fetch(B+'/api/trip',{method:'PUT',data:Object.assign({t:ID},base,{vans:[{id:'v1',label:'1'}]},d)});
-const pub=async()=>(await (await P.request.get(B+'/api/seats?t='+ID+'&v=v1')).json()).closed;
+const pub=async()=>(await (await P.request.get(B+'/api/seats?k='+VK)).json()).closed;
 await seats(P,'POST',{seat:3,name:'แพท'});await seats(Q,'POST',{seat:5,name:'ฉิน'});
 // --- manual close: server rules
 log('close',await st(await A.request.post(B+'/api/trip',{data:{t:ID,close:true}})),'seats GET closed',await pub());
@@ -21,7 +21,7 @@ log('organizer books',await st(await seats(A,'POST',{seat:8,name:'แอน'})))
 log('organizer moves',await st(await seats(A,'POST',{move:{fromVan:'v1',fromSeat:5,toVan:'v1',toSeat:7}})));
 log('organizer cancels other',await st(await seats(A,'DELETE',{seat:8})));
 // --- booking page: passenger vs organizer
-await P.goto(B+'/'+ID+'/seats');await P.waitForTimeout(1500);
+await P.goto(B+'/t/'+VK+'/seats');await P.waitForTimeout(1500);
 log('P bar',await P.isVisible('#closedBar'),(await P.textContent('#closedBar')).trim().slice(0,14),'locked deck',await P.evaluate(()=>document.getElementById('deck').classList.contains('isended')));
 await P.locator('.seat').nth(3).click();await P.waitForTimeout(400);log('P tap free seat opens panel',await P.isVisible('#backdrop'));
 await P.screenshot({path:S+'/close_passenger.png'});
@@ -36,7 +36,7 @@ await P.click('.ab.more');await P.click('.pmenu .dgr');await P.waitForTimeout(40
 await A.goto(B+'/'+ID+'/seats');await A.waitForTimeout(1500);await A.click('#notice .go');await A.waitForTimeout(1200);log('A reopened',await A.textContent('#toast'),'closed now',await pub(),'notice',(await A.textContent('#notice')).replace(/\s+/g,' ').trim().slice(0,30));
 // --- automatic closing time
 log('closeAt in 1 day',await st(await put({closeAt:bkk(24*60)})),'closed',await pub(),'P books',await st(await seats(P,'POST',{seat:4,name:'แพทสอง'})));
-await P.goto(B+'/'+ID+'/seats');await P.waitForTimeout(1500);log('tip shows closing time',/ปิดรับจอง \d+ /.test(await P.textContent('#notice')));
+await P.goto(B+'/t/'+VK+'/seats');await P.waitForTimeout(1500);log('tip shows closing time',/ปิดรับจอง \d+ /.test(await P.textContent('#notice')));
 await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);log('card closing line',/^ปิดรับจองอัตโนมัติ \d+ /.test(await A.textContent('.cat')));
 log('closeAt 1 min ago',await st(await put({closeAt:bkk(-1)})),'closed',await pub(),'P books',await st(await seats(P,'POST',{seat:9,name:'แพทสาม'})));
 const r1=await (await A.request.post(B+'/api/trip',{data:{t:ID,close:false}})).json();

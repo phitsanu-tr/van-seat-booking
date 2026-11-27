@@ -4,8 +4,8 @@ const LINE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 async function ctx(n){const c=await b.newContext({viewport:{width:390,height:844},userAgent:LINE,deviceScaleFactor:2});await HLP.fonts(c);const p=await c.newPage();p.on('pageerror',e=>errs.push(n+': '+e.message));return p;}
 async function user(n){const p=await ctx(n);await p.goto(B+'/api/auth?start=1&as='+n+'&r=%2Fprivacy');await p.waitForTimeout(300);return p;}
 const A=await user('Ann'),C=await user('Cat');
-const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(45),meetPoint:'จุดนัดพบ',name:'ทริปทีม',startDate:HLP.day(45),vans:[{label:'1'}]}})).json();const ID=tr.id;
-await C.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:4,name:'แคท'}});
+const tr=await (await A.request.post(B+'/api/trip',{data:{tripN:1,tripStart:HLP.day(45),meetPoint:'จุดนัดพบ',name:'ทริปทีม',startDate:HLP.day(45),vans:[{label:'1'}]}})).json();const ID=tr.id;const VK=((await (await A.request.get(B+'/api/trip?t='+ID)).json()).trip.vans[0]||{}).k;
+await C.request.post(B+'/api/seats?k='+VK,{data:{seat:4,name:'แคท'}});
 // A creates invite in UI
 await A.goto(B+'/trips?f='+Date.now());await A.waitForTimeout(1200);await A.click('.ab.mgo');await A.waitForTimeout(300);await A.click('.mgb:has-text("ผู้ช่วยจัดทริป")');await A.waitForTimeout(700);await A.screenshot({path:S+'/t1.png'});
 await A.click('.sheet .b-amber');await A.waitForTimeout(700);const url=await A.textContent('.ilink code');log('invite url',url.replace(/join\/\w+/,"join/…"));await A.screenshot({path:S+'/t2.png'});
@@ -15,7 +15,7 @@ const Bp=await ctx('Bob');await Bp.goto(local);await Bp.waitForTimeout(1000);log
 await Bp.goto(B+'/api/auth?start=1&as=Bob&r='+encodeURIComponent('/join/'+jc));await Bp.waitForTimeout(1500);log('B toast',await Bp.textContent('#toast'),'url',Bp.url());
 await Bp.screenshot({path:S+'/t3.png'});log('B role line',await Bp.textContent('.rolep').catch(()=>'none'));
 // helper rights
-log('B cancel Cat seat',(await Bp.request.fetch(B+'/api/seats?t='+ID+'&v=v1',{method:'DELETE',data:{seat:4}})).status());
+log('B cancel Cat seat',(await Bp.request.fetch(B+'/api/seats?k='+VK,{method:'DELETE',data:{seat:4}})).status());
 log('B PUT trip',(await Bp.request.fetch(B+'/api/trip',{method:'PUT',data:{t:ID,name:'ทริปทีม (แก้โดยผู้ช่วย)',startDate:HLP.day(45),tripN:1,tripStart:HLP.day(45),meetPoint:'จุดนัดพบ',vans:[{id:'v1',label:'1'}]}})).status());
 log('B DELETE trip',(await Bp.request.fetch(B+'/api/trip?t='+ID,{method:'DELETE'})).status());
 log('B invite',(await Bp.request.post(B+'/api/trip',{data:{t:ID,invite:true}})).status());
@@ -32,16 +32,16 @@ await A.click('.rrow >> nth=1 >> text=โอนให้');await A.click('.rrow 
 const team=await (await A.request.get(B+'/api/trip?t='+ID)).json();log('after transfer A role',team.team.role,'owner',team.team.ownerName,'helpers',team.team.helpers.map(h=>h.name).join(','));
 log('A delete now',(await A.request.fetch(B+'/api/trip?t='+ID,{method:'DELETE'})).status());
 // hold
-const P=await ctx('anon');await P.goto(B+'/'+ID+'/seats');await P.waitForTimeout(1000);
-const h=await P.evaluate(async(id)=>{const r=await fetch('/api/seats?t='+id+'&v=v1',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({t:id,v:'v1',hold:2})});return [r.status,await r.json()]},ID);log('hold',h[0],!!h[1].hold);
-const Q=await user('Que');await Q.goto(B+'/'+ID+'/seats');await Q.waitForTimeout(1200);log('Q sees held',await Q.locator('.seat.held').count());await Q.screenshot({path:S+'/t5.png'});
-log('Q book held seat',(await Q.request.post(B+'/api/seats?t='+ID+'&v=v1',{data:{seat:2,name:'คิว'}})).status());
+const P=await ctx('anon');await P.goto(B+'/t/'+VK+'/seats');await P.waitForTimeout(1000);
+const h=await P.evaluate(async(id)=>{const r=await fetch('/api/seats?k='+id,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({k:id,hold:2})});return [r.status,await r.json()]},VK);log('hold',h[0],!!h[1].hold);
+const Q=await user('Que');await Q.goto(B+'/t/'+VK+'/seats');await Q.waitForTimeout(1200);log('Q sees held',await Q.locator('.seat.held').count());await Q.screenshot({path:S+'/t5.png'});
+log('Q book held seat',(await Q.request.post(B+'/api/seats?k='+VK,{data:{seat:2,name:'คิว'}})).status());
 await Q.click('.seat.held');await Q.waitForTimeout(300);await Q.screenshot({path:S+'/t6.png'});
 // full UI hold flow: anon R taps seat 6 -> login button -> hold -> back -> book
-const R=await ctx('Ron');await R.goto(B+'/'+ID+'/seats');await R.waitForTimeout(1000);
+const R=await ctx('Ron');await R.goto(B+'/t/'+VK+'/seats');await R.waitForTimeout(1000);
 await R.evaluate(()=>[...document.querySelectorAll('.seat')].find(b=>b.getAttribute('aria-label').startsWith('ที่นั่ง 6')).click());await R.waitForTimeout(600);
 log('R anon tap: login button',await R.locator('#panel .lgbtn, #backdrop .lgbtn').count(),'hold stored',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));
-await R.goto(B+'/api/auth?start=1&as=Ron&r='+encodeURIComponent('/'+ID+'/seats?seat=6'));await R.waitForTimeout(1800);log('R back panel',await R.textContent('#mTitle').catch(()=>'none'),'hold stored',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));
+await R.goto(B+'/api/auth?start=1&as=Ron&r='+encodeURIComponent('/t/'+VK+'/seats?seat=6'));await R.waitForTimeout(1800);log('R back panel',await R.textContent('#mTitle').catch(()=>'none'),'hold stored',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));
 await R.fill('#nameInput','รอน');await R.click('#panel .primary');await R.waitForTimeout(1000);log('R booked',await R.textContent('#toast'),'hold cleared',await R.evaluate(()=>sessionStorage.getItem('vsb_hold')?1:0));
 // owner console
 const O=await ctx('owner');await O.goto(B+'/owner#test-owner-key-1234567');await O.waitForTimeout(1500);log('stats',await O.textContent('#sAcc'),await O.textContent('#sOwners'),await O.textContent('#sHelpers'));

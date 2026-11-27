@@ -36,9 +36,9 @@ module.exports = async function handler(req, res) {
     const user = await L.currentUser(req);
     const role = L.roleOf(trip, user);
     const isOwner = !!role; // organizer: the owner or a helper (both manage seats)
-    // the trip-wide link (/<trip>/seats) shows every van: for a trip with several vans only the organizer team (checked by LINE account) may use it; passengers use their van's own link
-    if (!kRaw && !isOwner && trip.vans.length > 1 && req.method === "POST") return L.json(res, 403, { error: "organizer_only" });
-    if (!kRaw && !isOwner && trip.vans.length > 1 && req.method === "GET") { // passengers may read the trip details (counts only); the seat map and names need their van's link
+    // the trip-wide link (/<trip>/seats) shows every van: only the organizer team (checked by LINE account) may use it; passengers use their van's own link
+    if (!kRaw && !isOwner && req.method === "POST") return L.json(res, 403, { error: "organizer_only" });
+    if (!kRaw && !isOwner && req.method === "GET") { // passengers may read the trip details (counts only); the seat map and names need their van's link
       const cn = await L.pipeline(trip.vans.map((x) => ["HLEN", L.seatsKey(t, x.id)])), counts = {};
       trip.vans.forEach((x, i) => { counts[x.id] = Number(cn[i]) || 0; });
       return L.json(res, 200, { locked: 1, trip: L.publicTrip(trip), van: trip.vans[0].id, seats: {}, counts, held: [], ended: L.tripEnded(trip), me: L.publicUser(user), owner: false, limit: L.maxPerPerson(trip), closed: L.bookingClosed(trip) });

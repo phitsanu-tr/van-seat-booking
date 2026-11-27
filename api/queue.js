@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
     const van = Q.vanOf(trip, wantV), vid = van.id; // every van of the trip has its own queue
     const user = await L.currentUser(req);
     const role = L.roleOf(trip, user), org = !!role;
-    if (!kRaw && !org && (trip.vans || []).length > 1 && (req.method === "GET" || req.method === "POST")) return L.json(res, 403, { error: "organizer_only" }); // the trip-wide link is for the organizer team; passengers use their van's link
+    if (!kRaw && !org && (req.method === "GET" || req.method === "POST")) return L.json(res, 403, { error: "organizer_only" }); // the trip-wide link is for the organizer team; passengers use their van's link
     const cap = Math.min(Q.MAX_ITEMS, L.TOTAL_SEATS); // one name per seat of this van
     const myE = Q.myEntry(trip, vid);
     // organizer: the state of every van's queue (for the van tabs)

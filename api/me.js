@@ -211,7 +211,7 @@ module.exports = async function handler(req, res) {
       const t = trips[id];
       const list = mine[id].sort((a, b) => a.s - b.s).map((x) => {
         const van = t.vans.find((v) => v.id === x.v);
-        return { van: x.v, vanLabel: van ? van.label : x.v, plate: van && van.plate ? van.plate : "", seat: x.s, name: x.name, at: x.at, vk: van && t.vans.length > 1 ? van.k : undefined }; // vk: the passenger's own van link (a trip with several vans has no open trip-wide link)
+        return { van: x.v, vanLabel: van ? van.label : x.v, plate: van && van.plate ? van.plate : "", seat: x.s, name: x.name, at: x.at, vk: van ? van.k : undefined }; // vk: the passenger's own van link (a trip with several vans has no open trip-wide link)
       });
       return Object.assign(summary(t, {}), { seats: list });
     });
@@ -237,7 +237,7 @@ module.exports = async function handler(req, res) {
           const st = Q.stateOf(q, user);
           if (!q.on || (st.s !== "wait" && st.s !== "turn")) { if (st.s === "out" || st.s === "done") drop.push(e.raw); return; }
           const mineRow = q.items.find((i) => i.u === user.id), hd = Q.turnOf(q);
-          queues.push(Object.assign(summary(tr, {}), { qv: Q.vanOf(tr, e.v).id, qvl: tr.vans.length > 1 ? Q.vanOf(tr, e.v).label : undefined, qk: tr.vans.length > 1 ? Q.vanOf(tr, e.v).k : undefined, qs: st.s, ahead: st.ahead || 0, ok: st.s === "turn" ? true : !!st.ok, qpos: q.items.indexOf(mineRow) + 1, qturn: hd ? q.items.indexOf(hd) + 1 : 0 }));
+          queues.push(Object.assign(summary(tr, {}), { qv: Q.vanOf(tr, e.v).id, qvl: tr.vans.length > 1 ? Q.vanOf(tr, e.v).label : undefined, qk: Q.vanOf(tr, e.v).k, qs: st.s, ahead: st.ahead || 0, ok: st.s === "turn" ? true : !!st.ok, qpos: q.items.indexOf(mineRow) + 1, qturn: hd ? q.items.indexOf(hd) + 1 : 0 }));
         });
         if (drop.length) { try { await L.redis(["SREM", L.myQueueKey(user.id)].concat(drop)); } catch (e) { /* best effort */ } }
         queues.sort((a, b) => (a.qs === "turn" ? 0 : 1) - (b.qs === "turn" ? 0 : 1) || String(a.startDate || "9").localeCompare(String(b.startDate || "9")));

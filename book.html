@@ -764,15 +764,52 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var pending = 0, toastTimer = null, lastCounts = "", lastTrip = "", ended = false, closed = false, qon = false, qs = null, qvs = null;
   // locked: nothing to tap. A finished trip is locked for everyone; a closed one only for passengers (organizers still manage seats).
   // booking queue: free seats can't be taken until it is this person's turn
-  function badLink() { // a van link that was replaced, or mistyped: say so without revealing which trip or van exists
-    var h = document.querySelector("#nfBox h2"), p = document.querySelector("#nfBox p");
-    if (h) h.textContent = "ลิงก์นี้ใช้ไม่ได้แล้ว";
-    if (p) { p.textContent = "ลิงก์อาจถูกเปลี่ยนโดยผู้จัด หรือพิมพ์รหัสไม่ครบ"; p.appendChild(document.createElement("br")); p.appendChild(document.createTextNode("ขอลิงก์ใหม่จากผู้จัดทริปของคุณ")); }
+  // the "no access" pages: a replaced / mistyped van link, and the trip-wide link opened by someone who is not on the organizer team
+  function nfEl(tag, css, text) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
+  function nfCodeDest(v) { // VT + 8 = a van, OG + 8 = the organizer's trip page, or a pasted van link
+    var q = String(v || "").trim().toLowerCase(), c = q.replace(/[\s-]/g, ""), m;
+    if ((m = /\/t\/([a-hj-km-np-z2-9]{8})(?:[\/?#]|$)/.exec(q)) || (m = /^vt([a-hj-km-np-z2-9]{8})$/.exec(c))) return "/t/" + m[1] + "/seats";
+    if ((m = /^og([a-hj-km-np-z2-9]{8})$/.exec(c))) return "/" + m[1] + "/seats";
+    return "";
   }
-  function organizerOnly() { // the trip-wide link of a trip with several vans, opened by someone who is not on the organizer team
-    var h = document.querySelector("#nfBox h2"), p = document.querySelector("#nfBox p");
-    if (h) h.textContent = "ลิงก์นี้สำหรับผู้จัด";
-    if (p) { p.textContent = "ขอลิงก์รถตู้ของคุณจากผู้จัดทริป แล้วเปิดจากลิงก์นั้น"; var a = document.createElement("a"); a.href = "/trips"; a.className = "nfgo"; a.textContent = "เข้าสู่ระบบผู้จัด"; a.style.cssText = "display:flex;align-items:center;justify-content:center;min-height:48px;margin-top:16px;border-radius:12px;background:var(--mine);color:var(--mine-ink,#fff);font-weight:600;text-decoration:none;padding:0 16px"; p.appendChild(a); }
+  function nfForm(ph) {
+    var f = nfEl("form", "display:flex;gap:8px;margin-top:12px;text-align:left"), inp = nfEl("input", "flex:1;min-width:0;height:48px;border:1.5px solid #dde3e7;border-radius:12px;padding:0 12px;font:inherit;font-size:16px;background:#fff");
+    inp.type = "text"; inp.placeholder = ph; inp.autocapitalize = "characters"; inp.autocomplete = "off"; inp.spellcheck = false; inp.setAttribute("aria-label", ph);
+    var go = nfEl("button", "flex:none;width:48px;height:48px;border:0;border-radius:12px;background:var(--mine);color:#fff;font-size:24px;line-height:24px;cursor:pointer", "›"); go.type = "submit"; go.setAttribute("aria-label", "ไป");
+    var er = nfEl("div", "color:#b3261e;font-size:13px;margin-top:6px;text-align:left"); er.hidden = true;
+    f.appendChild(inp); f.appendChild(go);
+    f.addEventListener("submit", function (e) { e.preventDefault(); var d = nfCodeDest(inp.value); if (!d) { er.textContent = inp.value.trim() ? "รหัสไม่ถูกต้อง ตรวจรหัสที่ผู้จัดส่งให้อีกครั้ง" : "ใส่รหัสรถตู้ก่อน"; er.hidden = false; inp.focus(); return; } location.href = d; });
+    var w = document.createElement("div"); w.appendChild(f); w.appendChild(er); return w;
+  }
+  function nfBtn(text, href, quiet) {
+    var a = nfEl("a", "display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:12px;margin-top:12px;font-weight:600;text-decoration:none;" + (quiet ? "background:#e3eef0;color:var(--mine)" : "background:var(--mine);color:#fff"), text); a.href = href; return a;
+  }
+  function nfStep(n, html) {
+    var r = nfEl("div", "display:flex;gap:10px;align-items:flex-start;text-align:left;margin-top:10px"), b = nfEl("div", "flex:none;width:24px;height:24px;border-radius:50%;background:#e3eef0;color:var(--mine);font-weight:700;font-size:13px;line-height:24px;text-align:center", String(n));
+    var t = nfEl("div", "font-size:14px;line-height:1.5"); t.innerHTML = html; r.appendChild(b); r.appendChild(t); return r;
+  }
+  function nfFill(title, intro) { Array.prototype.forEach.call(document.querySelectorAll("#nfBox a"), function (x) { x.remove(); }); var h = document.querySelector("#nfBox h2"), p = document.querySelector("#nfBox p"); if (h) h.textContent = title; if (p) { p.textContent = intro || ""; p.style.display = intro ? "" : "none"; } return document.getElementById("nfBox"); }
+  function badLink() { // a van link that was replaced, or mistyped: say so without revealing which trip or van exists
+    var box = nfFill("ลิงก์นี้ใช้ไม่ได้แล้ว", "ผู้จัดอาจเปลี่ยนลิงก์ของรถตู้คันนี้ ขอลิงก์ใหม่จากผู้จัดที่ส่งให้คุณ");
+    box.appendChild(nfForm("มีรหัสใหม่? ใส่รหัส VT…"));
+    box.appendChild(nfBtn("ดูที่นั่งที่ฉันจองไว้", "/seats"));
+    box.appendChild(nfEl("div", "margin-top:10px;font-size:13px;color:var(--muted,#5d6b73);line-height:1.5", "จองไว้แล้ว ที่นั่งของคุณยังอยู่ ดูได้ที่นี่โดยไม่ต้องใช้ลิงก์"));
+  }
+  function organizerOnly(t) { // the trip-wide link, opened by someone who is not on the organizer team
+    var box = nfFill("เลือกรถตู้ของคุณ", "ทริปนี้มีลิงก์แยกตามรถตู้ ใช้ลิงก์ของคันที่คุณอยู่");
+    if (t && t.name) {
+      var d = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(t.startDate || "")), ds = d ? (+d[3]) + " " + THMON[+d[2] - 1] + " " + String((+d[1] + 543) % 100).padStart(2, "0") : "";
+      var tb = nfEl("div", "text-align:left;background:#f1f6f7;border-radius:12px;padding:10px 12px;margin:0 0 12px");
+      tb.appendChild(nfEl("div", "font-size:12px;color:#5d6b73", "ทริป")); tb.appendChild(nfEl("div", "font-weight:700;font-size:16px", t.name));
+      var sub = [t.organizer ? "ผู้จัด · " + t.organizer : "", ds].filter(Boolean).join(" · "); if (sub) tb.appendChild(nfEl("div", "font-size:12px;color:#5d6b73;margin-top:2px", sub));
+      box.insertBefore(tb, box.querySelector("h2"));
+    }
+    box.appendChild(nfStep(1, "ถามผู้จัดว่าคุณอยู่รถตู้คันไหน"));
+    box.appendChild(nfStep(2, "ขอลิงก์รถตู้ หรือรหัส <b>VT…</b> ในกลุ่ม LINE ของทริป"));
+    box.appendChild(nfStep(3, "แตะลิงก์ หรือใส่รหัสด้านล่าง"));
+    box.appendChild(nfForm("ใส่รหัสรถตู้ VT…"));
+    if (t && t.name) box.appendChild(nfBtn("ดูข้อมูลทริป", basePath(), true));
+    var og = nfEl("div", "margin-top:14px;font-size:13px;color:#5d6b73", "เป็นผู้จัดทริปนี้? "), a = nfEl("a", "display:inline;background:none;box-shadow:none;border:0;min-height:0;height:auto;padding:0;margin:0;color:var(--mine);font-weight:600;text-decoration:underline", "เข้าสู่ระบบผู้จัด"); a.href = "/trips"; og.appendChild(a); box.appendChild(og);
   }
   function qLink() { return K ? "/t/" + K + "/queue" : "/" + TRIP + "/queue" + (trip && trip.vans && trip.vans.length > 1 && curVan ? "?v=" + encodeURIComponent(curVan) : ""); }
   function qBlocked() { return !!(loaded && !isOwner && !closed && !ended && (qon && !(qs && qs.s === "turn"))); }
@@ -1593,14 +1630,14 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (!r.ok) {
         loadError = errorText(r, "โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้า");
         skOff(true);
-        if (r.status === 403 && r.data && r.data.error === "organizer_only") { organizerOnly(); document.body.classList.add("nf"); document.title = "VanTrip"; return; }
+        if (r.status === 403 && r.data && r.data.error === "organizer_only") { organizerOnly(null); document.body.classList.add("nf"); document.title = "VanTrip"; return; }
         if (r.status === 404 && r.data && (r.data.error === "no_trip" || r.data.error === "bad_link")) { if (r.data.error === "bad_link") badLink(); document.body.classList.add("nf"); document.title = "VanTrip"; return; }
         if (!loaded) { if (r.status >= 500 || r.status === 0) showNet(true); renderAll(); }
         return;
       }
       if (r.data && r.data.locked) { // several vans, no van link: only the trip details are open; the seat map and names need the van's own link
         LOCKED = true;
-        if (pathView() !== "info") { organizerOnly(); document.body.classList.add("nf"); document.title = "VanTrip"; return; }
+        if (pathView() !== "info") { skOff(true); organizerOnly(r.data.trip); document.body.classList.add("nf"); document.title = "VanTrip"; return; }
       }
       if (r.data && r.data.trip) {
         trip = r.data.trip;
@@ -2155,7 +2192,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     lineUrl = location.origin + basePath() + "/seats?" + qs.join("&");
     return lineUrl;
   }
-  function inviteLink(kind) { return "https://liff.line.me/2012285472-FvtYKx00/" + TRIP + (kind === "info" ? "" : "/seats"); }
+  function inviteLink(kind) { return "https://liff.line.me/2012285472-FvtYKx00/" + (K ? "t/" + K : TRIP) + (kind === "info" ? "" : "/seats"); }
   async function shareFriend(kind) {
     kind = kind === "info" ? "info" : ""; // the click handlers pass an event, only the details tab passes "info"
     var u = inviteLink(kind), L = [], T = trip || {};
