@@ -10,8 +10,8 @@ await p.click('#shareImg');await p.waitForTimeout(2500);log('poster',await p.eva
 const ext=await p.evaluate(()=>{const a=document.getElementById('imgExt')||document.querySelector('#imgBackdrop a[href*="img=1"]');return a?a.href:''});log('ext link',ext.replace(/mk=\w+/,'mk=…'));
 // share sheet on the edit page: link, LINE and booking buttons; tapping the link box copies it
 await p.goto(B+'/'+ID+'/edit');await p.waitForTimeout(1500);await p.click('#shareBtn');await p.waitForTimeout(500);
-log('sheet',await p.textContent('#mState'),'|',(await p.textContent('#shareUrl')).replace(ID,'<id>').replace(ID.toUpperCase(),'<ID>'),'| line',(await p.getAttribute('#lineBtn','href')).includes(encodeURIComponent('/'+ID)),'| book',await p.getAttribute('#openShare','href')===('/'+ID+'/seats'));
-await p.click('#copyBox');await p.waitForTimeout(300);log('copied',await p.locator('#copyShare.ok').count());
+log('sheet',await p.textContent('#mState'),'| van',(await p.textContent('.vl .cd')).replace(/^VT\w{8}$/,'VT<k>'),'| tabs',await p.locator('#shTabs').isVisible(),'| copy-all btn hidden',await p.locator('#lineBtn').isHidden());await p.click('#tabO');await p.waitForTimeout(200);log('org',(await p.textContent('#orgCode')).replace(ID.toUpperCase(),'<ID>'),'| book',await p.getAttribute('#openShare','href')===('/'+ID+'/seats'));await p.click('#tabP');await p.waitForTimeout(200);
+await p.click('.vl .cpbtn');await p.waitForTimeout(300);log('copied',await p.locator('.vl .cpbtn.ok').count());
 // delete from edit page (dialog in-page)
 await p.goto(B+'/'+ID+'/edit');await p.reload();await p.waitForTimeout(1500);await p.click('#delBtn');await p.waitForTimeout(400);
 const btns=await p.$$eval('button',bs=>bs.filter(x=>x.offsetParent&&/ลบทริป/.test(x.textContent)).map(x=>x.id||x.className));log('confirm btns',btns);

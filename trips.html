@@ -1052,7 +1052,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   var SHARE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
   // created: true = just created · "saved" = just saved · false = "แชร์ลิงก์" on the edit page
   function tripCard() { return { id: shown.id, name: $("name").value.trim(), organizer: $("organizer").value.trim(), tripDays: VSBShare.tripText($("tripN").value, $("tripStart").value), tripStart: $("tripStart").value, startDate: $("startDate").value, endDate: $("endDate").value, departTime: $("departTime").value, returnTime: $("returnTime").value, meetPoint: $("meetPoint").value.trim(), vans: rows.length, staffSeat: $("staffSeat").checked, limit: Number($("maxPer").value) }; }
-  var multiShare = false; // several vans: the button under the list sends one text with every van link instead of a trip card
+  var oneVan = false, multiShare = false; // several vans: the button under the list sends one text with every van link instead of a trip card
   $("lineBtn").addEventListener("click", function (e) { // inside LINE: send a card into a chat; elsewhere (or when the picker is off) the text link on the button works as before
     if (!shown || !window.VSBShare || multiShare) return;
     e.preventDefault(); var href = this.href;
@@ -1073,18 +1073,24 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function applyShareTab() {
     var multi = !!multiShare, o = multi && shTab === "o";
     $("shTabs").hidden = !multi; $("tabP").setAttribute("aria-selected", String(!o)); $("tabO").setAttribute("aria-selected", String(o));
-    $("mCard").hidden = o; $("orgCard").hidden = !o; $("lineBtn").hidden = o; $("orgSend").hidden = !o; $("openShare").hidden = multi && !o; $("macts").classList.toggle("multi", multi); $("macts").classList.toggle("org", o);
+    $("mCard").hidden = o; $("orgCard").hidden = !o; $("lineBtn").hidden = o || oneVan; $("orgSend").hidden = !o; $("openShare").hidden = multi && !o; $("macts").classList.toggle("multi", multi); $("macts").classList.toggle("org", o);
   }
   $("tabP").addEventListener("click", function () { shTab = "p"; applyShareTab(); });
   $("tabO").addEventListener("click", function () { shTab = "o"; applyShareTab(); });
   function drawVanLinks(id, name) {
     var vl = $("vanLinks"); vlTrip = id; vlName = name || "";
     var known = (shareVans.length ? shareVans : rows.filter(function (r) { return r.id; }));
-    vl.hidden = known.length < 2; vl.textContent = "";
-    multiShare = known.length > 1; $("lineBtn").querySelector("span").textContent = multiShare ? "ส่งลิงก์ทั้งหมด" : "แชร์ใน LINE"; placeShareBtns(multiShare);
-    $("copyBox").style.display = known.length < 2 ? "" : "none"; // several vans: the whole-trip link moves to a small row under the vans (the sheet stays short)
-    if (known.length >= 2) $("mSub").innerHTML = "ส่งให้ผู้จอง · เห็นเฉพาะ<span class=\"rt\">รถตู้</span>คันนั้น"; $("mCard").classList.toggle("vans", known.length >= 2); $("mIc").toggleAttribute("hidden", known.length < 2);
-    if (known.length < 2) return;
+    vl.hidden = known.length < 1; vl.textContent = "";
+    multiShare = known.length >= 1; oneVan = known.length === 1; $("lineBtn").querySelector("span").textContent = "ส่งลิงก์ทั้งหมด"; placeShareBtns(multiShare);
+    (function () { // the organizer card says "all vans" only when there are several
+      var one = known.length === 1, q = function (x) { return document.querySelector(x); };
+      q("#orgCard .msub span").textContent = one ? "เฉพาะผู้จัด · จัดการทั้งทริป" : "เฉพาะผู้จัด · เห็นรถตู้ทุกคัน";
+      q("#orgRow .vn b").textContent = one ? "ทั้ง" : "ทุก"; q("#orgRow .vn small").textContent = one ? "ทริป" : "รถตู้";
+      q("#orgRow .hint").firstChild.textContent = one ? "ลิงก์จัดการทริป" : "ลิงก์ดูทุกคัน";
+    })();
+    $("copyBox").style.display = known.length < 1 ? "" : "none"; // several vans: the whole-trip link moves to a small row under the vans (the sheet stays short)
+    if (known.length >= 1) $("mSub").innerHTML = "ส่งให้ผู้จอง · เห็นเฉพาะ<span class=\"rt\">รถตู้</span>คันนั้น"; $("mCard").classList.toggle("vans", known.length >= 1); $("mIc").toggleAttribute("hidden", known.length < 1);
+    if (known.length < 1) return;
     vlVans = known.filter(function (v) { return v.k; }); vlOpen = "";
     if (vlVans.length === known.length) paintVanLinks();
     postJson({ t: id, vanLink: "ensure" }).then(function (d) { if (d && d.vans) { vlVans = d.vans; shareVans = d.vans; paintVanLinks(); } });
