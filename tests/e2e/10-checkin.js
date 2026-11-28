@@ -28,15 +28,15 @@ log('tabs',await A.$$eval('.rtabs button',e=>e.map(x=>x.textContent)));
 // --- check-in tab, two organizers at once
 await Bo.goto(B+'/trips?f='+Date.now());await Bo.waitForTimeout(1200);await Bo.click('.ros3');await Bo.waitForTimeout(800);await Bo.click('.rtabs button:nth-child(2)');await Bo.waitForTimeout(600);
 await A.click('.rtabs button:nth-child(2)');await A.waitForTimeout(600);
-const prog=p=>p.$eval('.round .rcount',e=>e.textContent);
-log('board start A',await prog(A),'miss',await A.textContent('.miss'));
+const prog=p=>p.$eval('.ckh .rcount',e=>e.textContent);
+log('board start A',await prog(A),'miss',await A.textContent('.ckf button:first-child'));
 await A.click('.sheet .rrow.ck:has-text("ฉิน")');await A.waitForTimeout(700);
-log('A after tick',await prog(A),'row in',await A.$$eval('.sheet .rrow.in',e=>e.length),'server',!!(await roster()).v1['5'].c);
+log('A after tick',await prog(A),'tabs',await A.$$eval('.ckf button',e=>e.map(x=>x.textContent)),'server',!!(await roster()).v1['5'].c);
 await A.screenshot({path:S+'/board.png'});
 let seen='',ms=0;for(;ms<15000;ms+=1000){await Bo.waitForTimeout(1000);seen=await prog(Bo);if(seen.startsWith('2'))break;}
 log('Bob sees it without reloading',seen,'within ~'+(ms<9000?'8':'15')+'s');
-await A.click('.sheet .rrow.ck:has-text("ฉิน")');await A.waitForTimeout(700);log('untick',await prog(A),'server',!!(await roster()).v1['5'].c);
-await A.click('.rtools button:first-child');await A.waitForTimeout(400);log('copied missing',JSON.stringify(await A.evaluate(()=>navigator.clipboard.readText())));
+await A.click('.ckf button:nth-child(2)');await A.waitForTimeout(300);await A.click('.sheet .rrow.ck:has-text("ฉิน")');await A.waitForTimeout(700);log('untick',await prog(A),'server',!!(await roster()).v1['5'].c);
+await A.click('.sheet button:has-text("คัดลอกคนยังไม่มา")');await A.waitForTimeout(400);log('copied missing',JSON.stringify(await A.evaluate(()=>navigator.clipboard.readText())));
 // --- passenger cancels: the flags go with the seat
 await R.request.fetch(B+'/api/seats?t='+ID+'&v=v2',{method:'DELETE',data:{seat:2}});ro=await roster();log('cancelled seat gone',!ro.v2['2']);
 log('ERR',errs);await b.close();})();
