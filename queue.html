@@ -236,7 +236,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var h = el("div", "chd2"), ic = el("span", "ic"); ic.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICN[icon] + '</svg>';
     h.appendChild(ic); h.appendChild(el("h2", null, title)); if (right) h.appendChild(el("span", "r", right)); return h;
   }
-  var selMode = false, selIds = {}, selArm = false, selT = 0, selV = "", mvSheet = false, mvTo = "";
+  var selMode = false, selIds = {}, selArm = false, selT = 0, selN = 0, selV = "", mvSheet = false, mvTo = "";
   var allSheet = false, autoAsk = 0, autoNote = "", tab = "list", stripOpen = false, menuId = "", sheet = "", draft = "", sheetNew = false, editId = "";
   function fitSheet() { var sh = document.querySelector(".sheet"); if (!sh) return; var vv = window.visualViewport; sh.style.bottom = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) + "px" : "0px"; if (vv) sh.style.maxHeight = (vv.height - 36) + "px"; }
   if (window.visualViewport) { var fsRaf = 0; window.visualViewport.addEventListener("resize", function () { cancelAnimationFrame(fsRaf); fsRaf = requestAnimationFrame(fitSheet); }); }
@@ -521,18 +521,18 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function drawSelBar() {
     var sel = selList(), k = sel.length, bound = sel.filter(function (x) { return x.bound; }).length, multi = !!(D.vans && D.vans.length > 1);
     var bar = el("div", "sbar"), inf = el("div", "sa" + (selArm && bound ? " w" : ""));
-    inf.appendChild(document.createTextNode(selArm && bound ? "มี " + bound + " ชื่อที่ผูกไว้แล้ว ถูกลบด้วย" : k ? "เลือกแล้ว " + k + " ชื่อ" : "ยังไม่ได้เลือก"));
+    inf.appendChild(document.createTextNode(selArm && bound ? "มี " + bound + " รายการที่ผูกไว้แล้ว ถูกลบด้วย" : k ? "เลือกแล้ว " + k + " รายการ" : "ยังไม่ได้เลือก"));
     if (selArm && bound) inf.appendChild(el("small", null, "กู้คืนไม่ได้")); bar.appendChild(inf);
-    var all = el("button", "sall", k === D.items.length ? "ยกเลิกเลือกทั้งหมด" : "เลือกทั้งหมด"); all.type = "button";
+    var all = el("button", "sall", k === D.items.length ? "ไม่เลือกเลย" : "เลือกทั้งหมด"); all.type = "button";
     all.addEventListener("click", function () { var full = k === D.items.length; selIds = {}; if (!full) D.items.forEach(function (x) { selIds[x.id] = 1; }); selArm = false; draw(); }); bar.appendChild(all);
     var row = el("div", "sb2");
     if (multi && !selArm) { var mv = el("button", "mvb", "ย้ายไปคันอื่น"); mv.type = "button"; mv.disabled = !k; mv.addEventListener("click", function () { mvTo = ""; mvSheet = true; draw(); }); row.appendChild(mv); }
-    var dl = el("button", "dlb" + (selArm ? " arm" : ""), selArm ? "กดอีกครั้งเพื่อลบ" : k ? "ลบ " + k + " ชื่อ" : "ลบ"); dl.type = "button"; dl.disabled = !k;
+    var dl = el("button", "dlb" + (selArm ? " arm" : ""), selArm ? "แตะอีกครั้งเพื่อลบ (" + selN + ")" : "ลบออกจากคิว"); dl.type = "button"; dl.disabled = !k;
     dl.addEventListener("click", function () {
       if (busy || !k) return;
-      if (!selArm) { selArm = true; clearTimeout(selT); selT = setTimeout(function () { selArm = false; if (selMode) draw(); }, 4000); draw(); return; }
-      clearTimeout(selT); busy = true; var ids = sel.map(function (x) { return x.id; }), f = false;
-      call("removemany", { ids: ids }, function () { f = true; }).then(function () { busy = false; selArm = false; if (!f) { selMode = false; selIds = {}; draw(); showToast("ลบรายชื่อแล้ว " + ids.length + " ชื่อ"); } else draw(); }, function () { busy = false; draw(); });
+      if (!selArm) { selArm = true; selN = 5; clearInterval(selT); selT = setInterval(function () { if (!selArm || !selMode) { clearInterval(selT); return; } selN--; if (selN <= 0) { clearInterval(selT); selArm = false; draw(); } else { var lb = document.querySelector(".sbar .dlb"); if (lb) lb.textContent = "แตะอีกครั้งเพื่อลบ (" + selN + ")"; } }, 1000); draw(); return; }
+      clearInterval(selT); busy = true; var ids = sel.map(function (x) { return x.id; }), f = false;
+      call("removemany", { ids: ids }, function () { f = true; }).then(function () { busy = false; selArm = false; if (!f) { selMode = false; selIds = {}; draw(); showToast("ลบออกจากคิวแล้ว " + ids.length + " รายการ"); } else draw(); }, function () { busy = false; draw(); });
     });
     row.appendChild(dl); bar.appendChild(row); main.appendChild(bar);
   }
@@ -540,11 +540,11 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var dim = el("div", "dim up"); dim.addEventListener("click", function () { mvSheet = false; draw(); }); main.appendChild(dim);
     var sh = el("div", "psheet"); sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "ย้ายรายชื่อ");
     var sel = selList(), can = sel.filter(function (x) { return !x.bound && !x.done; }), skip = sel.length - can.length;
-    sh.appendChild(el("h3", null, "ย้าย " + sel.length + " ชื่อไปคัน"));
+    sh.appendChild(el("h3", null, "ย้าย " + sel.length + " รายการไปคัน"));
     var xb = el("button", "px"); xb.type = "button"; xb.setAttribute("aria-label", "ปิด"); xb.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'; xb.addEventListener("click", function () { mvSheet = false; draw(); }); sh.appendChild(xb);
-    sh.appendChild(el("p", "afn", skip ? "ย้ายไม่ได้ " + skip + " ชื่อ เพราะมีคนผูกชื่อไว้หรือจบคิวแล้ว · จะย้าย " + can.length + " ชื่อ" : "ชื่อที่ย้ายจะไปต่อท้ายคิวของคันนั้น"));
+    sh.appendChild(el("p", "afn", skip ? "ย้ายไม่ได้ " + skip + " รายการ เพราะมีคนผูกชื่อไว้หรือจบคิวแล้ว · จะย้าย " + can.length + " รายการ" : "รายการที่ย้ายจะไปต่อท้ายคิวของคันนั้น"));
     var list = el("div", "mvl"); sh.appendChild(list);
-    var go = el("button", "mgo", can.length ? "ย้าย " + can.length + " ชื่อ" : "ย้ายไม่ได้"); go.type = "button"; go.disabled = true;
+    var go = el("button", "mgo", can.length ? "ย้าย " + can.length + " รายการ" : "ย้ายไม่ได้"); go.type = "button"; go.disabled = true;
     D.vans.filter(function (z) { return z.id !== D.v; }).forEach(function (z) {
       var room = Math.max(0, (D.cap || 80) - (z.n || 0)), ok = can.length > 0 && room >= can.length;
       var o = el("button", "opt" + (mvTo === z.id ? " on" : "")); o.type = "button"; o.disabled = !ok; o.setAttribute("role", "radio"); o.setAttribute("aria-checked", mvTo === z.id ? "true" : "false"); o.appendChild(el("i", "rd"));
@@ -554,7 +554,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     go.disabled = !mvTo || !can.length;
     go.addEventListener("click", function () {
       if (busy || !mvTo) return; busy = true; var to = mvTo, tl = (D.vans.filter(function (z) { return z.id === to; })[0] || {}).l, ids = sel.map(function (x) { return x.id; }), n = can.length, f = false;
-      call("movemany", { ids: ids, to: to }, function () { f = true; }).then(function () { busy = false; mvSheet = false; if (!f) { selMode = false; selIds = {}; selArm = false; delete VC[to]; draw(); showToast("ย้ายแล้ว " + n + " ชื่อไปคัน " + tl, skip ? "ย้ายไม่ได้ " + skip + " ชื่อ (มีคนผูกไว้)" : ""); } else draw(); }, function () { busy = false; draw(); });
+      call("movemany", { ids: ids, to: to }, function () { f = true; }).then(function () { busy = false; mvSheet = false; if (!f) { selMode = false; selIds = {}; selArm = false; delete VC[to]; draw(); showToast("ย้ายแล้ว " + n + " รายการไปคัน " + tl, skip ? "ย้ายไม่ได้ " + skip + " รายการ (มีคนผูกไว้)" : ""); } else draw(); }, function () { busy = false; draw(); });
     });
     sh.appendChild(go); main.appendChild(sh);
   }
