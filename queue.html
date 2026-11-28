@@ -208,7 +208,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function call(a, extra, onFail) {
     return fetch("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ t: T, k: K || undefined, a: a, v: K ? undefined : V || undefined }, extra || {})) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-      .then(function (o) { if (o.ok && o.j && o.j.items) { D = o.j; if (D.v) { V = D.v; VC[D.v] = D; } if (a === "onall" || a === "autoall") Object.keys(VC).forEach(function (id) { var c = VC[id]; if (c && c !== D) { if (a === "onall") c.on = D.on; else c.auto = D.auto; } }); draw(); } else { if (onFail) onFail(); flash((MSG[o.j && o.j.error]) || "ทำไม่สำเร็จ"); } })
+      .then(function (o) { if (o.ok && o.j && o.j.items) { D = o.j; if (D.v) { V = D.v; VC[D.v] = D; } if (a === "onall" || a === "autoall") Object.keys(VC).forEach(function (id) { var c = VC[id]; if (c && c !== D) { if (a === "onall") c.on = D.on; else c.auto = D.auto; (c.vans || []).forEach(function (z) { var m = (D.vans || []).filter(function (y) { return y.id === z.id; })[0]; if (m) { z.on = m.on; z.au = m.au; } }); } }); draw(); } else { if (onFail) onFail(); flash((MSG[o.j && o.j.error]) || "ทำไม่สำเร็จ"); } })
       .catch(function () { if (onFail) onFail(); flash("เชื่อมต่อไม่ได้"); });
   }
   var errBox = null;
