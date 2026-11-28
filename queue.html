@@ -554,7 +554,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     go.disabled = !mvTo || !can.length;
     go.addEventListener("click", function () {
       if (busy || !mvTo) return; busy = true; var to = mvTo, tl = (D.vans.filter(function (z) { return z.id === to; })[0] || {}).l, ids = sel.map(function (x) { return x.id; }), n = can.length, f = false;
-      call("movemany", { ids: ids, to: to }, function () { f = true; }).then(function () { busy = false; mvSheet = false; if (!f) { selMode = false; selIds = {}; selArm = false; delete VC[to]; draw(); showToast("ย้ายแล้ว " + n + " รายการไปคัน " + tl, skip ? "ย้ายไม่ได้ " + skip + " รายการ (มีคนผูกไว้)" : ""); } else draw(); }, function () { busy = false; draw(); });
+      call("movemany", { ids: ids, to: to }, function () { f = true; }).then(function () { busy = false; mvSheet = false; if (!f) { selMode = false; selIds = {}; selArm = false; delete VC[to]; draw(); showToast("ย้ายไปคัน " + tl + " แล้ว", skip ? "ย้ายไม่ได้ " + skip + " รายการ เพราะมีคนผูกไว้" : ""); } else draw(); }, function () { busy = false; draw(); });
     });
     sh.appendChild(go); main.appendChild(sh);
   }
