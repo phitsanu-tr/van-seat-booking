@@ -305,21 +305,6 @@ body.sk #tripHdr > :not(.hero) { display: none; }
 .crchips button { border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 99px; padding: 0 14px; min-height: 40px; font: 500 14px var(--font-body); cursor: pointer; }
 .crchips button[aria-pressed=true] { border-color: var(--mine); background: color-mix(in srgb, var(--mine) 12%, var(--surface)); color: var(--mine); font-weight: 600; }
 .seat.sel { outline: 3px solid var(--sel); outline-offset: -2px; }
-.seat.mvsrc { outline: 3px solid var(--ink); outline-offset: -2px; }
-.seat.mvfree { outline: 2px dashed var(--mine); outline-offset: -3px; background: color-mix(in srgb, var(--mine) 10%, var(--surface)); }
-.seat.mvocc { outline: 2px solid var(--sel); outline-offset: -3px; }
-.mvbar { margin: 12px 8px 0; background: color-mix(in srgb, var(--mine) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--mine) 30%, var(--surface)); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
-.mvbar b { font-weight: 600; font-size: 16px; line-height: 24px; color: #0b5f67; }
-.mvbar span { font-size: 12px; line-height: 16px; color: var(--muted); }
-.mvbar button { align-self: flex-end; border: 0; background: none; color: var(--mine); font: 600 14px/20px var(--font-body); min-height: 44px; padding: 0 8px; cursor: pointer; }
-#backdrop .modal .actions.mvw { flex-wrap: wrap; }
-#backdrop .modal .actions.mvw button { flex: 1 1 calc(50% - 6px); }
-#backdrop .modal .actions.mvw button.wide { flex-basis: 100%; }
-.mvsw { flex: none; display: flex; align-items: center; justify-content: space-around; gap: 12px; background: var(--bg); border-radius: 12px; padding: 12px; }
-.mvsw div { text-align: center; min-width: 0; }
-.mvsw small { display: block; font-size: 12px; line-height: 16px; color: var(--muted); }
-.mvsw b { display: block; font: 600 18px/26px var(--font-display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mvsw i { font-style: normal; font-size: 20px; line-height: 28px; color: var(--mine); }
 .seat:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--sel); outline-offset: 1px; }
 .driver {
   position: absolute; border-radius: 1.46cqw; display: flex; align-items: center; justify-content: center;
@@ -607,7 +592,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
 
   <section class="sheet" id="sheetView" aria-label="ผังที่นั่งรถตู้">
     <div id="notice"></div>
-    <div id="mvbar" class="mvbar" hidden></div>
     <div class="vrow shead"><div class="plate" id="plate" hidden></div><div class="count" id="count">จองแล้ว <b>0</b>&thinsp;/&thinsp;10</div></div>
     <div class="plan">
       <svg viewBox="0 0 820 1384" aria-hidden="true" focusable="false">
@@ -1081,9 +1065,8 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         } else {
           b.setAttribute("aria-label", "ที่นั่ง " + n + " ว่าง");
         }
-        if (mv) { if (n === mv.s) b.classList.add("mvsrc"); else if (s) b.classList.add("mvocc"); else if (!heldByOther(n)) b.classList.add("mvfree"); }
         if (selected === n) { b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
-        b.addEventListener("click", function () { if (locked()) return; if (mv) { if (n === mv.s) return; if (heldByOther(n)) { showToast("มีคนกำลังจองที่นั่งนี้อยู่ เลือกที่นั่งอื่น", "error"); return; } mvT = n; selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; asking = false; renderAll(); return; } if (!seats[n] && qBlocked()) { if (!qs || qs.s === "out") nudgeQueueCard(); else openQueueSheet(n); return; } selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; asking = false; renderAll(); });
+        b.addEventListener("click", function () { if (locked()) return; if (!seats[n] && qBlocked()) { if (!qs || qs.s === "out") nudgeQueueCard(); else openQueueSheet(n); return; } selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; asking = false; renderAll(); });
         overlayEl.appendChild(frame(b, RECT[n]));
       })(n);
     }
@@ -1130,8 +1113,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   }
   var renaming = false; // the dialog shows the "edit name" form for the visitor's own seat
   var asking = false, askWhy = ""; // booking queue: the "ask the organizer to cancel" step
-  var mv = null, mvT = 0; // organizer moving a booked seat on the map: mv = {s, name}; mvT = the target seat being confirmed
-  function closeModal() { mvT = 0; selected = null; message = ""; confirming = false; renaming = false; asking = false; renderAll(); }
+  function closeModal() { selected = null; message = ""; confirming = false; renaming = false; asking = false; renderAll(); }
   function openSeat(n) { selected = n; wasFree = !seats[n]; message = ""; confirming = false; renaming = false; asking = false; renderAll(); }
   function attachNameField(input, onEnter, hint) { // the name box with its live "n/12" counter and the character notes, shared by booking a seat and editing a name
       var wrap = el("div", "nmwrap");
@@ -1219,23 +1201,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     var mtt = el("div", "mtt");
     mtt.appendChild(el("span", null, (vanLabelNow() ? vanLabelNow() + " · " : "") + (s ? (confirming ? "คุณกำลังยกเลิก" : ((wasFree && !mine(n)) || (s.a && !mine(n) && !isOwner) ? "ที่นั่งถูกจองแล้ว" : "คุณกำลังแก้ไข")) : "คุณกำลังจอง")));
     panelEl.appendChild(mtt);
-    if (mv && mvT === n) { // moving: confirm the target seat (an empty seat moves, an occupied one swaps)
-      var tgt = s, swp = !!tgt;
-      mtt.firstChild.textContent = (vanLabelNow() ? vanLabelNow() + " · " : "") + (swp ? "สลับที่นั่ง" : "ย้ายที่นั่ง");
-      var xm = el("button", "mx"); xm.type = "button"; xm.setAttribute("aria-label", "ปิด");
-      xm.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-      xm.addEventListener("click", closeModal); panelEl.appendChild(xm);
-      var srcS = seats[mv.s], nA = [srcS, tgt].filter(function (x) { return x && x.a && !mine(x === srcS ? mv.s : n); }).length, nP = swp ? 2 : 1, nt2 = nA === 0 ? "" : nA === nP ? (nP === 2 ? " ทั้งสองคนจะได้รับแจ้ง" : " ผู้จองจะได้รับแจ้ง") : " ผู้จองที่เข้าสู่ระบบไว้จะได้รับแจ้ง";
-      var sw = el("div", "mvsw");
-      var sd1 = el("div"); sd1.appendChild(el("small", null, "ที่นั่ง " + mv.s)); sd1.appendChild(el("b", null, mv.name));
-      var sd2 = el("div"); sd2.appendChild(el("small", null, "ที่นั่ง " + n)); sd2.appendChild(el("b", null, swp ? tgt.name : "ว่าง"));
-      sw.appendChild(sd1); sw.appendChild(el("i", null, "⇄")); sw.appendChild(sd2); panelEl.appendChild(sw);
-      panelEl.appendChild(el("div", message ? "msg" : "qnote", message || (swp ? mv.name + " จะไปที่นั่ง " + n + " และ " + tgt.name + " จะไปที่นั่ง " + mv.s + nt2 : mv.name + " จะย้ายไปที่นั่ง " + n + nt2)));
-      var ac2 = el("div", "actions"); panelEl.classList.remove("noact");
-      var bk = el("button", "plain", "ย้อนกลับ"); bk.type = "button"; bk.addEventListener("click", function () { message = ""; closeModal(); }); ac2.appendChild(bk);
-      var go = el("button", "primary", swp ? "สลับที่นั่ง" : "ย้ายที่นั่ง"); go.type = "button"; go.addEventListener("click", doMove); ac2.appendChild(go);
-      panelEl.appendChild(ac2); return;
-    }
     var head = el("div", "mhead");
     var mini = el("div", "mini");
     mini.innerHTML = miniSvg(n, !!s);
@@ -1332,13 +1297,12 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
         if (s.cr) { var crb = el("div", "crbox"); crb.appendChild(el("b", null, isOwner && !mine(n) ? "ผู้จองขอยกเลิกที่นั่งนี้" : "รอผู้จัดยกเลิกให้")); crb.appendChild(document.createTextNode((s.cr.at ? "ส่งคำขอ " + fmtAt(s.cr.at) : "") + (s.cr.r ? " · " + s.cr.r : ""))); panelEl.appendChild(crb); }
         else if (qLock) panelEl.appendChild(el("div", "qnote", "ทริปนี้จองตามคิว จองแล้วยกเลิกเองไม่ได้ ส่งคำขอให้ผู้จัดได้"));
         if (me && ((mine(n) && s.a) || isOwner) && !(s.cr && !isOwner)) actions.appendChild(plainBtn("แก้ชื่อ", function () { renaming = true; message = ""; renderPanel(); }));
-        if (isOwner && me && !qLock && !(s.cr && !isOwner)) { actions.classList.add("mvw"); actions.appendChild(plainBtn("ย้ายที่นั่ง", function () { mv = { s: n, name: s.name }; mvT = 0; selected = null; message = ""; renderAll(); })); }
         if (qLock && s.cr) { actions.appendChild(plainBtn("ถอนคำขอ (เก็บที่นั่งไว้)", function () { creq(n, "withdraw"); })); }
         else if (qLock) { var askB = el("button", "ghost", "ขอยกเลิกที่นั่ง"); askB.type = "button"; askB.addEventListener("click", function () { asking = true; askWhy = ""; message = ""; renderPanel(); }); actions.appendChild(askB); }
         else {
           if (s.cr && isOwner) actions.appendChild(plainBtn("ไม่อนุมัติ", function () { creq(n, "deny"); }));
           var cancel = el("button", "ghost", s.cr && isOwner ? "อนุมัติยกเลิก" : !mine(n) && s.a && isOwner ? "ยกเลิกให้ (คนจัดทริป)" : "ยกเลิกการจอง");
-          cancel.type = "button"; if (actions.classList.contains("mvw") && !(s.cr && isOwner)) cancel.classList.add("wide");
+          cancel.type = "button";
           cancel.addEventListener("click", function () { confirming = true; message = ""; renderPanel(); });
           actions.appendChild(cancel);
         }
@@ -1599,7 +1563,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
   function switchVan(id) {
     if (id === curVan || pending > 0) return;
     vanCache[curVan] = seats;
-    curVan = id; mv = null; mvT = 0; selected = null; confirming = false; message = "";
+    curVan = id; selected = null; confirming = false; message = "";
     seats = vanCache[id] || {}; loaded = !!vanCache[id]; lastSnapshot = JSON.stringify(seats);
     try { history.replaceState(null, "", location.pathname + "?" + new URLSearchParams(Object.assign({}, Object.fromEntries(params), { v: id })).toString()); } catch (e) {}
     renderAll(); refresh(true);
@@ -1643,7 +1607,6 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       return;
     }
     var used = Object.keys(seats).length;
-    if (mv) return; // moving a seat: the move bar explains what to tap
     if (used < TOTAL) {
       var tip = el("div", "tip");
       tip.appendChild(icon(HAND_PATH));
@@ -1675,25 +1638,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
     box.appendChild(bar);
   }
 
-  function renderMvBar() {
-    var bx = document.getElementById("mvbar"); bx.textContent = "";
-    if (mv && (locked() || !seats[mv.s] || seats[mv.s].name !== mv.name)) { mv = null; mvT = 0; if (selected != null && !seats[selected]) selected = null; }
-    bx.hidden = !mv; if (!mv) return;
-    bx.appendChild(el("b", null, "ย้าย " + mv.name + " จากที่นั่ง " + mv.s));
-    bx.appendChild(el("span", null, "แตะที่นั่งปลายทาง · ที่ว่างย้ายได้เลย · ที่มีคนอยู่จะสลับกัน"));
-    var cb = el("button", null, "ยกเลิก"); cb.type = "button"; cb.addEventListener("click", function () { mv = null; mvT = 0; selected = null; renderAll(); }); bx.appendChild(cb);
-  }
-  async function doMove() {
-    var from = mv.s, to = mvT, swap = !!seats[to];
-    pending++;
-    try {
-      var r = await api("POST", { move: { fromVan: curVan, fromSeat: from, toVan: curVan, toSeat: to, swap: swap } });
-      if (r.ok) { mv = null; mvT = 0; selected = null; message = ""; showToast(r.data && r.data.swapped ? "สลับที่นั่งแล้ว" : "ย้ายไปที่นั่ง " + to + " แล้ว"); }
-      else { var c = r.data && r.data.error; message = c === "taken" ? "ที่นั่งนี้เพิ่งมีคนจอง กลับไปเลือกใหม่" : c === "busy" ? "มีการเปลี่ยนแปลงพร้อมกัน ลองอีกครั้ง" : c === "no_seat" ? "ที่นั่งเดิมไม่มีผู้จองแล้ว" : "ย้ายไม่สำเร็จ ลองอีกครั้ง"; if (c === "no_seat") { mv = null; mvT = 0; } }
-    } catch (e) { message = "ย้ายไม่สำเร็จ ตรวจสอบอินเทอร์เน็ต"; }
-    pending--; renderAll(); refresh(true);
-  }
-  function renderAll() { renderTrip(); renderNotice(); renderMvBar(); renderGrid(); renderPanel(); renderList(); }
+  function renderAll() { renderTrip(); renderNotice(); renderGrid(); renderPanel(); renderList(); }
 
   function seatsFrom(src) {
     var next = {}; src = src || {};
