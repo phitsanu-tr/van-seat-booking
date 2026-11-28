@@ -532,7 +532,7 @@ input,textarea,[contenteditable],.selectable{-webkit-user-select:text;user-selec
       if (busy || !k) return;
       if (!selArm) { selArm = true; selN = 5; clearInterval(selT); selT = setInterval(function () { if (!selArm || !selMode) { clearInterval(selT); return; } selN--; if (selN <= 0) { clearInterval(selT); selArm = false; draw(); } else { var lb = document.querySelector(".sbar .dlb"); if (lb) lb.textContent = "แตะอีกครั้งเพื่อลบ (" + selN + ")"; } }, 1000); draw(); return; }
       clearInterval(selT); busy = true; var ids = sel.map(function (x) { return x.id; }), f = false;
-      call("removemany", { ids: ids }, function () { f = true; }).then(function () { busy = false; selArm = false; if (!f) { selMode = false; selIds = {}; draw(); showToast("ลบออกจากคิวแล้ว " + ids.length + " รายการ"); } else draw(); }, function () { busy = false; draw(); });
+      call("removemany", { ids: ids }, function () { f = true; }).then(function () { busy = false; selArm = false; if (!f) { selMode = false; selIds = {}; draw(); showToast("ลบออกจากคิวแล้ว"); } else draw(); }, function () { busy = false; draw(); });
     });
     row.appendChild(dl); bar.appendChild(row); main.appendChild(bar);
   }
